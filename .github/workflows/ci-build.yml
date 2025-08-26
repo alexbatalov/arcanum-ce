@@ -195,14 +195,18 @@ jobs:
 
   windows:
     name: Windows (${{ matrix.arch }})
-    runs-on: windows-2025
+    runs-on: ${{ matrix.runner }}
 
     strategy:
       fail-fast: false
       matrix:
         include:
           - arch: x86
+            runner: windows-2025
           - arch: x64
+            runner: windows-2025
+          - arch: arm64
+            runner: windows-11-arm
 
     steps:
       - name: Clone

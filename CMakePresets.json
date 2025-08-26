@@ -100,6 +100,13 @@
             "architecture": "x64"
         },
         {
+            "name": "windows-arm64",
+            "inherits": [
+                "windows-base"
+            ],
+            "architecture": "arm64"
+        },
+        {
             "name": "darwin-base",
             "hidden": true,
             "inherits": [
@@ -169,6 +176,16 @@
         {
             "name": "windows-x64-release",
             "configurePreset": "windows-x64",
+            "configuration": "Release"
+        },
+        {
+            "name": "windows-arm64-debug",
+            "configurePreset": "windows-arm64",
+            "configuration": "Debug"
+        },
+        {
+            "name": "windows-arm64-release",
+            "configurePreset": "windows-arm64",
             "configuration": "Release"
         },
         {
