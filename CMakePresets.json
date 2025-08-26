@@ -73,6 +73,24 @@
             }
         },
         {
+            "name": "linux-arm64-debug",
+            "inherits": [
+                "linux-base"
+            ],
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "linux-arm64-release",
+            "inherits": [
+                "linux-base"
+            ],
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
             "name": "windows-base",
             "hidden": true,
             "inherits": [
@@ -157,6 +175,14 @@
         {
             "name": "linux-x64-release",
             "configurePreset": "linux-x64-release"
+        },
+        {
+            "name": "linux-arm64-debug",
+            "configurePreset": "linux-arm64-debug"
+        },
+        {
+            "name": "linux-arm64-release",
+            "configurePreset": "linux-arm64-release"
         },
         {
             "name": "windows-x86-debug",

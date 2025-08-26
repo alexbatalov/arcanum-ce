@@ -99,14 +99,18 @@ jobs:
 
   linux:
     name: Linux (${{ matrix.arch }})
-    runs-on: ubuntu-22.04
+    runs-on: ${{ matrix.runner }}
 
     strategy:
       fail-fast: false
       matrix:
         include:
           - arch: x86
+            runner: ubuntu-22.04
           - arch: x64
+            runner: ubuntu-22.04
+          - arch: arm64
+            runner: ubuntu-22.04-arm
 
     steps:
       - name: Dependencies (x86)
@@ -127,7 +131,7 @@ jobs:
             ${NULL+}
 
       - name: Dependencies (x64)
-        if: matrix.arch == 'x64'
+        if: matrix.arch == 'x64' || matrix.arch == 'arm64'
         run: |
           sudo apt update
           sudo apt install \
