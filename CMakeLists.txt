@@ -9,7 +9,14 @@ set(CMAKE_C_STANDARD_REQUIRED YES)
 # DEPENDENCIES
 # ------------------------------------------------------------------------------
 
-add_subdirectory("third_party/tig" EXCLUDE_FROM_ALL)
+add_subdirectory("third_party/fpattern" EXCLUDE_FROM_ALL)
+add_subdirectory("third_party/sdl3" EXCLUDE_FROM_ALL)
+add_subdirectory("third_party/sdl3_mixer" EXCLUDE_FROM_ALL)
+add_subdirectory("third_party/zlib" EXCLUDE_FROM_ALL)
+
+add_subdirectory("first_party/bink_compat" EXCLUDE_FROM_ALL)
+add_subdirectory("first_party/mss_compat" EXCLUDE_FROM_ALL)
+add_subdirectory("first_party/tig" EXCLUDE_FROM_ALL)
 
 # ------------------------------------------------------------------------------
 # ARCANUM
