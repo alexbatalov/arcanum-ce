@@ -977,7 +977,7 @@ void multiplayer_handle_message(void* msg)
 void sub_4A1F30(int64_t obj, int64_t location, int dx, int dy)
 {
     if (location != 0) {
-        sub_43E770(obj, location, dx, dy);
+        object_move_to_location(obj, location, dx, dy);
     }
 }
 

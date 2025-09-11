@@ -1062,7 +1062,7 @@ void sub_438830()
                 render_flags &= ~ORF_01000000;
                 obj_field_int32_set(stru_5E0E20[idx].obj, OBJ_F_RENDER_FLAGS, render_flags);
 
-                object_get_rect(stru_5E0E20[idx].obj, 0, &obj_rect);
+                object_get_rect(stru_5E0E20[idx].obj, RECT_FLAG_NONE, &obj_rect);
                 dword_5E0A00(&obj_rect);
             }
 
@@ -1095,7 +1095,7 @@ void sub_438830()
                     render_flags &= ~ORF_01000000;
                     obj_field_int32_set(stru_5E0E20[idx].obj, OBJ_F_RENDER_FLAGS, render_flags);
 
-                    object_get_rect(stru_5E0E20[idx].obj, 0, &obj_rect);
+                    object_get_rect(stru_5E0E20[idx].obj, RECT_FLAG_NONE, &obj_rect);
                     dword_5E0A00(&obj_rect);
                 }
             }

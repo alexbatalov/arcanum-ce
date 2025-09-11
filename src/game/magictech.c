@@ -4318,7 +4318,7 @@ void sub_455350(int64_t obj, int64_t target_loc)
         }
 
         sub_424070(obj, 5, false, true);
-        sub_43E770(obj, source_loc, 0, 0);
+        object_move_to_location(obj, source_loc, 0, 0);
 
         if (player_is_local_pc_obj(obj)) {
             location_origin_set(source_loc);
