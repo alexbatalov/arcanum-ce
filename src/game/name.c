@@ -1463,8 +1463,9 @@ bool sub_41F190(TigMessage* msg)
 {
     int v1;
 
-    if (msg->type == TIG_MESSAGE_CHAR) {
-        switch (msg->data.character.ch) {
+    if (msg->type == TIG_MESSAGE_KEYBOARD
+        && msg->data.keyboard.pressed) {
+        switch (msg->data.keyboard.key) {
         case SDLK_A:
             if (dword_739E54 != -1) {
                 dword_739E54 = sub_41E960(dword_739E54);

@@ -356,10 +356,11 @@ bool hotkey_ui_process_event(TigMessage* msg)
         default:
             return false;
         }
-    case TIG_MESSAGE_CHAR:
+    case TIG_MESSAGE_KEYBOARD:
         if (!textedit_ui_is_focused()
             && !mainmenu_ui_is_active()
-            && (msg->data.character.ch == SDLK_A)) {
+            && msg->data.keyboard.key == SDLK_A
+            && msg->data.keyboard.pressed) {
             sub_54FCF0(stru_683518);
             gsound_play_sfx(0, 1);
             return true;

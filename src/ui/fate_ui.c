@@ -316,8 +316,8 @@ bool fate_ui_message_filter(TigMessage* msg)
         break;
     case TIG_MESSAGE_KEYBOARD:
         // Pressing space closes fate UI.
-        if (msg->data.keyboard.key == SDL_SCANCODE_SPACE
-            && msg->data.keyboard.pressed == 1) {
+        if (msg->data.keyboard.scancode == SDL_SCANCODE_SPACE
+            && msg->data.keyboard.pressed) {
             fate_ui_close();
             return true;
         }

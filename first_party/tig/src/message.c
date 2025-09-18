@@ -139,13 +139,12 @@ void tig_message_ping()
             break;
         case SDL_EVENT_KEY_DOWN:
         case SDL_EVENT_KEY_UP:
-            tig_kb_set_key(event.key.scancode, event.key.down);
-            if (event.type == SDL_EVENT_KEY_UP
-                && (event.key.key & (SDLK_SCANCODE_MASK | SDLK_EXTENDED_MASK)) == 0) {
-                message.type = TIG_MESSAGE_CHAR;
-                message.data.character.ch = event.key.key;
-                tig_message_enqueue(&message);
-            }
+            tig_kb_set_key(event.key.key, event.key.scancode, event.key.down);
+            break;
+        case SDL_EVENT_TEXT_INPUT:
+            message.type = TIG_MESSAGE_TEXT_INPUT;
+            message.data.text.text = event.text.text;
+            tig_message_enqueue(&message);
             break;
         case SDL_EVENT_QUIT:
             tig_message_post_quit(0);
