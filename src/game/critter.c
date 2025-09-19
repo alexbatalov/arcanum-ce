@@ -2044,7 +2044,7 @@ bool critter_enter_bed(int64_t obj, int64_t bed)
     obj_location = obj_field_int64_get(bed, OBJ_F_LOCATION);
     if (bed_location == obj_location
         && location_in_dir(obj_location, 4, &location)) {
-        sub_43E770(obj, location, 0, 0);
+        object_move_to_location(obj, location, 0, 0);
     }
 
     return true;
