@@ -396,7 +396,7 @@ void main_loop()
 
             if (message.type == TIG_MESSAGE_KEYBOARD) {
                 if (!message.data.keyboard.pressed) {
-                    switch (message.data.keyboard.key) {
+                    switch (message.data.keyboard.scancode) {
                     case SDL_SCANCODE_ESCAPE:
                         if (sub_567A10()
                             || wmap_ui_is_created()
@@ -482,7 +482,7 @@ void main_loop()
 
                     if (!textedit_ui_is_focused()) {
                         if (gamelib_cheat_level_get() >= 3) {
-                            switch (message.data.keyboard.key) {
+                            switch (message.data.keyboard.scancode) {
                             case SDL_SCANCODE_H:
                                 timeevent_inc_milliseconds(3600000);
                                 break;
@@ -506,7 +506,7 @@ void main_loop()
                         }
 
                         if (gamelib_cheat_level_get() >= 2) {
-                            switch (message.data.keyboard.key) {
+                            switch (message.data.keyboard.scancode) {
                             case SDL_SCANCODE_D:
                                 if (light_scheme_get() == LIGHT_SCHEME_DEFAULT_LIGHTING) {
                                     light_scheme_set(dword_5CFF00, light_scheme_get_hour());
@@ -547,7 +547,7 @@ void main_loop()
                         }
 
                         if (gamelib_cheat_level_get() >= 1) {
-                            switch (message.data.keyboard.key) {
+                            switch (message.data.keyboard.scancode) {
                             case SDL_SCANCODE_V:
                                 gamelib_copy_version(version_str, NULL, NULL);
                                 if (tig_video_3d_check_hardware() == TIG_OK) {

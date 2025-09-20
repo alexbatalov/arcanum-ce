@@ -15,7 +15,7 @@ typedef enum TigMessageType {
     TIG_MESSAGE_BUTTON,
     TIG_MESSAGE_MENU,
     TIG_MESSAGE_QUIT,
-    TIG_MESSAGE_CHAR,
+    TIG_MESSAGE_TEXT_INPUT,
     TIG_MESSAGE_KEYBOARD,
     TIG_MESSAGE_PING,
     TIG_MESSAGE_TYPE_7,
@@ -61,13 +61,14 @@ typedef struct TigQuitMessageData {
 } TigQuitMessageData;
 
 typedef struct TigKeyboardMessageData {
-    int key;
-    unsigned char pressed;
+    SDL_Keycode key;
+    SDL_Scancode scancode;
+    bool pressed;
 } TigKeyboardMessageData;
 
-typedef struct TigCharacterMessageData {
-    SDL_Keycode ch;
-} TigCharacterMessageData;
+typedef struct TigTextInputEvent {
+    const char* text;
+} TigTextInputEvent;
 
 typedef struct TigMessage {
     tig_timestamp_t timestamp;
@@ -77,8 +78,8 @@ typedef struct TigMessage {
         TigButtonMessageData button;
         TigMenuMessageData menu;
         TigQuitMessageData quit;
-        TigCharacterMessageData character;
         TigKeyboardMessageData keyboard;
+        TigTextInputEvent text;
     } data;
 } TigMessage;
 

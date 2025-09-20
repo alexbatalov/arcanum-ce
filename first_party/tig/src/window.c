@@ -1662,36 +1662,29 @@ int tig_window_modal_dialog(TigWindowModalDialogInfo* modal_info, TigWindowModal
 bool tig_window_modal_dialog_message_filter(TigMessage* msg)
 {
     switch (msg->type) {
-    case TIG_MESSAGE_CHAR:
-        switch (tig_window_modal_dialog_info.type) {
-        case TIG_WINDOW_MODAL_DIALOG_TYPE_OK:
-            tig_message_modal_dialog_choice = TIG_WINDOW_MODAL_DIALOG_CHOICE_OK;
-            tig_window_modal_dialog_close();
-            break;
-        case TIG_WINDOW_MODAL_DIALOG_TYPE_CANCEL:
-            tig_message_modal_dialog_choice = TIG_WINDOW_MODAL_DIALOG_CHOICE_CANCEL;
-            tig_window_modal_dialog_close();
-            break;
-        case TIG_WINDOW_MODAL_DIALOG_TYPE_OK_CANCEL:
-            if (toupper(msg->data.character.ch) == toupper(tig_window_modal_dialog_info.keys[0])) {
-                tig_message_modal_dialog_choice = TIG_WINDOW_MODAL_DIALOG_CHOICE_OK;
-                tig_window_modal_dialog_close();
-            } else if (toupper(msg->data.character.ch) == toupper(tig_window_modal_dialog_info.keys[1])) {
-                tig_message_modal_dialog_choice = TIG_WINDOW_MODAL_DIALOG_CHOICE_CANCEL;
-                tig_window_modal_dialog_close();
-            }
-            break;
-        }
-        break;
     case TIG_MESSAGE_KEYBOARD:
-        if (tig_window_modal_dialog_info.type == TIG_WINDOW_MODAL_DIALOG_TYPE_OK_CANCEL
-            && msg->data.keyboard.pressed == 0) {
-            if (msg->data.keyboard.key == SDL_SCANCODE_RETURN || msg->data.keyboard.key == SDL_SCANCODE_KP_ENTER) {
+        if (msg->data.keyboard.pressed) {
+            switch (tig_window_modal_dialog_info.type) {
+            case TIG_WINDOW_MODAL_DIALOG_TYPE_OK:
                 tig_message_modal_dialog_choice = TIG_WINDOW_MODAL_DIALOG_CHOICE_OK;
                 tig_window_modal_dialog_close();
-            } else if (msg->data.keyboard.key == SDL_SCANCODE_ESCAPE) {
+                break;
+            case TIG_WINDOW_MODAL_DIALOG_TYPE_CANCEL:
                 tig_message_modal_dialog_choice = TIG_WINDOW_MODAL_DIALOG_CHOICE_CANCEL;
                 tig_window_modal_dialog_close();
+                break;
+            case TIG_WINDOW_MODAL_DIALOG_TYPE_OK_CANCEL:
+                if (msg->data.keyboard.scancode == SDL_SCANCODE_RETURN
+                    || msg->data.keyboard.scancode == SDL_SCANCODE_KP_ENTER
+                    || SDL_toupper(msg->data.keyboard.key) == SDL_toupper(tig_window_modal_dialog_info.keys[0])) {
+                    tig_message_modal_dialog_choice = TIG_WINDOW_MODAL_DIALOG_CHOICE_OK;
+                    tig_window_modal_dialog_close();
+                } else if (msg->data.keyboard.scancode == SDL_SCANCODE_ESCAPE
+                    || SDL_toupper(msg->data.keyboard.key) == SDL_toupper(tig_window_modal_dialog_info.keys[1])) {
+                    tig_message_modal_dialog_choice = TIG_WINDOW_MODAL_DIALOG_CHOICE_CANCEL;
+                    tig_window_modal_dialog_close();
+                }
+                break;
             }
         }
         break;
