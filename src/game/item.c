@@ -2059,7 +2059,7 @@ void sub_463C60(int64_t obj)
             return;
         }
 
-        object_get_rect(obj, 0x08, &obj_rect);
+        object_get_rect(obj, RECT_FLAG_IGNORE_VIS, &obj_rect);
 
         if (obj_rect.x >= item_iso_content_rect.x + item_iso_content_rect.width
             || obj_rect.y >= item_iso_content_rect.height + item_iso_content_rect.y
