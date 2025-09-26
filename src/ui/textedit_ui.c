@@ -83,6 +83,12 @@ void textedit_ui_exit()
  */
 void textedit_ui_focus(TextEdit* textedit)
 {
+    SDL_Window* window;
+
+    if (tig_video_window_get(&window) == TIG_OK) {
+        SDL_StartTextInput(window);
+    }
+
     textedit_ui_current_textedit = textedit;
 
     if (*textedit->buffer != '\0') {
@@ -106,7 +112,13 @@ void textedit_ui_focus(TextEdit* textedit)
  */
 void textedit_ui_unfocus(TextEdit* textedit)
 {
+    SDL_Window* window;
+
     (void)textedit;
+
+    if (tig_video_window_get(&window) == TIG_OK) {
+        SDL_StopTextInput(window);
+    }
 
     textedit_ui_current_textedit = NULL;
     textedit_ui_pos = 0;
@@ -135,47 +147,69 @@ bool textedit_ui_process_message(TigMessage* msg)
     }
 
     if (msg->type == TIG_MESSAGE_KEYBOARD) {
-        if (msg->data.keyboard.pressed == 1) {
+        if (msg->data.keyboard.pressed) {
             switch (msg->data.keyboard.key) {
-            case SDL_SCANCODE_HOME:
+            case SDLK_HOME:
                 // Move cursor to beginning of the string.
                 textedit_ui_pos = 0;
                 break;
-            case SDL_SCANCODE_UP:
+            case SDLK_UP:
                 // Move cursor one "page" left.
                 if (textedit_ui_pos - 40 >= 0) {
                     textedit_ui_pos -= 40;
                 }
                 break;
-            case SDL_SCANCODE_LEFT:
+            case SDLK_LEFT:
                 // Move cursor left.
                 if (textedit_ui_pos > 0) {
                     textedit_ui_pos--;
                 }
                 break;
-            case SDL_SCANCODE_RIGHT:
+            case SDLK_RIGHT:
                 // Move cursor right.
                 if (textedit_ui_pos < textedit_ui_len) {
                     textedit_ui_pos++;
                 }
                 break;
-            case SDL_SCANCODE_DOWN:
+            case SDLK_DOWN:
                 // Move cursor one "page" right.
                 if (textedit_ui_pos + 40 < textedit_ui_len) {
                     textedit_ui_pos += 40;
                 }
                 break;
-            case SDL_SCANCODE_INSERT:
+            case SDLK_INSERT:
                 // Toggle insert/overwrite mode.
                 textedit_ui_overwrite_mode = !textedit_ui_overwrite_mode;
                 break;
-            case SDL_SCANCODE_DELETE:
+            case SDLK_DELETE:
                 // Delete character after cursor.
-                memmove(&(textedit_ui_current_textedit->buffer[textedit_ui_pos]),
-                    &(textedit_ui_current_textedit->buffer[textedit_ui_pos + 1]),
-                    textedit_ui_len - textedit_ui_pos);
-                textedit_ui_current_textedit->buffer[textedit_ui_len--] = '\0';
+                if (textedit_ui_pos < textedit_ui_len) {
+                    memmove(&(textedit_ui_current_textedit->buffer[textedit_ui_pos]),
+                        &(textedit_ui_current_textedit->buffer[textedit_ui_pos + 1]),
+                        textedit_ui_len - textedit_ui_pos);
+                    textedit_ui_current_textedit->buffer[textedit_ui_len--] = '\0';
+                }
                 break;
+            case SDLK_BACKSPACE:
+                // Delete character before cursor.
+                if (textedit_ui_pos > 0) {
+                    textedit_ui_pos--;
+                    memmove(&(textedit_ui_current_textedit->buffer[textedit_ui_pos]),
+                        &(textedit_ui_current_textedit->buffer[textedit_ui_pos + 1]),
+                        textedit_ui_len - textedit_ui_pos);
+                    textedit_ui_current_textedit->buffer[textedit_ui_len--] = '\0';
+                }
+                break;
+            case SDLK_TAB:
+                // Handle tab key with callback.
+                if (textedit_ui_current_textedit->on_tab != NULL) {
+                    textedit_ui_current_textedit->on_tab(textedit_ui_current_textedit);
+                }
+                return true;
+            case SDLK_RETURN:
+                // Handle enter key with callback.
+                textedit_ui_current_textedit->on_enter(textedit_ui_current_textedit);
+                return true;
             default:
                 return false;
             }
@@ -191,68 +225,40 @@ bool textedit_ui_process_message(TigMessage* msg)
         return false;
     }
 
-    if (msg->type == TIG_MESSAGE_CHAR) {
-        if (msg->data.character.ch == SDLK_BACKSPACE) {
-            // Delete character before cursor.
-            if (textedit_ui_pos > 0) {
-                textedit_ui_pos--;
-                memmove(&(textedit_ui_current_textedit->buffer[textedit_ui_pos]),
-                    &(textedit_ui_current_textedit->buffer[textedit_ui_pos + 1]),
+    if (msg->type == TIG_MESSAGE_TEXT_INPUT) {
+        const char* pch = msg->data.text.text;
+        while (*pch != '\0') {
+            // Validate character input.
+            if ((*pch >= '\0' && *pch < ' ')
+                || textedit_ui_pos >= textedit_ui_current_textedit->size - 1
+                || !textedit_ui_validate(*pch)) {
+                break;
+            }
+
+            if (!textedit_ui_overwrite_mode) {
+                // Check max string size.
+                if (textedit_ui_len > textedit_ui_current_textedit->size - 1) {
+                    return true;
+                }
+
+                textedit_ui_len++;
+
+                // Shift characters to the right to make a room a new character.
+                memmove(&(textedit_ui_current_textedit->buffer[textedit_ui_pos + 1]),
+                    &(textedit_ui_current_textedit->buffer[textedit_ui_pos]),
                     textedit_ui_len - textedit_ui_pos);
-                textedit_ui_current_textedit->buffer[textedit_ui_len--] = '\0';
             }
 
-            // Trigger the change callback.
-            if (textedit_ui_current_textedit->on_change != NULL) {
-                textedit_ui_current_textedit->on_change(textedit_ui_current_textedit);
+            // Write character at cursor.
+            textedit_ui_current_textedit->buffer[textedit_ui_pos] = *pch;
+
+            // Update cursor and string length.
+            if (++textedit_ui_pos > textedit_ui_len) {
+                textedit_ui_len = textedit_ui_pos;
+                textedit_ui_current_textedit->buffer[textedit_ui_pos] = '\0';
             }
 
-            return true;
-        }
-
-        if (msg->data.character.ch == SDLK_TAB) {
-            // Handle tab key with callback.
-            if (textedit_ui_current_textedit->on_tab != NULL) {
-                textedit_ui_current_textedit->on_tab(textedit_ui_current_textedit);
-            }
-
-            return true;
-        }
-
-        if (msg->data.character.ch == SDLK_RETURN) {
-            // Handle enter key with callback.
-            textedit_ui_current_textedit->on_enter(textedit_ui_current_textedit);
-            return true;
-        }
-
-        // Validate character input.
-        if ((msg->data.character.ch >= '\0' && msg->data.character.ch < ' ')
-            || textedit_ui_pos >= textedit_ui_current_textedit->size - 1
-            || !textedit_ui_validate(msg->data.character.ch)) {
-            return false;
-        }
-
-        if (!textedit_ui_overwrite_mode) {
-            // Check max string size.
-            if (textedit_ui_len > textedit_ui_current_textedit->size - 1) {
-                return true;
-            }
-
-            textedit_ui_len++;
-
-            // Shift characters to the right to make a room a new character.
-            memmove(&(textedit_ui_current_textedit->buffer[textedit_ui_pos + 1]),
-                &(textedit_ui_current_textedit->buffer[textedit_ui_pos]),
-                textedit_ui_len - textedit_ui_pos);
-        }
-
-        // Write character at cursor.
-        textedit_ui_current_textedit->buffer[textedit_ui_pos] = msg->data.character.ch;
-
-        // Update cursor and string length.
-        if (++textedit_ui_pos > textedit_ui_len) {
-            textedit_ui_len = textedit_ui_pos;
-            textedit_ui_current_textedit->buffer[textedit_ui_pos] = '\0';
+            pch++;
         }
 
         // Trigger the change callback.

@@ -2253,14 +2253,14 @@ bool wmap_ui_message_filter(TigMessage* msg)
         default:
             return false;
         }
-    case TIG_MESSAGE_CHAR:
+    case TIG_MESSAGE_TEXT_INPUT:
         return textedit_ui_process_message(msg);
     case TIG_MESSAGE_KEYBOARD:
         if (wmap_ui_textedit_focused) {
             return textedit_ui_process_message(msg);
         }
 
-        switch (msg->data.keyboard.key) {
+        switch (msg->data.keyboard.scancode) {
         case SDL_SCANCODE_Z:
             if (msg->data.keyboard.pressed) {
                 return false;

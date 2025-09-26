@@ -669,7 +669,7 @@ bool combat_ui_message_filter(TigMessage* msg)
     case TIG_MESSAGE_KEYBOARD:
         if (!textedit_ui_is_focused()
             && !msg->data.keyboard.pressed
-            && msg->data.keyboard.key == SDL_SCANCODE_E) {
+            && msg->data.keyboard.scancode == SDL_SCANCODE_E) {
             obj = combat_turn_based_whos_turn_get();
             if (obj != OBJ_HANDLE_NULL
                 && player_is_local_pc_obj(obj)
