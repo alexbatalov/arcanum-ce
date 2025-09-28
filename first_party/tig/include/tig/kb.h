@@ -11,7 +11,7 @@ int tig_kb_init(TigInitInfo* init_info);
 void tig_kb_exit();
 bool tig_kb_is_key_pressed(SDL_Scancode scancode);
 bool tig_kb_get_modifier(SDL_Keymod keymod);
-void tig_kb_set_key(int key, bool down);
+void tig_kb_set_key(SDL_Keycode key, SDL_Scancode scancode, bool down);
 
 #ifdef __cplusplus
 }
