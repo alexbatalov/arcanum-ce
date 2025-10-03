@@ -427,7 +427,7 @@ void object_ping(tig_timestamp_t timestamp)
                                     render_flags = obj_field_int32_get(obj_node->obj, OBJ_F_RENDER_FLAGS);
                                     render_flags &= ~(ORF_02000000 | ORF_04000000);
                                     obj_field_int32_set(obj_node->obj, OBJ_F_RENDER_FLAGS, render_flags);
-                                    object_get_rect(obj_node->obj, 0x07, &obj_rect);
+                                    object_get_rect(obj_node->obj, RECT_FLAG_FULL, &obj_rect);
                                     object_iso_invalidate_rect(&obj_rect);
                                     obj_node = obj_node->next;
                                 }
@@ -776,7 +776,7 @@ void object_draw(GameDrawInfo* draw_info)
                                                         }
                                                     }
 
-                                                    object_get_rect(obj_node->obj, 0, &eye_candy_rect);
+                                                    object_get_rect(obj_node->obj, RECT_FLAG_NONE, &eye_candy_rect);
 
                                                     v71 = false;
                                                     if ((obj_flags & OF_WADING) != 0 && (obj_flags & OF_WATER_WALKING) == 0) {
@@ -1078,7 +1078,7 @@ void sub_43C690(GameDrawInfo* draw_info)
             return;
         }
 
-        object_get_rect(object_hover_obj, 0, &obj_rect);
+        object_get_rect(object_hover_obj, RECT_FLAG_NONE, &obj_rect);
 
         if ((flags & OF_WADING) != 0 && (flags & OF_WATER_WALKING) == 0) {
             tmp_rect = obj_rect;
@@ -1258,7 +1258,7 @@ void object_destroy(int64_t obj)
 
     multiplayer_lock();
 
-    object_get_rect(obj, 0x7, &rect);
+    object_get_rect(obj, RECT_FLAG_FULL, &rect);
     object_iso_invalidate_rect(&rect);
 
     obj_type = obj_field_int32_get(obj, OBJ_F_TYPE);
@@ -1313,7 +1313,7 @@ void sub_43CEA0(int64_t obj, unsigned int flags, const char* path)
     TigRect rect;
     int type;
 
-    object_get_rect(obj, 0x7, &rect);
+    object_get_rect(obj, RECT_FLAG_FULL, &rect);
     object_iso_invalidate_rect(&rect);
 
     sub_463B30(obj, false);
@@ -1394,7 +1394,7 @@ void object_flags_set(int64_t obj, unsigned int flags)
         flags &= ~OF_FLAT;
     }
 
-    object_get_rect(obj, 0x7, &rect);
+    object_get_rect(obj, RECT_FLAG_FULL, &rect);
     object_iso_invalidate_rect(&rect);
 
     cur_flags = obj_field_int32_get(obj, OBJ_F_FLAGS);
@@ -1451,7 +1451,7 @@ void object_flags_set(int64_t obj, unsigned int flags)
         OBJ_F_RENDER_FLAGS,
         obj_field_int32_get(obj, OBJ_F_RENDER_FLAGS) & ~render_flags);
 
-    object_get_rect(obj, 0x7, &rect);
+    object_get_rect(obj, RECT_FLAG_FULL, &rect);
     object_iso_invalidate_rect(&rect);
 }
 
@@ -1470,7 +1470,7 @@ void object_flags_unset(int64_t obj, unsigned int flags)
         flags &= ~OF_FLAT;
     }
 
-    object_get_rect(obj, 0x7, &rect);
+    object_get_rect(obj, RECT_FLAG_FULL, &rect);
     object_iso_invalidate_rect(&rect);
 
     cur_flags = obj_field_int32_get(obj, OBJ_F_FLAGS);
@@ -1521,7 +1521,7 @@ void object_flags_unset(int64_t obj, unsigned int flags)
         OBJ_F_RENDER_FLAGS,
         obj_field_int32_get(obj, OBJ_F_RENDER_FLAGS) & ~render_flags);
 
-    object_get_rect(obj, 0x7, &rect);
+    object_get_rect(obj, RECT_FLAG_FULL, &rect);
     object_iso_invalidate_rect(&rect);
 
     if (visibility_changed) {
@@ -1780,9 +1780,9 @@ bool sub_43D9F0(int x, int y, int64_t* obj_ptr, unsigned int flags)
     SomeSectorStuffEntry* v3;
     int row;
     int col;
-    int indexes[3];
-    int widths[3];
-    bool locks[3];
+    int indexes[3] = { 0 };
+    int widths[3] = { 0 };
+    bool locks[3] = { false };
     Sector* sectors[3];
     int64_t v65;
     int64_t v67;
@@ -1856,7 +1856,7 @@ bool sub_43D9F0(int x, int y, int64_t* obj_ptr, unsigned int flags)
                                 }
                             }
 
-                            object_get_rect(obj_node->obj, 0, &obj_rect);
+                            object_get_rect(obj_node->obj, RECT_FLAG_NONE, &obj_rect);
 
                             aid = obj_field_int32_get(obj_node->obj, OBJ_F_CURRENT_AID);
                             scale = obj_field_int32_get(obj_node->obj, OBJ_F_BLIT_SCALE);
@@ -1988,7 +1988,7 @@ void object_get_rect(int64_t obj, unsigned int flags, TigRect* rect)
     TigRect extra_rect;
 
     obj_flags = obj_field_int32_get(obj, OBJ_F_FLAGS);
-    if ((flags & 0x8) == 0 && (obj_flags & dword_5E2F88) != 0) {
+    if ((flags & RECT_FLAG_IGNORE_VIS) == 0 && (obj_flags & dword_5E2F88) != 0) {
         rect->x = 0;
         rect->y = 0;
         rect->width = 0;
@@ -2083,8 +2083,8 @@ void object_get_rect(int64_t obj, unsigned int flags, TigRect* rect)
     rect->width = width;
     rect->height = height;
 
-    if (flags != 0) {
-        if ((flags & 0x2) != 0 && (obj_flags & OF_HAS_OVERLAYS) != 0) {
+    if (flags != RECT_FLAG_NONE) {
+        if ((flags & RECT_FLAG_OVERLAYS) != 0 && (obj_flags & OF_HAS_OVERLAYS) != 0) {
             for (int fld = OBJ_F_OVERLAY_FORE; fld <= OBJ_F_OVERLAY_BACK; fld++) {
                 for (idx = 0; idx < 7; idx++) {
                     tig_art_id_t art_id = obj_arrayfield_uint32_get(obj, fld, idx);
@@ -2124,7 +2124,7 @@ void object_get_rect(int64_t obj, unsigned int flags, TigRect* rect)
             }
         }
 
-        if ((flags & 0x4) != 0 && (obj_flags & OF_HAS_UNDERLAYS) != 0) {
+        if ((flags & RECT_FLAG_UNDERLAYS) != 0 && (obj_flags & OF_HAS_UNDERLAYS) != 0) {
             for (idx = 0; idx < 4; idx++) {
                 tig_art_id_t art_id = obj_arrayfield_uint32_get(obj, OBJ_F_UNDERLAY, idx);
                 if (art_id != TIG_ART_ID_INVALID
@@ -2145,7 +2145,7 @@ void object_get_rect(int64_t obj, unsigned int flags, TigRect* rect)
             }
         }
 
-        if ((flags & 0x1) != 0) {
+        if ((flags & RECT_FLAG_SHADOWS) != 0) {
             render_flags = obj_field_int32_get(obj, OBJ_F_RENDER_FLAGS);
             if ((render_flags & ORF_04000000) == 0) {
                 if (shadow_apply(obj)) {
@@ -2204,7 +2204,7 @@ void object_get_rect(int64_t obj, unsigned int flags, TigRect* rect)
 }
 
 // 0x43E770
-void sub_43E770(int64_t obj, int64_t loc, int offset_x, int offset_y)
+void object_move_to_location(int64_t obj, int64_t loc, int offset_x, int offset_y)
 {
     unsigned int flags;
     int64_t cur_loc;
@@ -2233,7 +2233,7 @@ void sub_43E770(int64_t obj, int64_t loc, int offset_x, int offset_y)
         tf_notify_moved(obj, loc, offset_x, offset_y);
     }
 
-    object_get_rect(obj, 0x7, &obj_rect);
+    object_get_rect(obj, RECT_FLAG_FULL, &obj_rect);
     object_iso_invalidate_rect(&obj_rect);
 
     cur_sector_id = sector_id_from_loc(cur_loc);
@@ -2317,12 +2317,12 @@ void object_set_current_aid(int64_t obj, tig_art_id_t aid)
     TigRect update_rect;
 
     if ((obj_field_int32_get(obj, OBJ_F_FLAGS) & OF_DESTROYED) == 0) {
-        object_get_rect(obj, 0x7, &dirty_rect);
+        object_get_rect(obj, RECT_FLAG_FULL, &dirty_rect);
         obj_field_int32_set(obj, OBJ_F_CURRENT_AID, aid);
         obj_field_int32_set(obj,
             OBJ_F_RENDER_FLAGS,
             obj_field_int32_get(obj, OBJ_F_RENDER_FLAGS) & ~ORF_08000000);
-        object_get_rect(obj, 0x7, &update_rect);
+        object_get_rect(obj, RECT_FLAG_FULL, &update_rect);
         tig_rect_union(&dirty_rect, &update_rect, &dirty_rect);
         object_iso_invalidate_rect(&dirty_rect);
         sub_43F710(obj);
@@ -2362,7 +2362,7 @@ void object_overlay_set(int64_t obj, int fld, int index, tig_art_id_t aid)
         return;
     }
 
-    object_get_rect(obj, 0x7, &dirty_rect);
+    object_get_rect(obj, RECT_FLAG_FULL, &dirty_rect);
     obj_arrayfield_uint32_set(obj, fld, index, aid);
 
     flags = obj_field_int32_get(obj, OBJ_F_FLAGS);
@@ -2397,7 +2397,7 @@ void object_overlay_set(int64_t obj, int fld, int index, tig_art_id_t aid)
         OBJ_F_RENDER_FLAGS,
         obj_field_int32_get(obj, OBJ_F_RENDER_FLAGS) & ~ORF_08000000);
 
-    object_get_rect(obj, 0x7, &updated_rect);
+    object_get_rect(obj, RECT_FLAG_FULL, &updated_rect);
     tig_rect_union(&dirty_rect, &updated_rect, &dirty_rect);
     object_iso_invalidate_rect(&dirty_rect);
 }
@@ -2429,9 +2429,9 @@ void object_set_blit_scale(int64_t obj, int value)
     TigRect dirty_rect;
     TigRect update_rect;
 
-    object_get_rect(obj, 0x7, &dirty_rect);
+    object_get_rect(obj, RECT_FLAG_FULL, &dirty_rect);
     obj_field_int32_set(obj, OBJ_F_BLIT_SCALE, value);
-    object_get_rect(obj, 0x7, &update_rect);
+    object_get_rect(obj, RECT_FLAG_FULL, &update_rect);
     tig_rect_union(&dirty_rect, &update_rect, &dirty_rect);
     object_iso_invalidate_rect(&dirty_rect);
 }
@@ -2443,9 +2443,9 @@ void object_add_flags(int64_t obj, unsigned int flags)
     TigRect update_rect;
 
     if ((obj_field_int32_get(obj, OBJ_F_FLAGS) & OF_DESTROYED) == 0) {
-        object_get_rect(obj, 0x7, &dirty_rect);
+        object_get_rect(obj, RECT_FLAG_FULL, &dirty_rect);
         object_flags_set(obj, flags);
-        object_get_rect(obj, 0x7, &update_rect);
+        object_get_rect(obj, RECT_FLAG_FULL, &update_rect);
         tig_rect_union(&dirty_rect, &update_rect, &dirty_rect);
         object_iso_invalidate_rect(&dirty_rect);
         obj_field_int32_set(obj,
@@ -2461,9 +2461,9 @@ void object_remove_flags(int64_t obj, unsigned int flags)
     TigRect update_rect;
 
     if ((obj_field_int32_get(obj, OBJ_F_FLAGS) & OF_DESTROYED) == 0) {
-        object_get_rect(obj, 0x7, &dirty_rect);
+        object_get_rect(obj, RECT_FLAG_FULL, &dirty_rect);
         object_flags_unset(obj, flags);
-        object_get_rect(obj, 0x7, &update_rect);
+        object_get_rect(obj, RECT_FLAG_FULL, &update_rect);
         tig_rect_union(&dirty_rect, &update_rect, &dirty_rect);
         object_iso_invalidate_rect(&dirty_rect);
         obj_field_int32_set(obj,
@@ -2478,7 +2478,7 @@ void sub_43F030(int64_t obj)
     TigRect rect;
 
     if ((obj_field_int32_get(obj, OBJ_F_FLAGS) & OF_DESTROYED) == 0) {
-        object_get_rect(obj, 0x7, &rect);
+        object_get_rect(obj, RECT_FLAG_FULL, &rect);
         object_iso_invalidate_rect(&rect);
         obj_field_int32_set(obj,
             OBJ_F_RENDER_FLAGS,
@@ -2499,7 +2499,7 @@ void object_cycle_palette(int64_t obj)
             aid = tig_art_id_palette_set(aid, 0);
         }
         obj_field_int32_set(obj, OBJ_F_CURRENT_AID, aid);
-        object_get_rect(obj, 0, &rect);
+        object_get_rect(obj, RECT_FLAG_NONE, &rect);
         object_iso_invalidate_rect(&rect);
         obj_field_int32_set(obj,
             OBJ_F_RENDER_FLAGS,
@@ -2519,7 +2519,7 @@ void sub_43F130(int64_t obj, int palette)
         // NOTE: Looks wrong.
         if (sub_502E00(aid) != TIG_OK) {
             obj_field_int32_set(obj, OBJ_F_CURRENT_AID, aid);
-            object_get_rect(obj, 0, &rect);
+            object_get_rect(obj, RECT_FLAG_NONE, &rect);
             object_iso_invalidate_rect(&rect);
             obj_field_int32_set(obj,
                 OBJ_F_RENDER_FLAGS,
@@ -2765,7 +2765,7 @@ void object_inc_current_aid(int64_t obj)
     TigRect update_rect;
 
     if ((obj_field_int32_get(obj, OBJ_F_FLAGS) & OF_DESTROYED) == 0) {
-        object_get_rect(obj, 0x7, &dirty_rect);
+        object_get_rect(obj, RECT_FLAG_FULL, &dirty_rect);
         current_aid = obj_field_int32_get(obj, OBJ_F_CURRENT_AID);
         next_aid = tig_art_id_frame_inc(current_aid);
         if (current_aid != next_aid) {
@@ -2780,7 +2780,7 @@ void object_inc_current_aid(int64_t obj)
             obj_field_int32_set(obj,
                 OBJ_F_RENDER_FLAGS,
                 obj_field_int32_get(obj, OBJ_F_RENDER_FLAGS) & ~ORF_08000000);
-            object_get_rect(obj, 0x7, &update_rect);
+            object_get_rect(obj, RECT_FLAG_FULL, &update_rect);
             tig_rect_union(&dirty_rect, &update_rect, &dirty_rect);
             object_iso_invalidate_rect(&dirty_rect);
         }
@@ -2797,7 +2797,7 @@ void object_dec_current_aid(int64_t obj)
     TigRect update_rect;
 
     if ((obj_field_int32_get(obj, OBJ_F_FLAGS) & OF_DESTROYED) == 0) {
-        object_get_rect(obj, 0x7, &dirty_rect);
+        object_get_rect(obj, RECT_FLAG_FULL, &dirty_rect);
         current_aid = obj_field_int32_get(obj, OBJ_F_CURRENT_AID);
         prev_aid = tig_art_id_frame_dec(current_aid);
         if (current_aid != prev_aid) {
@@ -2812,7 +2812,7 @@ void object_dec_current_aid(int64_t obj)
             obj_field_int32_set(obj,
                 OBJ_F_RENDER_FLAGS,
                 obj_field_int32_get(obj, OBJ_F_RENDER_FLAGS) & ~ORF_08000000);
-            object_get_rect(obj, 0x7, &update_rect);
+            object_get_rect(obj, RECT_FLAG_FULL, &update_rect);
             tig_rect_union(&dirty_rect, &update_rect, &dirty_rect);
             object_iso_invalidate_rect(&dirty_rect);
         }
@@ -2828,7 +2828,7 @@ void object_eye_candy_aid_inc(int64_t obj, int fld, int index)
     TigRect update_rect;
 
     if ((obj_field_int32_get(obj, OBJ_F_FLAGS) & OF_DESTROYED) == 0) {
-        object_get_rect(obj, 0x7, &dirty_rect);
+        object_get_rect(obj, RECT_FLAG_FULL, &dirty_rect);
         current_aid = obj_arrayfield_uint32_get(obj, fld, index);
         next_aid = tig_art_id_frame_inc(current_aid);
         if (current_aid != next_aid) {
@@ -2836,7 +2836,7 @@ void object_eye_candy_aid_inc(int64_t obj, int fld, int index)
             obj_field_int32_set(obj,
                 OBJ_F_RENDER_FLAGS,
                 obj_field_int32_get(obj, OBJ_F_RENDER_FLAGS) & ~ORF_08000000);
-            object_get_rect(obj, 0x7, &update_rect);
+            object_get_rect(obj, RECT_FLAG_FULL, &update_rect);
             tig_rect_union(&dirty_rect, &update_rect, &dirty_rect);
             object_iso_invalidate_rect(&dirty_rect);
         }
@@ -2852,7 +2852,7 @@ void object_eye_candy_aid_dec(int64_t obj, int fld, int index)
     TigRect update_rect;
 
     if ((obj_field_int32_get(obj, OBJ_F_FLAGS) & OF_DESTROYED) == 0) {
-        object_get_rect(obj, 0x7, &dirty_rect);
+        object_get_rect(obj, RECT_FLAG_FULL, &dirty_rect);
         current_aid = obj_arrayfield_uint32_get(obj, fld, index);
         prev_aid = tig_art_id_frame_get(current_aid) > 0
             ? tig_art_id_frame_dec(current_aid)
@@ -2862,7 +2862,7 @@ void object_eye_candy_aid_dec(int64_t obj, int fld, int index)
             obj_field_int32_set(obj,
                 OBJ_F_RENDER_FLAGS,
                 obj_field_int32_get(obj, OBJ_F_RENDER_FLAGS) & ~ORF_08000000);
-            object_get_rect(obj, 0x7, &update_rect);
+            object_get_rect(obj, RECT_FLAG_FULL, &update_rect);
             tig_rect_union(&dirty_rect, &update_rect, &dirty_rect);
             object_iso_invalidate_rect(&dirty_rect);
         }
@@ -2940,7 +2940,7 @@ void object_cycle_rotation(int64_t obj)
     TigRect dirty_rect;
 
     if ((obj_field_int32_get(obj, OBJ_F_FLAGS) & OF_DESTROYED) == 0) {
-        object_get_rect(obj, 0x7, &dirty_rect);
+        object_get_rect(obj, RECT_FLAG_FULL, &dirty_rect);
         current_aid = obj_field_int32_get(obj, OBJ_F_CURRENT_AID);
         next_aid = tig_art_id_rotation_inc(current_aid);
         if (current_aid != next_aid) {
@@ -3850,7 +3850,7 @@ void object_drop(int64_t obj, int64_t loc)
     obj_field_int32_set(obj, OBJ_F_RENDER_FLAGS, 0);
     sub_4D9590(obj, true);
     sub_444270(obj, 2);
-    object_get_rect(obj, 0x07, &rect);
+    object_get_rect(obj, RECT_FLAG_FULL, &rect);
     object_iso_invalidate_rect(&rect);
 }
 
@@ -3914,7 +3914,7 @@ void object_pickup(int64_t item_obj, int64_t parent_obj)
 
     sub_4D9990(item_obj);
     sub_4D9A90(item_obj);
-    object_get_rect(item_obj, 0x07, &rect);
+    object_get_rect(item_obj, RECT_FLAG_FULL, &rect);
     loc = obj_field_int64_get(item_obj, OBJ_F_LOCATION);
     sec = sector_id_from_loc(loc);
     if (sub_4D04E0(sec)) {
@@ -4322,7 +4322,7 @@ bool object_duplicate_func(int64_t proto_obj, int64_t loc, ObjectID* oids, int64
         return false;
     }
 
-    sub_43E770(*obj_ptr, loc, 0, 0);
+    object_move_to_location(*obj_ptr, loc, 0, 0);
 
     if (obj_field_int32_get(*obj_ptr, OBJ_F_TYPE) == OBJ_TYPE_NPC) {
         obj_field_int64_set(*obj_ptr, OBJ_F_NPC_STANDPOINT_DAY, loc);
@@ -4390,7 +4390,7 @@ bool sub_442260(int64_t obj, int64_t loc)
     sub_463C60(obj);
     sub_444270(obj, 2);
 
-    object_get_rect(obj, 0x7, &rect);
+    object_get_rect(obj, RECT_FLAG_FULL, &rect);
     object_iso_invalidate_rect(&rect);
 
     return true;
@@ -4405,7 +4405,7 @@ void sub_4423E0(int64_t obj, int offset_x, int offset_y)
     int64_t sector_id;
     Sector* sector;
 
-    object_get_rect(obj, 0x7, &rect);
+    object_get_rect(obj, RECT_FLAG_FULL, &rect);
     loc = obj_field_int64_get(obj, OBJ_F_LOCATION);
     flags = obj_field_int32_get(obj, OBJ_F_FLAGS);
 
@@ -4520,7 +4520,7 @@ void sub_442520(int64_t obj)
             new_render_flags |= ORF_20000000;
         } else if (cnt == 2) {
             new_render_flags |= ORF_40000000;
-            object_get_rect(obj, 0, &obj_rect);
+            object_get_rect(obj, RECT_FLAG_NONE, &obj_rect);
             color = colors.colors[obj_rect.width / 2];
         } else {
             color = colors.colors[0];
@@ -4550,7 +4550,7 @@ void sub_442520(int64_t obj)
         sub_442D90(obj, &colors);
     }
 
-    object_get_rect(obj, 0x07, &obj_rect);
+    object_get_rect(obj, RECT_FLAG_FULL, &obj_rect);
     object_iso_invalidate_rect(&obj_rect);
 }
 
@@ -4749,7 +4749,7 @@ void object_toggle_flat(int64_t obj, bool flat)
     Sector* sector;
     unsigned int flags;
 
-    object_get_rect(obj, 0x7, &rect);
+    object_get_rect(obj, RECT_FLAG_FULL, &rect);
     sector_id = sector_id_from_loc(obj_field_int64_get(obj, OBJ_F_LOCATION));
 
     flags = obj_field_int32_get(obj, OBJ_F_FLAGS);
@@ -5001,7 +5001,7 @@ bool sub_4437E0(TigRect* rect)
     }
 
     if (!dword_5E2E94) {
-        object_get_rect(object_hover_obj, 0, rect);
+        object_get_rect(object_hover_obj, RECT_FLAG_NONE, rect);
         return true;
     }
 
@@ -5317,7 +5317,7 @@ void sub_444270(int64_t obj, int a2)
             obj_field_int32_set(obj, OBJ_F_RENDER_FLAGS, render_flags);
         }
 
-        object_get_rect(obj, 0x7, &rect);
+        object_get_rect(obj, RECT_FLAG_FULL, &rect);
         object_iso_invalidate_rect(&rect);
         return;
     }
@@ -5339,7 +5339,7 @@ void sub_444270(int64_t obj, int a2)
     if (object_editor) {
         obj_field_int32_set(obj, OBJ_F_RENDER_FLAGS, render_flags);
         obj_field_int32_set(obj, OBJ_F_FLAGS, flags);
-        object_get_rect(obj, 0x7, &rect);
+        object_get_rect(obj, RECT_FLAG_FULL, &rect);
         object_iso_invalidate_rect(&rect);
         return;
     }
@@ -5374,7 +5374,7 @@ void sub_444270(int64_t obj, int a2)
     }
 
     obj_field_int32_set(obj, OBJ_F_RENDER_FLAGS, render_flags);
-    object_get_rect(obj, 0x7, &rect);
+    object_get_rect(obj, RECT_FLAG_FULL, &rect);
     object_iso_invalidate_rect(&rect);
 }
 
@@ -5425,7 +5425,7 @@ void sub_4445A0(int64_t a1, int64_t a2)
                 }
             } else {
                 loc = obj_field_int64_get(a1, OBJ_F_LOCATION);
-                sub_43E770(a2, loc, 0, 0);
+                object_move_to_location(a2, loc, 0, 0);
             }
         }
     }

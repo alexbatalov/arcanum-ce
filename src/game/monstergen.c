@@ -342,7 +342,7 @@ bool monstergen_process(int64_t obj, DateTime* datetime)
         // NOTE: This condition might pose a problem on certain maps on very
         // high resolutions.
         if ((generator_info.flags & GENERATOR_INACTIVE_ON_SCREEN) != 0) {
-            object_get_rect(obj, 0x8, &rect);
+            object_get_rect(obj, RECT_FLAG_IGNORE_VIS, &rect);
             if (rect.x < monstergen_iso_content_rect.width + monstergen_iso_content_rect.x
                 && rect.y < monstergen_iso_content_rect.height + monstergen_iso_content_rect.y
                 && monstergen_iso_content_rect.x < rect.x + rect.width
@@ -427,7 +427,7 @@ int monstergen_generate(GeneratorInfo* generator_info, int cnt)
     art_id = tile_art_id_at(loc);
     tile_type = tig_art_tile_id_type_get(art_id);
     location_xy(loc, &x, &y);
-    object_get_rect(generator_info->obj, 0x8, &rect);
+    object_get_rect(generator_info->obj, RECT_FLAG_IGNORE_VIS, &rect);
 
     num_generated = 0;
     while (num_generated < cnt) {

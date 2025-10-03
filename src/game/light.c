@@ -1184,7 +1184,7 @@ void sub_4DC210(int64_t obj, int* colors, int* cnt_ptr)
         tig_art_wall_id_p_piece_get(art_id);
 
         TigRect obj_rect;
-        object_get_rect(obj, 0, &obj_rect);
+        object_get_rect(obj, RECT_FLAG_NONE, &obj_rect);
 
         loc_y += (obj_rect.x - loc_x) * v1;
         loc_x = obj_rect.x;
