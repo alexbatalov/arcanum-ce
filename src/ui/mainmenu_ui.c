@@ -5142,207 +5142,205 @@ bool sub_546EE0(TigMessage* msg)
     }
 
     if (msg->type == TIG_MESSAGE_KEYBOARD) {
-        if (msg->data.keyboard.pressed) {
-            return false;
-        }
-
-        switch (mainmenu_ui_window_type) {
-        case MM_WINDOW_0:
-            return false;
-        case MM_WINDOW_1:
-            mainmenu_ui_close(false);
-            mainmenu_ui_window_type = 2;
-            mainmenu_ui_open();
-            return true;
-        case MM_WINDOW_MAINMENU:
-            if (msg->data.keyboard.key == SDL_SCANCODE_ESCAPE
-                && dword_64C43C > 1) {
-                gsound_play_sfx(0, 1);
-                sub_5412D0();
-                mainmenu_ui_window_type = 0;
-                mainmenu_ui_exit_game();
-            }
-            return false;
-        case MM_WINDOW_OPTIONS:
-            if (msg->data.keyboard.key == SDL_SCANCODE_O) {
-                if (!stru_5C36B0[mainmenu_ui_type][1]) {
-                    sub_5412D0();
-                }
-                return true;
-            }
-            return false;
-        case MM_WINDOW_LOAD_GAME:
-            switch (msg->data.keyboard.key) {
-            case SDL_SCANCODE_ESCAPE:
-                gsound_play_sfx(0, 1);
-                mainmenu_ui_close(true);
-                if (mainmenu_ui_window_type == MM_WINDOW_0) {
-                    sub_5412D0();
-                }
-                return true;
-            case SDL_SCANCODE_UP:
-                sub_543060();
-                return true;
-            case SDL_SCANCODE_DOWN:
-                sub_5430D0();
-                return true;
-            case SDL_SCANCODE_BACKSPACE:
-            case SDL_SCANCODE_DELETE:
-                gsound_play_sfx(0, 1);
-                mainmenu_ui_load_game_handle_delete();
-                return true;
-            case SDL_SCANCODE_RETURN:
-            case SDL_SCANCODE_KP_ENTER:
-                sub_5480C0(2);
-                return true;
-            }
-            return false;
-        case MM_WINDOW_SAVE_GAME:
-            switch (msg->data.keyboard.key) {
-            case SDL_SCANCODE_ESCAPE:
-                gsound_play_sfx(0, 1);
-                mainmenu_ui_close(true);
-                if (mainmenu_ui_window_type == MM_WINDOW_0) {
-                    sub_5412D0();
-                }
-                return true;
-            case SDL_SCANCODE_UP:
-                sub_544210();
-                return true;
-            case SDL_SCANCODE_DOWN:
-                sub_544250();
-                return true;
-            case SDL_SCANCODE_BACKSPACE:
-            case SDL_SCANCODE_DELETE:
-                gsound_play_sfx(0, 1);
-                mainmenu_ui_save_game_handle_delete();
-                return true;
-            case SDL_SCANCODE_RETURN:
-            case SDL_SCANCODE_KP_ENTER:
-                sub_5480C0(2);
-                return true;
-            }
-            return false;
-        default:
-            switch (msg->data.keyboard.key) {
-            case SDL_SCANCODE_ESCAPE:
-                gsound_play_sfx(0, 1);
-                mainmenu_ui_close(true);
-                if (mainmenu_ui_window_type == MM_WINDOW_0) {
-                    sub_5412D0();
-                }
-                return true;
-            }
-            return false;
-        }
-    }
-
-    if (msg->type == TIG_MESSAGE_CHAR) {
-        if (sub_549A60()) {
-            return false;
-        }
-
-        if ((mainmenu_ui_window_type == MM_WINDOW_SHOP || mainmenu_ui_window_type == MM_WINDOW_CHAREDIT)
-            && msg->data.character.ch == SDLK_RETURN
-            && iso_interface_window_get() != ROTWIN_TYPE_QUANTITY) {
-            gsound_play_sfx(0, 1);
-            sub_5480C0(2);
-            return true;
-        }
-
-        for (idx = 0; idx < window->num_buttons; idx++) {
-            bool hidden;
-            tig_button_is_hidden(window->buttons[idx].button_handle, &hidden);
-            if (!hidden && msg->data.character.ch == window->buttons[idx].field_14) {
-                break;
-            }
-        }
-
-        if (idx >= window->num_buttons) {
-            return false;
-        }
-
-        if (window->buttons[idx].art_num == -1) {
-            gsound_play_sfx(SND_INTERFACE_MORPHTEXT_CLICK, 1);
-        } else {
-            gsound_play_sfx(0, 1);
-        }
-
-        if (window->buttons[idx].field_10 > 0) {
-            if (window->execute_func != NULL) {
-                dword_5C3FB8 = window->execute_func(idx);
-                if (!dword_5C3FB8) {
-                    return true;
-                }
-            }
-
-            mainmenu_ui_close(false);
-            mainmenu_ui_window_type = window->buttons[idx].field_10;
-            mainmenu_ui_open();
-            return true;
-        }
-
-        if (window->buttons[idx].field_10 == 0) {
-            sub_5412D0();
-            if (stru_5C36B0[mainmenu_ui_type][1]
-                || mainmenu_ui_window_type == MM_WINDOW_MAINMENU
-                || mainmenu_ui_window_type == MM_WINDOW_MAINMENU_IN_PLAY) {
-                mainmenu_ui_exit_game();
-            }
-            mainmenu_ui_window_type = MM_WINDOW_0;
-            return true;
-        }
-
-        if (window->buttons[idx].field_10 == -2) {
-            mainmenu_ui_close(true);
-            if (mainmenu_ui_window_type == MM_WINDOW_0) {
-                sub_5412D0();
-            }
-            return true;
-        }
-
-        if (window->buttons[idx].field_10 == -1) {
+        if (!msg->data.keyboard.pressed) {
             switch (mainmenu_ui_window_type) {
-            case MM_WINDOW_MAINMENU_IN_PLAY:
-                switch (idx) {
-                case 3:
-                    if (mainmenu_ui_confirm_quit() == TIG_WINDOW_MODAL_DIALOG_CHOICE_OK) {
-                        // FIXME: Looks wrong.
-                        tig_button_hide(3);
-
-                        return sub_549310(3);
-                    }
-                    return true;
-                case 4:
-                    if (!stru_5C36B0[mainmenu_ui_type][0]) {
-                        mainmenu_ui_close(true);
-
-                        if (mainmenu_ui_window_type == MM_WINDOW_0) {
-                            sub_5412D0();
-                        }
+            case MM_WINDOW_0:
+                return false;
+            case MM_WINDOW_1:
+                mainmenu_ui_close(false);
+                mainmenu_ui_window_type = 2;
+                mainmenu_ui_open();
+                return true;
+            case MM_WINDOW_MAINMENU:
+                if (msg->data.keyboard.scancode == SDL_SCANCODE_ESCAPE
+                    && dword_64C43C > 1) {
+                    gsound_play_sfx(0, 1);
+                    sub_5412D0();
+                    mainmenu_ui_window_type = 0;
+                    mainmenu_ui_exit_game();
+                }
+                return false;
+            case MM_WINDOW_OPTIONS:
+                if (msg->data.keyboard.scancode == SDL_SCANCODE_O) {
+                    if (!stru_5C36B0[mainmenu_ui_type][1]) {
+                        sub_5412D0();
                     }
                     return true;
                 }
-
-                return true;
-            case MM_WINDOW_MAINMENU_IN_PLAY_LOCKED:
-                switch (idx) {
-                case 1:
-                    if (mainmenu_ui_confirm_quit() == TIG_WINDOW_MODAL_DIALOG_CHOICE_OK) {
-                        // FIXME: Looks wrong.
-                        tig_button_hide(1);
-
-                        return sub_549310(1);
+                return false;
+            case MM_WINDOW_LOAD_GAME:
+                switch (msg->data.keyboard.scancode) {
+                case SDL_SCANCODE_ESCAPE:
+                    gsound_play_sfx(0, 1);
+                    mainmenu_ui_close(true);
+                    if (mainmenu_ui_window_type == MM_WINDOW_0) {
+                        sub_5412D0();
                     }
                     return true;
-                case 2:
-                    if (!stru_5C36B0[mainmenu_ui_type][0]) {
-                        mainmenu_ui_close(true);
-
-                        if (mainmenu_ui_window_type == MM_WINDOW_0) {
-                            sub_5412D0();
-                        }
+                case SDL_SCANCODE_UP:
+                    sub_543060();
+                    return true;
+                case SDL_SCANCODE_DOWN:
+                    sub_5430D0();
+                    return true;
+                case SDL_SCANCODE_BACKSPACE:
+                case SDL_SCANCODE_DELETE:
+                    gsound_play_sfx(0, 1);
+                    mainmenu_ui_load_game_handle_delete();
+                    return true;
+                case SDL_SCANCODE_RETURN:
+                case SDL_SCANCODE_KP_ENTER:
+                    sub_5480C0(2);
+                    return true;
+                }
+                return false;
+            case MM_WINDOW_SAVE_GAME:
+                switch (msg->data.keyboard.scancode) {
+                case SDL_SCANCODE_ESCAPE:
+                    gsound_play_sfx(0, 1);
+                    mainmenu_ui_close(true);
+                    if (mainmenu_ui_window_type == MM_WINDOW_0) {
+                        sub_5412D0();
                     }
+                    return true;
+                case SDL_SCANCODE_UP:
+                    sub_544210();
+                    return true;
+                case SDL_SCANCODE_DOWN:
+                    sub_544250();
+                    return true;
+                case SDL_SCANCODE_BACKSPACE:
+                case SDL_SCANCODE_DELETE:
+                    gsound_play_sfx(0, 1);
+                    mainmenu_ui_save_game_handle_delete();
+                    return true;
+                case SDL_SCANCODE_RETURN:
+                case SDL_SCANCODE_KP_ENTER:
+                    sub_5480C0(2);
+                    return true;
+                }
+                return false;
+            default:
+                switch (msg->data.keyboard.scancode) {
+                case SDL_SCANCODE_ESCAPE:
+                    gsound_play_sfx(0, 1);
+                    mainmenu_ui_close(true);
+                    if (mainmenu_ui_window_type == MM_WINDOW_0) {
+                        sub_5412D0();
+                    }
+                    return true;
+                }
+                return false;
+            }
+        } else {
+            if (sub_549A60()) {
+                return false;
+            }
+
+            if ((mainmenu_ui_window_type == MM_WINDOW_SHOP || mainmenu_ui_window_type == MM_WINDOW_CHAREDIT)
+                && msg->data.keyboard.key == SDLK_RETURN
+                && iso_interface_window_get() != ROTWIN_TYPE_QUANTITY) {
+                gsound_play_sfx(0, 1);
+                sub_5480C0(2);
+                return true;
+            }
+
+            for (idx = 0; idx < window->num_buttons; idx++) {
+                bool hidden;
+                tig_button_is_hidden(window->buttons[idx].button_handle, &hidden);
+                if (!hidden && SDL_toupper(msg->data.keyboard.key) == window->buttons[idx].field_14) {
+                    break;
+                }
+            }
+
+            if (idx >= window->num_buttons) {
+                return false;
+            }
+
+            if (window->buttons[idx].art_num == -1) {
+                gsound_play_sfx(SND_INTERFACE_MORPHTEXT_CLICK, 1);
+            } else {
+                gsound_play_sfx(0, 1);
+            }
+
+            if (window->buttons[idx].field_10 > 0) {
+                if (window->execute_func != NULL) {
+                    dword_5C3FB8 = window->execute_func(idx);
+                    if (!dword_5C3FB8) {
+                        return true;
+                    }
+                }
+
+                mainmenu_ui_close(false);
+                mainmenu_ui_window_type = window->buttons[idx].field_10;
+                mainmenu_ui_open();
+                return true;
+            }
+
+            if (window->buttons[idx].field_10 == 0) {
+                sub_5412D0();
+                if (stru_5C36B0[mainmenu_ui_type][1]
+                    || mainmenu_ui_window_type == MM_WINDOW_MAINMENU
+                    || mainmenu_ui_window_type == MM_WINDOW_MAINMENU_IN_PLAY) {
+                    mainmenu_ui_exit_game();
+                }
+                mainmenu_ui_window_type = MM_WINDOW_0;
+                return true;
+            }
+
+            if (window->buttons[idx].field_10 == -2) {
+                mainmenu_ui_close(true);
+                if (mainmenu_ui_window_type == MM_WINDOW_0) {
+                    sub_5412D0();
+                }
+                return true;
+            }
+
+            if (window->buttons[idx].field_10 == -1) {
+                switch (mainmenu_ui_window_type) {
+                case MM_WINDOW_MAINMENU_IN_PLAY:
+                    switch (idx) {
+                    case 3:
+                        if (mainmenu_ui_confirm_quit() == TIG_WINDOW_MODAL_DIALOG_CHOICE_OK) {
+                            // FIXME: Looks wrong.
+                            tig_button_hide(3);
+
+                            return sub_549310(3);
+                        }
+                        return true;
+                    case 4:
+                        if (!stru_5C36B0[mainmenu_ui_type][0]) {
+                            mainmenu_ui_close(true);
+
+                            if (mainmenu_ui_window_type == MM_WINDOW_0) {
+                                sub_5412D0();
+                            }
+                        }
+                        return true;
+                    }
+
+                    return true;
+                case MM_WINDOW_MAINMENU_IN_PLAY_LOCKED:
+                    switch (idx) {
+                    case 1:
+                        if (mainmenu_ui_confirm_quit() == TIG_WINDOW_MODAL_DIALOG_CHOICE_OK) {
+                            // FIXME: Looks wrong.
+                            tig_button_hide(1);
+
+                            return sub_549310(1);
+                        }
+                        return true;
+                    case 2:
+                        if (!stru_5C36B0[mainmenu_ui_type][0]) {
+                            mainmenu_ui_close(true);
+
+                            if (mainmenu_ui_window_type == MM_WINDOW_0) {
+                                sub_5412D0();
+                            }
+                        }
+                        return true;
+                    }
+
                     return true;
                 }
 
@@ -5351,8 +5349,6 @@ bool sub_546EE0(TigMessage* msg)
 
             return true;
         }
-
-        return true;
     }
 
     return false;

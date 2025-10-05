@@ -40,13 +40,14 @@ bool tig_kb_get_modifier(SDL_Keymod keymod)
     return (SDL_GetModState() & keymod) != 0;
 }
 
-void tig_kb_set_key(int key, bool down)
+void tig_kb_set_key(SDL_Keycode key, SDL_Scancode scancode, bool down)
 {
     TigMessage message;
 
     message.type = TIG_MESSAGE_KEYBOARD;
     message.timestamp = tig_ping_timestamp;
     message.data.keyboard.key = key;
+    message.data.keyboard.scancode = scancode;
     message.data.keyboard.pressed = down;
     tig_message_enqueue(&message);
 }

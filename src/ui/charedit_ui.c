@@ -1605,8 +1605,9 @@ bool charedit_window_message_filter(TigMessage* msg)
         default:
             return false;
         }
-    case TIG_MESSAGE_CHAR:
-        if (msg->data.character.ch == SDLK_X
+    case TIG_MESSAGE_KEYBOARD:
+        if (msg->data.keyboard.key == SDLK_X
+            && msg->data.keyboard.pressed
             && !tig_net_is_active()
             && charedit_mode == CHAREDIT_MODE_ACTIVE
             && (!combat_turn_based_is_active()
