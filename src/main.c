@@ -173,7 +173,7 @@ int main(int argc, char** argv)
     }
 
     // NOTE: The `geometry` switch is also borrowed from ToEE, but the
-    // implementation is different (original implementaion is wrong).
+    // implementation is different (original implementation is wrong).
     pch = strstr(lpCmdLine, "-geometry");
     if (pch != NULL) {
         int width;
@@ -333,7 +333,7 @@ void main_loop()
 
     pc_obj = player_get_local_pc_obj();
     location = obj_field_int64_get(pc_obj, OBJ_F_LOCATION);
-    sub_43E770(pc_obj, location, 0, 0);
+    object_move_to_location(pc_obj, location, 0, 0);
     location_origin_set(location);
 
     art_id = obj_field_int32_get(pc_obj, OBJ_F_CURRENT_AID);

@@ -947,7 +947,7 @@ void sub_559260(WmapRndEncounterTableEntry* entry)
                     object_destroy(obj);
                     obj = OBJ_HANDLE_NULL;
                 } else {
-                    sub_43E770(obj, loc, 0, 0);
+                    object_move_to_location(obj, loc, 0, 0);
                 }
             }
 
