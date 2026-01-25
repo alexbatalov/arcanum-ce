@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 
+#include "game/ai.h"
 #include "game/broadcast.h"
 #include "game/critter.h"
 #include "game/hrp.h"
@@ -349,6 +350,21 @@ bool follower_ui_save(TigFile* stream)
     return true;
 }
 
+// Implement player floating text.
+static void follower_ui_issue_command_text(int64_t commander, int64_t subordinate, int mes_id)
+{
+    char name[MAX_STRING];
+    Broadcast bcast;
+    MesFileEntry mes_entry;
+    object_examine(subordinate, commander, name);
+    mes_entry.num = mes_id;
+    if (mes_search(follower_ui_mes_file, &mes_entry)) {
+        sprintf(bcast.str, "%s %s", name, mes_entry.str);
+        bcast.loc = obj_field_int64_get(commander, OBJ_F_LOCATION);
+        broadcast_msg(commander, &bcast);
+    }
+}
+
 // 0x56A9D0
 bool follower_ui_message_filter(TigMessage* msg)
 {
@@ -401,10 +417,25 @@ bool follower_ui_message_filter(TigMessage* msg)
                         case FOLLOWER_UI_COMMAND_CHARACTER_SHEET:
                             charedit_open(follower_ui_subordinate_obj, CHAREDIT_MODE_PASSIVE);
                             break;
+                        case FOLLOWER_UI_COMMAND_STAY_CLOSE:
+                            critter_stay_close(follower_ui_subordinate_obj);
+                            follower_ui_issue_command_text(follower_ui_commander_obj, follower_ui_subordinate_obj, FOLLOWER_UI_COMMAND_STAY_CLOSE);
+                            break;
+                        case FOLLOWER_UI_COMMAND_SPREAD_OUT:
+                            critter_spread_out(follower_ui_subordinate_obj);
+                            follower_ui_issue_command_text(follower_ui_commander_obj, follower_ui_subordinate_obj, FOLLOWER_UI_COMMAND_SPREAD_OUT);
+                            break;
+                        case FOLLOWER_UI_COMMAND_BACK_OFF:
+                            ai_stop_attacking(follower_ui_subordinate_obj);
+                            follower_ui_issue_command_text(follower_ui_commander_obj, follower_ui_subordinate_obj, FOLLOWER_UI_COMMAND_BACK_OFF);
+                            break;
                         case FOLLOWER_UI_COMMAND_WAIT:
                             if ((obj_field_int32_get(follower_ui_subordinate_obj, OBJ_F_SPELL_FLAGS) & OSF_MIND_CONTROLLED) != 0) {
                                 return true;
                             }
+                            ai_npc_wait(follower_ui_subordinate_obj);
+                            follower_ui_issue_command_text(follower_ui_commander_obj, follower_ui_subordinate_obj, FOLLOWER_UI_COMMAND_WAIT);
+                            break;
                             // FALLTHROUGH
                         default:
                             mes_file_entry.num = index;
@@ -535,7 +566,10 @@ void follower_ui_drop_down_menu_create(int index)
     sub_444130(&(follower_ui_followers[follower_ui_top_index + index]));
     follower_ui_subordinate_obj = follower_ui_followers[follower_ui_top_index + index].obj;
 
-    window_data.flags = 0;
+    // FIX: Attach the message filter so clicks are detected.
+    window_data.flags = TIG_WINDOW_MESSAGE_FILTER; 
+    window_data.message_filter = follower_ui_message_filter;
+
     window_data.rect = follower_ui_drop_down_menu_rects[index];
     hrp_apply(&(window_data.rect), GRAVITY_LEFT | GRAVITY_TOP);
 
@@ -553,6 +587,8 @@ void follower_ui_drop_down_menu_create(int index)
     button_data.flags = TIG_BUTTON_MOMENTARY;
     button_data.width = follower_ui_drop_down_menu_entry_rect.width;
     button_data.height = follower_ui_drop_down_menu_entry_rect.height;
+    
+    // Ensure buttons belong to the new window
     button_data.window_handle = follower_ui_drop_down_menu_window;
 
     for (cmd = 0; cmd < FOLLOWER_UI_COMMAND_COUNT; cmd++) {
@@ -564,9 +600,14 @@ void follower_ui_drop_down_menu_create(int index)
 // 0x56B0F0
 void follower_ui_drop_down_menu_destroy()
 {
-    if (follower_ui_drop_down_menu_window != TIG_WINDOW_HANDLE_INVALID) {
-        tig_window_destroy(follower_ui_drop_down_menu_window);
-        follower_ui_drop_down_menu_window = TIG_WINDOW_HANDLE_INVALID;
+    // FIX: Capture the handle and clear the global variable FIRST.
+    // This prevents the message filter from reacting to events triggered 
+    // during the destruction process (like MOUSE_OUTSIDE).
+    tig_window_handle_t win = follower_ui_drop_down_menu_window;
+    follower_ui_drop_down_menu_window = TIG_WINDOW_HANDLE_INVALID;
+
+    if (win != TIG_WINDOW_HANDLE_INVALID) {
+        tig_window_destroy(win);
     }
 }
 
