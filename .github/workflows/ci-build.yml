@@ -69,7 +69,7 @@ jobs:
 
   ios:
     name: iOS
-    runs-on: macos-13
+    runs-on: macos-14
 
     steps:
       - name: Clone
@@ -128,6 +128,8 @@ jobs:
             libxcursor-dev:i386 \
             libasound2-dev:i386 \
             libpulse-dev:i386 \
+            libxss-dev:i386 \
+            libxtst-dev:i386 \
             ${NULL+}
 
       - name: Dependencies (${{ matrix.arch }})
@@ -143,6 +145,8 @@ jobs:
             libxcursor-dev \
             libasound2-dev \
             libpulse-dev \
+            libxss-dev \
+            libxtst-dev \
             ${NULL+}
 
       - name: Clone
@@ -169,7 +173,7 @@ jobs:
 
   macos:
     name: macOS
-    runs-on: macos-13
+    runs-on: macos-14
 
     steps:
       - name: Clone
