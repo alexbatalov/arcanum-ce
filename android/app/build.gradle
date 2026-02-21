@@ -11,6 +11,10 @@ android {
         versionCode 1
         versionName '1.0.0'
         externalNativeBuild {
+            ndkBuild {
+                arguments 'APP_PLATFORM=android-21'
+                abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+            }
             cmake {
                 arguments '-DANDROID_PLATFORM=android-21', '-DANDROID_STL=c++_static', '-DAPP_SUPPORT_FLEXIBLE_PAGE_SIZES=true'
                 abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
