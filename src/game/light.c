@@ -1235,7 +1235,7 @@ void sub_4DC210(int64_t obj, int* colors, int* cnt_ptr)
                                     int tmp_x = (int)loc_x;
                                     int tmp_y = (int)loc_y;
 
-                                    for (int x = 0; x < affected_rect.width; x++) {
+                                    for (int x = 0; x < obj_rect.width; x++) {
                                         if (tmp_x >= affected_rect.x
                                             && tmp_y >= affected_rect.y
                                             && tmp_x < affected_rect.x + affected_rect.width

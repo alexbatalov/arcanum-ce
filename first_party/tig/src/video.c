@@ -1146,6 +1146,31 @@ bool tig_video_window_create(TigInitInfo* init_info)
     int window_width = (int)(init_info->width * scale);
     int window_height = (int)(init_info->height * scale);
 
+#if SDL_PLATFORM_ANDROID || SDL_PLATFORM_IOS
+    SDL_Rect display_bounds;
+    SDL_GetDisplayBounds(SDL_GetPrimaryDisplay(), &display_bounds);
+
+    // Calculate the view size in logical pixels. Android reports display bounds
+    // in physical pixels and provides the appropriate scale, while in iOS
+    // display bounds are already in logical pixels with a scale of 1.0.
+    init_info->width = (int)((float)display_bounds.w / scale + 0.5f);
+    init_info->height = (int)((float)display_bounds.h / scale + 0.5f);
+
+    const int min_height = 600;
+    if (init_info->height < min_height) {
+        // The logical resolution is too small to accommodate the base graphic.
+        // This likely means we're on a mobile phone, where the height is
+        // usually between 350 and 450 logical pixels.
+        float width_scale = (float)min_height / (float)init_info->height;
+        init_info->width = (int)((float)init_info->width * width_scale + 0.5f);
+        init_info->height = min_height;
+    }
+
+    window_width = display_bounds.w;
+    window_height = display_bounds.h;
+    flags |= SDL_WINDOW_FULLSCREEN;
+#endif
+
     SDL_Window* window;
     SDL_Renderer* renderer;
     if (!SDL_CreateWindowAndRenderer(name, window_width, window_height, flags, &window, &renderer)) {

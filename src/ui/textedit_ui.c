@@ -92,7 +92,7 @@ void textedit_ui_focus(TextEdit* textedit)
     textedit_ui_current_textedit = textedit;
 
     if (*textedit->buffer != '\0') {
-        textedit_ui_pos = strlen(textedit->buffer);
+        textedit_ui_pos = (int)strlen(textedit->buffer);
         textedit_ui_len = textedit_ui_pos;
     } else {
         textedit_ui_pos = 0;

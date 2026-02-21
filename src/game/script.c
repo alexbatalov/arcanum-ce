@@ -1485,8 +1485,8 @@ int script_execute_condition(ScriptCondition* condition, int line, ScriptState* 
             rc = script_execute_action(&(condition->els), line, state);
         }
     } break;
-    case SCT_50:
-        if (sub_4655C0()) {
+    case SCT_ITEMS_ARE_BEING_REWIELDED:
+        if (item_in_rewield()) {
             rc = script_execute_action(&(condition->action), line, state);
         } else {
             rc = script_execute_action(&(condition->els), line, state);
@@ -2220,6 +2220,7 @@ int script_execute_action(ScriptAction* action, int line, ScriptState* state)
         int cnt = script_resolve_focus_obj(action->op_type[0], action->op_value[0], state, handles, &objects);
         int value = script_get_value(action->op_type[1], action->op_value[1], state);
         for (int idx = 0; idx < cnt; idx++) {
+            sub_4B2210(OBJ_HANDLE_NULL, handles[idx], &combat);
             combat.dam[DAMAGE_TYPE_NORMAL] = value;
             combat_heal(&combat);
         }
@@ -2279,7 +2280,7 @@ int script_execute_action(ScriptAction* action, int line, ScriptState* state)
         int64_t source_obj = script_get_obj(action->op_type[2], action->op_value[2], state);
         int64_t target_obj = script_get_obj(action->op_type[3], action->op_value[3], state);
         int ratio = sub_461620(item_obj, source_obj, target_obj);
-        script_set_value(action->op_type[4], action->op_type[4], state, value * (100 - ratio) / 100);
+        script_set_value(action->op_type[4], action->op_value[4], state, value * (100 - ratio) / 100);
         return NEXT;
     }
     case SAT_CALL_SCRIPT_EX:
@@ -2363,7 +2364,7 @@ int script_execute_action(ScriptAction* action, int line, ScriptState* state)
         int64_t item_obj = script_get_obj(action->op_type[1], action->op_value[1], state);
         int64_t source_obj = script_get_obj(action->op_type[2], action->op_value[2], state);
         int effectiveness = item_effective_power_ratio(item_obj, source_obj);
-        script_set_value(action->op_type[3], action->op_type[3], state, (value * effectiveness + 50) / 100);
+        script_set_value(action->op_type[3], action->op_value[3], state, (value * effectiveness + 50) / 100);
         return NEXT;
     }
     case SAT_RENAME: {

@@ -260,6 +260,17 @@ typedef struct MagicTechInfo {
     /* 0154 */ int defensive2;
 } MagicTechInfo;
 
+typedef unsigned int MagicTechRunFlags;
+
+#define MAGICTECH_RUN_ACTIVE 0x0001u
+#define MAGICTECH_RUN_FREE 0x0002u
+#define MAGICTECH_RUN_0x04 0x0004u
+#define MAGICTECH_RUN_REFLECTED 0x0008u
+#define MAGICTECH_RUN_UNRESISTABLE 0x0010u
+#define MAGICTECH_RUN_0x20 0x0020u
+#define MAGICTECH_RUN_0x40 0x0040u
+#define MAGICTECH_RUN_DISPELLED 0x80000000u
+
 typedef struct MagicTechRunInfo {
     /* 0000 */ int id;
     /* 0004 */ int spell;
@@ -272,7 +283,7 @@ typedef struct MagicTechRunInfo {
     /* 0130 */ MagicTechObjectNode* objlist;
     /* 0134 */ MagicTechObjectNode* summoned_obj;
     /* 0138 */ int field_138;
-    /* 013C */ int field_13C;
+    /* 013C */ MagicTechRunFlags flags;
     /* 0140 */ unsigned int trigger;
     /* 0144 */ int field_144;
     /* 0148 */ DateTime field_148;
@@ -355,12 +366,12 @@ bool sub_450940(int mt_id);
 int sub_450B40(int64_t obj);
 void magictech_effect_summon(MagicTechSummonInfo* summon_info);
 void sub_451070(MagicTechRunInfo* a1);
-void sub_451BB0(int64_t obj, int mt_id);
+void magictech_component_dispel(int64_t obj, int mt_id);
 void sub_452650(int64_t obj);
-void magictech_process(int64_t obj, MagicTechComponentTrait* trait, int obj_type);
+void magictech_component_trait(int64_t obj, MagicTechComponentTrait* trait, int obj_type);
 int sub_453B20(int64_t attacker_obj, int64_t target_obj, int spell);
 int sub_453CC0(int64_t a1, int64_t item_obj, int64_t a3);
-bool sub_454920(int64_t obj, int num, int max);
+bool magictech_component_recharge(int64_t obj, int num, int max);
 void magictech_component_obj_flag(int64_t a1, int64_t a2, int a3, int a4, int a5, int64_t a6, int64_t a7);
 bool magictech_id_to_run_info(int mt_id, MagicTechRunInfo** lock_ptr);
 void magictech_invocation_init(MagicTechInvocation* mt_invocation, int64_t obj, int spell);

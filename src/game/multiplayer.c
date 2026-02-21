@@ -2437,7 +2437,7 @@ void sub_4A54E0()
     int index;
 
     for (index = 0; index < 512; index++) {
-        if ((magictech_run_info[index].field_13C & 0x1) != 0) {
+        if ((magictech_run_info[index].flags & MAGICTECH_RUN_ACTIVE) != 0) {
             sub_459500(index);
         }
     }

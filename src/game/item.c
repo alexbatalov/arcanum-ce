@@ -66,12 +66,12 @@ static bool sub_466EF0(int64_t obj, int64_t loc);
 static char* item_error_str(int reason);
 static int find_free_inv_loc_horizontal(int64_t item_obj, int64_t parent_obj, int* slots);
 static int find_free_inv_loc_vertical(int64_t item_obj, int64_t parent_obj, int* slots);
-static void sub_4677B0(int64_t item_obj, int64_t parent_obj, int inventory_location);
-static void sub_467CB0(int64_t item_obj, int64_t parent_obj, int inventory_location);
+static void item_equipped(int64_t item_obj, int64_t parent_obj, int inventory_location);
+static void item_unequipped(int64_t item_obj, int64_t parent_obj, int inventory_location);
 static bool item_force_remove_success(void* userinfo);
 static bool item_force_remove_failure(void* userinfo);
 static bool sub_467E70();
-static void sub_467E80(int64_t a1, int64_t a2);
+static void item_recalc_light(int64_t item_obj, int64_t parent_obj);
 static bool item_cancel_decay(int64_t obj);
 static bool item_decay_timeevent_check(TimeEvent* timeevent);
 
@@ -137,7 +137,7 @@ static char** item_ammunition_type_names;
 static bool item_editor;
 
 // 0x5E87E8
-static bool dword_5E87E8;
+static bool in_rewield;
 
 // 0x5E87F0
 static int64_t item_decay_test_obj;
@@ -197,7 +197,7 @@ bool item_init(GameInitInfo* init_info)
         item_armor_coverage_type_names[index] = msg.str;
     }
 
-    dword_5E87E8 = 0;
+    in_rewield = 0;
     dword_5E8820 = 0;
     item_decay_process_cnt = 1;
 
@@ -1609,8 +1609,11 @@ int item_get_keys(int64_t obj, int* key_ids)
     }
 
     cnt = obj_arrayfield_length_get(obj, OBJ_F_KEY_RING_LIST_IDX);
-    for (index = 0; index < cnt; index++) {
-        key_ids[index] = obj_arrayfield_uint32_get(obj, OBJ_F_KEY_RING_LIST_IDX, index);
+
+    if (key_ids != NULL) {
+        for (index = 0; index < cnt; index++) {
+            key_ids[index] = obj_arrayfield_uint32_get(obj, OBJ_F_KEY_RING_LIST_IDX, index);
+        }
     }
 
     return cnt;
@@ -2990,7 +2993,7 @@ void item_wield_best_all(int64_t critter_obj, int64_t target_obj)
 }
 
 // 0x465530
-void sub_465530(int64_t obj)
+void item_rewield(int64_t obj)
 {
     int inventory_location;
     int64_t item_obj;
@@ -2998,19 +3001,19 @@ void sub_465530(int64_t obj)
     for (inventory_location = FIRST_WEAR_INV_LOC; inventory_location <= LAST_WEAR_INV_LOC; inventory_location++) {
         item_obj = item_wield_get(obj, inventory_location);
         if (item_obj != OBJ_HANDLE_NULL) {
-            dword_5E87E8 = true;
-            sub_467E80(item_obj, obj);
+            in_rewield = true;
+            item_recalc_light(item_obj, obj);
             object_script_execute(obj, item_obj, OBJ_HANDLE_NULL, SAP_WIELD_OFF, 0);
             object_script_execute(obj, item_obj, OBJ_HANDLE_NULL, SAP_WIELD_ON, 0);
-            dword_5E87E8 = false;
+            in_rewield = false;
         }
     }
 }
 
 // 0x4655C0
-bool sub_4655C0()
+bool item_in_rewield()
 {
-    return dword_5E87E8;
+    return in_rewield;
 }
 
 // 0x4655D0
@@ -3789,7 +3792,7 @@ void item_insert(int64_t item_obj, int64_t parent_obj, int inventory_location)
     mt_item_notify_pickup(item_obj, parent_obj);
 
     if (IS_WEAR_INV_LOC(inventory_location)) {
-        sub_4677B0(item_obj, parent_obj, inventory_location);
+        item_equipped(item_obj, parent_obj, inventory_location);
     }
 
     if (parent_obj_type != OBJ_TYPE_CONTAINER) {
@@ -4342,7 +4345,7 @@ int find_free_inv_loc_vertical(int64_t item_obj, int64_t parent_obj, int* slots)
 }
 
 // 0x4677B0
-void sub_4677B0(int64_t item_obj, int64_t parent_obj, int inventory_location)
+void item_equipped(int64_t item_obj, int64_t parent_obj, int inventory_location)
 {
     tig_art_id_t aid;
 
@@ -4364,8 +4367,8 @@ void sub_4677B0(int64_t item_obj, int64_t parent_obj, int inventory_location)
     }
 
     mt_item_notify_wear(item_obj, parent_obj);
-    sub_467E80(item_obj, parent_obj);
-    object_script_execute(parent_obj, item_obj, OBJ_HANDLE_NULL, SAP_WIELD_OFF, 0);
+    item_recalc_light(item_obj, parent_obj);
+    object_script_execute(parent_obj, item_obj, OBJ_HANDLE_NULL, SAP_WIELD_ON, 0);
 }
 
 // 0x467860
@@ -4480,7 +4483,7 @@ void item_force_remove(int64_t item_obj, int64_t parent_obj)
     }
 
     if (IS_WEAR_INV_LOC(inventory_location)) {
-        sub_467CB0(item_obj, parent_obj, inventory_location);
+        item_unequipped(item_obj, parent_obj, inventory_location);
     } else if (IS_HOTKEY_INV_LOC(inventory_location)) {
         if (is_pc) {
             sub_460540(inventory_location - 2000);
@@ -4516,7 +4519,7 @@ void item_force_remove(int64_t item_obj, int64_t parent_obj)
 }
 
 // 0x467CB0
-void sub_467CB0(int64_t item_obj, int64_t parent_obj, int inventory_location)
+void item_unequipped(int64_t item_obj, int64_t parent_obj, int inventory_location)
 {
     tig_art_id_t aid;
 
@@ -4538,7 +4541,7 @@ void sub_467CB0(int64_t item_obj, int64_t parent_obj, int inventory_location)
     }
 
     mt_item_notify_unwear(item_obj, parent_obj);
-    sub_467E80(item_obj, parent_obj);
+    item_recalc_light(item_obj, parent_obj);
     object_script_execute(parent_obj, item_obj, OBJ_HANDLE_NULL, SAP_WIELD_OFF, 0);
 }
 
@@ -4598,10 +4601,10 @@ bool sub_467E70()
 }
 
 // 0x467E80
-void sub_467E80(int64_t a1, int64_t a2)
+void item_recalc_light(int64_t item_obj, int64_t parent_obj)
 {
     int inventory_location;
-    int64_t item_obj;
+    int64_t inven_item_obj;
     unsigned int light_flags;
     unsigned int light_size;
     unsigned int critter_flags;
@@ -4609,51 +4612,53 @@ void sub_467E80(int64_t a1, int64_t a2)
     tig_art_id_t aid;
     tig_color_t color;
 
-    if (a1 == OBJ_HANDLE_NULL
-        || (obj_field_int32_get(a1, OBJ_F_ITEM_FLAGS) & OIF_LIGHT_ANY) != 0) {
-        light_flags = 0;
-        for (inventory_location = FIRST_WEAR_INV_LOC; inventory_location <= LAST_WEAR_INV_LOC; inventory_location++) {
-            item_obj = item_wield_get(a2, inventory_location);
-            if (item_obj != OBJ_HANDLE_NULL) {
-                light_size = obj_field_int32_get(item_obj, OBJ_F_ITEM_FLAGS) & OIF_LIGHT_ANY;
-                if (light_size != 0) {
-                    effectiveness = item_effective_power_ratio(item_obj, a2);
-                    if (effectiveness <= 25) {
-                        light_size >>= 3;
-                    } else if (effectiveness <= 50) {
-                        light_size >>= 2;
-                    } else if (effectiveness <= 75) {
-                        light_size >>= 1;
-                    }
-                    light_flags |= light_size & OIF_LIGHT_ANY;
+    if (item_obj != OBJ_HANDLE_NULL
+        && (obj_field_int32_get(item_obj, OBJ_F_ITEM_FLAGS) & OIF_LIGHT_ANY) == 0) {
+        return;
+    }
+
+    light_flags = 0;
+    for (inventory_location = FIRST_WEAR_INV_LOC; inventory_location <= LAST_WEAR_INV_LOC; inventory_location++) {
+        inven_item_obj = item_wield_get(parent_obj, inventory_location);
+        if (inven_item_obj != OBJ_HANDLE_NULL) {
+            light_size = obj_field_int32_get(inven_item_obj, OBJ_F_ITEM_FLAGS) & OIF_LIGHT_ANY;
+            if (light_size != 0) {
+                effectiveness = item_effective_power_ratio(inven_item_obj, parent_obj);
+                if (effectiveness <= 25) {
+                    light_size >>= 3;
+                } else if (effectiveness <= 50) {
+                    light_size >>= 2;
+                } else if (effectiveness <= 75) {
+                    light_size >>= 1;
                 }
+                light_flags |= light_size & OIF_LIGHT_ANY;
             }
         }
-
-        critter_flags = obj_field_int32_get(a2, OBJ_F_CRITTER_FLAGS);
-        critter_flags &= ~OCF_LIGHT_ANY;
-
-        if ((light_flags & OIF_LIGHT_XLARGE) != 0) {
-            critter_flags |= OCF_LIGHT_XLARGE;
-        }
-
-        if ((light_flags & OIF_LIGHT_LARGE) != 0) {
-            critter_flags |= OCF_LIGHT_LARGE;
-        }
-
-        if ((light_flags & OIF_LIGHT_MEDIUM) != 0) {
-            critter_flags |= OCF_LIGHT_MEDIUM;
-        }
-
-        if ((light_flags & OIF_LIGHT_SMALL) != 0) {
-            critter_flags |= OCF_LIGHT_SMALL;
-        }
-
-        obj_field_int32_set(a2, OBJ_F_CRITTER_FLAGS, critter_flags);
-
-        aid = critter_light_get(a2, &color);
-        object_set_light(a2, 0, aid, color);
     }
+
+    critter_flags = obj_field_int32_get(parent_obj, OBJ_F_CRITTER_FLAGS);
+    critter_flags &= ~OCF_LIGHT_ANY;
+
+    if ((light_flags & OIF_LIGHT_XLARGE) != 0) {
+        critter_flags |= OCF_LIGHT_XLARGE;
+    }
+
+    if ((light_flags & OIF_LIGHT_LARGE) != 0) {
+        critter_flags |= OCF_LIGHT_LARGE;
+    }
+
+    if ((light_flags & OIF_LIGHT_MEDIUM) != 0) {
+        critter_flags |= OCF_LIGHT_MEDIUM;
+    }
+
+    if ((light_flags & OIF_LIGHT_SMALL) != 0) {
+        critter_flags |= OCF_LIGHT_SMALL;
+    }
+
+    obj_field_int32_set(parent_obj, OBJ_F_CRITTER_FLAGS, critter_flags);
+
+    aid = critter_light_get(parent_obj, &color);
+    object_set_light(parent_obj, 0, aid, color);
 }
 
 // 0x467FC0

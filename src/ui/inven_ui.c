@@ -524,7 +524,8 @@ bool sub_572340()
 bool sub_572370(int64_t pc_obj, int64_t target_obj, int mode)
 {
     int rot;
-    tig_art_id_t art_id;
+    tig_art_id_t old_art_id;
+    tig_art_id_t new_art_id;
     int err;
     int sound_id;
     MesFileEntry mes_file_entry;
@@ -544,11 +545,19 @@ bool sub_572370(int64_t pc_obj, int64_t target_obj, int mode)
 
     if (mode == INVEN_UI_MODE_LOOT
         || mode == INVEN_UI_MODE_STEAL) {
+        // FIX: To determine if a PC can see the target object, the PC is
+        // instantly rotated toward the target before calling `ai_can_see`.
+        // However, when the PC is walking or running along a plotted path
+        // (expressed as a series of rotations), this instant rotation disrupts
+        // the path, causing the PC to run straight to the target and ignore any
+        // obstacles. The fix is straightforward: restore the previous rotation
+        // if the PC cannot see the target.
         rot = object_rot(pc_obj, target_obj);
-        art_id = obj_field_int32_get(pc_obj, OBJ_F_CURRENT_AID);
-        art_id = tig_art_id_rotation_set(art_id, rot);
-        object_set_current_aid(pc_obj, art_id);
+        old_art_id = obj_field_int32_get(pc_obj, OBJ_F_CURRENT_AID);
+        new_art_id = tig_art_id_rotation_set(old_art_id, rot);
+        object_set_current_aid(pc_obj, new_art_id);
         if (ai_can_see(pc_obj, target_obj) != 0) {
+            object_set_current_aid(pc_obj, old_art_id);
             return false;
         }
     }
@@ -3049,8 +3058,8 @@ void redraw_inven(bool a1)
 
             dst_rect.x = 141;
             dst_rect.y = 36;
-            dst_rect.width = art_frame_data.width;
-            dst_rect.height = art_frame_data.width;
+            dst_rect.width = art_frame_data.width / 2;
+            dst_rect.height = art_frame_data.width / 2;
 
             art_blit_info.flags = 0;
             art_blit_info.src_rect = &src_rect;
@@ -3086,7 +3095,7 @@ void redraw_inven(bool a1)
     art_blit_info.dst_rect = &dst_rect;
     tig_window_blit_art(inven_ui_window_handle, &art_blit_info);
 
-    if (inven_ui_panel) {
+    if (inven_ui_panel == INVEN_UI_PANEL_PAPERDOLL) {
         tig_art_interface_id_create(341, 0, 0, 0, &(art_blit_info.art_id));
         if (tig_art_frame_data(art_blit_info.art_id, &art_frame_data) != TIG_OK) {
             return;
@@ -3369,6 +3378,8 @@ void redraw_inven(bool a1)
                 }
 
                 if (tig_art_frame_data(art_blit_info.art_id, &art_frame_data) == TIG_OK) {
+                    src_rect.x = 0;
+                    src_rect.y = 0;
                     src_rect.height = art_frame_data.height;
                     src_rect.width = art_frame_data.width;
 
@@ -3446,6 +3457,8 @@ void redraw_inven(bool a1)
             }
 
             if (tig_art_frame_data(art_blit_info.art_id, &art_frame_data) == TIG_OK) {
+                src_rect.x = 0;
+                src_rect.y = 0;
                 src_rect.height = art_frame_data.height;
                 src_rect.width = art_frame_data.width;
 
@@ -3475,6 +3488,8 @@ void redraw_inven(bool a1)
                 dst_rect.width = text_rects[index].width;
                 dst_rect.height = text_rects[index].height;
 
+                src_rect.x = 0;
+                src_rect.y = 0;
                 src_rect.width = inven_ui_inventory_paperdoll_inv_slot_rects[index].width;
                 src_rect.height = inven_ui_inventory_paperdoll_inv_slot_rects[index].height;
 
@@ -3807,7 +3822,7 @@ void sub_578330(int64_t a1, int64_t a2)
             if ((obj_field_int32_get(a1, OBJ_F_ITEM_FLAGS) & OIF_WONT_SELL) != 0
                 || IS_WEAR_INV_LOC(item_inventory_location_get(a1))) {
                 dialog_copy_npc_normally_wont_sell_msg(qword_682C78, inven_ui_pc_obj, byte_68241C);
-                pos = strlen(byte_68241C);
+                pos = (int)strlen(byte_68241C);
             } else {
                 pos = 0;
             }

@@ -5469,9 +5469,9 @@ void intgame_message_draw(tig_window_handle_t window_handle, UiMessage* ui_messa
             MSG_TEXT_HALIGN_LEFT);
 
         if (ui_message->field_C != -1) {
-            mes_file_entry1.num = 11; // "You now have %d character point(s) to spend."
+            mes_file_entry1.num = 12; // "You now have %d character point(s) to spend."
             mes_get_msg(intgame_mes_file, &mes_file_entry1);
-            sprintf(str, mes_file_entry1.str, ui_message->field_8);
+            sprintf(str, mes_file_entry1.str, ui_message->field_C);
             intgame_message_window_write_text(window_handle,
                 str,
                 &stru_5C70E8,
@@ -7222,6 +7222,9 @@ void sub_555910(int64_t obj, char* buffer)
 
     // RNG
     min = obj_field_int32_get(obj, OBJ_F_WEAPON_RANGE);
+    if (min == 1) {
+        min = 0;
+    }
     if (identified) {
         adj = obj_field_int32_get(obj, OBJ_F_WEAPON_MAGIC_RANGE_ADJ);
     } else {

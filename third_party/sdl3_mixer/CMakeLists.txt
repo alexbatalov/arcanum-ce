@@ -18,7 +18,7 @@ set(SDLMIXER_WAVPACK OFF)
 
 FetchContent_Declare(SDL3_mixer
     GIT_REPOSITORY "https://github.com/libsdl-org/SDL_mixer"
-    GIT_TAG "main"
+    GIT_TAG "prerelease-3.1.2"
     GIT_SHALLOW TRUE
     GIT_PROGRESS TRUE
 )

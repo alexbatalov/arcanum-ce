@@ -962,6 +962,23 @@ bool sub_57E8D0(TigMessageMouseEvent mouse_event)
 
             return false;
         }
+
+        // CE: Reset the slot when a drag finishes outside of the hotkey bar.
+        // The original code did nothing, leaving the slot's "dragged" flag set,
+        // which prevented the slot contents from being drawn and gave the false
+        // impression that the spell/skill was removed from the hotkey bar.
+        //
+        // NOTE: The manual describes a different approach:
+        //
+        // "The player can manually clear a slot by dragging it to the right of
+        // the hot key bank and dropping it into the destruction tab at the
+        // end."
+        //
+        // I assume the "destruction tab" refers to the round metal element to
+        // the right of the hotkey bar, but it was never implemented.
+        if (dword_5CB4E4 != -1) {
+            sub_57F210(dword_5CB4E4);
+        }
     }
 
     if (stru_683950.item_obj.obj != OBJ_HANDLE_NULL) {

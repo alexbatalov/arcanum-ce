@@ -143,7 +143,7 @@ typedef enum ScriptConditionType {
     SCT_IDENTIFIED,
     SCT_KNOWS_SPELL,
     SCT_MASTERED_SPELL_COLLEGE,
-    SCT_50,
+    SCT_ITEMS_ARE_BEING_REWIELDED,
     SCT_PROWLING,
     SCT_WAITING_FOR_LEADER,
 } ScriptConditionType;

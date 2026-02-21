@@ -1726,7 +1726,7 @@ int object_get_ac(int64_t obj, bool a2)
         for (index = FIRST_WEAR_INV_LOC; index <= LAST_WEAR_INV_LOC; index++) {
             item_obj = item_wield_get(obj, index);
             if (item_obj != OBJ_HANDLE_NULL) {
-                ac += item_armor_ac_adj(obj, item_obj, a2);
+                ac += item_armor_ac_adj(item_obj, obj, a2);
             }
         }
 
@@ -4043,6 +4043,18 @@ void object_examine(int64_t obj, int64_t pc_obj, char* buffer)
     // in a separate file (gamekey.mes).
     if (type == OBJ_TYPE_KEY) {
         name = key_description_get(obj_field_int32_get(obj, OBJ_F_KEY_KEY_ID));
+        if (name != NULL) {
+            strcpy(buffer, name);
+        }
+        return;
+    }
+
+    // Special case for items - unidentified item name is stored in a separate
+    // field.
+    if (obj_type_is_item(type)
+        && !object_editor
+        && !item_is_identified(obj)) {
+        name = description_get(obj_field_int32_get(obj, OBJ_F_ITEM_DESCRIPTION_UNKNOWN));
         if (name != NULL) {
             strcpy(buffer, name);
         }

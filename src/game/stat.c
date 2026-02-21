@@ -6,6 +6,7 @@
 #include "game/combat.h"
 #include "game/critter.h"
 #include "game/effect.h"
+#include "game/item.h"
 #include "game/level.h"
 #include "game/light.h"
 #include "game/location.h"
@@ -791,8 +792,8 @@ int stat_base_set(int64_t obj, int stat, int value)
         break;
     case STAT_MAGICK_POINTS:
     case STAT_TECH_POINTS:
-        // Update UI.
-        sub_4601C0();
+        // Recalc item effects affected by magic/tech aptitude.
+        item_rewield(obj);
         break;
     case STAT_POISON_LEVEL:
         if (value > 0) {

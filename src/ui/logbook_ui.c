@@ -1116,7 +1116,7 @@ void sub_5403C0(char* buffer, int index)
         }
     }
 
-    mes_file_entry.num = month + 16;
+    mes_file_entry.num = month + 6;
     mes_get_msg(logbook_ui_mes_file, &mes_file_entry);
 
     sprintf(buffer, "%s %d, %d  %d:%.2d%cm    ",
