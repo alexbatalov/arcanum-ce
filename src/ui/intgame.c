@@ -1842,8 +1842,8 @@ bool sub_54B5D0(TigMessage* msg)
             return intgame_dialog_process_event_func(msg);
         }
 
-        if (msg->data.keyboard.key != SDL_SCANCODE_ESCAPE
-            && msg->data.keyboard.key != SDL_SCANCODE_O) {
+        if (msg->data.keyboard.scancode != SDL_SCANCODE_ESCAPE
+            && msg->data.keyboard.scancode != SDL_SCANCODE_O) {
             return intgame_dialog_process_event_func(msg);
         }
 
@@ -1852,9 +1852,9 @@ bool sub_54B5D0(TigMessage* msg)
 
     if (combat_turn_based_is_active()) {
         if (!player_is_local_pc_obj(combat_turn_based_whos_turn_get())) {
-            if (msg->type != TIG_MESSAGE_KEYBOARD
-                && msg->type == TIG_MESSAGE_CHAR
-                && msg->data.character.ch == SDLK_SPACE) {
+            if (msg->type == TIG_MESSAGE_KEYBOARD
+                && msg->data.keyboard.key == SDLK_SPACE
+                && msg->data.keyboard.pressed) {
                 combat_turn_based_toggle();
                 return true;
             }
@@ -2340,9 +2340,8 @@ bool sub_54B5D0(TigMessage* msg)
             return textedit_ui_process_message(msg);
         }
 
-        // NOTE: Explicit check for 1, 0, and everything else.
-        if (msg->data.keyboard.pressed == 1) {
-            switch (msg->data.keyboard.key) {
+        if (msg->data.keyboard.pressed) {
+            switch (msg->data.keyboard.scancode) {
             case SDL_SCANCODE_BACKSPACE:
             case SDL_SCANCODE_DELETE:
                 if (intgame_iso_window_type == ROTWIN_TYPE_QUANTITY) {
@@ -2446,10 +2445,8 @@ bool sub_54B5D0(TigMessage* msg)
                 }
                 return true;
             }
-
-            return false;
-        } else if (msg->data.keyboard.pressed == 0) {
-            switch (msg->data.keyboard.key) {
+        } else {
+            switch (msg->data.keyboard.scancode) {
             case SDL_SCANCODE_K:
                 if (!mainmenu_ui_is_active()) {
                     sub_54DBF0(INTGAME_SECONDARY_BUTTON_SKILLS, ROTWIN_TYPE_SKILLS);
@@ -2466,78 +2463,61 @@ bool sub_54B5D0(TigMessage* msg)
                 intgame_refresh_cursor();
                 return false;
             }
+        }
 
-            return false;
+        if (msg->data.keyboard.pressed) {
+            switch (msg->data.keyboard.key) {
+            case SDLK_SPACE:
+                combat_turn_based_toggle();
+                gsound_play_sfx(0, 1);
+                return true;
+            case SDLK_C:
+                sub_552740(player_get_local_pc_obj(), CHAREDIT_MODE_ACTIVE);
+                gsound_play_sfx(0, 1);
+                return true;
+            case SDLK_F:
+                fate_ui_toggle(player_get_local_pc_obj());
+                gsound_play_sfx(0, 1);
+                return true;
+            case SDLK_I:
+                inven_ui_open(player_get_local_pc_obj(), OBJ_HANDLE_NULL, INVEN_UI_MODE_INVENTORY);
+                gsound_play_sfx(0, 1);
+                return true;
+            case SDLK_R:
+                intgame_combat_mode_toggle();
+                gsound_play_sfx(0, 1);
+                return true;
+            case SDLK_S:
+                sleep_ui_toggle(OBJ_HANDLE_NULL);
+                gsound_play_sfx(0, 1);
+                return true;
+            case SDLK_T:
+                schematic_ui_toggle(player_get_local_pc_obj(), player_get_local_pc_obj());
+                gsound_play_sfx(0, 1);
+                return true;
+            case SDLK_W:
+                wmap_ui_open();
+                gsound_play_sfx(0, 1);
+                return true;
+            case SDLK_RETURN:
+                if (intgame_iso_window_type == ROTWIN_TYPE_QUANTITY) {
+                    sub_578B80(intgame_quantity);
+                    intgame_mode_set(INTGAME_MODE_MAIN);
+                    gsound_play_sfx(0, 1);
+                } else if (!mainmenu_ui_is_active()) {
+                    broadcast_ui_open();
+                    gsound_play_sfx(0, 1);
+                }
+                return true;
+            }
         }
 
         return false;
     } // msg->type == TIG_MESSAGE_KEYBOARD
 
-    if (msg->type == TIG_MESSAGE_CHAR) {
-        bool v2;
-
-        if (textedit_ui_is_focused()) {
-            return textedit_ui_process_message(msg);
-        }
-
-        v2 = false;
-        if (msg->data.character.ch == SDLK_RETURN) {
-            if (intgame_iso_window_type == ROTWIN_TYPE_QUANTITY) {
-                sub_578B80(intgame_quantity);
-                intgame_mode_set(INTGAME_MODE_MAIN);
-                v2 = true;
-            } else if (!mainmenu_ui_is_active()) {
-                broadcast_ui_open();
-                v2 = true;
-            }
-        }
-
-        if (mainmenu_ui_is_active()) {
-            return false;
-        }
-
-        switch (msg->data.character.ch) {
-        case ' ':
-            combat_turn_based_toggle();
-            break;
-        case 'C':
-        case 'c':
-            sub_552740(player_get_local_pc_obj(), CHAREDIT_MODE_ACTIVE);
-            break;
-        case 'F':
-        case 'f':
-            fate_ui_toggle(player_get_local_pc_obj());
-            break;
-        case 'I':
-        case 'i':
-            inven_ui_open(player_get_local_pc_obj(), OBJ_HANDLE_NULL, INVEN_UI_MODE_INVENTORY);
-            break;
-        case 'R':
-        case 'r':
-            intgame_combat_mode_toggle();
-            break;
-        case 'S':
-        case 's':
-            sleep_ui_toggle(OBJ_HANDLE_NULL);
-            break;
-        case 'T':
-        case 't':
-            schematic_ui_toggle(player_get_local_pc_obj(), player_get_local_pc_obj());
-            break;
-        case 'W':
-        case 'w':
-            wmap_ui_open();
-            break;
-        default:
-            if (!v2) {
-                return false;
-            }
-            break;
-        }
-
-        gsound_play_sfx(0, 1);
-        return true;
-    } // msg->type == TIG_MESSAGE_CHAR
+    if (msg->type == TIG_MESSAGE_TEXT_INPUT) {
+        return textedit_ui_process_message(msg);
+    }
 
     return false;
 }
@@ -2657,9 +2637,9 @@ void intgame_process_event(TigMessage* msg)
     if (msg->type == TIG_MESSAGE_KEYBOARD
         && !textedit_ui_is_focused()
         && !msg->data.keyboard.pressed
-        && msg->data.keyboard.key >= SDL_SCANCODE_1
-        && msg->data.keyboard.key <= SDL_SCANCODE_0) {
-        sub_57F1D0(msg->data.keyboard.key - SDL_SCANCODE_1);
+        && msg->data.keyboard.scancode >= SDL_SCANCODE_1
+        && msg->data.keyboard.scancode <= SDL_SCANCODE_0) {
+        sub_57F1D0(msg->data.keyboard.scancode - SDL_SCANCODE_1);
     }
 
     switch (intgame_mode_get()) {
@@ -2773,7 +2753,7 @@ void intgame_process_event(TigMessage* msg)
         case TIG_MESSAGE_KEYBOARD:
             if (!textedit_ui_is_focused()
                 && !msg->data.keyboard.pressed) {
-                switch (msg->data.keyboard.key) {
+                switch (msg->data.keyboard.scancode) {
                 case SDL_SCANCODE_F1:
                 case SDL_SCANCODE_F2:
                 case SDL_SCANCODE_F3:
@@ -2781,7 +2761,7 @@ void intgame_process_event(TigMessage* msg)
                 case SDL_SCANCODE_F5:
                 case SDL_SCANCODE_F6:
                     intgame_get_location_under_cursor(&loc);
-                    sub_4C3BE0(msg->data.keyboard.key - SDL_SCANCODE_F1, loc);
+                    sub_4C3BE0(msg->data.keyboard.scancode - SDL_SCANCODE_F1, loc);
                     break;
                 case SDL_SCANCODE_HOME:
                     sub_54EB60();
@@ -2825,7 +2805,7 @@ void intgame_process_event(TigMessage* msg)
         case TIG_MESSAGE_KEYBOARD:
             if (!textedit_ui_is_focused()) {
                 if (!msg->data.keyboard.pressed) {
-                    switch (msg->data.keyboard.key) {
+                    switch (msg->data.keyboard.scancode) {
                     case SDL_SCANCODE_LALT:
                     case SDL_SCANCODE_RALT:
                         if (!tig_kb_get_modifier(SDL_KMOD_ALT)) {
@@ -2839,14 +2819,14 @@ void intgame_process_event(TigMessage* msg)
                     case SDL_SCANCODE_F5:
                     case SDL_SCANCODE_F6:
                         intgame_get_location_under_cursor(&loc);
-                        sub_4C3BE0(msg->data.keyboard.key - SDL_SCANCODE_F1, loc);
+                        sub_4C3BE0(msg->data.keyboard.scancode - SDL_SCANCODE_F1, loc);
                         break;
                     case SDL_SCANCODE_HOME:
                         sub_54EB60();
                         break;
                     }
                 } else {
-                    switch (msg->data.keyboard.key) {
+                    switch (msg->data.keyboard.scancode) {
                     case SDL_SCANCODE_LALT:
                     case SDL_SCANCODE_RALT:
                         spell_ui_aggressive_mode_off();
@@ -2887,7 +2867,7 @@ void intgame_process_event(TigMessage* msg)
         case TIG_MESSAGE_KEYBOARD:
             if (!textedit_ui_is_focused()) {
                 if (!msg->data.keyboard.pressed) {
-                    switch (msg->data.keyboard.key) {
+                    switch (msg->data.keyboard.scancode) {
                     case SDL_SCANCODE_F1:
                     case SDL_SCANCODE_F2:
                     case SDL_SCANCODE_F3:
@@ -2895,7 +2875,7 @@ void intgame_process_event(TigMessage* msg)
                     case SDL_SCANCODE_F5:
                     case SDL_SCANCODE_F6:
                         intgame_get_location_under_cursor(&loc);
-                        sub_4C3BE0(msg->data.keyboard.key - SDL_SCANCODE_F1, loc);
+                        sub_4C3BE0(msg->data.keyboard.scancode - SDL_SCANCODE_F1, loc);
                         break;
                     case SDL_SCANCODE_HOME:
                         sub_54EB60();
@@ -3013,7 +2993,7 @@ void intgame_process_event(TigMessage* msg)
         case TIG_MESSAGE_KEYBOARD:
             if (textedit_ui_is_focused()
                 && !msg->data.keyboard.pressed) {
-                switch (msg->data.keyboard.key) {
+                switch (msg->data.keyboard.scancode) {
                 case SDL_SCANCODE_F1:
                 case SDL_SCANCODE_F2:
                 case SDL_SCANCODE_F3:
@@ -3021,7 +3001,7 @@ void intgame_process_event(TigMessage* msg)
                 case SDL_SCANCODE_F5:
                 case SDL_SCANCODE_F6:
                     intgame_get_location_under_cursor(&loc);
-                    sub_4C3BE0(msg->data.keyboard.key - SDL_SCANCODE_F1, loc);
+                    sub_4C3BE0(msg->data.keyboard.scancode - SDL_SCANCODE_F1, loc);
                     break;
                 case SDL_SCANCODE_HOME:
                     sub_54EB60();
