@@ -3452,7 +3452,7 @@ int sub_453B20(int64_t attacker_obj, int64_t target_obj, int spell)
     obj_type = obj_field_int32_get(target_obj, OBJ_F_TYPE);
     info = &(magictech_spells[spell]);
 
-    if ((info->flags & MAGICTECH_IS_TECH) != 0) {
+    if ((info->flags & MAGICTECH_IS_TECH) == 0) {
         if (attacker_obj != target_obj) {
             resistance = obj_arrayfield_int32_get(target_obj, OBJ_F_RESISTANCE_IDX, RESISTANCE_TYPE_MAGIC);
             if (!magictech_cur_is_fate_maximized) {
