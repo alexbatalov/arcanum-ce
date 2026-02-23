@@ -2088,6 +2088,10 @@ bool sub_4AB990(int64_t source_obj, int64_t target_obj)
         return false;
     }
 
+    if (target_obj == source_obj) {
+        return false;
+    }
+
     source_leader_obj = critter_leader_get(source_obj);
     target_obj_type = obj_field_int32_get(target_obj, OBJ_F_TYPE);
 
