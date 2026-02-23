@@ -2120,6 +2120,8 @@ static inline bool inven_ui_message_filter_handle_mouse_rbutton_up(TigMessage* m
 bool inven_ui_message_filter(TigMessage* msg)
 {
     bool v45 = false;
+    TigMessage tmp_msg = *msg;
+    msg = &tmp_msg;
 
     // Convert mouse position from screen coordinate system to centered 800x600
     // area.

@@ -4885,6 +4885,8 @@ bool sub_546EE0(TigMessage* msg)
     UiMessage ui_message;
     char str[MAX_STRING];
     int v2;
+    TigMessage tmp_msg = *msg;
+    msg = &tmp_msg;
 
     // Convert mouse position from screen coordinate system to centered 800x600
     // area.
