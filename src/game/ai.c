@@ -3741,8 +3741,7 @@ int sub_4AE720(int64_t a1, int64_t item_obj, int64_t a3, int magictech)
 
     if (a1 != a3 && a3 != OBJ_HANDLE_NULL) {
         if (sub_4ADE00(a1, obj_field_int64_get(a3, OBJ_F_LOCATION), &v1) >= 100
-            || v1 == OBJ_HANDLE_NULL
-            || v1 == a3) {
+            || (v1 != OBJ_HANDLE_NULL && v1 != a3)) {
             return 5;
         }
     }
