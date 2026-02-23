@@ -13,7 +13,6 @@ typedef int(TigMessageKeyboardCallback)(int);
 typedef enum TigMessageType {
     TIG_MESSAGE_MOUSE,
     TIG_MESSAGE_BUTTON,
-    TIG_MESSAGE_MENU,
     TIG_MESSAGE_QUIT,
     TIG_MESSAGE_TEXT_INPUT,
     TIG_MESSAGE_KEYBOARD,
@@ -50,12 +49,6 @@ typedef struct TigButtonMessageData {
     int y;
 } TigButtonMessageData;
 
-typedef struct TigMenuMessageData {
-    int menu_bar_handle;
-    int drop_down_index;
-    int menu_item_index;
-} TigMenuMessageData;
-
 typedef struct TigQuitMessageData {
     int exit_code;
 } TigQuitMessageData;
@@ -76,7 +69,6 @@ typedef struct TigMessage {
     union {
         TigMouseMessageData mouse;
         TigButtonMessageData button;
-        TigMenuMessageData menu;
         TigQuitMessageData quit;
         TigKeyboardMessageData keyboard;
         TigTextInputEvent text;
