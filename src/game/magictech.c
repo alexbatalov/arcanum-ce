@@ -4976,7 +4976,7 @@ bool magictech_invocation_check(MagicTechInvocation* mt_invocation)
         }
     }
 
-    if ((mt_invocation->flags & MAGICTECH_INVOCATION_UNRESISTABLE) == 0) {
+    if ((info->flags & MAGICTECH_IS_TECH) == 0) {
         int source_aptitude = mt_invocation->parent_obj.obj != OBJ_HANDLE_NULL
             ? stat_level_get(mt_invocation->parent_obj.obj, STAT_MAGICK_TECH_APTITUDE)
             : 0;
