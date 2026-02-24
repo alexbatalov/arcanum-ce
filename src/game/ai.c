@@ -138,7 +138,7 @@ static int ai_check_upset_attacking(int64_t source_obj, int64_t target_obj, int6
 static void ai_calc_party_size_and_level_internal(int64_t obj, int* cnt_ptr, int* lvl_ptr);
 static int ai_check_protect(int64_t source_obj, int64_t target_obj);
 static int64_t sub_4AE450(int64_t a1, int64_t a2);
-static int sub_4AE720(int64_t a1, int64_t item_obj, int64_t a3, int magictech);
+static int sub_4AE720(int64_t attacker_obj, int64_t item_obj, int64_t target_obj, int spell);
 static bool ai_is_indoor_to_outdoor_transition(int64_t portal_obj, int dir);
 static int ai_perception_distance(int value);
 static int sub_4AF640(int64_t source_obj, int64_t target_obj);
@@ -2323,7 +2323,7 @@ bool sub_4ABF10(Ai* ai, S4ABF10* a2)
         }
 
         if (!magictech_is_under_influence_of(obj, entry->spell)
-            && !sub_4AE720(ai->obj, entry->item_obj, obj, entry->spell)) {
+            && sub_4AE720(ai->obj, entry->item_obj, obj, entry->spell) == 0) {
             if (entry->item_obj != OBJ_HANDLE_NULL
                 && mt_item_valid_ai_action(entry->item_obj)) {
                 ai->action_type = AI_ACTION_TYPE_USE_ITEM;
@@ -3677,17 +3677,14 @@ int ai_check_use_skill(int64_t source_obj, int64_t target_obj, int64_t item_obj,
 }
 
 // 0x4AE720
-int sub_4AE720(int64_t a1, int64_t item_obj, int64_t a3, int magictech)
+int sub_4AE720(int64_t attacker_obj, int64_t item_obj, int64_t target_obj, int spell)
 {
-    int obj_type;
-    int64_t v1;
-
-    obj_type = obj_field_int32_get(a1, OBJ_F_TYPE);
+    int attacker_obj_type = obj_field_int32_get(attacker_obj, OBJ_F_TYPE);
 
     if (item_obj != OBJ_HANDLE_NULL) {
-        if (obj_type == OBJ_TYPE_NPC
-            && sub_4503A0(magictech)
-            && !sub_450B40(a1)) {
+        if (attacker_obj_type == OBJ_TYPE_NPC
+            && sub_4503A0(spell)
+            && !sub_450B40(attacker_obj)) {
             return 6;
         }
 
@@ -3695,57 +3692,60 @@ int sub_4AE720(int64_t a1, int64_t item_obj, int64_t a3, int magictech)
             return 2;
         }
 
-        if (a3 != OBJ_HANDLE_NULL
-            && (COLLEGE_FROM_SPELL(magictech) != COLLEGE_NECROMANTIC_WHITE
-                || (ai_object_hp_ratio(a3) > 30
-                    && ai_critter_fatigue_ratio(a1) < 80))
-            && magictech_use_item_fail_chance(a1, item_obj, a3) >= 38) {
+        if (target_obj != OBJ_HANDLE_NULL
+            && (COLLEGE_FROM_SPELL(spell) != COLLEGE_NECROMANTIC_WHITE
+                || (ai_object_hp_ratio(target_obj) > 30
+                    && ai_critter_fatigue_ratio(attacker_obj) < 80))
+            && magictech_use_item_fail_chance(attacker_obj, item_obj, target_obj) >= 38) {
             return 8;
         }
     } else {
-        if (!spell_is_known(a1, magictech)) {
+        if (!spell_is_known(attacker_obj, spell)) {
             return 1;
         }
 
-        if (obj_type == OBJ_TYPE_NPC) {
-            if (critter_pc_leader_get(a1) == OBJ_HANDLE_NULL
-                && ai_critter_fatigue_ratio(a1) < 20) {
+        if (attacker_obj_type == OBJ_TYPE_NPC) {
+            if (critter_pc_leader_get(attacker_obj) == OBJ_HANDLE_NULL
+                && ai_critter_fatigue_ratio(attacker_obj) < 20) {
                 return 2;
             }
 
-            if (sub_4503A0(magictech) && !sub_450B40(a1)) {
+            if (sub_4503A0(spell) && !sub_450B40(attacker_obj)) {
                 return 6;
             }
         }
 
-        if (spell_cast_cost(magictech, a1) >= critter_fatigue_current(a1)) {
+        if (spell_cast_cost(spell, attacker_obj) >= critter_fatigue_current(attacker_obj)) {
             return 2;
         }
 
-        if (spell_min_intelligence(magictech) > stat_level_get(a1, STAT_INTELLIGENCE)) {
+        if (spell_min_intelligence(spell) > stat_level_get(attacker_obj, STAT_INTELLIGENCE)) {
             return 3;
         }
 
-        if (spell_min_willpower(magictech) > stat_level_get(a1, STAT_WILLPOWER)) {
+        if (spell_min_willpower(spell) > stat_level_get(attacker_obj, STAT_WILLPOWER)) {
             return 7;
         }
 
-        if ((obj_field_int32_get(a1, OBJ_F_NPC_FLAGS) & ONF_CAST_HIGHEST) != 0
-            && spell_college_level_get(a1, COLLEGE_FROM_SPELL(magictech)) + 5 * COLLEGE_FROM_SPELL(magictech) - 1 != magictech) {
+        if ((obj_field_int32_get(attacker_obj, OBJ_F_NPC_FLAGS) & ONF_CAST_HIGHEST) != 0
+            && spell_college_level_get(attacker_obj, COLLEGE_FROM_SPELL(spell)) + 5 * COLLEGE_FROM_SPELL(spell) - 1 != spell) {
             return 4;
         }
 
-        if (a3 != OBJ_HANDLE_NULL
-            && (COLLEGE_FROM_SPELL(magictech) != COLLEGE_NECROMANTIC_WHITE
-                || ai_object_hp_ratio(a3) > 30)
-            && magictech_cast_spell_fail_chance(a1, a3, magictech) >= 38) {
+        if (target_obj != OBJ_HANDLE_NULL
+            && (COLLEGE_FROM_SPELL(spell) != COLLEGE_NECROMANTIC_WHITE
+                || ai_object_hp_ratio(target_obj) > 30)
+            && magictech_cast_spell_fail_chance(attacker_obj, target_obj, spell) >= 38) {
             return 8;
         }
     }
 
-    if (a1 != a3 && a3 != OBJ_HANDLE_NULL) {
-        if (sub_4ADE00(a1, obj_field_int64_get(a3, OBJ_F_LOCATION), &v1) >= 100
-            || (v1 != OBJ_HANDLE_NULL && v1 != a3)) {
+    if (attacker_obj != target_obj && target_obj != OBJ_HANDLE_NULL) {
+        int64_t block_obj;
+        int64_t target_obj_loc = obj_field_int64_get(target_obj, OBJ_F_LOCATION);
+
+        if (sub_4ADE00(attacker_obj, target_obj_loc, &block_obj) >= 100
+            || (block_obj != OBJ_HANDLE_NULL && block_obj != target_obj)) {
             return 5;
         }
     }
