@@ -3533,14 +3533,18 @@ int magictech_cast_spell_fail_chance(int64_t attacker_obj, int64_t target_obj, i
     return resistance;
 }
 
-// 0x453CC0
-int sub_453CC0(int64_t a1, int64_t item_obj, int64_t a3)
+/**
+ * Determines the failure chance of using a given item.
+ *
+ * 0x453CC0
+ */
+int magictech_use_item_fail_chance(int64_t attacker_obj, int64_t item_obj, int64_t target_obj)
 {
     int spell_mana_store;
     int item_flags;
     int spell;
 
-    if (a3 == OBJ_HANDLE_NULL
+    if (target_obj == OBJ_HANDLE_NULL
         || item_obj == OBJ_HANDLE_NULL) {
         return 0;
     }
@@ -3549,7 +3553,7 @@ int sub_453CC0(int64_t a1, int64_t item_obj, int64_t a3)
     item_flags = obj_field_int32_get(item_obj, OBJ_F_ITEM_FLAGS);
 
     if (spell_mana_store == 0
-        || (item_flags & OIF_IS_MAGICAL) == 0) {
+        && (item_flags & OIF_IS_MAGICAL) == 0) {
         return 0;
     }
 
@@ -3558,7 +3562,7 @@ int sub_453CC0(int64_t a1, int64_t item_obj, int64_t a3)
         return 0;
     }
 
-    return magictech_cast_spell_fail_chance(a1, a3, spell);
+    return magictech_cast_spell_fail_chance(attacker_obj, target_obj, spell);
 }
 
 // 0x453D40

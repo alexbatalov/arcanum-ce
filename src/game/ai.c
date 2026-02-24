@@ -3699,7 +3699,7 @@ int sub_4AE720(int64_t a1, int64_t item_obj, int64_t a3, int magictech)
             && (COLLEGE_FROM_SPELL(magictech) != COLLEGE_NECROMANTIC_WHITE
                 || (ai_object_hp_ratio(a3) > 30
                     && ai_critter_fatigue_ratio(a1) < 80))
-            && sub_453CC0(a1, item_obj, a3) >= 38) {
+            && magictech_use_item_fail_chance(a1, item_obj, a3) >= 38) {
             return 8;
         }
     } else {
