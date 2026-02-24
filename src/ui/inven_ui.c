@@ -1267,9 +1267,9 @@ void sub_573840()
 }
 
 // 0x573897
-static inline bool inven_ui_message_filter_handle_button_pressed(TigMessage* msg)
+static inline bool inven_ui_message_filter_handle_button_pressed(tig_button_handle_t button_handle)
 {
-    if (msg->data.button.button_handle == inven_ui_inventory_btn) {
+    if (button_handle == inven_ui_inventory_btn) {
         inven_ui_panel = INVEN_UI_PANEL_INVENTORY;
         tig_button_hide(inven_ui_total_attack_image_btn);
         tig_button_hide(inven_ui_total_defence_image_btn);
@@ -1279,7 +1279,7 @@ static inline bool inven_ui_message_filter_handle_button_pressed(TigMessage* msg
         return true;
     }
 
-    if (msg->data.button.button_handle == inven_ui_paperdoll_btn) {
+    if (button_handle == inven_ui_paperdoll_btn) {
         inven_ui_panel = INVEN_UI_PANEL_PAPERDOLL;
         tig_button_show(inven_ui_total_attack_image_btn);
         tig_button_show(inven_ui_total_defence_image_btn);
@@ -1289,7 +1289,7 @@ static inline bool inven_ui_message_filter_handle_button_pressed(TigMessage* msg
         return true;
     }
 
-    if (msg->data.button.button_handle == inven_ui_target_inventory_btn) {
+    if (button_handle == inven_ui_target_inventory_btn) {
         inven_ui_target_panel = INVEN_UI_PANEL_INVENTORY;
         inven_ui_target_inventory_scrollbar_show();
         tig_button_hide(inven_ui_target_total_attack_btn);
@@ -1299,7 +1299,7 @@ static inline bool inven_ui_message_filter_handle_button_pressed(TigMessage* msg
         return true;
     }
 
-    if (msg->data.button.button_handle == inven_ui_target_paperdoll_btn) {
+    if (button_handle == inven_ui_target_paperdoll_btn) {
         inven_ui_target_panel = INVEN_UI_PANEL_PAPERDOLL;
         inven_ui_target_inventory_scrollbar_hide();
         tig_button_show(inven_ui_target_total_attack_btn);
@@ -1308,27 +1308,27 @@ static inline bool inven_ui_message_filter_handle_button_pressed(TigMessage* msg
         return true;
     }
 
-    if (msg->data.button.button_handle == inven_ui_total_attack_image_btn
-        || msg->data.button.button_handle == inven_ui_total_attack_value_btn) {
+    if (button_handle == inven_ui_total_attack_image_btn
+        || button_handle == inven_ui_total_attack_value_btn) {
         iso_interface_window_set(ROTWIN_TYPE_MSG);
         intgame_message_window_display_attack(inven_ui_pc_obj);
         return true;
     }
 
-    if (msg->data.button.button_handle == inven_ui_total_defence_image_btn
-        || msg->data.button.button_handle == inven_ui_total_defence_value_btn) {
+    if (button_handle == inven_ui_total_defence_image_btn
+        || button_handle == inven_ui_total_defence_value_btn) {
         iso_interface_window_set(ROTWIN_TYPE_MSG);
         intgame_message_window_display_defense(inven_ui_pc_obj);
         return true;
     }
 
-    if (msg->data.button.button_handle == inven_ui_target_total_attack_btn) {
+    if (button_handle == inven_ui_target_total_attack_btn) {
         iso_interface_window_set(ROTWIN_TYPE_MSG);
         intgame_message_window_display_attack(qword_682C78);
         return true;
     }
 
-    if (msg->data.button.button_handle == inven_ui_target_total_defence_btn) {
+    if (button_handle == inven_ui_target_total_defence_btn) {
         iso_interface_window_set(ROTWIN_TYPE_MSG);
         intgame_message_window_display_defense(qword_682C78);
         return true;
@@ -1338,9 +1338,9 @@ static inline bool inven_ui_message_filter_handle_button_pressed(TigMessage* msg
 }
 
 // 0x573A95
-static inline bool inven_ui_message_filter_handle_button_released(TigMessage* msg)
+static inline bool inven_ui_message_filter_handle_button_released(tig_button_handle_t button_handle)
 {
-    if (msg->data.button.button_handle == inven_ui_arrange_items_btn) {
+    if (button_handle == inven_ui_arrange_items_btn) {
         item_arrange_inventory(inven_ui_pc_obj, inven_ui_arrange_vertical);
         item_inventory_slots_get(inven_ui_pc_obj, dword_68111C);
         if (dword_6810FC) {
@@ -1352,17 +1352,17 @@ static inline bool inven_ui_message_filter_handle_button_released(TigMessage* ms
         return true;
     }
 
-    if (msg->data.button.button_handle == inven_ui_take_all_btn) {
+    if (button_handle == inven_ui_take_all_btn) {
         sub_579770(qword_6813A8, inven_ui_pc_obj);
         return true;
     }
 
-    if (msg->data.button.button_handle == inven_ui_cycle_left_btn) {
+    if (button_handle == inven_ui_cycle_left_btn) {
         sub_574FD0(false);
         return true;
     }
 
-    if (msg->data.button.button_handle == inven_ui_cycle_right_btn) {
+    if (button_handle == inven_ui_cycle_right_btn) {
         sub_574FD0(true);
         return true;
     }
@@ -1371,24 +1371,24 @@ static inline bool inven_ui_message_filter_handle_button_released(TigMessage* ms
 }
 
 // 0x573BAF
-static inline bool inven_ui_mssage_filter_handle_button_hovered(TigMessage* msg)
+static inline bool inven_ui_mssage_filter_handle_button_hovered(tig_button_handle_t button_handle)
 {
-    if (msg->data.button.button_handle == inven_ui_total_attack_image_btn || msg->data.button.button_handle == inven_ui_total_attack_value_btn) {
+    if (button_handle == inven_ui_total_attack_image_btn || button_handle == inven_ui_total_attack_value_btn) {
         intgame_message_window_display_attack(inven_ui_pc_obj);
         return true;
     }
 
-    if (msg->data.button.button_handle == inven_ui_total_defence_image_btn || msg->data.button.button_handle == inven_ui_total_defence_value_btn) {
+    if (button_handle == inven_ui_total_defence_image_btn || button_handle == inven_ui_total_defence_value_btn) {
         intgame_message_window_display_defense(inven_ui_pc_obj);
         return true;
     }
 
-    if (msg->data.button.button_handle == inven_ui_target_total_attack_btn) {
+    if (button_handle == inven_ui_target_total_attack_btn) {
         intgame_message_window_display_attack(qword_682C78);
         return true;
     }
 
-    if (msg->data.button.button_handle == inven_ui_target_total_defence_btn) {
+    if (button_handle == inven_ui_target_total_defence_btn) {
         intgame_message_window_display_defense(qword_682C78);
         return true;
     }
@@ -1397,13 +1397,13 @@ static inline bool inven_ui_mssage_filter_handle_button_hovered(TigMessage* msg)
 }
 
 // 0x573C80
-static inline void inven_ui_message_filter_handle_mouse_idle(TigMessage* msg)
+static inline void inven_ui_message_filter_handle_mouse_idle(int x, int y)
 {
     int64_t v1;
     int64_t v2;
 
     if (inven_ui_drag_item_obj == OBJ_HANDLE_NULL) {
-        v1 = sub_575FA0(msg->data.mouse.x, msg->data.mouse.y, &v2);
+        v1 = sub_575FA0(x, y, &v2);
         if (v1 != qword_681458) {
             qword_681458 = v1;
             if (qword_681458 != OBJ_HANDLE_NULL) {
@@ -1432,14 +1432,14 @@ static inline void inven_ui_message_filter_handle_mouse_idle(TigMessage* msg)
 }
 
 // 0x573D61
-static inline bool inven_ui_message_filter_handle_mouse_move(TigMessage* msg)
+static inline bool inven_ui_message_filter_handle_mouse_move(int x, int y)
 {
     if (inven_ui_drag_item_obj != OBJ_HANDLE_NULL) {
         if (inven_ui_have_drop_box) {
-            if (msg->data.mouse.x >= inven_ui_drop_box_frame.x
-                && msg->data.mouse.x < inven_ui_drop_box_frame.x + inven_ui_drop_box_frame.width
-                && msg->data.mouse.y >= inven_ui_drop_box_frame.y
-                && msg->data.mouse.y < inven_ui_drop_box_frame.y + inven_ui_drop_box_frame.height) {
+            if (x >= inven_ui_drop_box_frame.x
+                && x < inven_ui_drop_box_frame.x + inven_ui_drop_box_frame.width
+                && y >= inven_ui_drop_box_frame.y
+                && y < inven_ui_drop_box_frame.y + inven_ui_drop_box_frame.height) {
                 if (inven_ui_drop_box_image == 224) {
                     if (qword_681450 == qword_6813A8) {
                         switch (inven_ui_mode) {
@@ -1475,10 +1475,10 @@ static inline bool inven_ui_message_filter_handle_mouse_move(TigMessage* msg)
         }
 
         if (inven_ui_have_gamble_box) {
-            if (msg->data.mouse.x >= inven_ui_gamble_box_frame.x
-                && msg->data.mouse.x < inven_ui_gamble_box_frame.x + inven_ui_gamble_box_frame.width
-                && msg->data.mouse.y >= inven_ui_gamble_box_frame.y
-                && msg->data.mouse.y < inven_ui_gamble_box_frame.y + inven_ui_gamble_box_frame.height) {
+            if (x >= inven_ui_gamble_box_frame.x
+                && x < inven_ui_gamble_box_frame.x + inven_ui_gamble_box_frame.width
+                && y >= inven_ui_gamble_box_frame.y
+                && y < inven_ui_gamble_box_frame.y + inven_ui_gamble_box_frame.height) {
                 if (inven_ui_gamble_box_image == 345) {
                     inven_ui_gamble_box_image = sub_579840(inven_ui_drag_item_obj, 0) ? 344 : 346;
                     redraw_inven(false);
@@ -1494,10 +1494,10 @@ static inline bool inven_ui_message_filter_handle_mouse_move(TigMessage* msg)
         }
 
         if (inven_ui_have_use_box) {
-            if (msg->data.mouse.x >= inven_ui_use_box_frame.x
-                && msg->data.mouse.x < inven_ui_use_box_frame.x + inven_ui_use_box_frame.width
-                && msg->data.mouse.y >= inven_ui_use_box_frame.y
-                && msg->data.mouse.y < inven_ui_use_box_frame.y + inven_ui_use_box_frame.height) {
+            if (x >= inven_ui_use_box_frame.x
+                && x < inven_ui_use_box_frame.x + inven_ui_use_box_frame.width
+                && y >= inven_ui_use_box_frame.y
+                && y < inven_ui_use_box_frame.y + inven_ui_use_box_frame.height) {
                 if (inven_ui_use_box_image == 342) {
                     if ((qword_681450 == qword_6813A8
                             && (inven_ui_mode == INVEN_UI_MODE_BARTER
@@ -1525,7 +1525,7 @@ static inline bool inven_ui_message_filter_handle_mouse_move(TigMessage* msg)
 }
 
 // 0x574080
-static inline bool inven_ui_message_filter_handle_mouse_lbutton_down(TigMessage* msg)
+static inline bool inven_ui_message_filter_handle_mouse_lbutton_down(int x, int y)
 {
     int64_t v1;
     int64_t v2;
@@ -1538,18 +1538,18 @@ static inline bool inven_ui_message_filter_handle_mouse_lbutton_down(TigMessage*
     case INTGAME_MODE_BARTER:
         dword_68346C = true;
         if (inven_ui_drag_item_obj == OBJ_HANDLE_NULL) {
-            inven_ui_drag_item_obj = sub_575FA0(msg->data.mouse.x, msg->data.mouse.y, &qword_681450);
+            inven_ui_drag_item_obj = sub_575FA0(x, y, &qword_681450);
             if (inven_ui_drag_item_obj != OBJ_HANDLE_NULL) {
-                dword_683470 = sub_575CB0(msg->data.mouse.x, msg->data.mouse.y, &v2);
+                dword_683470 = sub_575CB0(x, y, &v2);
                 dword_6810E8 = item_inventory_location_get(inven_ui_drag_item_obj);
                 dword_683470 -= dword_6810E8;
-                sub_5754C0(msg->data.mouse.x, msg->data.mouse.y);
+                sub_5754C0(x, y);
             }
             return true;
         }
         break;
     case INTGAME_MODE_SKILL:
-        v1 = sub_575FA0(msg->data.mouse.x, msg->data.mouse.y, &qword_681450);
+        v1 = sub_575FA0(x, y, &qword_681450);
         if (v1 != OBJ_HANDLE_NULL) {
             sub_4F2810(&v3, v1);
             sub_57A1F0(&v3);
@@ -1558,7 +1558,7 @@ static inline bool inven_ui_message_filter_handle_mouse_lbutton_down(TigMessage*
         }
         break;
     case INTGAME_MODE_SPELL:
-        v1 = sub_575FA0(msg->data.mouse.x, msg->data.mouse.y, &qword_681450);
+        v1 = sub_575FA0(x, y, &qword_681450);
         if (v1 != OBJ_HANDLE_NULL) {
             sub_4F2810(&v3, v1);
             spell_ui_apply(&v3);
@@ -1566,7 +1566,7 @@ static inline bool inven_ui_message_filter_handle_mouse_lbutton_down(TigMessage*
         }
         break;
     case 16:
-        v1 = sub_575FA0(msg->data.mouse.x, msg->data.mouse.y, &qword_681450);
+        v1 = sub_575FA0(x, y, &qword_681450);
         if (v1 != OBJ_HANDLE_NULL) {
             sub_4F2810(&v3, v1);
             item_ui_apply(&v3);
@@ -1789,13 +1789,13 @@ static inline bool inven_ui_message_filter_handle_mouse_lbutton_up_accept_drop(T
 }
 
 // 0x574559
-static inline bool inven_ui_message_filter_handle_mouse_lbutton_up(TigMessage* msg, bool* v45)
+static inline bool inven_ui_message_filter_handle_mouse_lbutton_up(int x, int y, bool* v45)
 {
     int64_t v1;
     int64_t v2;
 
     dword_68346C = 0;
-    if (intgame_pc_lens_check_pt_unscale(msg->data.mouse.x, msg->data.mouse.y)) {
+    if (intgame_pc_lens_check_pt_unscale(x, y)) {
         if (!mainmenu_ui_is_active()) {
             if (inven_ui_drag_item_obj != OBJ_HANDLE_NULL) {
                 if (inven_ui_mode == INVEN_UI_MODE_INVENTORY) {
@@ -1818,7 +1818,7 @@ static inline bool inven_ui_message_filter_handle_mouse_lbutton_up(TigMessage* m
     }
 
     if (inven_ui_drag_item_obj == OBJ_HANDLE_NULL) {
-        v1 = sub_575FA0(msg->data.mouse.x, msg->data.mouse.y, &v2);
+        v1 = sub_575FA0(x, y, &v2);
         if (v1 == OBJ_HANDLE_NULL) {
             return false;
         }
@@ -1854,10 +1854,10 @@ static inline bool inven_ui_message_filter_handle_mouse_lbutton_up(TigMessage* m
     }
 
     if (inven_ui_have_drop_box
-        && msg->data.mouse.x >= inven_ui_drop_box_frame.x
-        && msg->data.mouse.y >= inven_ui_drop_box_frame.y
-        && msg->data.mouse.x < inven_ui_drop_box_frame.x + inven_ui_drop_box_frame.width
-        && msg->data.mouse.y < inven_ui_drop_box_frame.y + inven_ui_drop_box_frame.height) {
+        && x >= inven_ui_drop_box_frame.x
+        && y >= inven_ui_drop_box_frame.y
+        && x < inven_ui_drop_box_frame.x + inven_ui_drop_box_frame.width
+        && y < inven_ui_drop_box_frame.y + inven_ui_drop_box_frame.height) {
         if (qword_681450 != qword_6813A8
             || (inven_ui_mode == INVEN_UI_MODE_BARTER && dword_6810FC)
             || (inven_ui_mode != INVEN_UI_MODE_STEAL
@@ -1869,20 +1869,20 @@ static inline bool inven_ui_message_filter_handle_mouse_lbutton_up(TigMessage* m
         inven_ui_drag_item_obj = OBJ_HANDLE_NULL;
         inven_ui_drop_box_image = 224;
     } else if (inven_ui_have_gamble_box
-        && msg->data.mouse.x >= inven_ui_gamble_box_frame.x
-        && msg->data.mouse.y >= inven_ui_gamble_box_frame.y
-        && msg->data.mouse.x < inven_ui_gamble_box_frame.x + inven_ui_gamble_box_frame.width
-        && msg->data.mouse.y < inven_ui_gamble_box_frame.y + inven_ui_gamble_box_frame.height) {
+        && x >= inven_ui_gamble_box_frame.x
+        && y >= inven_ui_gamble_box_frame.y
+        && x < inven_ui_gamble_box_frame.x + inven_ui_gamble_box_frame.width
+        && y < inven_ui_gamble_box_frame.y + inven_ui_gamble_box_frame.height) {
         int64_t item_obj = inven_ui_drag_item_obj;
         sub_575770();
         sub_579B60(item_obj);
         inven_ui_drag_item_obj = OBJ_HANDLE_NULL;
         inven_ui_gamble_box_image = 345;
     } else if (inven_ui_have_use_box
-        && msg->data.mouse.x >= inven_ui_use_box_frame.x
-        && msg->data.mouse.y >= inven_ui_use_box_frame.y
-        && msg->data.mouse.x < inven_ui_use_box_frame.x + inven_ui_use_box_frame.width
-        && msg->data.mouse.y < inven_ui_use_box_frame.y + inven_ui_use_box_frame.height) {
+        && x >= inven_ui_use_box_frame.x
+        && y >= inven_ui_use_box_frame.y
+        && x < inven_ui_use_box_frame.x + inven_ui_use_box_frame.width
+        && y < inven_ui_use_box_frame.y + inven_ui_use_box_frame.height) {
         if ((qword_681450 != qword_6813A8
                 || (inven_ui_mode != INVEN_UI_MODE_BARTER
                     && inven_ui_mode != INVEN_UI_MODE_LOOT
@@ -1918,7 +1918,7 @@ static inline bool inven_ui_message_filter_handle_mouse_lbutton_up(TigMessage* m
         inven_ui_use_box_image = 342;
     } else {
         int64_t parent_obj;
-        int inventory_location = sub_575CB0(msg->data.mouse.x, msg->data.mouse.y, &parent_obj);
+        int inventory_location = sub_575CB0(x, y, &parent_obj);
         if (!IS_HOTKEY_INV_LOC(inventory_location)) {
             if (IS_WEAR_INV_LOC(inventory_location)) {
                 if ((inven_ui_mode != INVEN_UI_MODE_BARTER
@@ -2027,7 +2027,7 @@ static inline bool inven_ui_message_filter_handle_mouse_lbutton_up(TigMessage* m
 }
 
 // 0x5742A4
-static inline bool inven_ui_message_filter_handle_mouse_rbutton_up(TigMessage* msg, bool* v45)
+static inline bool inven_ui_message_filter_handle_mouse_rbutton_up(int x, int y, bool* v45)
 {
     int64_t v1;
     int64_t v2;
@@ -2037,7 +2037,7 @@ static inline bool inven_ui_message_filter_handle_mouse_rbutton_up(TigMessage* m
     int64_t v6;
     int inventory_location;
 
-    v1 = sub_575FA0(msg->data.mouse.x, msg->data.mouse.y, &v2);
+    v1 = sub_575FA0(x, y, &v2);
     if (v1 == OBJ_HANDLE_NULL) {
         return false;
     }
@@ -2077,10 +2077,10 @@ static inline bool inven_ui_message_filter_handle_mouse_rbutton_up(TigMessage* m
 
         inven_ui_drag_item_obj = v1;
         qword_681450 = v2;
-        dword_683470 = sub_575CB0(msg->data.mouse.x, msg->data.mouse.y, &v1);
+        dword_683470 = sub_575CB0(x, y, &v1);
         dword_6810E8 = item_inventory_location_get(inven_ui_drag_item_obj);
         dword_683470 -= dword_6810E8;
-        sub_5754C0(msg->data.mouse.x, msg->data.mouse.y);
+        sub_5754C0(x, y);
         if (inven_ui_drag_item_obj != OBJ_HANDLE_NULL) {
             if (v6 == inven_ui_pc_obj) {
                 if (!sub_575180(v45)) {
@@ -2150,19 +2150,19 @@ bool inven_ui_message_filter(TigMessage* msg)
             switch (msg->data.button.state) {
             case TIG_BUTTON_STATE_PRESSED:
                 // 0x573897
-                if (inven_ui_message_filter_handle_button_pressed(msg)) {
+                if (inven_ui_message_filter_handle_button_pressed(msg->data.button.button_handle)) {
                     return true;
                 }
                 break;
             case TIG_BUTTON_STATE_RELEASED:
                 // 0x573A95
-                if (inven_ui_message_filter_handle_button_released(msg)) {
+                if (inven_ui_message_filter_handle_button_released(msg->data.button.button_handle)) {
                     return true;
                 }
                 break;
             case TIG_BUTTON_STATE_MOUSE_INSIDE:
                 // 0x573BAF
-                if (inven_ui_mssage_filter_handle_button_hovered(msg)) {
+                if (inven_ui_mssage_filter_handle_button_hovered(msg->data.button.button_handle)) {
                     return true;
                 }
                 break;
@@ -2172,10 +2172,10 @@ bool inven_ui_message_filter(TigMessage* msg)
     case TIG_MESSAGE_MOUSE:
         if (msg->data.mouse.event == TIG_MESSAGE_MOUSE_IDLE) {
             // 0x573C80
-            inven_ui_message_filter_handle_mouse_idle(msg);
+            inven_ui_message_filter_handle_mouse_idle(msg->data.mouse.x, msg->data.mouse.y);
         } else if (msg->data.mouse.event == TIG_MESSAGE_MOUSE_MOVE) {
             // 0x573D61
-            if (inven_ui_message_filter_handle_mouse_move(msg)) {
+            if (inven_ui_message_filter_handle_mouse_move(msg->data.mouse.x, msg->data.mouse.y)) {
                 return true;
             }
         } else if (msg->data.mouse.event == TIG_MESSAGE_MOUSE_LEFT_BUTTON_DOWN
@@ -2184,13 +2184,13 @@ bool inven_ui_message_filter(TigMessage* msg)
             && inven_ui_mode != INVEN_UI_MODE_NPC_IDENTIFY
             && inven_ui_mode != INVEN_UI_MODE_NPC_REPAIR) {
             // 0x574080
-            if (inven_ui_message_filter_handle_mouse_lbutton_down(msg)) {
+            if (inven_ui_message_filter_handle_mouse_lbutton_down(msg->data.mouse.x, msg->data.mouse.y)) {
                 return true;
             }
         } else if (msg->data.mouse.event == TIG_MESSAGE_MOUSE_LEFT_BUTTON_UP
             || (msg->data.mouse.event == TIG_MESSAGE_MOUSE_RIGHT_BUTTON_UP && sub_54EB50())) {
             // 0x574559
-            if (inven_ui_message_filter_handle_mouse_lbutton_up(msg, &v45)) {
+            if (inven_ui_message_filter_handle_mouse_lbutton_up(msg->data.mouse.x, msg->data.mouse.y, &v45)) {
                 return true;
             }
         } else if (msg->data.mouse.event == TIG_MESSAGE_MOUSE_RIGHT_BUTTON_UP
@@ -2200,7 +2200,7 @@ bool inven_ui_message_filter(TigMessage* msg)
                 || inven_ui_mode == INVEN_UI_MODE_LOOT
                 || inven_ui_mode == INVEN_UI_MODE_STEAL)) {
             // 0x5742A4
-            if (inven_ui_message_filter_handle_mouse_rbutton_up(msg, &v45)) {
+            if (inven_ui_message_filter_handle_mouse_rbutton_up(msg->data.mouse.x, msg->data.mouse.y, &v45)) {
                 return true;
             }
         }
