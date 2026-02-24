@@ -1184,6 +1184,12 @@ void iso_interface_create(tig_window_handle_t window_handle)
     TigFont font_desc;
 
     intgame_pc_lens_dst_rect = intgame_pc_lens_normal_dst_frame;
+
+    // CE: These adjustments should be on par with `intgame_toggle_interface`.
+    intgame_pc_lens_dst_rect.x = (800 - intgame_pc_lens_dst_rect.width) / 2;
+    intgame_pc_lens_dst_rect.y = (600 - intgame_pc_lens_dst_rect.height) / 2;
+    hrp_apply(&intgame_pc_lens_dst_rect, GRAVITY_CENTER_HORIZONTAL | GRAVITY_CENTER_VERTICAL);
+
     dword_64C52C = window_handle;
     dword_64C6B0 = 1;
     intgame_iso_interface_created = false;
