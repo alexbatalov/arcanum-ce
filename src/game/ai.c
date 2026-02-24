@@ -3738,7 +3738,7 @@ int sub_4AE720(int64_t a1, int64_t item_obj, int64_t a3, int magictech)
         if (a3 != OBJ_HANDLE_NULL
             && (COLLEGE_FROM_SPELL(magictech) != COLLEGE_NECROMANTIC_WHITE
                 || ai_object_hp_ratio(a3) > 30)
-            && sub_453B20(a1, a3, magictech) >= 38) {
+            && magictech_cast_spell_fail_chance(a1, a3, magictech) >= 38) {
             return 8;
         }
     }

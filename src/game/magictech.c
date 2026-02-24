@@ -3437,13 +3437,17 @@ bool sub_4537B0()
     return true;
 }
 
-// 0x453B20
-int sub_453B20(int64_t attacker_obj, int64_t target_obj, int spell)
+/**
+ * Determines the failure chance of casting a given spell.
+ *
+ * 0x453B20
+ */
+int magictech_cast_spell_fail_chance(int64_t attacker_obj, int64_t target_obj, int spell)
 {
     MagicTechInfo* info;
     int obj_type;
     int resistance = 0;
-    int v2 = 0;
+    int saving_throw_bonus = 0;
 
     if (target_obj == OBJ_HANDLE_NULL) {
         return 0;
@@ -3452,21 +3456,40 @@ int sub_453B20(int64_t attacker_obj, int64_t target_obj, int spell)
     obj_type = obj_field_int32_get(target_obj, OBJ_F_TYPE);
     info = &(magictech_spells[spell]);
 
+    // Apply resistance mechanics only to spells, not tech abilities.
     if ((info->flags & MAGICTECH_IS_TECH) == 0) {
+        // Self-cast spells should never fail.
         if (attacker_obj != target_obj) {
+            // Retrieve the target's base magic resistance, which is also the
+            // base chance for a spell to fail.
             resistance = obj_arrayfield_int32_get(target_obj, OBJ_F_RESISTANCE_IDX, RESISTANCE_TYPE_MAGIC);
+
             if (!magictech_cur_is_fate_maximized) {
+                // Adjust resistance based on the target's tech aptitude: the
+                // more technology-aligned the target, the larger the bonus. For
+                // example, with a base resistance of 50%: a target with 20%
+                // tech aptitude would have 60% resistance, one with 80%
+                // aptitude would have 90% resistance, and a target with 100%
+                // tech aptitude would have 100% resistance.
                 int aptitude = stat_level_get(target_obj, STAT_MAGICK_TECH_APTITUDE);
                 if (aptitude < 0) {
                     resistance = 100 - (100 - resistance) * (aptitude + 100) / 100;
                 }
             }
+
+            // "If the spell does not do damage, but has a "saving throw"
+            // instead, the target will enjoy a +1 bonus on the save for each
+            // 10% of resistance it possesses..." (from the manual).
             if (resistance > 0
-                && (info->flags & 0x80) == 0
+                && (info->flags & MAGICTECH_HAVE_DAMAGE) == 0
                 && info->maintenance.period <= 0) {
                 if (info->resistance.stat != -1) {
-                    v2 = resistance / 10;
+                    saving_throw_bonus = resistance / 10;
                 } else {
+                    // The spell does not define a saving throw, meaning
+                    // resistance alone determines the outcome. Resistance above
+                    // 40% is considered too powerful and grants complete
+                    // immunity to the spell.
                     if (resistance > 40) {
                         return 100;
                     }
@@ -3477,18 +3500,27 @@ int sub_453B20(int64_t attacker_obj, int64_t target_obj, int spell)
         if (attacker_obj != target_obj) {
             if (info->resistance.stat != -1
                 && obj_type_is_critter(obj_type)) {
+                // Extraordinary willpower grants complete immunity to any spell
+                // resisted by willpower.
                 if (info->resistance.stat == STAT_WILLPOWER
                     && stat_is_extraordinary(target_obj, STAT_WILLPOWER)) {
                     return 100;
                 }
 
-                int v3 = info->resistance.value + stat_level_get(target_obj, info->resistance.stat) - v2;
-                if (v3 > 0 && random_between(1, 20) <= v3) {
-                    if ((info->flags & 0x80) == 0) {
+                // Calculate the effective difficulty. Remember the resistance
+                // value is almost always negative (see `spelllist.mes`), that
+                // is acts a penalty to the specified stat.
+                int difficulty = stat_level_get(target_obj, info->resistance.stat) + info->resistance.value - saving_throw_bonus;
+                if (difficulty > 0 && random_between(1, 20) <= difficulty) {
+                    // The target rolled a successful saving throw.
+                    if ((info->flags & MAGICTECH_HAVE_DAMAGE) == 0) {
+                        // Non-damaging spells with no ongoing effects have
+                        // 100% chance to fail.
                         if (info->maintenance.period == 0) {
                             resistance = 100;
                         }
                     } else {
+                        // Damaging spells have at least 50% chance to fail.
                         if (resistance < 50) {
                             resistance = 50;
                         }
@@ -3526,7 +3558,7 @@ int sub_453CC0(int64_t a1, int64_t item_obj, int64_t a3)
         return 0;
     }
 
-    return sub_453B20(a1, a3, spell);
+    return magictech_cast_spell_fail_chance(a1, a3, spell);
 }
 
 // 0x453D40

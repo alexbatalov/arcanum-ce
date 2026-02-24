@@ -369,7 +369,7 @@ void sub_451070(MagicTechRunInfo* a1);
 void magictech_component_dispel(int64_t obj, int mt_id);
 void sub_452650(int64_t obj);
 void magictech_component_trait(int64_t obj, MagicTechComponentTrait* trait, int obj_type);
-int sub_453B20(int64_t attacker_obj, int64_t target_obj, int spell);
+int magictech_cast_spell_fail_chance(int64_t attacker_obj, int64_t target_obj, int spell);
 int sub_453CC0(int64_t a1, int64_t item_obj, int64_t a3);
 bool magictech_component_recharge(int64_t obj, int num, int max);
 void magictech_component_obj_flag(int64_t a1, int64_t a2, int a3, int a4, int a5, int64_t a6, int64_t a7);
