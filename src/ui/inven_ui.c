@@ -3348,6 +3348,8 @@ void redraw_inven(bool a1)
             continue;
         }
 
+        art_blit_info.flags = 0;
+
         // 0x57730A
         if (IS_WEAR_INV_LOC(inventory_location)) {
             if (inven_ui_mode == INVEN_UI_MODE_INVENTORY
