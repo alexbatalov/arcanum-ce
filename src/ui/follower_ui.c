@@ -885,6 +885,7 @@ void follower_ui_drop_down_menu_refresh(int highlighted_cmd)
     TigRect rect;
     int cmd;
     MesFileEntry mes_file_entry;
+    bool enabled;
 
     follower_ui_draw(follower_ui_drop_down_menu_window, 826, 0, 0, 100, 100);
 
@@ -892,8 +893,18 @@ void follower_ui_drop_down_menu_refresh(int highlighted_cmd)
     for (cmd = 0; cmd < FOLLOWER_UI_COMMAND_COUNT; cmd++) {
         mes_file_entry.num = cmd;
         if (mes_search(follower_ui_mes_file, &mes_file_entry)) {
-            if ((cmd == FOLLOWER_UI_COMMAND_INVENTORY && inven_ui_can_open_inven(follower_ui_commander_obj, follower_ui_subordinate_obj))
-                || (cmd != FOLLOWER_UI_COMMAND_WAIT || (obj_field_int32_get(follower_ui_subordinate_obj, OBJ_F_SPELL_FLAGS) & OSF_MIND_CONTROLLED) == 0)) {
+            switch (cmd) {
+            case FOLLOWER_UI_COMMAND_INVENTORY:
+                enabled = inven_ui_can_open_inven(follower_ui_commander_obj, follower_ui_subordinate_obj);
+                break;
+            case FOLLOWER_UI_COMMAND_WAIT:
+                enabled = (obj_field_int32_get(follower_ui_subordinate_obj, OBJ_F_SPELL_FLAGS) & OSF_MIND_CONTROLLED) == 0;
+                break;
+            default:
+                enabled = true;
+                break;
+            }
+            if (enabled) {
                 if (cmd == highlighted_cmd) {
                     tig_font_push(follower_ui_drop_down_menu_item_highlighted_color);
                 } else {
