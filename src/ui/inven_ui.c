@@ -2236,11 +2236,11 @@ void sub_574FD0(bool next)
     if (next) {
         do {
             follower_obj = critter_follower_next(follower_obj);
-        } while (!sub_575080(inven_ui_pc_obj, follower_obj));
+        } while (!inven_ui_can_open_inven(inven_ui_pc_obj, follower_obj));
     } else {
         do {
             follower_obj = critter_follower_prev(follower_obj);
-        } while (!sub_575080(inven_ui_pc_obj, follower_obj));
+        } while (!inven_ui_can_open_inven(inven_ui_pc_obj, follower_obj));
     }
 
     if (follower_obj != qword_6813A8) {
@@ -2252,21 +2252,21 @@ void sub_574FD0(bool next)
 }
 
 // 0x575080
-bool sub_575080(int64_t a1, int64_t a2)
+bool inven_ui_can_open_inven(int64_t pc_obj, int64_t npc_obj)
 {
-    if (inven_ui_created && a2 == qword_6813A8) {
+    if (inven_ui_created && npc_obj == qword_6813A8) {
         return true;
     }
 
-    if (ai_can_speak(a2, a1, false) != AI_SPEAK_OK) {
+    if (ai_can_speak(npc_obj, pc_obj, false) != AI_SPEAK_OK) {
         return false;
     }
 
-    if ((obj_field_int32_get(a2, OBJ_F_CRITTER_FLAGS) & (OCF_ANIMAL | OCF_MECHANICAL)) != 0) {
+    if ((obj_field_int32_get(npc_obj, OBJ_F_CRITTER_FLAGS) & (OCF_ANIMAL | OCF_MECHANICAL)) != 0) {
         return false;
     }
 
-    if ((obj_field_int32_get(a2, OBJ_F_SPELL_FLAGS) & OSF_SUMMONED) != 0) {
+    if ((obj_field_int32_get(npc_obj, OBJ_F_SPELL_FLAGS) & OSF_SUMMONED) != 0) {
         return false;
     }
 

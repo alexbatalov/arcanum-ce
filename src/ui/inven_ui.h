@@ -32,7 +32,7 @@ void sub_5736E0();
 void sub_573730();
 void sub_573740(int64_t a1, bool a2);
 void sub_573840();
-bool sub_575080(int64_t a1, int64_t a2);
+bool inven_ui_can_open_inven(int64_t pc_obj, int64_t npc_obj);
 void sub_575770();
 void sub_575930();
 void sub_575C50(int64_t obj);

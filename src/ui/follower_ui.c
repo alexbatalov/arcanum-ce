@@ -394,7 +394,7 @@ bool follower_ui_message_filter(TigMessage* msg)
                             follower_ui_begin_order_mode(index);
                             break;
                         case FOLLOWER_UI_COMMAND_INVENTORY:
-                            if (sub_575080(follower_ui_commander_obj, follower_ui_subordinate_obj)) {
+                            if (inven_ui_can_open_inven(follower_ui_commander_obj, follower_ui_subordinate_obj)) {
                                 inven_ui_open(follower_ui_commander_obj, follower_ui_subordinate_obj, INVEN_UI_MODE_BARTER);
                             }
                             break;
@@ -892,7 +892,7 @@ void follower_ui_drop_down_menu_refresh(int highlighted_cmd)
     for (cmd = 0; cmd < FOLLOWER_UI_COMMAND_COUNT; cmd++) {
         mes_file_entry.num = cmd;
         if (mes_search(follower_ui_mes_file, &mes_file_entry)) {
-            if ((cmd == FOLLOWER_UI_COMMAND_INVENTORY && sub_575080(follower_ui_commander_obj, follower_ui_subordinate_obj))
+            if ((cmd == FOLLOWER_UI_COMMAND_INVENTORY && inven_ui_can_open_inven(follower_ui_commander_obj, follower_ui_subordinate_obj))
                 || (cmd != FOLLOWER_UI_COMMAND_WAIT || (obj_field_int32_get(follower_ui_subordinate_obj, OBJ_F_SPELL_FLAGS) & OSF_MIND_CONTROLLED) == 0)) {
                 if (cmd == highlighted_cmd) {
                     tig_font_push(follower_ui_drop_down_menu_item_highlighted_color);
