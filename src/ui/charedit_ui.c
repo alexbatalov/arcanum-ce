@@ -829,7 +829,7 @@ static int dword_64E024;
 static int charedit_selected_tech;
 
 // 0x64E02C
-static bool dword_64E02C;
+static bool charedit_combat_auto_attack_was_set;
 
 // 0x559690
 bool charedit_init(GameInitInfo* init_info)
@@ -1194,7 +1194,7 @@ bool charedit_open(int64_t obj, ChareditMode mode)
     charedit_created = true;
 
     if (combat_auto_attack_get(pc_obj)) {
-        dword_64E02C = true;
+        charedit_combat_auto_attack_was_set = true;
         combat_auto_attack_set(0);
     }
 
@@ -1222,9 +1222,9 @@ void charedit_close()
         iso_interface_refresh();
         intgame_mode_set(INTGAME_MODE_MAIN);
         sub_55EFB0();
-        if (dword_64E02C) {
+        if (charedit_combat_auto_attack_was_set) {
             combat_auto_attack_set(true);
-            dword_64E02C = false;
+            charedit_combat_auto_attack_was_set = false;
         }
     }
 }
