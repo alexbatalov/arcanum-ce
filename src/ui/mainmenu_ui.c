@@ -149,8 +149,8 @@ static void sub_5480C0(int a1);
 static void mmUIWinRefreshScrollBar();
 static void sub_548FF0(int a1);
 static void sub_549450();
-static void sub_5494C0(TextEdit* textedit);
-static void sub_549540(TextEdit* textedit);
+static void mainmenu_ui_textedit_on_enter(TextEdit* textedit);
+static void mainmenu_ui_textedit_on_change(TextEdit* textedit);
 static void mainmenu_ui_feedback(int num);
 static void mainmenu_fonts_init();
 static void mainmenu_fonts_exit();
@@ -416,15 +416,15 @@ static bool dword_5C4000 = true;
 static bool dword_5C4004 = true;
 
 // 0x64C2F8
-static char byte_64C2F8[128];
+static char mainmenu_ui_textedit_buffer[128];
 
 // 0x5C4008
-static TextEdit stru_5C4008 = {
+static TextEdit mainmenu_ui_textedit = {
     0,
-    byte_64C2F8,
+    mainmenu_ui_textedit_buffer,
     23,
-    sub_5494C0,
-    sub_549540,
+    mainmenu_ui_textedit_on_enter,
+    mainmenu_ui_textedit_on_change,
     NULL,
 };
 
@@ -1480,7 +1480,7 @@ bool mainmenu_ui_init(GameInitInfo* init_info)
 
     mes_file_entry.num = 500;
     mes_get_msg(mainmenu_ui_mainmenu_mes_file, &mes_file_entry);
-    strncpy(byte_64C2F8, mes_file_entry.str, 23);
+    strncpy(mainmenu_ui_textedit_buffer, mes_file_entry.str, 23);
 
     mainmenu_ui_initialized = true;
     mainmenu_ui_window_type = MM_WINDOW_0;
@@ -2867,7 +2867,7 @@ void mainmenu_ui_save_game_create()
     sub_542200();
     gamelib_savelist_create(&mainmenu_ui_gsl);
     gamelib_savelist_sort(&mainmenu_ui_gsl, GAME_SAVE_LIST_ORDER_DATE, false);
-    byte_64C2F8[0] = '\0';
+    mainmenu_ui_textedit_buffer[0] = '\0';
     window->cnt = mainmenu_ui_gsl.count + 1;
     if (mainmenu_ui_gsl.count != 0) {
         window->selected_index = 1;
@@ -2954,7 +2954,7 @@ bool mainmenu_ui_save_game_execute(int btn)
 
     if (v1 > 0) {
         name = strcpy(fname, mainmenu_ui_gsl.names[v1 - 1]);
-        strcpy(byte_64C2F8, mainmenu_ui_gsl.names[v1 - 1] + 8);
+        strcpy(mainmenu_ui_textedit_buffer, mainmenu_ui_gsl.names[v1 - 1] + 8);
         fname[8] = '\0';
 
         if (mainmenu_ui_confirm(5064)) {
@@ -3003,22 +3003,22 @@ bool mainmenu_ui_save_game_execute(int btn)
 
     sub_542200();
 
-    if (byte_64C2F8[0] != '\0') {
-        char* pch = byte_64C2F8;
+    if (mainmenu_ui_textedit_buffer[0] != '\0') {
+        char* pch = mainmenu_ui_textedit_buffer;
         while (*pch == ' ') {
             pch++;
         }
 
         if (*pch == '\0') {
-            byte_64C2F8[0] = '\0';
+            mainmenu_ui_textedit_buffer[0] = '\0';
         }
     }
 
-    if (byte_64C2F8[0] == '\0') {
-        strcpy(byte_64C2F8, name);
+    if (mainmenu_ui_textedit_buffer[0] == '\0') {
+        strcpy(mainmenu_ui_textedit_buffer, name);
     }
 
-    if (!gamelib_save(name, byte_64C2F8)) {
+    if (!gamelib_save(name, mainmenu_ui_textedit_buffer)) {
         mes_file_entry.num = 5003; // "Save Game Corrupt!  Save Failed!"
         mes_get_msg(mainmenu_ui_mainmenu_mes_file, &mes_file_entry);
 
@@ -3036,7 +3036,7 @@ bool mainmenu_ui_save_game_execute(int btn)
     ui_message.str = mes_file_entry.str;
     sub_460630(&ui_message);
     sub_5412D0();
-    byte_64C2F8[0] = '\0';
+    mainmenu_ui_textedit_buffer[0] = '\0';
 
     return true;
 }
@@ -3171,7 +3171,7 @@ void mainmenu_ui_save_game_refresh(TigRect* rect)
             } else if (idx == 0) {
                 if (textedit_ui_is_focused()) {
                     name = NULL;
-                    sub_544100(byte_64C2F8, &dst_rect, font);
+                    sub_544100(mainmenu_ui_textedit_buffer, &dst_rect, font);
                 } else {
                     mes_file_entry.num = 5055;
                     mes_get_msg(mainmenu_ui_mainmenu_mes_file, &mes_file_entry);
@@ -3378,8 +3378,8 @@ void sub_544290()
 
     if (!mainmenu_ui_gsi_loaded) {
         if (window->selected_index == 0) {
-            byte_64C2F8[0] = 0;
-            sub_5493C0(byte_64C2F8, 23);
+            mainmenu_ui_textedit_buffer[0] = 0;
+            sub_5493C0(mainmenu_ui_textedit_buffer, 23);
         }
         return;
     }
@@ -3392,8 +3392,8 @@ void sub_544290()
             mainmenu_ui_gsi_loaded = true;
         }
     } else {
-        byte_64C2F8[0] = 0;
-        sub_5493C0(byte_64C2F8, 23);
+        mainmenu_ui_textedit_buffer[0] = 0;
+        sub_5493C0(mainmenu_ui_textedit_buffer, 23);
     }
 }
 
@@ -3586,7 +3586,7 @@ void mainmenu_ui_new_char_refresh(TigRect* rect)
             tig_debug_printf("MainMenu-UI: mmUINewCharRefreshFunc: ERROR: Window Fill Failed.\n");
         }
 
-        str = byte_64C2F8[0] != '\0' ? byte_64C2F8 : " ";
+        str = mainmenu_ui_textedit_buffer[0] != '\0' ? mainmenu_ui_textedit_buffer : " ";
 
         // FIXME: Useless.
         mes_file_entry.num = 500; // "Choose Name"
@@ -3773,9 +3773,9 @@ bool mainmenu_ui_new_char_button_released(tig_button_handle_t button_handle)
     if (index >= 10) {
         if (button_handle == mainmenu_ui_new_char_name_button.button_handle
             && sub_549520() == NULL) {
-            strcpy(byte_64C0F0, byte_64C2F8);
-            byte_64C2F8[0] = '\0';
-            sub_5493C0(byte_64C2F8, 23);
+            strcpy(byte_64C0F0, mainmenu_ui_textedit_buffer);
+            mainmenu_ui_textedit_buffer[0] = '\0';
+            sub_5493C0(mainmenu_ui_textedit_buffer, 23);
         }
 
         return true;
@@ -4105,18 +4105,18 @@ bool mainmenu_ui_new_char_execute(int btn)
 
     mes_file_entry.num = 500; // "Choose Name"
     mes_get_msg(mainmenu_ui_mainmenu_mes_file, &mes_file_entry);
-    if (byte_64C2F8[0] == '\0') {
-        strcpy(byte_64C2F8, mes_file_entry.str);
+    if (mainmenu_ui_textedit_buffer[0] == '\0') {
+        strcpy(mainmenu_ui_textedit_buffer, mes_file_entry.str);
     }
 
-    if (strcmp(byte_64C2F8, mes_file_entry.str) == 0) {
+    if (strcmp(mainmenu_ui_textedit_buffer, mes_file_entry.str) == 0) {
         mes_file_entry.num = 506; // "You must choose a name."
         mes_get_msg(mainmenu_ui_mainmenu_mes_file, &mes_file_entry);
         sub_550770(-1, mes_file_entry.str);
         return false;
     }
 
-    obj_field_string_set(pc_obj, OBJ_F_PC_PLAYER_NAME, byte_64C2F8);
+    obj_field_string_set(pc_obj, OBJ_F_PC_PLAYER_NAME, mainmenu_ui_textedit_buffer);
     ui_spell_maintain_refresh();
     mainmenu_ui_auto_equip_items_on_start = true;
 
@@ -5625,16 +5625,16 @@ void sub_5493C0(char* buffer, int size)
     MainMenuWindowInfo* curr_window_info;
 
     if (!dword_64C428) {
-        if (byte_64C2F8[0] != '\0') {
+        if (mainmenu_ui_textedit_buffer[0] != '\0') {
             strcpy(byte_64C0F0, buffer);
         }
 
-        stru_5C4008.size = size;
-        stru_5C4008.flags = mainmenu_ui_window_type == MM_WINDOW_SAVE_GAME
+        mainmenu_ui_textedit.size = size;
+        mainmenu_ui_textedit.flags = mainmenu_ui_window_type == MM_WINDOW_SAVE_GAME
             ? TEXTEDIT_PATH_SAFE
             : 0;
-        stru_5C4008.buffer = buffer;
-        textedit_ui_focus(&stru_5C4008);
+        mainmenu_ui_textedit.buffer = buffer;
+        textedit_ui_focus(&mainmenu_ui_textedit);
         dword_64C428 = true;
 
         curr_window_info = main_menu_window_info[mainmenu_ui_window_type];
@@ -5650,10 +5650,10 @@ void sub_549450()
     MainMenuWindowInfo* curr_window_info;
 
     if (dword_64C428) {
-        if (stru_5C4008.buffer[0] == '\0') {
-            strcpy(stru_5C4008.buffer, byte_64C0F0);
+        if (mainmenu_ui_textedit.buffer[0] == '\0') {
+            strcpy(mainmenu_ui_textedit.buffer, byte_64C0F0);
         }
-        textedit_ui_unfocus(&stru_5C4008);
+        textedit_ui_unfocus(&mainmenu_ui_textedit);
         dword_64C428 = false;
 
         curr_window_info = main_menu_window_info[mainmenu_ui_window_type];
@@ -5664,14 +5664,14 @@ void sub_549450()
 }
 
 // 0x5494C0
-void sub_5494C0(TextEdit* textedit)
+void mainmenu_ui_textedit_on_enter(TextEdit* textedit)
 {
     MesFileEntry mes_file_entry;
 
     if (textedit->buffer[0] == '\0' && mainmenu_ui_window_type != MM_WINDOW_SAVE_GAME) {
         mes_file_entry.num = 500; // "Choose Name"
         mes_get_msg(mainmenu_ui_mainmenu_mes_file, &mes_file_entry);
-        strncpy(byte_64C2F8, mes_file_entry.str, 23);
+        strncpy(mainmenu_ui_textedit_buffer, mes_file_entry.str, 23);
     }
 
     sub_549450();
@@ -5684,11 +5684,11 @@ void sub_5494C0(TextEdit* textedit)
 // 0x549520
 char* sub_549520()
 {
-    return dword_64C428 != 0 ? stru_5C4008.buffer : NULL;
+    return dword_64C428 != 0 ? mainmenu_ui_textedit.buffer : NULL;
 }
 
 // 0x549540
-void sub_549540(TextEdit* textedit)
+void mainmenu_ui_textedit_on_change(TextEdit* textedit)
 {
     MainMenuWindowInfo* curr_window_info;
 
