@@ -1425,6 +1425,9 @@ int adjust_volume(tig_sound_handle_t sound_handle, int volume)
         return volume * gsound_music_volume_get() / 127;
     case TIG_SOUND_TYPE_VOICE:
         return volume * gsound_voice_volume_get() / 127;
+    case TIG_SOUND_TYPE_COUNT:
+        // Should be unreachable.
+        break;
     }
 
     return volume;

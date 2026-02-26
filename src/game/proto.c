@@ -459,8 +459,9 @@ int sub_468720(ObjectType object_type)
         return 6401;
     case OBJ_TYPE_UNIQUE_NPC:
         return 6402;
+    default:
+        return 0;
     }
-    return 0;
 }
 
 // 0x468800
@@ -15973,6 +15974,8 @@ void sub_468930(int64_t obj, int description)
             obj_field_int32_set(obj, OBJ_F_CATEGORY, 2);
             break;
         }
+        break;
+    default:
         break;
     }
 }

@@ -681,6 +681,8 @@ bool combat_ui_message_filter(TigMessage* msg)
             return true;
         }
         break;
+    default:
+        break;
     }
 
     return false;

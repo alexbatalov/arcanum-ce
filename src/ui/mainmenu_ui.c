@@ -1749,6 +1749,8 @@ bool mainmenu_ui_handle()
             case TIG_MESSAGE_REDRAW:
                 gamelib_redraw();
                 break;
+            default:
+                break;
             }
         }
 
@@ -4963,6 +4965,8 @@ bool sub_546EE0(TigMessage* msg)
                     return true;
                 }
                 break;
+            default:
+                break;
             }
 
             if (window->mouse_up_func != NULL
@@ -4986,6 +4990,8 @@ bool sub_546EE0(TigMessage* msg)
                 mainmenu_ui_window_type = MM_WINDOW_MAINMENU;
                 mainmenu_ui_open();
                 return true;
+            default:
+                break;
             }
             return false;
         case TIG_MESSAGE_MOUSE_IDLE:
@@ -5194,6 +5200,8 @@ bool sub_546EE0(TigMessage* msg)
                 case SDL_SCANCODE_KP_ENTER:
                     sub_5480C0(2);
                     return true;
+                default:
+                    break;
                 }
                 return false;
             case MM_WINDOW_SAVE_GAME:
@@ -5220,6 +5228,8 @@ bool sub_546EE0(TigMessage* msg)
                 case SDL_SCANCODE_KP_ENTER:
                     sub_5480C0(2);
                     return true;
+                default:
+                    break;
                 }
                 return false;
             default:
@@ -5231,6 +5241,8 @@ bool sub_546EE0(TigMessage* msg)
                         sub_5412D0();
                     }
                     return true;
+                default:
+                    break;
                 }
                 return false;
             }
@@ -5344,6 +5356,8 @@ bool sub_546EE0(TigMessage* msg)
                     }
 
                     return true;
+                default:
+                    break;
                 }
 
                 return true;

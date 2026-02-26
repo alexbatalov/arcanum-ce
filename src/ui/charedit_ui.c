@@ -3060,6 +3060,8 @@ bool charedit_skills_win_message_filter(TigMessage* msg)
             break;
         }
         break;
+    default:
+        break;
     }
 
     return sub_55D6F0(msg);

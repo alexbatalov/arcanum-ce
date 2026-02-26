@@ -916,11 +916,16 @@ bool schematic_ui_message_filter(TigMessage* msg)
                     ui_message.str = mes_file_entry.str;
                     sub_550750(&ui_message);
                     break;
+                case SCHEMATIC_UI_READINESS_COUNT:
+                    // Should be unreachable.
+                    break;
                 }
                 return true;
             }
             break;
         }
+        break;
+    default:
         break;
     }
 

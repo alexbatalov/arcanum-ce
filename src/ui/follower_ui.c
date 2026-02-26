@@ -427,7 +427,11 @@ bool follower_ui_message_filter(TigMessage* msg)
             case TIG_MESSAGE_MOUSE_RIGHT_BUTTON_UP:
                 follower_ui_drop_down_menu_destroy();
                 break;
+            default:
+                break;
             }
+            break;
+        default:
             break;
         }
 

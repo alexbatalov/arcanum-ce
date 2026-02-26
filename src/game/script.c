@@ -3219,6 +3219,8 @@ void sub_44B8F0(ScriptFocusObject type, ObjectList* l)
             object_list_destroy(l);
         }
         break;
+    default:
+        break;
     }
 }
 
@@ -3252,6 +3254,8 @@ void script_set_obj(ScriptFocusObject type, int index, ScriptState* state, int64
         break;
     case SFO_EXTRA_OBJECT:
         state->invocation->extra_obj = obj;
+        break;
+    default:
         break;
     }
 }
@@ -3298,6 +3302,9 @@ void script_set_value(ScriptValueType type, int index, ScriptState* state, int v
         break;
     case SVT_LC_VAR:
         state->lc_vars[index] = value;
+        break;
+    case SVT_NUMBER:
+        // Should be unreachable.
         break;
     case SVT_GL_FLAG:
         script_global_flag_set(index, value);

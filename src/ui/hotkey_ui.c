@@ -384,6 +384,8 @@ bool intgame_save_hotkey(Hotkey* hotkey, TigFile* stream)
     if (tig_file_fwrite(&(hotkey->slot), sizeof(hotkey->slot), 1, stream) != 1) return false;
 
     switch (hotkey->type) {
+    case HOTKEY_NONE:
+        break;
     case HOTKEY_ITEM:
         if (tig_file_fwrite(&(hotkey->item_obj.field_8.objid), sizeof(hotkey->item_obj.field_8.objid), 1, stream) != 1) return false;
         if (tig_file_fwrite(&(hotkey->count), sizeof(hotkey->count), 1, stream) != 1) return false;
@@ -417,6 +419,8 @@ bool intgame_load_hotkey(Hotkey* hotkey, TigFile* stream)
     hotkey->flags = 0;
 
     switch (hotkey->type) {
+    case HOTKEY_NONE:
+        break;
     case HOTKEY_ITEM:
         if (tig_file_fread(&(hotkey->item_obj.field_8.objid), sizeof(hotkey->item_obj.field_8.objid), 1, stream) != 1) {
             return false;
@@ -916,6 +920,8 @@ bool sub_57E8D0(TigMessageMouseEvent mouse_event)
         hotkey->type = stru_683950.type;
 
         switch (stru_683950.type) {
+        case HOTKEY_NONE:
+            break;
         case HOTKEY_ITEM:
             sub_573840();
             item_inventory_location_get(stru_683950.item_obj.obj); // FIXME: Useless.

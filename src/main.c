@@ -478,6 +478,8 @@ void main_loop()
                             intgame_draw_bar(INTGAME_BAR_FATIGUE);
                         }
                         break;
+                    default:
+                        break;
                     }
 
                     if (!textedit_ui_is_focused()) {
@@ -501,6 +503,8 @@ void main_loop()
                                 break;
                             case SDL_SCANCODE_P:
                                 ai_npc_fighting_toggle();
+                                break;
+                            default:
                                 break;
                             }
                         }
@@ -542,6 +546,8 @@ void main_loop()
                                     item_transfer(gold_obj, pc_obj);
                                     sub_4605D0();
                                 }
+                                break;
+                            default:
                                 break;
                             }
                         }
@@ -644,6 +650,8 @@ void main_loop()
                                         tig_video_set_gamma(gamma);
                                     }
                                 }
+                                break;
+                            default:
                                 break;
                             }
                         }

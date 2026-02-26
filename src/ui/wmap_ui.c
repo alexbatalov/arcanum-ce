@@ -1702,6 +1702,8 @@ bool wmap_ui_state_set(WmapUiState state)
             tig_mouse_cursor_set_art_id(art_id);
             refresh = true;
             break;
+        default:
+            break;
         }
 
         switch (wmap_ui_state) {
@@ -1957,6 +1959,9 @@ bool wmap_ui_message_filter(TigMessage* msg)
                     wmap_ui_state_set(WMAP_UI_STATE_NORMAL);
                 }
                 break;
+            case WMAP_UI_MODE_COUNT:
+                // Should be unreachable.
+                break;
             }
 
             if (intgame_pc_lens_check_pt_unscale(msg->data.mouse.x, msg->data.mouse.y)) {
@@ -2107,6 +2112,8 @@ bool wmap_ui_message_filter(TigMessage* msg)
             default:
                 return true;
             }
+        default:
+            break;
         }
     }
 
@@ -2519,6 +2526,8 @@ void wmap_ui_mode_set(WmapUiMode mode)
         if (wmap_ui_townmap == TOWNMAP_NONE) {
             return;
         }
+        break;
+    default:
         break;
     }
 

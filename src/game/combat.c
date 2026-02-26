@@ -2759,6 +2759,8 @@ void combat_calc_dmg(CombatContext* combat)
                     damage /= 4;
                 }
                 break;
+            default:
+                break;
             }
         }
 

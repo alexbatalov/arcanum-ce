@@ -1935,6 +1935,8 @@ bool sub_54B5D0(TigMessage* msg)
                     }
                 }
                 break;
+            default:
+                break;
             }
 
             if (hotkey_ui_begin_drag()) {
@@ -1956,6 +1958,8 @@ bool sub_54B5D0(TigMessage* msg)
             if (sub_57E8D0(TIG_MESSAGE_MOUSE_LEFT_BUTTON_UP)) {
                 return true;
             }
+            break;
+        default:
             break;
         }
 
@@ -2108,6 +2112,8 @@ bool sub_54B5D0(TigMessage* msg)
                     return true;
                 }
                 break;
+            default:
+                break;
             }
 
             for (index = 0; index < 5; index++) {
@@ -2181,6 +2187,8 @@ bool sub_54B5D0(TigMessage* msg)
                         return true;
                     }
                 }
+                break;
+            default:
                 break;
             }
 
@@ -2319,6 +2327,8 @@ bool sub_54B5D0(TigMessage* msg)
                     return true;
                 }
                 break;
+            default:
+                break;
             }
 
             for (index = 0; index < 5; index++) {
@@ -2450,6 +2460,8 @@ bool sub_54B5D0(TigMessage* msg)
                     intgame_refresh_quantity();
                 }
                 return true;
+            default:
+                break;
             }
         } else {
             switch (msg->data.keyboard.scancode) {
@@ -2468,6 +2480,8 @@ bool sub_54B5D0(TigMessage* msg)
             case SDL_SCANCODE_SLASH:
                 intgame_refresh_cursor();
                 return false;
+            default:
+                break;
             }
         }
 
@@ -2603,6 +2617,8 @@ bool handle_button_unhover(TigMessage* msg)
     case ROTWIN_TYPE_SKILLS:
     case ROTWIN_TYPE_MAGICTECH:
         intgame_message_window_clear();
+        break;
+    default:
         break;
     }
 
@@ -2754,6 +2770,8 @@ void intgame_process_event(TigMessage* msg)
                 break;
             case TIG_MESSAGE_MOUSE_IDLE:
                 sub_551910(msg);
+            default:
+                break;
             }
             break;
         case TIG_MESSAGE_KEYBOARD:
@@ -2772,6 +2790,8 @@ void intgame_process_event(TigMessage* msg)
                 case SDL_SCANCODE_HOME:
                     sub_54EB60();
                     break;
+                default:
+                    break;
                 }
             }
             break;
@@ -2784,6 +2804,8 @@ void intgame_process_event(TigMessage* msg)
                 fake_mouse_move.data.mouse.event = TIG_MESSAGE_MOUSE_MOVE;
                 sub_553A70(&fake_mouse_move);
             }
+            break;
+        default:
             break;
         }
         return;
@@ -2805,6 +2827,8 @@ void intgame_process_event(TigMessage* msg)
                 break;
             case TIG_MESSAGE_MOUSE_IDLE:
                 sub_551910(msg);
+                break;
+            default:
                 break;
             }
             break;
@@ -2830,12 +2854,16 @@ void intgame_process_event(TigMessage* msg)
                     case SDL_SCANCODE_HOME:
                         sub_54EB60();
                         break;
+                    default:
+                        break;
                     }
                 } else {
                     switch (msg->data.keyboard.scancode) {
                     case SDL_SCANCODE_LALT:
                     case SDL_SCANCODE_RALT:
                         spell_ui_aggressive_mode_off();
+                        break;
+                    default:
                         break;
                     }
                 }
@@ -2850,6 +2878,8 @@ void intgame_process_event(TigMessage* msg)
                 fake_mouse_move.data.mouse.event = TIG_MESSAGE_MOUSE_MOVE;
                 sub_553A70(&fake_mouse_move);
             }
+            break;
+        default:
             break;
         }
         return;
@@ -2867,6 +2897,8 @@ void intgame_process_event(TigMessage* msg)
                 break;
             case TIG_MESSAGE_MOUSE_IDLE:
                 sub_551910(msg);
+                break;
+            default:
                 break;
             }
             break;
@@ -2886,6 +2918,8 @@ void intgame_process_event(TigMessage* msg)
                     case SDL_SCANCODE_HOME:
                         sub_54EB60();
                         break;
+                    default:
+                        break;
                     }
                 }
             }
@@ -2899,6 +2933,8 @@ void intgame_process_event(TigMessage* msg)
                 fake_mouse_move.data.mouse.event = TIG_MESSAGE_MOUSE_MOVE;
                 sub_553A70(&fake_mouse_move);
             }
+            break;
+        default:
             break;
         }
         return;
@@ -2933,6 +2969,8 @@ void intgame_process_event(TigMessage* msg)
             case TIG_MESSAGE_MOUSE_IDLE:
                 sub_551910(msg);
                 break;
+            default:
+                break;
             }
             break;
         case TIG_MESSAGE_PING:
@@ -2945,6 +2983,8 @@ void intgame_process_event(TigMessage* msg)
                 fake_mouse_move.data.mouse.event = TIG_MESSAGE_MOUSE_MOVE;
                 sub_553A70(&fake_mouse_move);
             }
+            break;
+        default:
             break;
         }
         return;
@@ -2965,6 +3005,8 @@ void intgame_process_event(TigMessage* msg)
             case TIG_MESSAGE_MOUSE_IDLE:
                 sub_551910(msg);
                 break;
+            default:
+                break;
             }
             break;
         case TIG_MESSAGE_PING:
@@ -2976,6 +3018,8 @@ void intgame_process_event(TigMessage* msg)
                 fake_mouse_move.data.mouse.event = TIG_MESSAGE_MOUSE_MOVE;
                 sub_553A70(&fake_mouse_move);
             }
+            break;
+        default:
             break;
         }
         return;
@@ -2993,6 +3037,8 @@ void intgame_process_event(TigMessage* msg)
                 break;
             case TIG_MESSAGE_MOUSE_IDLE:
                 sub_551910(msg);
+                break;
+            default:
                 break;
             }
             break;
@@ -3012,6 +3058,8 @@ void intgame_process_event(TigMessage* msg)
                 case SDL_SCANCODE_HOME:
                     sub_54EB60();
                     break;
+                default:
+                    break;
                 }
             }
             break;
@@ -3025,8 +3073,12 @@ void intgame_process_event(TigMessage* msg)
                 sub_553A70(&fake_mouse_move);
             }
             break;
+        default:
+            break;
         }
         return;
+    default:
+        break;
     }
 }
 
@@ -3649,6 +3701,9 @@ void sub_54FCF0(Hotkey* hotkey)
     }
 
     switch (hotkey->type) {
+    case HOTKEY_NONE:
+        // Should be unreachable.
+        break;
     case HOTKEY_ITEM:
         intgame_mode_set(INTGAME_MODE_MAIN);
         sub_444130(&(hotkey->item_obj));
@@ -3779,6 +3834,9 @@ void sub_550150(Hotkey* hotkey)
     }
 
     switch (hotkey->type) {
+    case HOTKEY_NONE:
+        // Should be unreachable.
+        break;
     case HOTKEY_ITEM:
         sub_57CCF0(player_get_local_pc_obj(), hotkey->item_obj.obj);
         break;
@@ -4945,6 +5003,8 @@ bool intgame_mode_set(IntgameMode mode)
             v1 = true;
             intgame_unforce_fullscreen();
             break;
+        default:
+            break;
         }
 
         switch (mode) {
@@ -4987,6 +5047,8 @@ bool intgame_mode_set(IntgameMode mode)
                 obj_field_int32_set(obj, OBJ_F_ITEM_FLAGS, flags);
             }
             inven_ui_update(OBJ_HANDLE_NULL);
+            break;
+        default:
             break;
         }
 
@@ -7793,6 +7855,9 @@ void intgame_toggle_primary_button(UiPrimaryButton btn, bool on)
                 return;
             }
             break;
+        case UI_PRIMARY_BUTTON_COUNT:
+            // Should be unreachable.
+            break;
         }
 
         intgame_ui_primary_button_icons[btn] = intgame_ui_primary_button_highlighted_icons[btn];
@@ -7839,6 +7904,9 @@ void intgame_refresh_primary_button(UiPrimaryButton btn)
         break;
     case UI_PRIMARY_BUTTON_INVENTORY:
         button_handle = intgame_primary_buttons[INTGAME_PRIMARY_BUTTON_INVENTORY].button_handle;
+        break;
+    case UI_PRIMARY_BUTTON_COUNT:
+        // Should be unreachable.
         break;
     }
 
@@ -8214,6 +8282,8 @@ void sub_557370(int64_t source_obj, int64_t target_obj)
         break;
     case INTGAME_MODE_SKILL:
         combat_check_use_skill(source_obj);
+        break;
+    default:
         break;
     }
 }

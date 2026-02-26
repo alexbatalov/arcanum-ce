@@ -622,6 +622,8 @@ void written_ui_create()
             strcat(written_ui_text, mes_file_entry.str);
         }
         break;
+    default:
+        break;
     }
 
     // Redraw written UI content.
@@ -691,6 +693,8 @@ bool written_ui_message_filter(TigMessage* msg)
                 return true;
             }
         }
+        break;
+    default:
         break;
     }
 
@@ -898,6 +902,8 @@ void written_ui_refresh()
         num = written_ui_num;
         offset = 0;
         written_ui_draw_page_like(&written_ui_plaque_content_rect, &num, &offset);
+        break;
+    default:
         break;
     }
 }

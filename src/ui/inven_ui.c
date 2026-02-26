@@ -1573,6 +1573,8 @@ static inline bool inven_ui_message_filter_handle_mouse_lbutton_down(int x, int 
             return true;
         }
         break;
+    default:
+        break;
     }
 
     return false;
@@ -2204,6 +2206,8 @@ bool inven_ui_message_filter(TigMessage* msg)
                 return true;
             }
         }
+        break;
+    default:
         break;
     }
 
@@ -3073,6 +3077,8 @@ void redraw_inven(bool a1)
         src_rect = inven_ui_npc_action_rect;
         tig_window_text_write(inven_ui_window_handle, byte_68241C, &src_rect);
         tig_font_pop();
+        break;
+    default:
         break;
     }
 

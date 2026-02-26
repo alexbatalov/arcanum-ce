@@ -796,5 +796,7 @@ void adjust_text_bubble_rect(TigRect* rect, TbPosition pos)
         rect->x -= rect->width + 40;
         rect->y -= rect->height / 2 + 55;
         break;
+    default:
+        break;
     }
 }
