@@ -54,9 +54,6 @@ static int tig_message_mouse_button_up_flags[TIG_MOUSE_BUTTON_COUNT] = {
 // 0x604640
 static int tig_mouse_cursor_art_frame_height;
 
-// 0x604644
-static TigVideoBuffer* tig_mouse_cursor_opaque_video_buffer;
-
 // 0x604648
 static int tig_mouse_cursor_art_frame_width;
 
@@ -91,7 +88,7 @@ static int tig_mouse_cursor_art_y;
 static bool tig_mouse_idle_emitted;
 
 // 0x60466C
-static TigVideoBuffer* tig_mouse_cursor_trans_video_buffer;
+static TigVideoBuffer* tig_mouse_cursor_video_buffer;
 
 // 0x604670
 static tig_art_id_t tig_mouse_cursor_art_id;
@@ -369,8 +366,6 @@ int tig_mouse_show()
 // 0x4FFAB0
 void tig_mouse_display()
 {
-    TigVideoBufferBlitInfo vb_blit_info;
-
     if (tig_mouse_is_hardware) {
         return;
     }
@@ -379,24 +374,12 @@ void tig_mouse_display()
         return;
     }
 
-    // Copy area under cursor.
-    sub_51D050(&(tig_mouse_state.frame),
-        NULL,
-        tig_mouse_cursor_opaque_video_buffer,
-        0,
-        0,
-        TIG_WINDOW_TOP);
-
-    // Blit cursor over background.
-    vb_blit_info.flags = 0;
-    vb_blit_info.src_video_buffer = tig_mouse_cursor_trans_video_buffer;
-    vb_blit_info.src_rect = &tig_mouse_cursor_art_frame_bounds;
-    vb_blit_info.dst_video_buffer = tig_mouse_cursor_opaque_video_buffer;
-    vb_blit_info.dst_rect = &tig_mouse_cursor_art_frame_bounds;
-    tig_video_buffer_blit(&vb_blit_info);
-
-    // Blit composed cursor/background to screen.
-    tig_video_blit(tig_mouse_cursor_opaque_video_buffer,
+    // CE: The original mouse-rendering code operates on two buffers - a
+    // transparent one (the cursor) and an opaque one (with the background).
+    // This isn't needed in CE because the mouse cursor is composited directly
+    // over the separate offscreen surface, which the window system has already
+    // updated by the time this function is called.
+    tig_video_blit(tig_mouse_cursor_video_buffer,
         &tig_mouse_cursor_art_frame_bounds,
         &(tig_mouse_state.frame));
 }
@@ -413,7 +396,7 @@ void tig_mouse_cursor_refresh()
     }
 
     // Clear surface.
-    tig_video_buffer_fill(tig_mouse_cursor_trans_video_buffer,
+    tig_video_buffer_fill(tig_mouse_cursor_video_buffer,
         &tig_mouse_cursor_art_frame_bounds,
         tig_mouse_cursor_art_color_key);
 
@@ -430,7 +413,7 @@ void tig_mouse_cursor_refresh()
     blit_info.flags = 0;
     blit_info.art_id = tig_mouse_cursor_art_id;
     blit_info.src_rect = &src_rect;
-    blit_info.dst_video_buffer = tig_mouse_cursor_trans_video_buffer;
+    blit_info.dst_video_buffer = tig_mouse_cursor_video_buffer;
     blit_info.dst_rect = &dst_rect;
 
     if (tig_art_blit(&blit_info) != TIG_OK) {
@@ -444,16 +427,16 @@ void tig_mouse_cursor_refresh()
 // 0x4FFBF0
 void tig_mouse_cursor_fallback()
 {
-    if (tig_video_buffer_lock(tig_mouse_cursor_trans_video_buffer) == TIG_OK) {
+    if (tig_video_buffer_lock(tig_mouse_cursor_video_buffer) == TIG_OK) {
         TigVideoBufferData video_buffer_data;
-        if (tig_video_buffer_data(tig_mouse_cursor_trans_video_buffer, &video_buffer_data) == TIG_OK) {
+        if (tig_video_buffer_data(tig_mouse_cursor_video_buffer, &video_buffer_data) == TIG_OK) {
             switch (video_buffer_data.bpp) {
             case 32:
                 *video_buffer_data.surface_data.p32 = (uint32_t)tig_color_make(255, 255, 255);
                 break;
             }
         }
-        tig_video_buffer_unlock(tig_mouse_cursor_trans_video_buffer);
+        tig_video_buffer_unlock(tig_mouse_cursor_video_buffer);
     }
 }
 
@@ -478,19 +461,10 @@ bool tig_mouse_cursor_create_video_buffers(tig_art_id_t art_id, int dx, int dy)
 
     vb_create_info.width = width;
     vb_create_info.height = height;
-    vb_create_info.flags = TIG_VIDEO_BUFFER_CREATE_VIDEO_MEMORY;
-    vb_create_info.background_color = tig_color_make(0, 0, 0);
-    if (tig_video_buffer_create(&vb_create_info, &tig_mouse_cursor_opaque_video_buffer) != TIG_OK) {
-        return false;
-    }
-
-    vb_create_info.width = width;
-    vb_create_info.height = height;
     vb_create_info.flags = TIG_VIDEO_BUFFER_CREATE_VIDEO_MEMORY | TIG_VIDEO_BUFFER_CREATE_COLOR_KEY;
     vb_create_info.background_color = art_anim_data.color_key;
     vb_create_info.color_key = art_anim_data.color_key;
-    if (tig_video_buffer_create(&vb_create_info, &tig_mouse_cursor_trans_video_buffer) != TIG_OK) {
-        tig_video_buffer_destroy(tig_mouse_cursor_opaque_video_buffer);
+    if (tig_video_buffer_create(&vb_create_info, &tig_mouse_cursor_video_buffer) != TIG_OK) {
         return false;
     }
 
@@ -505,8 +479,7 @@ bool tig_mouse_cursor_create_video_buffers(tig_art_id_t art_id, int dx, int dy)
 // 0x4FFEA0
 bool tig_mouse_cursor_destroy_video_buffers()
 {
-    tig_video_buffer_destroy(tig_mouse_cursor_opaque_video_buffer);
-    tig_video_buffer_destroy(tig_mouse_cursor_trans_video_buffer);
+    tig_video_buffer_destroy(tig_mouse_cursor_video_buffer);
     return true;
 }
 
@@ -545,7 +518,7 @@ bool tig_mouse_cursor_set_art_frame(tig_art_id_t art_id, int x, int y)
     tig_mouse_cursor_art_frame_bounds.width = x + art_frame_data.width;
     tig_mouse_cursor_art_frame_bounds.height = y + art_frame_data.height;
 
-    tig_video_buffer_set_color_key(tig_mouse_cursor_trans_video_buffer,
+    tig_video_buffer_set_color_key(tig_mouse_cursor_video_buffer,
         tig_mouse_cursor_art_color_key);
 
     tig_mouse_cursor_refresh();
@@ -569,12 +542,10 @@ int tig_mouse_cursor_set_art_id(tig_art_id_t art_id)
     }
 
     if (width > tig_mouse_cursor_bounds.width || height > tig_mouse_cursor_bounds.height) {
-        TigVideoBuffer* old_opaque_video_buffer = tig_mouse_cursor_opaque_video_buffer;
-        TigVideoBuffer* old_trans_video_buffer = tig_mouse_cursor_trans_video_buffer;
+        TigVideoBuffer* old_video_buffer = tig_mouse_cursor_video_buffer;
 
         if (!tig_mouse_cursor_create_video_buffers(art_id, 0, 0)) {
-            tig_mouse_cursor_opaque_video_buffer = old_opaque_video_buffer;
-            tig_mouse_cursor_trans_video_buffer = old_trans_video_buffer;
+            tig_mouse_cursor_video_buffer = old_video_buffer;
 
             if (!hidden) {
                 tig_mouse_show();
@@ -586,8 +557,7 @@ int tig_mouse_cursor_set_art_id(tig_art_id_t art_id)
         if (!tig_mouse_cursor_set_art_frame(art_id, 0, 0)) {
             tig_mouse_cursor_destroy_video_buffers();
 
-            tig_mouse_cursor_opaque_video_buffer = old_opaque_video_buffer;
-            tig_mouse_cursor_trans_video_buffer = old_trans_video_buffer;
+            tig_mouse_cursor_video_buffer = old_video_buffer;
 
             if (!hidden) {
                 tig_mouse_show();
@@ -596,8 +566,7 @@ int tig_mouse_cursor_set_art_id(tig_art_id_t art_id)
             return TIG_ERR_GENERIC;
         }
 
-        tig_video_buffer_destroy(old_opaque_video_buffer);
-        tig_video_buffer_destroy(old_trans_video_buffer);
+        tig_video_buffer_destroy(old_video_buffer);
     } else {
         if (!tig_mouse_cursor_set_art_frame(art_id, 0, 0)) {
             if (!hidden) {
@@ -705,7 +674,7 @@ int tig_mouse_cursor_overlay(tig_art_id_t art_id, int x, int y)
                 dst_rect.y = 0;
                 dst_rect.width = width;
                 dst_rect.height = height + tig_mouse_cursor_art_frame_bounds.height;
-                tig_video_buffer_fill(tig_mouse_cursor_trans_video_buffer,
+                tig_video_buffer_fill(tig_mouse_cursor_video_buffer,
                     &dst_rect,
                     art_anim_data.color_key);
             }
@@ -715,14 +684,13 @@ int tig_mouse_cursor_overlay(tig_art_id_t art_id, int x, int y)
                 dst_rect.y = tig_mouse_cursor_art_frame_bounds.height;
                 dst_rect.width = width + tig_mouse_cursor_art_frame_bounds.width;
                 dst_rect.height = height;
-                tig_video_buffer_fill(tig_mouse_cursor_trans_video_buffer,
+                tig_video_buffer_fill(tig_mouse_cursor_video_buffer,
                     &dst_rect,
                     art_anim_data.color_key);
             }
         }
     } else {
-        TigVideoBuffer* old_opaque_video_buffer = tig_mouse_cursor_opaque_video_buffer;
-        TigVideoBuffer* old_trans_video_buffer = tig_mouse_cursor_trans_video_buffer;
+        TigVideoBuffer* old_video_buffer = tig_mouse_cursor_video_buffer;
         int extra_width;
         int extra_height;
 
@@ -767,8 +735,7 @@ int tig_mouse_cursor_overlay(tig_art_id_t art_id, int x, int y)
         height = tig_mouse_cursor_bounds.height - art_frame_data.height + extra_height;
 
         if (!tig_mouse_cursor_create_video_buffers(tig_mouse_cursor_art_id, width, height)) {
-            tig_mouse_cursor_opaque_video_buffer = old_opaque_video_buffer;
-            tig_mouse_cursor_trans_video_buffer = old_trans_video_buffer;
+            tig_mouse_cursor_video_buffer = old_video_buffer;
 
             if (!hidden) {
                 tig_mouse_show();
@@ -779,8 +746,7 @@ int tig_mouse_cursor_overlay(tig_art_id_t art_id, int x, int y)
         if (!tig_mouse_cursor_set_art_frame(tig_mouse_cursor_art_id, dx, dy)) {
             tig_mouse_cursor_destroy_video_buffers();
 
-            tig_mouse_cursor_opaque_video_buffer = old_opaque_video_buffer;
-            tig_mouse_cursor_trans_video_buffer = old_trans_video_buffer;
+            tig_mouse_cursor_video_buffer = old_video_buffer;
 
             if (!hidden) {
                 tig_mouse_show();
@@ -788,8 +754,7 @@ int tig_mouse_cursor_overlay(tig_art_id_t art_id, int x, int y)
             return TIG_ERR_GENERIC;
         }
 
-        tig_video_buffer_destroy(old_opaque_video_buffer);
-        tig_video_buffer_destroy(old_trans_video_buffer);
+        tig_video_buffer_destroy(old_video_buffer);
     }
 
     dst_rect.x = dx + src_rect.x;
@@ -804,7 +769,7 @@ int tig_mouse_cursor_overlay(tig_art_id_t art_id, int x, int y)
     blit_info.art_id = art_id;
     blit_info.src_rect = &src_rect;
     blit_info.dst_rect = &dst_rect;
-    blit_info.dst_video_buffer = tig_mouse_cursor_trans_video_buffer;
+    blit_info.dst_video_buffer = tig_mouse_cursor_video_buffer;
 
     rc = tig_art_blit(&blit_info);
     if (rc == TIG_OK) {

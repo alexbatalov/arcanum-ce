@@ -95,7 +95,7 @@ int tig_window_button_destroy(tig_window_handle_t window_handle);
 int tig_window_message_filter_set(tig_window_handle_t window_handle, TigWindowMessageFilterFunc* func);
 int tig_window_data(tig_window_handle_t window_handle, TigWindowData* window_data);
 int tig_window_display();
-void sub_51D050(TigRect* src_rect, TigRect* dst_rect, TigVideoBuffer* dst_video_buffer, int dx, int dy, int top_window_index);
+void sub_51D050(TigRect* src_rect, TigVideoBuffer* dst_video_buffer, int dx, int dy, int top_window_index);
 int tig_window_fill(tig_window_handle_t window_handle, TigRect* rect, int color);
 int tig_window_line(tig_window_handle_t window_handle, TigLine* line, int color);
 int tig_window_box(tig_window_handle_t window_handle, TigRect* rect, int color);

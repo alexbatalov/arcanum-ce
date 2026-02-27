@@ -384,8 +384,6 @@ int tig_window_display()
     int rc;
     TigRectListNode* node;
     TigMouseState mouse_state;
-    TigRect* mouse_frame;
-    bool show_mouse = false;
 
     if (!tig_window_initialized) {
         return TIG_ERR_NOT_INITIALIZED;
@@ -400,27 +398,17 @@ int tig_window_display()
         return rc;
     }
 
-    mouse_frame = (mouse_state.flags & TIG_MOUSE_STATE_HIDDEN) == 0 ? &(mouse_state.frame) : NULL;
-
     node = tig_window_dirty_rects;
     while (node != NULL) {
         tig_window_dirty_rects = node->next;
-        if (!show_mouse
-            && mouse_frame != NULL
-            && mouse_frame->x < node->rect.x + node->rect.width
-            && mouse_frame->y < node->rect.y + node->rect.height
-            && node->rect.x < mouse_frame->x + mouse_frame->width
-            && node->rect.y < mouse_frame->y + mouse_frame->height) {
-            show_mouse = true;
-        }
 
-        sub_51D050(&(node->rect), mouse_frame, NULL, 0, 0, TIG_WINDOW_TOP);
+        sub_51D050(&(node->rect), NULL, 0, 0, TIG_WINDOW_TOP);
         tig_rect_node_destroy(node);
 
         node = tig_window_dirty_rects;
     }
 
-    if (show_mouse) {
+    if ((mouse_state.flags & TIG_MOUSE_STATE_HIDDEN) == 0) {
         tig_mouse_display();
     }
 
@@ -432,7 +420,7 @@ int tig_window_display()
 }
 
 // 0x51D050
-void sub_51D050(TigRect* src_rect, TigRect* mouse_rect, TigVideoBuffer* dst_video_buffer, int dx, int dy, int top_window_index)
+void sub_51D050(TigRect* src_rect, TigVideoBuffer* dst_video_buffer, int dx, int dy, int top_window_index)
 {
     TigVideoBufferBlitInfo vb_blit_info;
     TigRectListNode* head;
@@ -463,32 +451,13 @@ void sub_51D050(TigRect* src_rect, TigRect* mouse_rect, TigVideoBuffer* dst_vide
         v47 = 0;
     }
 
-    if (mouse_rect != NULL) {
-        num_clips = tig_rect_clip(&dirty_rect, mouse_rect, clips);
-        if (num_clips <= 0) {
-            return;
-        }
-
-        head = NULL;
-        for (index = 0; index < num_clips; index++) {
-            node = tig_rect_node_create();
-            if (node == NULL) {
-                break;
-            }
-
-            node->rect = clips[index];
-            node->next = head;
-            head = node;
-        }
-    } else {
-        head = tig_rect_node_create();
-        if (head == NULL) {
-            return;
-        }
-
-        head->rect = dirty_rect;
-        head->next = NULL;
+    head = tig_rect_node_create();
+    if (head == NULL) {
+        return;
     }
+
+    head->rect = dirty_rect;
+    head->next = NULL;
 
     if (top_window_index == TIG_WINDOW_TOP) {
         top_window_index = tig_window_num_windows - 1;
@@ -513,7 +482,6 @@ void sub_51D050(TigRect* src_rect, TigRect* mouse_rect, TigVideoBuffer* dst_vide
                         cont = true;
                     } else if ((tig_window_ctx_flags & TIG_INITIALIZE_SCRATCH_BUFFER) != 0) {
                         sub_51D050(&dirty_rect,
-                            mouse_rect,
                             win->secondary_video_buffer,
                             dirty_rect.x - win->frame.x,
                             dirty_rect.y - win->frame.y,
