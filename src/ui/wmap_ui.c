@@ -383,7 +383,7 @@ static TigVideoBuffer* dword_64E7F4;
 static TownMapInfo wmap_ui_tmi;
 
 // 0x64E828
-static uint8_t byte_64E828[5000];
+static int8_t byte_64E828[5000];
 
 // 0x64FBB0
 static TigRect wmap_ui_compass_base_bounds;

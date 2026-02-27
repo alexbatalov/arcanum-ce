@@ -16,7 +16,7 @@ typedef struct S420330 {
     /* 000C */ int field_C;
     /* 0010 */ int64_t field_10;
     /* 0018 */ int64_t field_18;
-    /* 0020 */ uint8_t* rotations;
+    /* 0020 */ int8_t* rotations;
 } S420330;
 
 static int sub_41F6C0(PathCreateInfo* path_create_info);
@@ -26,7 +26,7 @@ static int path_dist(int src, int dst, int width);
 static int sub_420110(int a1, int a2, int a3);
 static void sub_420330(int64_t x, int64_t y, S420330* a5);
 static void sub_4203B0(int64_t from_x, int64_t from_y, int64_t to_x, int64_t to_y, S420330* a5, void (*fn)(int64_t, int64_t, S420330*));
-static int sub_420660(int64_t from, int64_t to, uint8_t* rotations);
+static int sub_420660(int64_t from, int64_t to, int8_t* rotations);
 static int sub_420900(WmapPathInfo* path_info);
 static int sub_4209C0(WmapPathInfo* path_info);
 static int sub_420E30(PathCreateInfo* path_create_info, tig_duration_t ms);
@@ -246,7 +246,7 @@ int sub_41F840(PathCreateInfo* path_create_info)
         }
 
         rot = location_rot(loc, path_create_info->to);
-        path_create_info->rotations[idx] = (uint8_t)rot;
+        path_create_info->rotations[idx] = (int8_t)rot;
         location_in_dir(loc, rot, &adjacent_loc);
 
         if ((path_create_info->flags & PATH_FLAG_0x0040) == 0) {
@@ -613,7 +613,7 @@ int sub_420110(int a1, int a2, int a3)
 }
 
 // 0x4201C0
-int sub_4201C0(int64_t from, int64_t to, uint8_t* rotations)
+int sub_4201C0(int64_t from, int64_t to, int8_t* rotations)
 {
     S420330 v1;
     int64_t from_x;
@@ -737,7 +737,7 @@ void sub_4203B0(int64_t from_x, int64_t from_y, int64_t to_x, int64_t to_y, S420
 }
 
 // 0x420660
-int sub_420660(int64_t from, int64_t to, uint8_t* rotations)
+int sub_420660(int64_t from, int64_t to, int8_t* rotations)
 {
     S420330 v1;
     int64_t from_x;

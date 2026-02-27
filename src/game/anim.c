@@ -5178,7 +5178,7 @@ int sub_426500(int64_t obj, int64_t to, AnimPath* path, unsigned int flags)
 bool sub_426560(int64_t obj, int64_t from, int64_t to, AnimPath* path, unsigned int flags)
 {
     int v1;
-    uint8_t* rotations;
+    int8_t* rotations;
     tig_art_id_t art_id;
     int rot;
     int offset_x;
@@ -5386,7 +5386,7 @@ bool sub_426A80(AnimRunInfo* run_info)
     int dist;
     int v1;
     unsigned int path_create_flags;
-    uint8_t* rotations;
+    int8_t* rotations;
     int offset_x;
     int offset_y;
     PathCreateInfo path_create_info;
