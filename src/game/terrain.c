@@ -234,7 +234,7 @@ bool terrain_open(const char* base_path, const char* save_path)
     if ((terrain_header.flags & 0x1) != 0) {
         if (terrain_editor) {
             v1 = true;
-            dword_603A18 = sizeof(int16_t) * terrain_header.width * terrain_header.height;
+            dword_603A18 = sizeof(int16_t) * (int)terrain_header.width * (int)terrain_header.height;
         } else {
             int index;
 

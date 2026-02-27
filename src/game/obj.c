@@ -1245,7 +1245,7 @@ void obj_write_mem(uint8_t** data_ptr, int* size_ptr, int64_t obj)
     }
 
     *data_ptr = mem.field_0;
-    *size_ptr = mem.field_4 - mem.field_0;
+    *size_ptr = (int)(mem.field_4 - mem.field_0);
 }
 
 // 0x406730

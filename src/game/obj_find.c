@@ -491,7 +491,7 @@ void obj_find_sector_deallocate(FindSector* find_sector)
     int index;
 
     // Calculate the index of the element in array.
-    index = find_sector - find_sectors;
+    index = (int)(find_sector - find_sectors);
 
     // Shift remaining sectors to fill the gap.
     if (find_sectors_size - index != 1) {

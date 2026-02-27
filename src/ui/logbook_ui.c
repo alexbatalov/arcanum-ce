@@ -1037,7 +1037,7 @@ void sub_53FBB0()
             prev_truncate_pos += truncate_pos;
 
             dword_648988[dword_648938] = dword_648988[0];
-            dword_63FAE4[dword_648938] = prev_truncate_pos;
+            dword_63FAE4[dword_648938] = (int)prev_truncate_pos;
             dword_648938++;
 
             end -= truncate_pos;
@@ -1045,7 +1045,7 @@ void sub_53FBB0()
             tig_font_measure(&font_desc);
         }
 
-        dword_63FAE4[dword_648938] = prev_truncate_pos + end;
+        dword_63FAE4[dword_648938] = (int)(prev_truncate_pos + end);
         tig_font_pop();
 
         return;

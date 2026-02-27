@@ -1339,7 +1339,7 @@ int sub_414F50(DialogState* a1, int* a2)
 
     cnt = 0;
 
-    for (idx = (entry - dialog->entries) + 1; idx < dialog->entries_length && cnt < 5; idx++) {
+    for (idx = (int)(entry - dialog->entries) + 1; idx < dialog->entries_length && cnt < 5; idx++) {
         entry = &(dialog->entries[idx]);
         if (entry->iq == 0) {
             return cnt;

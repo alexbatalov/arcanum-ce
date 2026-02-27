@@ -210,7 +210,7 @@ bool objlist_load_with_difs(SectorObjectList* list, TigFile* sec_stream, TigFile
         return false;
     }
 
-    rc = tig_file_fread(&cnt, sizeof(cnt), 1, sec_stream);
+    rc = (int)tig_file_fread(&cnt, sizeof(cnt), 1, sec_stream);
     if (rc != 1) {
         tig_debug_printf("ERROR: Can't read initial count in objlist_load_with_difs.  Result: %d  Error: %d  EOF: %d\n",
             rc,
@@ -235,7 +235,7 @@ bool objlist_load_with_difs(SectorObjectList* list, TigFile* sec_stream, TigFile
 
     for (idx = 0; idx < cnt; idx++) {
         if (extent == 0) {
-            rc = tig_file_fread(&extent, sizeof(extent), 1, dif_stream);
+            rc = (int)tig_file_fread(&extent, sizeof(extent), 1, dif_stream);
             if (rc != 1) {
                 tig_debug_printf("ERROR: Can't read dif_count in objlist_load_with_difs.\n       Result: %d  Error: %d  EOF: %d\n",
                     rc,
@@ -289,7 +289,7 @@ bool objlist_load_with_difs(SectorObjectList* list, TigFile* sec_stream, TigFile
 
     list->next_temp_id = idx;
 
-    rc = tig_file_fread(&cnt, sizeof(cnt), 1, sec_stream);
+    rc = (int)tig_file_fread(&cnt, sizeof(cnt), 1, sec_stream);
     if (rc != 1) {
         tig_debug_printf("ERROR: Can't read final count in objlist_load_with_difs.\n       Result: %d  Error: %d  EOF: %d\n",
             rc,
