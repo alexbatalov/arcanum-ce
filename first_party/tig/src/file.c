@@ -1529,7 +1529,7 @@ int tig_file_ftell(TigFile* stream)
     }
 
     if ((stream->flags & TIG_FILE_PLAIN) != 0) {
-        return ftell(stream->impl.plain_file_stream);
+        return (int)ftell(stream->impl.plain_file_stream);
     }
 
     return -1;

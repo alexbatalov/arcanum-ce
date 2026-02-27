@@ -254,8 +254,8 @@ s32 BINKCALL SdlMixerOpen(struct BINKSND* snd, u32 freq, s32 bits, s32 chans, u3
 
     snddata = (SdlMixerSoundData*)snd->snddata;
 
-    src_spec.channels = chans;
-    src_spec.freq = freq;
+    src_spec.channels = (int)chans;
+    src_spec.freq = (int)freq;
     src_spec.format = SDL_AUDIO_S16LE;
     MIX_GetMixerFormat(mixer, &dst_spec);
 
@@ -329,7 +329,7 @@ s32 BINKCALL SdlMixerUnlock(struct BINKSND* snd, u32 filled)
 {
     SdlMixerSoundData* snddata = (SdlMixerSoundData*)snd->snddata;
 
-    SDL_PutAudioStreamData(snddata->stream, snddata->buffer, filled);
+    SDL_PutAudioStreamData(snddata->stream, snddata->buffer, (int)filled);
     MIX_PlayTrack(snddata->track, 0);
 
     return 1;

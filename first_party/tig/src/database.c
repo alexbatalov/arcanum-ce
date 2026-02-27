@@ -923,7 +923,7 @@ bool tig_database_fread_internal(void* buffer, size_t size, TigDatabaseFileHandl
         }
     } else if ((stream->entry->flags & TIG_DATABASE_ENTRY_COMPRESSED) != 0) {
         stream->decompression_context->zstrm.next_out = (Bytef*)buffer;
-        stream->decompression_context->zstrm.avail_out = size;
+        stream->decompression_context->zstrm.avail_out = (uInt)size;
 
         while (stream->decompression_context->zstrm.avail_out != 0) {
             if (stream->decompression_context->zstrm.avail_in == 0) {
@@ -939,7 +939,7 @@ bool tig_database_fread_internal(void* buffer, size_t size, TigDatabaseFileHandl
                 }
 
                 stream->compressed_pos += bytes_to_read;
-                stream->decompression_context->zstrm.avail_in = bytes_to_read;
+                stream->decompression_context->zstrm.avail_in = (uInt)bytes_to_read;
                 stream->decompression_context->zstrm.next_in = (Bytef*)stream->decompression_context->buffer;
             }
 

@@ -151,7 +151,7 @@ bool tig_file_cache_prepare_item(TigFileCache* cache, TigFileCacheItem* item, co
 
     cache->items_count++;
     cache->bytes += item->entry.size;
-    item->entry.index = item - cache->items;
+    item->entry.index = (int)(item - cache->items);
 
     return true;
 }
