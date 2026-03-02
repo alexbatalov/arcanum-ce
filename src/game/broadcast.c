@@ -206,7 +206,10 @@ void sub_4C3040()
 // 0x4C31A0
 void broadcast_msg_client(int64_t obj, Broadcast* bcast)
 {
-    // TODO: Incomplete.
+    // Basic floating text implementation.
+    if (broadcast_float_line_func != NULL) {
+        broadcast_float_line_func(obj, obj, bcast->str, -1);
+    }
 }
 
 // 0x4C3B40
