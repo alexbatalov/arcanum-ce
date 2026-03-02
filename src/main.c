@@ -2,6 +2,12 @@
 
 #include <SDL3/SDL_main.h>
 
+#ifdef SDL_PLATFORM_WINDOWS
+#include <direct.h>
+#else
+#include <unistd.h>
+#endif
+
 #include <tig/tig.h>
 
 #include "game/ai.h"
