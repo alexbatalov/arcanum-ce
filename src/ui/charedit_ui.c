@@ -3846,9 +3846,16 @@ void sub_55EFF0()
     ScrollbarUiControlInfo sb;
 
     if (!charedit_scheme_scrollbar_initialized) {
-        sb.flags = 0x39F;
+        sb.flags = SB_INFO_VALID
+            | SB_INFO_CONTENT_RECT
+            | SB_INFO_MAX_VALUE
+            | SB_INFO_MIN_VALUE
+            | SB_INFO_LINE_STEP
+            | SB_INFO_VALUE
+            | SB_INFO_ON_VALUE_CHANGED
+            | SB_INFO_ON_REFRESH;
         sb.value = charedit_top_scheme_index;
-        sb.field_3C = charedit_scheme_scrollbar_value_changed;
+        sb.on_value_changed = charedit_scheme_scrollbar_value_changed;
         if (charedit_num_schemes > 15) {
             sb.max_value = charedit_num_schemes - 15;
         } else {
@@ -3860,8 +3867,8 @@ void sub_55EFF0()
         sb.content_rect.x = 23;
         sb.content_rect.y = 66;
         sb.content_rect.height = 240;
-        sb.field_40 = charedit_scheme_scrollbar_refresh_rect;
-        sb.field_2C = 1;
+        sb.on_refresh = charedit_scheme_scrollbar_refresh_rect;
+        sb.line_step = 1;
         scrollbar_ui_control_create(&charedit_scheme_scrollbar, &sb, charedit_scheme_win);
         scrollbar_ui_control_redraw(charedit_scheme_scrollbar);
         charedit_scheme_scrollbar_initialized = true;

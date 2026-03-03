@@ -2233,16 +2233,23 @@ void mainmenu_ui_load_game_create()
     }
 
     stru_64C260.scrollbar_rect = stru_5C4798;
-    stru_64C260.flags = 0x39F;
+    stru_64C260.flags = SB_INFO_VALID
+        | SB_INFO_CONTENT_RECT
+        | SB_INFO_MAX_VALUE
+        | SB_INFO_MIN_VALUE
+        | SB_INFO_LINE_STEP
+        | SB_INFO_VALUE
+        | SB_INFO_ON_VALUE_CHANGED
+        | SB_INFO_ON_REFRESH;
     stru_64C260.min_value = 0;
     stru_64C260.max_value = window->max_top_index + 1;
     if (stru_64C260.max_value > 0) {
         stru_64C260.max_value--;
     }
     stru_64C260.value = window->selected_index < 7 ? 0 : window->selected_index;
-    stru_64C260.field_2C = 1;
-    stru_64C260.field_3C = sub_542280;
-    stru_64C260.field_40 = sub_5422A0;
+    stru_64C260.line_step = 1;
+    stru_64C260.on_value_changed = sub_542280;
+    stru_64C260.on_refresh = sub_5422A0;
     stru_64C260.content_rect.x = 34;
     stru_64C260.content_rect.y = 110;
     stru_64C260.content_rect.width = 195;
@@ -2891,16 +2898,23 @@ void mainmenu_ui_save_game_create()
     }
 
     stru_64C260.scrollbar_rect = stru_5C4798;
-    stru_64C260.flags = 0x39F;
+    stru_64C260.flags = SB_INFO_VALID
+        | SB_INFO_CONTENT_RECT
+        | SB_INFO_MAX_VALUE
+        | SB_INFO_MIN_VALUE
+        | SB_INFO_LINE_STEP
+        | SB_INFO_VALUE
+        | SB_INFO_ON_VALUE_CHANGED
+        | SB_INFO_ON_REFRESH;
     stru_64C260.min_value = 0;
     stru_64C260.max_value = window->max_top_index + 1;
     if (stru_64C260.max_value > 0) {
         stru_64C260.max_value--;
     }
     stru_64C260.value = 0;
-    stru_64C260.field_2C = 1;
-    stru_64C260.field_3C = sub_542280;
-    stru_64C260.field_40 = sub_5422A0;
+    stru_64C260.line_step = 1;
+    stru_64C260.on_value_changed = sub_542280;
+    stru_64C260.on_refresh = sub_5422A0;
     stru_64C260.content_rect.x = 34;
     stru_64C260.content_rect.y = 110;
     stru_64C260.content_rect.width = 195;

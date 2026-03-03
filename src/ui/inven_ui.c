@@ -4486,8 +4486,15 @@ void inven_ui_target_inventory_scrollbar_create()
         return;
     }
 
-    info.flags = 0x39F;
-    info.field_3C = sub_579E00;
+    info.flags = SB_INFO_VALID
+        | SB_INFO_CONTENT_RECT
+        | SB_INFO_MAX_VALUE
+        | SB_INFO_MIN_VALUE
+        | SB_INFO_LINE_STEP
+        | SB_INFO_VALUE
+        | SB_INFO_ON_VALUE_CHANGED
+        | SB_INFO_ON_REFRESH;
+    info.on_value_changed = sub_579E00;
     info.value = dword_681508;
     info.max_value = dword_681510;
     info.min_value = 0;
@@ -4506,8 +4513,8 @@ void inven_ui_target_inventory_scrollbar_create()
         info.content_rect.height = 256;
     }
 
-    info.field_40 = sub_579E30;
-    info.field_2C = 1;
+    info.on_refresh = sub_579E30;
+    info.line_step = 1;
     scrollbar_ui_control_create(&inven_ui_target_inventory_scrollbar, &info, inven_ui_window_handle);
     scrollbar_ui_control_redraw(inven_ui_target_inventory_scrollbar);
 }

@@ -3,13 +3,25 @@
 #include "game/random.h"
 #include "game/snd.h"
 
+#define SCROLL_UP_BUTTON_ART_NUM 317
+#define SCROLL_DOWN_BUTTON_ART_NUM 318
+#define SCROLL_SLIDE_TOP_ART_NUM 238
+#define SCROLL_SLIDE_BOTTOM_ART_NUM 240
+#define SCROLL_SLIDE_MIDDLE_ART_NUM 787
+
+/**
+ * Maximum number of simultaneously active scrollbar controls.
+ */
 #define MAX_CONTROLS 8
 
-typedef enum ScrollbarUiControlFlags {
-    SB_IN_USE = 0x1,
-    SB_HIDDEN = 0x2,
-} ScrollbarUiControlFlags;
+typedef uint32_t ScrollbarUiControlFlags;
 
+#define SB_IN_USE 0x1
+#define SB_HIDDEN 0x2
+
+/**
+ * Internal state for a scrollbar control.
+ */
 typedef struct ScrollbarUiControl {
     /* 0000 */ ScrollbarId id;
     /* 0008 */ ScrollbarUiControlFlags flags;
@@ -18,112 +30,213 @@ typedef struct ScrollbarUiControl {
     /* 0054 */ TigWindowData window_data;
     /* 0074 */ tig_button_handle_t button_up;
     /* 0078 */ tig_button_handle_t button_down;
-    /* 007C */ int field_7C;
 } ScrollbarUiControl;
 
-static void sub_5807F0(int index, int a2);
+static void scrollbar_ui_control_draw(int index, int drag_offset);
 static void scrollbar_ui_control_reset(ScrollbarUiControl* ctrl);
-static void sub_5811F0(ScrollbarUiControl* ctrl, ScrollbarUiControlInfo* info);
-static bool sub_581280(ScrollbarId* id);
-static bool sub_5812E0(const ScrollbarId* id, ScrollbarUiControl** ctrl_ptr);
-static bool sub_581360(int id, int x, int y);
-static bool sub_5813E0(int id, int x, int y);
-static bool sub_581460(int id, int x, int y);
-static bool sub_5814E0(int id, int x, int y);
-static float sub_581550(int id);
-static int sub_5815A0(int id);
-static int sub_5815D0(int id);
-static int sub_581660(int id);
-static bool sub_5816A0(int id, int a2);
-static void sub_5816D0();
-static void sub_5816E0();
-static int sub_5816F0();
+static void scrollbar_ui_control_apply_info(ScrollbarUiControl* ctrl, ScrollbarUiControlInfo* info);
+static bool scrollbar_ui_control_alloc(ScrollbarId* id);
+static bool scrollbar_ui_control_get(const ScrollbarId* id, ScrollbarUiControl** ctrl_ptr);
+static bool scrollbar_ui_hit_test_thumb(int index, int x, int y);
+static bool scrollbar_ui_hit_test_track_above_thumb(int index, int x, int y);
+static bool scrollbar_ui_hit_test_track_below_thumb(int index, int x, int y);
+static bool scrollbar_ui_hit_test_content_rect(int index, int x, int y);
+static float scrollbar_ui_calc_thumb_height(int index);
+static int scrollbar_ui_get_thumb_height(int index);
+static int scrollbar_ui_get_thumb_top(int index);
+static int scrollbar_ui_get_thumb_bottom(int index);
+static bool scrollbar_ui_is_value_in_range(int index, int value);
+static void scrollbar_ui_redraw_lock_acquire();
+static void scrollbar_ui_redraw_lock_release();
+static int scrollbar_ui_redraw_lock_get();
 
-// 0x5CBF48
-static TigRect stru_5CBF48 = { 0, 0, 11, 5 };
+/**
+ * Source rect for the top cap of the scrollbar thumb graphic.
+ *
+ * 0x5CBF48
+ */
+static TigRect scrollbar_ui_thumb_top_src_rect = { 0, 0, 11, 5 };
 
-// 0x5CBF58
-static TigRect stru_5CBF58 = { 0, 0, 11, 7 };
+/**
+ * Source rect for the bottom cap of the scrollbar thumb graphic.
+ *
+ * 0x5CBF58
+ */
+static TigRect scrollbar_ui_thumb_bottom_src_rect = { 0, 0, 11, 7 };
 
-// 0x5CBF68
-static TigRect stru_5CBF68 = { 0, 0, 11, 1 };
+/**
+ * Source rect for the repeating middle tile of the scrollbar thumb.
+ *
+ * 0x5CBF68
+ */
+static TigRect scrollbar_ui_thumb_middle_src_rect = { 0, 0, 11, 1 };
 
-// 0x5CBF78
-static int dword_5CBF78 = -1;
+/**
+ * Index of the scrollbar whose thumb is currently being dragged, or `-1` when
+ * no drag is in progress.
+ *
+ * 0x5CBF78
+ */
+static int scrollbar_ui_dragging_index = -1;
 
-// 0x684250
+/**
+ * Cached width (in pixels) of the down-arrow button art.
+ *
+ * 0x684250
+ */
 static int scrollbar_ui_button_down_width;
 
-// 0x684254
+/**
+ * Art ID for the repeating middle tile of the scrollbar thumb.
+ *
+ * 0x684254
+ */
 static tig_art_id_t scrollbar_ui_middle_art_id;
 
-// 0x684258
+/**
+ * Cached height (in pixels) of the up-arrow button art.
+ *
+ * 0x684258
+ */
 static int scrollbar_ui_button_up_height;
 
-// 0x68425C
-static bool initialized;
+/**
+ * Flag indicating whether the scrollbar UI module has been initialized.
+ *
+ * 0x68425C
+ */
+static bool scrollbar_ui_initialized;
 
-// 0x684260
+/**
+ * Art ID for the top cap of the scrollbar thumb.
+ *
+ * 0x684260
+ */
 static tig_art_id_t scrollbar_ui_top_art_id;
 
-// 0x684268
+/**
+ * Fixed-size pool of all scrollbar controls.
+ *
+ * 0x684268
+ */
 static ScrollbarUiControl scrollbar_ui_controls[MAX_CONTROLS];
 
-// 0x684668
+/**
+ * Art ID for the bottom cap of the scrollbar thumb.
+ *
+ * 0x684668
+ */
 static tig_art_id_t scrollbar_ui_bottom_art_id;
 
-// 0x68466C
+/**
+ * Cached width (in pixels) of the up-arrow button art.
+ *
+ * 0x68466C
+ */
 static int scrollbar_ui_button_up_width;
 
-// 0x684670
+/**
+ * Cached height (in pixels) of the down-arrow button art.
+ *
+ * 0x684670
+ */
 static int scrollbar_ui_button_down_height;
 
-// 0x684674
-static int dword_684674;
+/**
+ * Nesting counter that suppresses redraws when non-zero.
+ *
+ * Incremented by `scrollbar_ui_redraw_lock_acquire` and decremented by
+ * `scrollbar_ui_redraw_lock_release`. This prevents recursive redraws when the
+ * `on_value_changed` callback itself triggers a value change.
+ *
+ * 0x684674
+ */
+static int scrollbar_ui_redraw_lock;
 
-// 0x684678
-static int dword_684678;
+/**
+ * Next global index value to assign when allocating a new scrollbar slot.
+ *
+ * Initialized to a random value at reset time so that stale handles from a
+ * previous session cannot accidentally match a freshly created control.
+ *
+ * 0x684678
+ */
+static int scrollbar_ui_next_global_index;
 
-// 0x68467C
-static int dword_68467C;
+/**
+ * Pixel offset of the mouse cursor relative to the top of the thumb at the
+ * moment a drag was initiated.
+ *
+ * 0x68467C
+ */
+static int scrollbar_ui_drag_base;
 
-// 0x684680
-static int dword_684680;
+/**
+ * Pending value change accumulated during a thumb drag.
+ *
+ * As the mouse moves, whole `line_step` increments are accumulated here
+ * rather than immediately written to `info.value`. On mouse-up the pending
+ * delta is committed and this variable is reset to zero.
+ *
+ * 0x684680
+ */
+static int scrollbar_ui_drag_delta;
 
-// 0x684684
-static int scrollbar_ui_ignore_events_counter;
+/**
+ * When non-zero, `scrollbar_ui_process_event` silently ignores all incoming
+ * messages. Managed by `scrollbar_ui_begin_ignore_events` and
+ * `scrollbar_ui_end_ignore_events`.
+ *
+ * 0x684684
+ */
+static bool scrollbar_ui_ignore_events_counter;
 
-// 0x580410
+/**
+ * Called when the game is initialized.
+ *
+ * 0x580410
+ */
 bool scrollbar_ui_init(GameInitInfo* init_info)
 {
     (void)init_info;
 
     scrollbar_ui_reset();
 
-    if (tig_art_interface_id_create(238, 0, 0, 0, &scrollbar_ui_top_art_id) != TIG_OK) {
+    // Load top cap.
+    if (tig_art_interface_id_create(SCROLL_SLIDE_TOP_ART_NUM, 0, 0, 0, &scrollbar_ui_top_art_id) != TIG_OK) {
         return false;
     }
 
-    if (tig_art_interface_id_create(240, 0, 0, 0, &scrollbar_ui_bottom_art_id) != TIG_OK) {
+    // Load bottom cap.
+    if (tig_art_interface_id_create(SCROLL_SLIDE_BOTTOM_ART_NUM, 0, 0, 0, &scrollbar_ui_bottom_art_id) != TIG_OK) {
         return false;
     }
 
-    if (tig_art_interface_id_create(787, 0, 0, 0, &scrollbar_ui_middle_art_id) != TIG_OK) {
+    // Load middle tile.
+    if (tig_art_interface_id_create(SCROLL_SLIDE_MIDDLE_ART_NUM, 0, 0, 0, &scrollbar_ui_middle_art_id) != TIG_OK) {
         return false;
     }
 
-    initialized = true;
+    scrollbar_ui_initialized = true;
 
     return true;
 }
 
-// 0x580480
+/**
+ * Called when the game shuts down.
+ *
+ * 0x580480
+ */
 void scrollbar_ui_exit()
 {
-    initialized = false;
+    scrollbar_ui_initialized = false;
 }
 
-// 0x580490
+/**
+ * Called when the game is being reset.
+ *
+ * 0x580490
+ */
 void scrollbar_ui_reset()
 {
     int index;
@@ -132,27 +245,32 @@ void scrollbar_ui_reset()
         scrollbar_ui_control_reset(&(scrollbar_ui_controls[index]));
     }
 
-    dword_684678 = random_between(0, 8192);
-    dword_5CBF78 = -1;
-    scrollbar_ui_ignore_events_counter = 0;
+    scrollbar_ui_next_global_index = random_between(0, 8192);
+    scrollbar_ui_dragging_index = -1;
+    scrollbar_ui_ignore_events_counter = false;
 }
 
-// 0x5804E0
+/**
+ * Creates a new scrollbar control and registers it in the pool.
+ *
+ * 0x5804E0
+ */
 bool scrollbar_ui_control_create(ScrollbarId* id, ScrollbarUiControlInfo* info, tig_window_handle_t window_handle)
 {
     ScrollbarUiControl* ctrl;
     TigArtFrameData art_frame_data;
     TigButtonData button_data;
 
-    if ((info->flags & 1) == 0
-        || !sub_581280(id)
-        || !sub_5812E0(id, &ctrl)) {
+    if ((info->flags & SB_INFO_VALID) == 0
+        || !scrollbar_ui_control_alloc(id)
+        || !scrollbar_ui_control_get(id, &ctrl)) {
         return false;
     }
 
     ctrl->id = *id;
-    sub_5811F0(ctrl, info);
+    scrollbar_ui_control_apply_info(ctrl, info);
 
+    // Clamp the initial value to the valid range.
     if (ctrl->info.value < ctrl->info.min_value
         || ctrl->info.value > ctrl->info.max_value) {
         ctrl->info.value = ctrl->info.min_value;
@@ -161,7 +279,8 @@ bool scrollbar_ui_control_create(ScrollbarId* id, ScrollbarUiControlInfo* info, 
     ctrl->window_handle = window_handle;
     tig_window_data(ctrl->window_handle, &(ctrl->window_data));
 
-    if (tig_art_interface_id_create(317, 0, 0, 0, &(button_data.art_id)) != TIG_OK) {
+    // Create the up-arrow button at the top of the track.
+    if (tig_art_interface_id_create(SCROLL_UP_BUTTON_ART_NUM, 0, 0, 0, &(button_data.art_id)) != TIG_OK) {
         return false;
     }
 
@@ -179,7 +298,8 @@ bool scrollbar_ui_control_create(ScrollbarId* id, ScrollbarUiControlInfo* info, 
     button_data.mouse_up_snd_id = SND_INTERFACE_BUTTON_LOW_RELEASE;
     tig_button_create(&button_data, &(ctrl->button_up));
 
-    if (tig_art_interface_id_create(318, 0, 0, 0, &(button_data.art_id)) != TIG_OK) {
+    // Create the down-arrow button at the bottom of the track.
+    if (tig_art_interface_id_create(SCROLL_DOWN_BUTTON_ART_NUM, 0, 0, 0, &(button_data.art_id)) != TIG_OK) {
         return false;
     }
 
@@ -190,50 +310,66 @@ bool scrollbar_ui_control_create(ScrollbarId* id, ScrollbarUiControlInfo* info, 
     button_data.y = ctrl->info.scrollbar_rect.y + ctrl->info.scrollbar_rect.height - art_frame_data.height;
     tig_button_create(&button_data, &(ctrl->button_down));
 
-    if (ctrl->info.field_3C != NULL) {
-        ctrl->info.field_3C(ctrl->info.value);
+    // Notify host of the initial value.
+    if (ctrl->info.on_value_changed != NULL) {
+        ctrl->info.on_value_changed(ctrl->info.value);
     }
 
     return true;
 }
 
-// 0x580690
+/**
+ * Destroys a scrollbar control and returns its pool slot to free use.
+ *
+ * 0x580690
+ */
 void scrollbar_ui_control_destroy(ScrollbarId id)
 {
     ScrollbarUiControl* ctrl;
 
-    if (!sub_5812E0(&id, &ctrl)) {
+    if (!scrollbar_ui_control_get(&id, &ctrl)) {
         return;
     }
 
     tig_button_destroy(ctrl->button_up);
     tig_button_destroy(ctrl->button_down);
 
-    if (dword_5CBF78 == ctrl->id.index) {
-        dword_5CBF78 = -1;
+    // If this control was being dragged, cancel the drag.
+    if (scrollbar_ui_dragging_index == ctrl->id.index) {
+        scrollbar_ui_dragging_index = -1;
     }
 
     scrollbar_ui_control_reset(ctrl);
 }
 
-// 0x5806F0
+/**
+ * Forces an immediate redraw of a scrollbar control at its current value.
+ *
+ * 0x5806F0
+ */
 void scrollbar_ui_control_redraw(ScrollbarId id)
 {
     ScrollbarUiControl* ctrl;
 
-    if (!sub_5812E0(&id, &ctrl)) {
+    if (!scrollbar_ui_control_get(&id, &ctrl)) {
         return;
     }
 
-    sub_5807F0(ctrl->id.index, 0);
+    scrollbar_ui_control_draw(ctrl->id.index, 0);
 }
 
-// 0x580720
+/**
+ * Makes a previously hidden scrollbar visible.
+ *
+ * Returns `false` if the control was not found or was already visible.
+ *
+ * 0x580720
+ */
 bool scrollbar_ui_control_show(ScrollbarId id)
 {
     ScrollbarUiControl* ctrl;
 
-    if (!sub_5812E0(&id, &ctrl)) {
+    if (!scrollbar_ui_control_get(&id, &ctrl)) {
         return false;
     }
 
@@ -245,17 +381,23 @@ bool scrollbar_ui_control_show(ScrollbarId id)
 
     tig_button_show(ctrl->button_down);
     tig_button_show(ctrl->button_up);
-    sub_5807F0(ctrl->id.index, 0);
+    scrollbar_ui_control_draw(ctrl->id.index, 0);
 
     return true;
 }
 
-// 0x580780
+/**
+ * Hides a scrollbar control.
+ *
+ * Returns `false` if the control was not found or was already hidden.
+ *
+ * 0x580780
+ */
 bool scrollbar_ui_control_hide(ScrollbarId id)
 {
     ScrollbarUiControl* ctrl;
 
-    if (!sub_5812E0(&id, &ctrl)) {
+    if (!scrollbar_ui_control_get(&id, &ctrl)) {
         return false;
     }
 
@@ -268,21 +410,27 @@ bool scrollbar_ui_control_hide(ScrollbarId id)
     tig_button_hide(ctrl->button_down);
     tig_button_hide(ctrl->button_up);
 
-    if (ctrl->info.field_40 != NULL) {
-        ctrl->info.field_40(&(ctrl->info.scrollbar_rect));
+    if (ctrl->info.on_refresh != NULL) {
+        ctrl->info.on_refresh(&(ctrl->info.scrollbar_rect));
     }
 
     return true;
 }
 
-// 0x5807F0
-void sub_5807F0(int index, int a2)
+/**
+ * Renders the scrollbar thumb into its parent window.
+ *
+ * The `dy` is a raw pixel offset applied to the thumb position during dragging.
+ *
+ * 0x5807F0
+ */
+void scrollbar_ui_control_draw(int index, int dy)
 {
     ScrollbarUiControl* ctrl;
     TigArtBlitInfo art_blit_info;
     TigRect src_rect;
     TigRect dst_rect;
-    float v1;
+    float thumb_height;
     bool hidden;
 
     src_rect.x = 0;
@@ -290,7 +438,8 @@ void sub_5807F0(int index, int a2)
     src_rect.width = 0;
     src_rect.height = 0;
 
-    if (sub_5816F0() != 0) {
+    // Make sure redraw lock was acquired.
+    if (scrollbar_ui_redraw_lock_get() != 0) {
         return;
     }
 
@@ -299,60 +448,69 @@ void sub_5807F0(int index, int a2)
         return;
     }
 
-    if (ctrl->info.field_40 != NULL) {
-        ctrl->info.field_40(&(ctrl->info.scrollbar_rect));
+    // Give the host a chance to repaint the scrollbar background first.
+    if (ctrl->info.on_refresh != NULL) {
+        ctrl->info.on_refresh(&(ctrl->info.scrollbar_rect));
     }
 
-    v1 = sub_581550(ctrl->id.index);
+    thumb_height = scrollbar_ui_calc_thumb_height(ctrl->id.index);
 
+    // Compute the Y position of the thumb top edge.
     dst_rect.x = ctrl->info.scrollbar_rect.x;
-    if (ctrl->info.value != ctrl->info.max_value || a2 != 0) {
-        dst_rect.y = sub_5815D0(ctrl->id.index) + a2;
+    if (ctrl->info.value != ctrl->info.max_value || dy != 0) {
+        dst_rect.y = scrollbar_ui_get_thumb_top(ctrl->id.index) + dy;
     } else {
-        dst_rect.y = ctrl->info.scrollbar_rect.y + ctrl->info.scrollbar_rect.height - scrollbar_ui_button_down_height - sub_5815A0(index);
+        // When at maximum value, snap the thumb to the "down" button.
+        dst_rect.y = ctrl->info.scrollbar_rect.y + ctrl->info.scrollbar_rect.height - scrollbar_ui_button_down_height - scrollbar_ui_get_thumb_height(index);
     }
 
+    // Clamp thumb so it stays within the track between two buttons.
     if (dst_rect.y < ctrl->info.scrollbar_rect.y + scrollbar_ui_button_up_height) {
         dst_rect.y = ctrl->info.scrollbar_rect.y + scrollbar_ui_button_up_height;
-    } else if (dst_rect.y > ctrl->info.scrollbar_rect.y + ctrl->info.scrollbar_rect.height - scrollbar_ui_button_down_height - sub_5815A0(index)) {
-        dst_rect.y = ctrl->info.scrollbar_rect.y + ctrl->info.scrollbar_rect.height - scrollbar_ui_button_down_height - sub_5815A0(index);
+    } else if (dst_rect.y > ctrl->info.scrollbar_rect.y + ctrl->info.scrollbar_rect.height - scrollbar_ui_button_down_height - scrollbar_ui_get_thumb_height(index)) {
+        dst_rect.y = ctrl->info.scrollbar_rect.y + ctrl->info.scrollbar_rect.height - scrollbar_ui_button_down_height - scrollbar_ui_get_thumb_height(index);
     }
 
+    // Draw top cap.
     dst_rect.width = ctrl->info.scrollbar_rect.width;
     dst_rect.height = 5;
 
     art_blit_info.flags = 0;
     art_blit_info.art_id = scrollbar_ui_top_art_id;
-    art_blit_info.src_rect = &stru_5CBF48;
+    art_blit_info.src_rect = &scrollbar_ui_thumb_top_src_rect;
     art_blit_info.dst_rect = &dst_rect;
     tig_window_blit_art(ctrl->window_handle, &art_blit_info);
 
-    v1 -= 5.0f;
+    thumb_height -= 5.0f;
 
     dst_rect.y += 5;
     dst_rect.width = ctrl->info.scrollbar_rect.width;
     dst_rect.height = 1;
 
+    // Draw repeating middle tile.
     art_blit_info.flags = 0;
     art_blit_info.art_id = scrollbar_ui_middle_art_id;
-    art_blit_info.src_rect = &stru_5CBF68;
+    art_blit_info.src_rect = &scrollbar_ui_thumb_middle_src_rect;
     art_blit_info.dst_rect = &dst_rect;
 
-    while (v1 > 7.0f) {
+    while (thumb_height > 7.0f) {
         tig_window_blit_art(ctrl->window_handle, &art_blit_info);
         dst_rect.y++;
-        v1 -= 7.0f;
+        thumb_height -= 7.0f;
     }
 
+    // Draw bottom cap.
     dst_rect.width = ctrl->info.scrollbar_rect.width;
     dst_rect.height = 7;
 
     art_blit_info.art_id = scrollbar_ui_bottom_art_id;
     art_blit_info.flags = 0;
-    art_blit_info.src_rect = &stru_5CBF58;
+    art_blit_info.src_rect = &scrollbar_ui_thumb_bottom_src_rect;
     art_blit_info.dst_rect = &dst_rect;
     tig_window_blit_art(ctrl->window_handle, &art_blit_info);
 
+    // If either arrow button is hidden, manually blit the button art so that
+    // the buttons appear to be in place, but not actually buttons.
     tig_button_is_hidden(ctrl->button_up, &hidden);
     if (hidden) {
         dst_rect.x = ctrl->info.scrollbar_rect.x + (ctrl->info.scrollbar_rect.width - scrollbar_ui_button_up_width) / 2;
@@ -363,7 +521,7 @@ void sub_5807F0(int index, int a2)
         src_rect.width = scrollbar_ui_button_up_width;
         src_rect.height = scrollbar_ui_button_up_height;
 
-        tig_art_interface_id_create(317, 0, 0, 0, &art_blit_info.art_id);
+        tig_art_interface_id_create(SCROLL_UP_BUTTON_ART_NUM, 0, 0, 0, &art_blit_info.art_id);
         art_blit_info.src_rect = &src_rect;
         art_blit_info.dst_rect = &dst_rect;
         tig_window_blit_art(ctrl->window_handle, &art_blit_info);
@@ -379,20 +537,26 @@ void sub_5807F0(int index, int a2)
         src_rect.width = scrollbar_ui_button_down_width;
         src_rect.height = scrollbar_ui_button_down_height;
 
-        tig_art_interface_id_create(318, 0, 0, 0, &(art_blit_info.art_id));
+        tig_art_interface_id_create(SCROLL_DOWN_BUTTON_ART_NUM, 0, 0, 0, &(art_blit_info.art_id));
         art_blit_info.src_rect = &src_rect;
         art_blit_info.dst_rect = &dst_rect;
         tig_window_blit_art(ctrl->window_handle, &art_blit_info);
     }
 }
 
-// 0x580B10
+/**
+ * Processes a UI message and routes it to the appropriate scrollbar control.
+ *
+ * Returns `true` if the message was consumed, `false` otherwise.
+ *
+ * 0x580B10
+ */
 bool scrollbar_ui_process_event(TigMessage* msg)
 {
     int index;
     ScrollbarUiControl* ctrl;
 
-    if (scrollbar_ui_ignore_events_counter != 0) {
+    if (scrollbar_ui_ignore_events_counter) {
         return false;
     }
 
@@ -400,37 +564,43 @@ bool scrollbar_ui_process_event(TigMessage* msg)
     case TIG_MESSAGE_MOUSE:
         switch (msg->data.mouse.event) {
         case TIG_MESSAGE_MOUSE_LEFT_BUTTON_DOWN:
-            if (dword_5CBF78 == -1) {
+            if (scrollbar_ui_dragging_index == -1) {
                 for (index = 0; index < 8; index++) {
                     ctrl = &(scrollbar_ui_controls[index]);
                     if ((ctrl->flags & SB_IN_USE) != 0
                         && (ctrl->flags & SB_HIDDEN) == 0) {
-                        if (sub_581360(index, msg->data.mouse.x, msg->data.mouse.y)) {
-                            dword_5CBF78 = index;
-                            dword_68467C = msg->data.mouse.y
+                        if (scrollbar_ui_hit_test_thumb(index, msg->data.mouse.x, msg->data.mouse.y)) {
+                            // Begin dragging thumb.
+                            scrollbar_ui_dragging_index = index;
+                            scrollbar_ui_drag_base = msg->data.mouse.y
                                 - scrollbar_ui_controls[index].window_data.rect.y
-                                - sub_5815D0(index);
+                                - scrollbar_ui_get_thumb_top(index);
+
+                            // Hide arrow buttons during dragging.
                             tig_button_hide(scrollbar_ui_controls[index].button_up);
                             tig_button_hide(scrollbar_ui_controls[index].button_down);
+
                             return true;
                         }
 
-                        if (sub_5813E0(index, msg->data.mouse.x, msg->data.mouse.y)) {
-                            ctrl->info.value -= ctrl->info.field_30;
+                        if (scrollbar_ui_hit_test_track_above_thumb(index, msg->data.mouse.x, msg->data.mouse.y)) {
+                            // Click in trough between up button and thumb.
+                            ctrl->info.value -= ctrl->info.page_step;
                             if (ctrl->info.value < ctrl->info.min_value) {
                                 ctrl->info.value = ctrl->info.min_value;
                             }
-                            if (ctrl->info.field_3C != NULL) {
-                                ctrl->info.field_3C(ctrl->info.value);
+                            if (ctrl->info.on_value_changed != NULL) {
+                                ctrl->info.on_value_changed(ctrl->info.value);
                             }
                             scrollbar_ui_control_redraw(ctrl->id);
-                        } else if (sub_581460(index, msg->data.mouse.x, msg->data.mouse.y)) {
-                            ctrl->info.value += ctrl->info.field_30;
+                        } else if (scrollbar_ui_hit_test_track_below_thumb(index, msg->data.mouse.x, msg->data.mouse.y)) {
+                            // Click in trough between thumb and down button.
+                            ctrl->info.value += ctrl->info.page_step;
                             if (ctrl->info.value > ctrl->info.max_value) {
                                 ctrl->info.value = ctrl->info.max_value;
                             }
-                            if (ctrl->info.field_3C != NULL) {
-                                ctrl->info.field_3C(ctrl->info.value);
+                            if (ctrl->info.on_value_changed != NULL) {
+                                ctrl->info.on_value_changed(ctrl->info.value);
                             }
                             scrollbar_ui_control_redraw(ctrl->id);
                         }
@@ -439,67 +609,82 @@ bool scrollbar_ui_process_event(TigMessage* msg)
             }
             return false;
         case TIG_MESSAGE_MOUSE_LEFT_BUTTON_UP:
-            if (dword_5CBF78 != -1) {
-                if (sub_5816A0(dword_5CBF78, scrollbar_ui_controls[dword_5CBF78].info.value) + dword_684680) {
-                    scrollbar_ui_controls[dword_5CBF78].info.value += dword_684680;
+            if (scrollbar_ui_dragging_index != -1) {
+                // Commit the accumulated delta to the stored value.
+                if (scrollbar_ui_is_value_in_range(scrollbar_ui_dragging_index, scrollbar_ui_controls[scrollbar_ui_dragging_index].info.value) + scrollbar_ui_drag_delta) {
+                    scrollbar_ui_controls[scrollbar_ui_dragging_index].info.value += scrollbar_ui_drag_delta;
                 }
-                dword_684680 = 0;
-                sub_5807F0(dword_5CBF78, 0);
-                tig_button_show(scrollbar_ui_controls[dword_5CBF78].button_up);
-                tig_button_show(scrollbar_ui_controls[dword_5CBF78].button_down);
-                dword_5CBF78 = -1;
+
+                scrollbar_ui_drag_delta = 0;
+                scrollbar_ui_control_draw(scrollbar_ui_dragging_index, 0);
+
+                // Restore arrow buttons visibility.
+                tig_button_show(scrollbar_ui_controls[scrollbar_ui_dragging_index].button_up);
+                tig_button_show(scrollbar_ui_controls[scrollbar_ui_dragging_index].button_down);
+
+                scrollbar_ui_dragging_index = -1;
                 return true;
             }
             return false;
         case TIG_MESSAGE_MOUSE_MOVE:
-            if (dword_5CBF78 != -1) {
-                int v2;
-                float v3;
-                float v4;
+            // Handle dragging.
+            if (scrollbar_ui_dragging_index != -1) {
+                int dy;
+                float thumb_height;
+                float remainder;
 
-                ctrl = &(scrollbar_ui_controls[dword_5CBF78]);
-                v2 = msg->data.mouse.y
-                    - scrollbar_ui_controls[dword_5CBF78].window_data.rect.y
-                    - dword_68467C
-                    - sub_5815D0(dword_5CBF78);
-                v3 = sub_581550(dword_5CBF78);
-                v4 = v2 - dword_684680 * v3;
-                if (v4 > v3 && ctrl->info.value + dword_684680 < ctrl->info.max_value) {
+                ctrl = &(scrollbar_ui_controls[scrollbar_ui_dragging_index]);
+                dy = msg->data.mouse.y
+                    - scrollbar_ui_controls[scrollbar_ui_dragging_index].window_data.rect.y
+                    - scrollbar_ui_drag_base
+                    - scrollbar_ui_get_thumb_top(scrollbar_ui_dragging_index);
+                thumb_height = scrollbar_ui_calc_thumb_height(scrollbar_ui_dragging_index);
+
+                // Subtract the already-pending delta from the raw pixel
+                // movement.
+                remainder = dy - scrollbar_ui_drag_delta * thumb_height;
+
+                if (remainder > thumb_height && ctrl->info.value + scrollbar_ui_drag_delta < ctrl->info.max_value) {
+                    // Accumulate whole `line_step` increments when moving down.
                     do {
-                        v4 -= v3;
-                        dword_684680 += ctrl->info.field_2C;
-                    } while (v4 > v3 && ctrl->info.value + dword_684680 < ctrl->info.max_value);
-                } else if (v4 < -v3 && ctrl->info.value + dword_684680 > ctrl->info.min_value) {
+                        remainder -= thumb_height;
+                        scrollbar_ui_drag_delta += ctrl->info.line_step;
+                    } while (remainder > thumb_height && ctrl->info.value + scrollbar_ui_drag_delta < ctrl->info.max_value);
+                } else if (remainder < -thumb_height && ctrl->info.value + scrollbar_ui_drag_delta > ctrl->info.min_value) {
+                    // Accumulate whole `line_step` decrements when moving up.
                     do {
-                        v4 += -v3;
-                        dword_684680 -= ctrl->info.field_2C;
-                    } while (v4 < -v3 && ctrl->info.value + dword_684680 > ctrl->info.min_value);
+                        remainder += -thumb_height;
+                        scrollbar_ui_drag_delta -= ctrl->info.line_step;
+                    } while (remainder < -thumb_height && ctrl->info.value + scrollbar_ui_drag_delta > ctrl->info.min_value);
                 } else {
-                    sub_5807F0(dword_5CBF78, v2);
+                    // Not enough movement (in px) for a step - just update the
+                    // visual position.
+                    scrollbar_ui_control_draw(scrollbar_ui_dragging_index, dy);
                     return true;
                 }
 
-                if (ctrl->info.field_3C != NULL) {
-                    if (sub_5816A0(dword_5CBF78, ctrl->info.value + dword_684680)) {
-                        sub_5816D0();
-                        ctrl->info.field_3C(ctrl->info.value + dword_684680);
-                        sub_5816E0();
+                // Notify host of the new value.
+                if (ctrl->info.on_value_changed != NULL) {
+                    if (scrollbar_ui_is_value_in_range(scrollbar_ui_dragging_index, ctrl->info.value + scrollbar_ui_drag_delta)) {
+                        scrollbar_ui_redraw_lock_acquire();
+                        ctrl->info.on_value_changed(ctrl->info.value + scrollbar_ui_drag_delta);
+                        scrollbar_ui_redraw_lock_release();
                     } else {
-                        if (ctrl->info.value + dword_684680 > ctrl->info.max_value) {
-                            ctrl->info.field_3C(ctrl->info.max_value);
-                            sub_5807F0(dword_5CBF78, ctrl->info.scrollbar_rect.height - ((int)v3 * (ctrl->info.value + 1)));
+                        if (ctrl->info.value + scrollbar_ui_drag_delta > ctrl->info.max_value) {
+                            ctrl->info.on_value_changed(ctrl->info.max_value);
+                            scrollbar_ui_control_draw(scrollbar_ui_dragging_index, ctrl->info.scrollbar_rect.height - ((int)thumb_height * (ctrl->info.value + 1)));
                             return true;
                         }
 
-                        if (ctrl->info.value + dword_684680 < ctrl->info.min_value) {
-                            ctrl->info.field_3C(ctrl->info.min_value);
-                            sub_5807F0(dword_5CBF78, -(ctrl->info.value * (int)v3));
+                        if (ctrl->info.value + scrollbar_ui_drag_delta < ctrl->info.min_value) {
+                            ctrl->info.on_value_changed(ctrl->info.min_value);
+                            scrollbar_ui_control_draw(scrollbar_ui_dragging_index, -(ctrl->info.value * (int)thumb_height));
                             return true;
                         }
                     }
                 }
 
-                sub_5807F0(dword_5CBF78, v2);
+                scrollbar_ui_control_draw(scrollbar_ui_dragging_index, dy);
                 return true;
             }
             return false;
@@ -508,24 +693,26 @@ bool scrollbar_ui_process_event(TigMessage* msg)
                 ctrl = &(scrollbar_ui_controls[index]);
                 if ((ctrl->flags & SB_IN_USE) != 0
                     && (ctrl->flags & SB_HIDDEN) == 0
-                    && sub_5814E0(index, msg->data.mouse.x, msg->data.mouse.y)) {
+                    && scrollbar_ui_hit_test_content_rect(index, msg->data.mouse.x, msg->data.mouse.y)) {
                     if (msg->data.mouse.dy > 0) {
-                        ctrl->info.value -= ctrl->info.field_34;
+                        // Wheel up.
+                        ctrl->info.value -= ctrl->info.wheel_step;
                         if (ctrl->info.value < ctrl->info.min_value) {
                             ctrl->info.value = ctrl->info.min_value;
                         }
-                        if (ctrl->info.field_3C != NULL) {
-                            ctrl->info.field_3C(ctrl->info.value);
+                        if (ctrl->info.on_value_changed != NULL) {
+                            ctrl->info.on_value_changed(ctrl->info.value);
                         }
                         scrollbar_ui_control_redraw(ctrl->id);
                         return true;
                     } else if (msg->data.mouse.dy < 0) {
-                        ctrl->info.value += ctrl->info.field_34;
+                        // Wheel down.
+                        ctrl->info.value += ctrl->info.wheel_step;
                         if (ctrl->info.value > ctrl->info.max_value) {
                             ctrl->info.value = ctrl->info.max_value;
                         }
-                        if (ctrl->info.field_3C != NULL) {
-                            ctrl->info.field_3C(ctrl->info.value);
+                        if (ctrl->info.on_value_changed != NULL) {
+                            ctrl->info.on_value_changed(ctrl->info.value);
                         }
                         scrollbar_ui_control_redraw(ctrl->id);
                         return true;
@@ -544,32 +731,34 @@ bool scrollbar_ui_process_event(TigMessage* msg)
                 ctrl = &(scrollbar_ui_controls[index]);
                 if ((ctrl->flags & SB_IN_USE) != 0
                     && (ctrl->flags & SB_HIDDEN) == 0) {
+                    // Up-arrow button - scroll one line up.
                     if (msg->data.button.button_handle == ctrl->button_up) {
-                        ctrl->info.value -= ctrl->info.field_2C;
+                        ctrl->info.value -= ctrl->info.line_step;
                         if (ctrl->info.value < ctrl->info.min_value) {
                             ctrl->info.value = ctrl->info.min_value;
                         }
-                        if (ctrl->info.field_3C != NULL) {
-                            ctrl->info.field_3C(ctrl->info.value);
+                        if (ctrl->info.on_value_changed != NULL) {
+                            ctrl->info.on_value_changed(ctrl->info.value);
                         }
                         scrollbar_ui_control_redraw(ctrl->id);
-                        if (dword_5CBF78 == ctrl->id.index) {
-                            dword_5CBF78 = -1;
+                        if (scrollbar_ui_dragging_index == ctrl->id.index) {
+                            scrollbar_ui_dragging_index = -1;
                         }
                         return true;
                     }
 
+                    // Down-arrow button - scorll one line down.
                     if (msg->data.button.button_handle == ctrl->button_down) {
-                        ctrl->info.value += ctrl->info.field_2C;
+                        ctrl->info.value += ctrl->info.line_step;
                         if (ctrl->info.value > ctrl->info.max_value) {
                             ctrl->info.value = ctrl->info.max_value;
                         }
-                        if (ctrl->info.field_3C != NULL) {
-                            ctrl->info.field_3C(ctrl->info.value);
+                        if (ctrl->info.on_value_changed != NULL) {
+                            ctrl->info.on_value_changed(ctrl->info.value);
                         }
                         scrollbar_ui_control_redraw(ctrl->id);
-                        if (dword_5CBF78 == ctrl->id.index) {
-                            dword_5CBF78 = -1;
+                        if (scrollbar_ui_dragging_index == ctrl->id.index) {
+                            scrollbar_ui_dragging_index = -1;
                         }
                         return true;
                     }
@@ -584,12 +773,24 @@ bool scrollbar_ui_process_event(TigMessage* msg)
     }
 }
 
-// 0x5810D0
+/**
+ * Sets the minimum value, maximum value, or current value of a scrollbar.
+ *
+ * `type` must be one of `SCROLLBAR_MIN_VALUE`, `SCROLLBAR_MAX_VALUE`, or
+ * `SCROLLBAR_CURRENT_VALUE`. Setting min or max will clamp the current value
+ * to the new range if needed. Setting the current value silently resets it to
+ * `min_value` if `value` falls outside the range.
+ *
+ * After the change the `on_value_changed` callback is invoked (even if there
+ * was no change).
+ *
+ * 0x5810D0
+ */
 void scrollbar_ui_control_set(ScrollbarId id, int type, int value)
 {
     ScrollbarUiControl* ctrl;
 
-    if (!sub_5812E0(&id, &ctrl)) {
+    if (!scrollbar_ui_control_get(&id, &ctrl)) {
         return;
     }
 
@@ -617,26 +818,37 @@ void scrollbar_ui_control_set(ScrollbarId id, int type, int value)
         return;
     }
 
-    if (ctrl->info.field_3C != NULL) {
-        ctrl->info.field_3C(ctrl->info.value);
+    if (ctrl->info.on_value_changed != NULL) {
+        ctrl->info.on_value_changed(ctrl->info.value);
     }
 
     scrollbar_ui_control_redraw(ctrl->id);
 }
 
-// 0x5811A0
+/**
+ * Tells scrollbar UI module to suspend the handling of events.
+ *
+ * 0x5811A0
+ */
 void scrollbar_ui_begin_ignore_events()
 {
-    scrollbar_ui_ignore_events_counter = 1;
+    scrollbar_ui_ignore_events_counter = true;
 }
 
+/**
+ * Tells scrollbar UI module to resume the handling of events.
+ */
 // 0x5811B0
 void scrollbar_ui_end_ignore_events()
 {
-    scrollbar_ui_ignore_events_counter = 0;
+    scrollbar_ui_ignore_events_counter = false;
 }
 
-// 0x5811C0
+/**
+ * Resets a control slot to its default invalid state.
+ *
+ * 0x5811C0
+ */
 void scrollbar_ui_control_reset(ScrollbarUiControl* ctrl)
 {
     ctrl->id.index = -1;
@@ -648,60 +860,71 @@ void scrollbar_ui_control_reset(ScrollbarUiControl* ctrl)
     ctrl->button_down = TIG_BUTTON_HANDLE_INVALID;
 }
 
-// 0x5811F0
-void sub_5811F0(ScrollbarUiControl* ctrl, ScrollbarUiControlInfo* info)
+/**
+ * Copies scrollbar info and fills in defaults for any fields whose
+ * corresponding flag bit is not set.
+ *
+ * 0x5811F0
+ */
+void scrollbar_ui_control_apply_info(ScrollbarUiControl* ctrl, ScrollbarUiControlInfo* info)
 {
     ctrl->info = *info;
 
-    if ((ctrl->info.flags & 0x2) == 0) {
+    if ((ctrl->info.flags & SB_INFO_CONTENT_RECT) == 0) {
         ctrl->info.content_rect.x = 0;
         ctrl->info.content_rect.y = 0;
         ctrl->info.content_rect.width = 0;
         ctrl->info.content_rect.height = 0;
     }
 
-    if ((ctrl->info.flags & 0x4) == 0) {
+    if ((ctrl->info.flags & SB_INFO_MAX_VALUE) == 0) {
         ctrl->info.max_value = 10;
     }
 
-    if ((ctrl->info.flags & 0x8) == 0) {
+    if ((ctrl->info.flags & SB_INFO_MIN_VALUE) == 0) {
         ctrl->info.min_value = 0;
     }
 
-    if ((ctrl->info.flags & 0x10) == 0) {
-        ctrl->info.field_2C = 1;
+    if ((ctrl->info.flags & SB_INFO_LINE_STEP) == 0) {
+        ctrl->info.line_step = 1;
     }
 
-    if ((ctrl->info.flags & 0x20) == 0) {
-        ctrl->info.field_30 = 5;
+    if ((ctrl->info.flags & SB_INFO_PAGE_STEP) == 0) {
+        ctrl->info.page_step = 5;
     }
 
-    if ((ctrl->info.flags & 0x40) == 0) {
-        ctrl->info.field_34 = 3;
+    if ((ctrl->info.flags & SB_INFO_WHEEL_STEP) == 0) {
+        ctrl->info.wheel_step = 3;
     }
 
-    if ((ctrl->info.flags & 0x80) == 0) {
+    if ((ctrl->info.flags & SB_INFO_VALUE) == 0) {
         ctrl->info.value = 0;
     }
 
-    if ((ctrl->info.flags & 0x100) == 0) {
-        ctrl->info.field_3C = 0;
+    if ((ctrl->info.flags & SB_INFO_ON_VALUE_CHANGED) == 0) {
+        ctrl->info.on_value_changed = NULL;
     }
 
-    if ((ctrl->info.flags & 0x200) == 0) {
-        ctrl->info.field_40 = 0;
+    if ((ctrl->info.flags & SB_INFO_ON_REFRESH) == 0) {
+        ctrl->info.on_refresh = NULL;
     }
 }
 
-// 0x581280
-bool sub_581280(ScrollbarId* id)
+/**
+ * Allocates a free slot in the control pool and populates `id`.
+ *
+ * Returns `true` on success, `false` if the pool is full.
+ *
+ * 0x581280
+ */
+bool scrollbar_ui_control_alloc(ScrollbarId* id)
 {
     int index;
 
     for (index = 0; index < MAX_CONTROLS; index++) {
         if ((scrollbar_ui_controls[index].flags & SB_IN_USE) == 0) {
             id->index = index;
-            id->global_index = dword_684678++;
+            id->global_index = scrollbar_ui_next_global_index++;
             scrollbar_ui_controls[index].id = *id;
             scrollbar_ui_controls[index].flags = SB_IN_USE;
             return true;
@@ -711,11 +934,19 @@ bool sub_581280(ScrollbarId* id)
     return false;
 }
 
-// 0x5812E0
-bool sub_5812E0(const ScrollbarId* id, ScrollbarUiControl** ctrl_ptr)
+/**
+ * Retrieves a pointer to `ScrollbarUiControl` from a given `ScrollbarId`.
+ *
+ * Returns `true` and sets `*ctrl_ptr` on success, `false` if no matching
+ * control is found.
+ *
+ * 0x5812E0
+ */
+bool scrollbar_ui_control_get(const ScrollbarId* id, ScrollbarUiControl** ctrl_ptr)
 {
     int index;
 
+    // Quick lookup using index.
     if (id->index >= 0 && id->index < MAX_CONTROLS
         && scrollbar_ui_controls[id->index].id.global_index == id->global_index
         && (scrollbar_ui_controls[id->index].flags & SB_IN_USE) != 0) {
@@ -723,6 +954,7 @@ bool sub_5812E0(const ScrollbarId* id, ScrollbarUiControl** ctrl_ptr)
         return true;
     }
 
+    // "Slow" linear scan over all slots.
     for (index = 0; index < MAX_CONTROLS; index++) {
         if (scrollbar_ui_controls[index].id.global_index == id->global_index
             && (scrollbar_ui_controls[id->index].flags & SB_IN_USE) != 0) {
@@ -734,58 +966,85 @@ bool sub_5812E0(const ScrollbarId* id, ScrollbarUiControl** ctrl_ptr)
     return false;
 }
 
-// 0x581360
-bool sub_581360(int id, int x, int y)
+/**
+ * Returns `true` if the given screen coordinate lies within the thumb area of
+ * scrollbar.
+ *
+ * 0x581360
+ */
+bool scrollbar_ui_hit_test_thumb(int index, int x, int y)
 {
     ScrollbarUiControl* ctrl;
     TigWindowData window_data;
 
-    ctrl = &(scrollbar_ui_controls[id]);
+    ctrl = &(scrollbar_ui_controls[index]);
     tig_window_data(ctrl->window_handle, &window_data);
 
     return x - window_data.rect.x >= ctrl->info.scrollbar_rect.x
         && x - window_data.rect.x <= ctrl->info.scrollbar_rect.x + ctrl->info.scrollbar_rect.width
-        && y - window_data.rect.y >= sub_5815D0(id)
-        && y - window_data.rect.y <= sub_581660(id);
+        && y - window_data.rect.y >= scrollbar_ui_get_thumb_top(index)
+        && y - window_data.rect.y <= scrollbar_ui_get_thumb_bottom(index);
 }
 
-// 0x5813E0
-bool sub_5813E0(int id, int x, int y)
+/**
+ * Returns `true` if the given screen coordinate lies in the trough above the
+ * thumb of scrollbar.
+ *
+ * Clicking in this area produces a "page-up".
+ *
+ * 0x5813E0
+ */
+bool scrollbar_ui_hit_test_track_above_thumb(int index, int x, int y)
 {
     ScrollbarUiControl* ctrl;
     TigWindowData window_data;
 
-    ctrl = &(scrollbar_ui_controls[id]);
+    ctrl = &(scrollbar_ui_controls[index]);
     tig_window_data(ctrl->window_handle, &window_data);
 
     return x - window_data.rect.x >= ctrl->info.scrollbar_rect.x
         && x - window_data.rect.x <= ctrl->info.scrollbar_rect.x + ctrl->info.scrollbar_rect.width
         && y - window_data.rect.y >= ctrl->info.content_rect.y + scrollbar_ui_button_up_height
-        && y - window_data.rect.y <= sub_5815D0(id);
+        && y - window_data.rect.y <= scrollbar_ui_get_thumb_top(index);
 }
 
-// 0x581460
-bool sub_581460(int id, int x, int y)
+/**
+ * Returns `true` if the given screen coordinate lies in the trough below the
+ * thumb of scrollbar.
+ *
+ * Clicking in this area produces a "page-down".
+ *
+ * 0x581460
+ */
+bool scrollbar_ui_hit_test_track_below_thumb(int index, int x, int y)
 {
     ScrollbarUiControl* ctrl;
     TigWindowData window_data;
 
-    ctrl = &(scrollbar_ui_controls[id]);
+    ctrl = &(scrollbar_ui_controls[index]);
     tig_window_data(ctrl->window_handle, &window_data);
 
     return x - window_data.rect.x >= ctrl->info.scrollbar_rect.x
         && x - window_data.rect.x <= ctrl->info.scrollbar_rect.x + ctrl->info.scrollbar_rect.width
-        && y - window_data.rect.y >= sub_581660(id)
+        && y - window_data.rect.y >= scrollbar_ui_get_thumb_bottom(index)
         && y - window_data.rect.y <= ctrl->info.content_rect.y + ctrl->info.content_rect.height - scrollbar_ui_button_down_height;
 }
 
-// 0x5814E0
-bool sub_5814E0(int id, int x, int y)
+/**
+ * Returns `true` if the given screen coordinate lies within the content area
+ * associated with scrollbar control `index`.
+ *
+ * Used to decide whether a mouse-wheel event should be routed to this
+ * scrollbar.
+ *
+ * 0x5814E0
+ */
+bool scrollbar_ui_hit_test_content_rect(int index, int x, int y)
 {
     ScrollbarUiControl* ctrl;
     TigWindowData window_data;
 
-    ctrl = &(scrollbar_ui_controls[id]);
+    ctrl = &(scrollbar_ui_controls[index]);
     tig_window_data(ctrl->window_handle, &window_data);
 
     return x - window_data.rect.x >= ctrl->info.content_rect.x
@@ -794,69 +1053,104 @@ bool sub_5814E0(int id, int x, int y)
         && y - window_data.rect.y <= ctrl->info.content_rect.y + ctrl->info.content_rect.height;
 }
 
-// 0x581550
-float sub_581550(int id)
+/**
+ * Calculates the ideal thumb height (in pixels).
+ *
+ * The thumb height is proportional to the ratio of `line_step` to the total
+ * value range, scaled to the available track height (track height minus the
+ * two arrow button heights).
+ *
+ * 0x581550
+ */
+float scrollbar_ui_calc_thumb_height(int index)
 {
     ScrollbarUiControl* ctrl;
 
-    ctrl = &(scrollbar_ui_controls[id]);
+    ctrl = &(scrollbar_ui_controls[index]);
     return (float)(ctrl->info.scrollbar_rect.height - scrollbar_ui_button_down_height - scrollbar_ui_button_up_height)
-        / (float)(ctrl->info.field_2C + ctrl->info.max_value - ctrl->info.min_value)
-        * (float)ctrl->info.field_2C;
+        / (float)(ctrl->info.line_step + ctrl->info.max_value - ctrl->info.min_value)
+        * (float)ctrl->info.line_step;
 }
 
-// 0x5815A0
-int sub_5815A0(int id)
+/**
+ * Returns the thumb height in whole pixels, clamped to a minimum of 12 px.
+ *
+ * 0x5815A0
+ */
+int scrollbar_ui_get_thumb_height(int index)
 {
-    float v1;
+    float thumb_height;
 
-    v1 = sub_581550(id);
-    if (v1 > 12.0f) {
-        return (int)v1;
+    thumb_height = scrollbar_ui_calc_thumb_height(index);
+    if (thumb_height > 12.0f) {
+        return (int)thumb_height;
     }
     return 12;
 }
 
-// 0x5815D0
-int sub_5815D0(int id)
+/**
+ * Returns the Y coordinate of the top edge of the thumb (in window coordinate
+ * system).
+ *
+ * 0x5815D0
+ */
+int scrollbar_ui_get_thumb_top(int index)
 {
     return scrollbar_ui_button_up_height
-        + scrollbar_ui_controls[id].info.scrollbar_rect.y
-        + (int)(sub_581550(id)
-            * (float)(scrollbar_ui_controls[id].info.value - scrollbar_ui_controls[id].info.min_value)
-            / (float)(scrollbar_ui_controls[id].info.field_2C));
+        + scrollbar_ui_controls[index].info.scrollbar_rect.y
+        + (int)(scrollbar_ui_calc_thumb_height(index)
+            * (float)(scrollbar_ui_controls[index].info.value - scrollbar_ui_controls[index].info.min_value)
+            / (float)(scrollbar_ui_controls[index].info.line_step));
 }
 
-// 0x581660
-int sub_581660(int id)
+/**
+ * Returns the Y coordinate of the bottom edge of the thumb (in window
+ * coordinate system).
+ *
+ * 0x581660
+ */
+int scrollbar_ui_get_thumb_bottom(int index)
 {
-    int v1;
-
-    v1 = (int)sub_581550(id);
-    return sub_5815D0(id) + (v1 >= 12 ? v1 : 12);
+    return scrollbar_ui_get_thumb_top(index) + scrollbar_ui_get_thumb_height(index);
 }
 
-// 0x5816A0
-bool sub_5816A0(int id, int a2)
+/**
+ * Returns `true` if `value` lies within the valid range of scrollbar.
+ *
+ * 0x5816A0
+ */
+bool scrollbar_ui_is_value_in_range(int index, int value)
 {
-    return a2 >= scrollbar_ui_controls[id].info.min_value
-        && a2 <= scrollbar_ui_controls[id].info.max_value;
+    return value >= scrollbar_ui_controls[index].info.min_value
+        && value <= scrollbar_ui_controls[index].info.max_value;
 }
 
-// 0x5816D0
-void sub_5816D0()
+/**
+ * Increments the redraw lock counter, suppressing redraws while non-zero.
+ *
+ * 0x5816D0
+ */
+void scrollbar_ui_redraw_lock_acquire()
 {
-    dword_684674++;
+    scrollbar_ui_redraw_lock++;
 }
 
-// 0x5816E0
-void sub_5816E0()
+/**
+ * Decrements the redraw lock counter, re-enabling redraws when it reaches 0.
+ *
+ * 0x5816E0
+ */
+void scrollbar_ui_redraw_lock_release()
 {
-    dword_684674--;
+    scrollbar_ui_redraw_lock--;
 }
 
-// 0x5816F0
-int sub_5816F0()
+/**
+ * Returns the current redraw lock counter value.
+ *
+ * 0x5816F0
+ */
+int scrollbar_ui_redraw_lock_get()
 {
-    return dword_684674;
+    return scrollbar_ui_redraw_lock;
 }
