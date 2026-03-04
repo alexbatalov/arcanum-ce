@@ -184,9 +184,6 @@ static bool object_dirty;
 // 0x5E2ED4
 static bool object_type_visibility[18];
 
-// 0x5E2F1C
-static int object_bpp;
-
 // 0x5E2F20
 static int object_blit_queue_capacity;
 
@@ -288,8 +285,6 @@ bool object_init(GameInitInfo* init_info)
     if (!dword_5E2F48) {
         object_blit_flags = TIG_ART_BLT_BLEND_ALPHA_STIPPLE_D;
     }
-
-    tig_video_get_bpp(&object_bpp);
 
     settings_register(&settings, OBJECT_LIGHTING_KEY, "1", object_lighting_changed);
     object_lighting_changed();
@@ -4530,19 +4525,9 @@ void sub_442520(int64_t obj)
         }
 
         if ((flags & OF_FROZEN) != 0) {
-            // TODO: Incomplete.
-            switch (object_bpp) {
-            case 32:
-                color = tig_color_mul(color, tig_color_make(0, 128, 255));
-                break;
-            }
+            color = tig_color_mul(color, tig_color_make(0, 128, 255));
         } else if ((flags & OF_ANIMATED_DEAD) != 0) {
-            // TODO: Incomplete.
-            switch (object_bpp) {
-            case 32:
-                color = tig_color_mul(color, tig_color_make(0, 255, 0));
-                break;
-            }
+            color = tig_color_mul(color, tig_color_make(0, 255, 0));
         }
 
         obj_field_int32_set(obj, OBJ_F_COLOR, color);
