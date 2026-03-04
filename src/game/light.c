@@ -88,9 +88,6 @@ static int dword_5B904C[] = {
     20,
 };
 
-// 0x602E10
-static int light_bpp;
-
 // 0x602E18
 static TigVideoBufferData darker_vb_data;
 
@@ -133,12 +130,6 @@ static TigVideoBuffer* lighter_vb;
 // 0x602E98
 static uint32_t* darker_colors;
 
-// 0x602E9C
-static void* dword_602E9C;
-
-// 0x602EA0
-static void* dword_602EA0;
-
 // 0x602EA4
 static int dword_602EA4;
 
@@ -147,12 +138,6 @@ static tig_color_t light_outdoor_color;
 
 // 0x602EAC
 static uint32_t* lighter_colors;
-
-// 0x602EB0
-static void* dword_602EB0;
-
-// 0x602EB4
-static void* dword_602EB4;
 
 // 0x602EB8
 static bool dword_602EB8;
@@ -215,11 +200,6 @@ bool light_init(GameInitInfo* init_info)
     light_view_options.type = VIEW_TYPE_ISOMETRIC;
     dword_602ECC = true;
     dword_602EB8 = true;
-
-    if (tig_video_get_bpp(&light_bpp) != TIG_OK) {
-        FREE(dword_602E58);
-        return false;
-    }
 
     if (tig_window_data(init_info->iso_window_handle, &window_data) != TIG_OK) {
         FREE(dword_602E58);
@@ -310,28 +290,10 @@ void light_buffers_lock()
         tig_video_buffer_lock(darker_vb);
         tig_video_buffer_data(darker_vb, &darker_vb_data);
 
-        switch (light_bpp) {
-        case 8:
-            break;
-        case 16:
-            lighter_pitch = lighter_vb_data.pitch / 2;
-            dword_602EB4 = lighter_vb_data.surface_data.pixels;
-            darker_pitch = darker_vb_data.pitch / 2;
-            dword_602E9C = darker_vb_data.surface_data.pixels;
-            break;
-        case 24:
-            lighter_pitch = lighter_vb_data.pitch;
-            dword_602EB0 = lighter_vb_data.surface_data.pixels;
-            darker_pitch = darker_vb_data.pitch;
-            dword_602EA0 = darker_vb_data.surface_data.pixels;
-            break;
-        case 32:
-            lighter_pitch = lighter_vb_data.pitch / 4;
-            lighter_colors = (uint32_t*)lighter_vb_data.surface_data.pixels;
-            darker_pitch = darker_vb_data.pitch / 4;
-            darker_colors = (uint32_t*)darker_vb_data.surface_data.pixels;
-            break;
-        }
+        lighter_pitch = lighter_vb_data.pitch / 4;
+        lighter_colors = (uint32_t*)lighter_vb_data.surface_data.pixels;
+        darker_pitch = darker_vb_data.pitch / 4;
+        darker_colors = (uint32_t*)darker_vb_data.surface_data.pixels;
     }
 }
 
@@ -544,26 +506,14 @@ bool sub_4D89E0(int64_t loc, int offset_x, int offset_y, int a4, tig_color_t* co
                             light_invalidate_rect(&tmp_rect, true);
                         }
 
-                        switch (light_bpp) {
-                        case 8:
-                        case 16:
-                        case 24:
-                            // TODO: Incomplete.
-                        case 32: {
-                            if (light->palette != NULL) {
-                                color = tig_color_mul(color, light->tint_color);
-                            }
-
-                            if ((light->flags & LF_DARK) != 0) {
-                                *color_ptr = tig_color_sub(color, *color_ptr);
-                            } else {
-                                *color_ptr = tig_color_add(color, *color_ptr);
-                            }
-                            break;
+                        if (light->palette != NULL) {
+                            color = tig_color_mul(color, light->tint_color);
                         }
-                        default:
-                            // Should be unreachable.
-                            assert(0);
+
+                        if ((light->flags & LF_DARK) != 0) {
+                            *color_ptr = tig_color_sub(color, *color_ptr);
+                        } else {
+                            *color_ptr = tig_color_add(color, *color_ptr);
                         }
                     }
                 }
@@ -1074,42 +1024,32 @@ bool sub_4DA360(int x, int y, tig_color_t color, tig_color_t* colors)
         return false;
     }
 
-    if (light_bpp != 8) {
-        switch (light_bpp) {
-        case 16:
-        case 24:
-            // TODO: Incomplete.
-            break;
-        case 32:
-            colors[0] = tig_color_add(lighter_colors[dx + dy * lighter_pitch], color);
-            colors[0] = tig_color_sub(darker_colors[dx + dy * darker_pitch], colors[0]);
+    colors[0] = tig_color_add(lighter_colors[dx + dy * lighter_pitch], color);
+    colors[0] = tig_color_sub(darker_colors[dx + dy * darker_pitch], colors[0]);
 
-            colors[1] = tig_color_add(lighter_colors[dx + 1 + dy * lighter_pitch], color);
-            colors[1] = tig_color_sub(darker_colors[dx + 1 + dy * darker_pitch], colors[1]);
+    colors[1] = tig_color_add(lighter_colors[dx + 1 + dy * lighter_pitch], color);
+    colors[1] = tig_color_sub(darker_colors[dx + 1 + dy * darker_pitch], colors[1]);
 
-            colors[2] = tig_color_add(lighter_colors[dx + 2 + dy * lighter_pitch], color);
-            colors[2] = tig_color_sub(darker_colors[dx + 2 + dy * darker_pitch], colors[2]);
+    colors[2] = tig_color_add(lighter_colors[dx + 2 + dy * lighter_pitch], color);
+    colors[2] = tig_color_sub(darker_colors[dx + 2 + dy * darker_pitch], colors[2]);
 
-            colors[3] = tig_color_add(lighter_colors[dx + (dy + 1) * lighter_pitch], color);
-            colors[3] = tig_color_sub(darker_colors[dx + (dy + 1) * darker_pitch], colors[3]);
+    colors[3] = tig_color_add(lighter_colors[dx + (dy + 1) * lighter_pitch], color);
+    colors[3] = tig_color_sub(darker_colors[dx + (dy + 1) * darker_pitch], colors[3]);
 
-            colors[4] = tig_color_add(lighter_colors[dx + 1 + (dy + 1) * lighter_pitch], color);
-            colors[4] = tig_color_sub(darker_colors[dx + 1 + (dy + 1) * darker_pitch], colors[4]);
+    colors[4] = tig_color_add(lighter_colors[dx + 1 + (dy + 1) * lighter_pitch], color);
+    colors[4] = tig_color_sub(darker_colors[dx + 1 + (dy + 1) * darker_pitch], colors[4]);
 
-            colors[5] = tig_color_add(lighter_colors[dx + 2 + (dy + 1) * lighter_pitch], color);
-            colors[5] = tig_color_sub(darker_colors[dx + 2 + (dy + 1) * darker_pitch], colors[5]);
+    colors[5] = tig_color_add(lighter_colors[dx + 2 + (dy + 1) * lighter_pitch], color);
+    colors[5] = tig_color_sub(darker_colors[dx + 2 + (dy + 1) * darker_pitch], colors[5]);
 
-            colors[6] = tig_color_add(lighter_colors[dx + (dy + 2) * lighter_pitch], color);
-            colors[6] = tig_color_sub(darker_colors[dx + (dy + 2) * darker_pitch], colors[6]);
+    colors[6] = tig_color_add(lighter_colors[dx + (dy + 2) * lighter_pitch], color);
+    colors[6] = tig_color_sub(darker_colors[dx + (dy + 2) * darker_pitch], colors[6]);
 
-            colors[7] = tig_color_add(lighter_colors[dx + 1 + (dy + 2) * lighter_pitch], color);
-            colors[7] = tig_color_sub(darker_colors[dx + 1 + (dy + 2) * darker_pitch], colors[7]);
+    colors[7] = tig_color_add(lighter_colors[dx + 1 + (dy + 2) * lighter_pitch], color);
+    colors[7] = tig_color_sub(darker_colors[dx + 1 + (dy + 2) * darker_pitch], colors[7]);
 
-            colors[8] = tig_color_add(lighter_colors[dx + 2 + (dy + 2) * lighter_pitch], color);
-            colors[8] = tig_color_sub(darker_colors[dx + 2 + (dy + 2) * darker_pitch], colors[8]);
-            break;
-        }
-    }
+    colors[8] = tig_color_add(lighter_colors[dx + 2 + (dy + 2) * lighter_pitch], color);
+    colors[8] = tig_color_sub(darker_colors[dx + 2 + (dy + 2) * darker_pitch], colors[8]);
 
     light_buffers_unlock();
 
@@ -1250,24 +1190,14 @@ void sub_4DC210(int64_t obj, int* colors, int* cnt_ptr)
                                                 light_invalidate_rect(&obj_rect, 1);
                                             }
 
-                                            switch (light_bpp) {
-                                            case 8:
-                                                break;
-                                            case 16:
-                                            case 24:
-                                                // TODO: Incomplete.
-                                                break;
-                                            case 32:
-                                                if (light->palette != NULL) {
-                                                    color = tig_color_mul(light->tint_color, color);
-                                                }
+                                            if (light->palette != NULL) {
+                                                color = tig_color_mul(light->tint_color, color);
+                                            }
 
-                                                if ((light->flags & LF_DARK) != 0) {
-                                                    colors[x] = tig_color_sub(color, colors[x]);
-                                                } else {
-                                                    colors[x] = tig_color_add(color, colors[x]);
-                                                }
-                                                break;
+                                            if ((light->flags & LF_DARK) != 0) {
+                                                colors[x] = tig_color_sub(color, colors[x]);
+                                            } else {
+                                                colors[x] = tig_color_add(color, colors[x]);
                                             }
                                         }
 
@@ -2528,37 +2458,22 @@ void light_render_internal(GameDrawInfo* draw_info)
                                                         light_invalidate_rect(&tmp_rect, true);
                                                     }
 
-                                                    switch (light_bpp) {
-                                                    case 8:
-                                                        break;
-                                                    case 16:
-                                                    case 24:
-                                                        // TODO: Incomplete.
-                                                        break;
-                                                    case 32: {
-                                                        uint32_t* dst;
-                                                        int idx;
+                                                    uint32_t* dst;
+                                                    int idx;
 
-                                                        if (light->palette != NULL) {
-                                                            color = tig_color_mul(color, light->tint_color);
-                                                        }
-
-                                                        if ((light->flags & LF_DARK) != 0) {
-                                                            idx = cx + cy * darker_pitch;
-                                                            dst = darker_colors;
-                                                        } else {
-                                                            idx = cx + cy * lighter_pitch;
-                                                            dst = lighter_colors;
-                                                        }
-
-                                                        dst[idx] = tig_color_add(color, dst[idx]);
-
-                                                        break;
+                                                    if (light->palette != NULL) {
+                                                        color = tig_color_mul(color, light->tint_color);
                                                     }
-                                                    default:
-                                                        // Should be unreachable.
-                                                        assert(0);
+
+                                                    if ((light->flags & LF_DARK) != 0) {
+                                                        idx = cx + cy * darker_pitch;
+                                                        dst = darker_colors;
+                                                    } else {
+                                                        idx = cx + cy * lighter_pitch;
+                                                        dst = lighter_colors;
                                                     }
+
+                                                    dst[idx] = tig_color_add(color, dst[idx]);
                                                 }
                                             }
                                         }
