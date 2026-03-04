@@ -117,7 +117,6 @@ int tig_video_fill(const TigRect* rect, tig_color_t color);
 int tig_video_flip();
 int tig_video_screenshot_set_settings(TigVideoScreenshotSettings* settings);
 int tig_video_screenshot_make();
-int tig_video_get_bpp(int* bpp);
 int tig_video_get_palette(unsigned int* colors);
 int tig_video_3d_check_initialized();
 int tig_video_3d_check_hardware();

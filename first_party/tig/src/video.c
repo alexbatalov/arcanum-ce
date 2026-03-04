@@ -297,18 +297,6 @@ int tig_video_screenshot_make()
     return tig_video_screenshot_make_internal(tig_video_screenshot_key);
 }
 
-// 0x51FA80
-int tig_video_get_bpp(int* bpp)
-{
-    if (!tig_video_initialized) {
-        return TIG_ERR_NOT_INITIALIZED;
-    }
-
-    *bpp = tig_video_bpp;
-
-    return TIG_OK;
-}
-
 // 0x51FAA0
 int tig_video_get_palette(unsigned int* colors)
 {
