@@ -17,6 +17,9 @@
 #include "ui/sleep_ui.h"
 #include "ui/wmap_ui.h"
 
+/**
+ * World map terrain types used by the random encounter system.
+ */
 typedef enum WmapTerrainType {
     WMAP_TERRAIN_TYPE_INVALID,
     WMAP_TERRAIN_TYPE_GREEN_GRASSLANDS,
@@ -30,17 +33,35 @@ typedef enum WmapTerrainType {
     WMAP_TERRAIN_TYPE_VOID,
 } WmapTerrainType;
 
+/**
+ * A single entry in an encounter chart. Each entry defines a world-map
+ * region (a centre location and a radius) and an associated integer value
+ * whose meaning depends on which chart the entry belongs to (frequency
+ * percentage, power tier, or encounter table index).
+ */
 typedef struct WmapRndEncounterChartEntry {
     /* 0000 */ int64_t loc;
     /* 0008 */ int64_t radius;
     /* 0010 */ int value;
 } WmapRndEncounterChartEntry;
 
+/**
+ * A collection of encounter chart entries, sorted by ascending radius so
+ * that the smallest (most specific) region matching a location is found
+ * first by `wmap_rnd_encounter_chart_lookup`.
+ */
 typedef struct WmapRndEncounterChart {
     /* 0000 */ WmapRndEncounterChartEntry* entries;
     /* 0004 */ int num_entries;
 } WmapRndEncounterChart;
 
+/**
+ * A single row in an encounter table, describing one type of monster group
+ * that can be spawned. Up to five distinct critter types may be specified.
+ * The entry is only eligible if the player's current level falls within
+ * [min_level, max_level], the optional global flag is set, and the optional
+ * trigger cap has not yet been reached.
+ */
 typedef struct WmapRndEncounterTableEntry {
     /* 0000 */ int frequency;
     /* 0004 */ int16_t critter_min_cnt[5];
@@ -54,11 +75,23 @@ typedef struct WmapRndEncounterTableEntry {
     /* 003C */ int message_num;
 } WmapRndEncounterTableEntry;
 
+/**
+ * A collection of encounter table entries for one specific combination of
+ * terrain type, power tier, and time of day. The active table is indexed
+ * by the formula in `wmap_rnd_encounter_check`.
+ */
 typedef struct WmapRndEncounterTable {
     /* 0000 */ int num_entries;
     /* 0004 */ WmapRndEncounterTableEntry* entries;
 } WmapRndEncounterTable;
 
+/**
+ * Minimal per-entry data written to and read from save files. Entries are
+ * matched back to their in-memory counterparts by `message_num`.
+ *
+ * NOTE: Changing this struct will invalidate existing save games and break
+ * interoperability with the original game.
+ */
 typedef struct WmapRndSaveInfo {
     /* 0000 */ int trigger_cnt;
     /* 0004 */ int message_num;
@@ -68,7 +101,7 @@ typedef struct WmapRndSaveInfo {
 static_assert(sizeof(WmapRndSaveInfo) == 0x8, "wrong size");
 
 static bool wmap_rnd_terrain_clear(uint16_t tid);
-static bool sub_558A40(MesFileEntry* mes_file_entry, int cnt, int* value_ptr);
+static bool wmap_rnd_mes_count_entries(MesFileEntry* mes_file_entry, int cnt, int* value_ptr);
 static void wmap_rnd_encounter_table_init(WmapRndEncounterTable* table);
 static void wmap_rnd_encounter_table_entry_init(WmapRndEncounterTableEntry* entry);
 static void wmap_rnd_encounter_table_clear();
@@ -80,17 +113,22 @@ static void wmap_rnd_encounter_chart_sort(WmapRndEncounterChart* chart);
 static int wmap_rnd_encounter_entry_compare(const void* va, const void* vb);
 static bool wmap_rnd_parse_critters(char** str, WmapRndEncounterTableEntry* entry);
 static bool wmap_rnd_check(int64_t location);
-static bool sub_558F30(WmapRndEncounterChart* chart, int64_t loc, int* value_ptr);
+static bool wmap_rnd_encounter_chart_lookup(WmapRndEncounterChart* chart, int64_t loc, int* value_ptr);
 static int wmap_rnd_determine_terrain(int64_t loc);
 static bool wmap_rnd_encounter_check();
 static bool wmap_rnd_encounter_entry_check(WmapRndEncounterTableEntry* entry);
 static int wmap_rnd_encounter_total_frequency(WmapRndEncounterTable* table);
 static int wmap_rnd_encounter_entry_total_monsters(WmapRndEncounterTableEntry* entry);
-static void sub_559260(WmapRndEncounterTableEntry* entry);
-static void sub_5594E0(int a1, int64_t* dx_ptr, int64_t* dy_ptr);
+static void wmap_rnd_encounter_spawn(WmapRndEncounterTableEntry* entry);
+static void wmap_rnd_spawn_position_offset(int a1, int64_t* dx_ptr, int64_t* dy_ptr);
 static void wmap_rnd_encounter_build_object(int name, int64_t loc, int64_t* obj_ptr);
 
-// 0x5C79A0
+/**
+ * String tokens used to match power tier names when parsing the power chart
+ * from `WMap_Rnd.mes`.
+ *
+ * 0x5C79A0
+ */
 static const char* off_5C79A0[] = {
     "none",
     "easy",
@@ -98,7 +136,13 @@ static const char* off_5C79A0[] = {
     "powerful",
 };
 
-// 0x5C79B0
+/**
+ * String tokens used when parsing the critter slots of an encounter table
+ * entry. Each token labels one of the five possible critter groups within
+ * a single encounter entry.
+ *
+ * 0x5C79B0
+ */
 static const char* off_5C79B0[] = {
     "First:",
     "Second:",
@@ -107,8 +151,16 @@ static const char* off_5C79B0[] = {
     "Fifth:",
 };
 
-// 0x5C79C4
-static int dword_5C79C4[TERRAIN_TYPE_COUNT] = {
+/**
+ * Lookup table that maps each engine TERRAIN_TYPE_* value (used as an array
+ * index) to the corresponding `WmapTerrainType` used by the encounter system.
+ *
+ * Terrain types that should never trigger random encounters (water, mountain
+ * ranges, scorched earth, etc.) map to WMAP_TERRAIN_TYPE_INVALID.
+ *
+ * 0x5C79C4
+ */
+static int wmap_rnd_terrain_type_tbl[TERRAIN_TYPE_COUNT] = {
     /*   TERRAIN_TYPE_GREEN_GRASSLANDS */ WMAP_TERRAIN_TYPE_GREEN_GRASSLANDS,
     /*             TERRAIN_TYPE_SWAMPS */ WMAP_TERRAIN_TYPE_SWAMPS,
     /*              TERRAIN_TYPE_WATER */ WMAP_TERRAIN_TYPE_INVALID,
@@ -130,61 +182,162 @@ static int dword_5C79C4[TERRAIN_TYPE_COUNT] = {
     /* TERRAIN_TYPE_TROPICAL_MOUNTAINS */ WMAP_TERRAIN_TYPE_INVALID,
 };
 
-// 0x64C728
+/**
+ * Spatial chart that maps world-map regions to an encounter type index,
+ * allowing specific areas to override which encounter table is used.
+ * Populated from message entries 30000+ in `WMap_Rnd.mes`.
+ *
+ * 0x64C728
+ */
 static WmapRndEncounterChart wmap_rnd_encounter_chart;
 
-// 0x64C730
+/**
+ * "wmap_rnd.mes"
+ *
+ * 0x64C730
+ */
 static mes_file_handle_t wmap_rnd_mes_file;
 
-// 0x64C738
+/**
+ * Encounter frequency percentage for the player's current world-map
+ * location, as resolved from `wmap_rnd_frequency_chart`. A random roll of
+ * 1-100 must be at or below this value for an encounter to proceed.
+ * Multiplied by 5 when the player is resting.
+ *
+ * 0x64C738
+ */
 static int wmap_rnd_frequency;
 
-// 0x64C73C
+/**
+ * `True` if the current in-game time is considered night-time.
+ *
+ * 0x64C73C
+ */
 static bool wmap_rnd_night;
 
-// 0x64C740
+/**
+ * Encounter power tier for the player's current world-map location,
+ * resolved from `wmap_rnd_power_chart`.
+ *
+ * 0x64C740
+ */
 static int wmap_rnd_power;
 
-// 0x64C744
+/**
+ * Encounter terrain type for the player's current world-map location,
+ * derived from the underlying tile's base terrain type via
+ * `wmap_rnd_terrain_type_tbl`.
+ *
+ * 0x64C744
+ */
 static WmapTerrainType wmap_rnd_terrain_type;
 
-// 0x64C748
+/**
+ * Index of the encounter table to use for the current encounter, either
+ * resolved from `wmap_rnd_encounter_chart` (location-specific override) or
+ * computed by `wmap_rnd_encounter_check` from terrain type, power tier, and
+ * time of day. Set to -1 to trigger the computed fallback.
+ *
+ * 0x64C748
+ */
 static int wmap_rnd_encounter;
 
-// 0x64C74C
-static int dword_64C74C[5];
+/**
+ * Per-slot monster spawn counts resolved during
+ * `wmap_rnd_encounter_entry_total_monsters`.
+ *
+ * Element [i] holds the randomly chosen count for the i-th critter slot of
+ * the currently pending encounter entry, to be consumed by
+ * `wmap_rnd_encounter_spawn`.
+ *
+ * 0x64C74C
+ */
+static int wmap_rnd_critter_spawn_counts[5];
 
-// 0x64C760
+/**
+ * World-map tile location of the current encounter, stored in component
+ * form for use by `wmap_rnd_encounter_spawn`.
+ *
+ * 0x64C760
+ */
 static int64_t wmap_rnd_loc;
 
-// 0x64C768
+/**
+ * X coordinate of `wmap_rnd_loc`.
+ *
+ * 0x64C768
+ */
 static int64_t wmap_rnd_loc_x;
 
-// 0x64C770
+/**
+ * Y coordinate of `wmap_rnd_loc`.
+ *
+ * 0x64C770
+ */
 static int64_t wmap_rnd_loc_y;
 
-// 0x64C778
-static int dword_64C778;
+/**
+ * Spawn approach direction value for the current encounter group.
+ *
+ * 0x64C778
+ */
+static int wmap_rnd_spawn_direction;
 
-// 0x64C780
+/**
+ * Spatial chart that maps world-map regions to an encounter frequency
+ * percentage. Populated from message entries 10000+ in `WMap_Rnd.mes`.
+ *
+ * 0x64C780
+ */
 static WmapRndEncounterChart wmap_rnd_frequency_chart;
 
-// 0x64C788
+/**
+ * Spatial chart that maps world-map regions to an encounter power tier.
+ * Populated from message entries 20000+ in `WMap_Rnd.mes`.
+ *
+ * 0x64C788
+ */
 static WmapRndEncounterChart wmap_rnd_power_chart;
 
-// 0x64C790
+/**
+ * Flag indicating whether the random encounter system has been initialized.
+ *
+ * 0x64C790
+ */
 static bool wmap_rnd_initialized;
 
-// 0x64C794
+/**
+ * Flag indicating whether the random encounters are completely disabled.
+ *
+ * NOTE: Looks like there is no way to reenable them back. Random encounters
+ * can be disabled with a command line switch.
+ *
+ * 0x64C794
+ */
 static bool wmap_rnd_disabled;
 
-// 0x64C798
+/**
+ * Array of encounter tables, one per unique combination of terrain type,
+ * power tier, and time of day. Indexed by the formula in
+ * `wmap_rnd_encounter_check`.
+ *
+ * 0x64C798
+ */
 static WmapRndEncounterTable* wmap_rnd_encounter_tables;
 
-// 0x64C79C
+/**
+ * Number of encounter tables currently allocated in
+ * `wmap_rnd_encounter_tables`.
+ *
+ * 0x64C79C
+ */
 static int wmap_rnd_num_encounter_tables;
 
-// 0x5581B0
+/**
+ * Called when the game is initialized.
+ *
+ * 0x5581B0
+ */
 bool wmap_rnd_init(GameInitInfo* init_info)
 {
     (void)init_info;
@@ -192,17 +345,29 @@ bool wmap_rnd_init(GameInitInfo* init_info)
     return true;
 }
 
-// 0x5581C0
+/**
+ * Called when the game shuts down.
+ *
+ * 0x5581C0
+ */
 void wmap_rnd_exit()
 {
 }
 
-// 0x5581D0
+/**
+ * Called when the game is being reset.
+ *
+ * 0x5581D0
+ */
 void wmap_rnd_reset()
 {
 }
 
-// 0x5581E0
+/**
+ * Called when a module is being loaded.
+ *
+ * 0x5581E0
+ */
 bool wmap_rnd_mod_load()
 {
     MesFileEntry mes_file_entry;
@@ -230,6 +395,7 @@ bool wmap_rnd_mod_load()
 
     tig_str_parse_set_separator(',');
 
+    // Parse the frequency chart (entries 10000+).
     if (!wmap_rnd_encounter_chart_parse(&wmap_rnd_frequency_chart, 10000, NULL)) {
         tig_debug_println("Disabling random encounters because of bad message file.");
         mes_unload(wmap_rnd_mes_file);
@@ -237,6 +403,8 @@ bool wmap_rnd_mod_load()
         return true;
     }
 
+    // Parse the power chart (entries 20000+). Power tier names are matched
+    // against wmap_rnd_power_level_names to produce integer values 0-3.
     if (!wmap_rnd_encounter_chart_parse(&wmap_rnd_power_chart, 20000, off_5C79A0)) {
         tig_debug_println("Disabling random encounters because of bad message file.");
         wmap_rnd_encounter_chart_exit(&wmap_rnd_frequency_chart);
@@ -245,6 +413,7 @@ bool wmap_rnd_mod_load()
         return true;
     }
 
+    // Parse the encounter type override chart (entries 30000+).
     if (!wmap_rnd_encounter_chart_parse(&wmap_rnd_encounter_chart, 30000, NULL)) {
         tig_debug_println("Disabling random encounters because of bad message file.");
         wmap_rnd_encounter_chart_exit(&wmap_rnd_frequency_chart);
@@ -254,9 +423,12 @@ bool wmap_rnd_mod_load()
         return true;
     }
 
+    // Entry 49999 holds the number of user-defined encounter tables.
     mes_file_entry.num = 49999;
     mes_get_msg(wmap_rnd_mes_file, &mes_file_entry);
 
+    // The 54 is a fixed set of tables covering the nine encounter-eligible
+    // terrain types × three power tiers × two time-of-day variants.
     num_tables = atoi(mes_file_entry.str) + 54;
     wmap_rnd_encounter_tables = MALLOC(sizeof(*wmap_rnd_encounter_tables) * num_tables);
 
@@ -264,8 +436,10 @@ bool wmap_rnd_mod_load()
         table = &(wmap_rnd_encounter_tables[table_idx]);
         wmap_rnd_encounter_table_init(table);
 
+        // Each table occupies up to 100 consecutive message entries. Count how
+        // many are actually present.
         mes_file_entry.num = 50000 + 100 * table_idx;
-        if (!sub_558A40(&mes_file_entry, 100, &num_entries)) {
+        if (!wmap_rnd_mes_count_entries(&mes_file_entry, 100, &num_entries)) {
             tig_debug_println("Disabling random encounters because of bad message file.");
             wmap_rnd_encounter_table_clear();
             wmap_rnd_encounter_chart_clear();
@@ -293,13 +467,19 @@ bool wmap_rnd_mod_load()
                 wmap_rnd_initialized = true;
                 return true;
             }
+
+            // Store the message number as a stable key for save/load matching.
             entry->message_num = mes_file_entry.num;
 
             mes_get_msg(wmap_rnd_mes_file, &mes_file_entry);
             str = mes_file_entry.str;
 
+            // First field: relative frequency weight for weighted random
+            // selection.
             tig_str_parse_value(&str, &(entry->frequency));
 
+            // Subsequent fields: up to five critter groups (prototype + count
+            // range).
             if (!wmap_rnd_parse_critters(&str, entry)) {
                 tig_debug_printf("Error: Random encounter table has no: prototype at line: %d.\n", mes_file_entry.num);
                 tig_debug_println("Disabling random encounters because of bad message file.");
@@ -310,6 +490,7 @@ bool wmap_rnd_mod_load()
                 return true;
             }
 
+            // Minimum player level required for this entry to be eligible.
             if (tig_str_parse_named_value(&str, "MinLevel:", &value)) {
                 if (value < 0 || value > 32000) {
                     tig_debug_printf("WmapRnd: Init: ERROR: MinLevel Value Wrong: Line: %d.\n", mes_file_entry.num);
@@ -323,6 +504,8 @@ bool wmap_rnd_mod_load()
                 entry->min_level = (int16_t)value;
             }
 
+            // Maximum player level required for this entry to be eligible.
+            // TODO: Check, probably should be "MaxLevel:".
             if (tig_str_parse_named_value(&str, "MinLevel:", &value)) {
                 if (value < 0 || value > 32000) {
                     tig_debug_printf("WmapRnd: Init: ERROR: MaxLevel Value Wrong: Line: %d.\n", mes_file_entry.num);
@@ -336,6 +519,7 @@ bool wmap_rnd_mod_load()
                 entry->max_level = (int16_t)value;
             }
 
+            // Global flag that must be set for this entry to be eligible.
             if (tig_str_parse_named_value(&str, "GlobalFlag:", &value)) {
                 if (value > 3200) {
                     tig_debug_printf("WmapRnd: Init: ERROR: globalFlagNum Value Wrong: Line: %d.\n", mes_file_entry.num);
@@ -349,6 +533,8 @@ bool wmap_rnd_mod_load()
                 entry->global_flag_num = value;
             }
 
+            // Maximum number of times this entry may fire across the whole
+            // playthrough.
             if (tig_str_parse_named_value(&str, "TriggerCount:", &value)) {
                 entry->max_trigger_cnt = value;
             }
@@ -360,7 +546,11 @@ bool wmap_rnd_mod_load()
     return true;
 }
 
-// 0x558700
+/**
+ * Called when a module is being unloaded.
+ *
+ * 0x558700
+ */
 void wmap_rnd_mod_unload()
 {
     if (wmap_rnd_disabled) {
@@ -374,7 +564,11 @@ void wmap_rnd_mod_unload()
     }
 }
 
-// 0x558730
+/**
+ * Called when the game is being saved.
+ *
+ * 0x558730
+ */
 bool wmap_rnd_save(TigFile* stream)
 {
     int table_idx;
@@ -394,10 +588,12 @@ bool wmap_rnd_save(TigFile* stream)
     if (!wmap_rnd_disabled
         && wmap_rnd_initialized
         && wmap_rnd_encounter_tables != NULL) {
+        // Count the total number of entries across all tables.
         for (table_idx = 0; table_idx < wmap_rnd_num_encounter_tables; table_idx++) {
             num_entries += wmap_rnd_encounter_tables[table_idx].num_entries;
         }
 
+        // Collect save info from table/entries into a flat array.
         if (num_entries != 0) {
             save_info = (WmapRndSaveInfo*)MALLOC(sizeof(*save_info) * num_entries);
             save_info_idx = 0;
@@ -412,6 +608,7 @@ bool wmap_rnd_save(TigFile* stream)
         }
     }
 
+    // Write entry count...
     if (tig_file_fwrite(&num_entries, sizeof(num_entries), 1, stream) != 1) {
         tig_debug_println("Error writing random encounter save data.");
         if (save_info != NULL) {
@@ -420,6 +617,7 @@ bool wmap_rnd_save(TigFile* stream)
         return false;
     }
 
+    // ...followed by the records themselves.
     if (save_info != NULL) {
         if (tig_file_fwrite(save_info, sizeof(*save_info) * num_entries, 1, stream) != 1) {
             tig_debug_println("Error writing random encounter save data.");
@@ -433,7 +631,11 @@ bool wmap_rnd_save(TigFile* stream)
     return true;
 }
 
-// 0x558880
+/**
+ * Called when the game is being loaded.
+ *
+ * 0x558880
+ */
 bool wmap_rnd_load(GameLoadInfo* load_info)
 {
     int table_idx;
@@ -461,6 +663,8 @@ bool wmap_rnd_load(GameLoadInfo* load_info)
             return false;
         }
 
+        // Restore trigger counts only when the module is fully operational.
+        // Silently skip if random encounters were disabled or not yet loaded.
         if (!wmap_rnd_disabled
             && wmap_rnd_initialized
             && wmap_rnd_num_encounter_tables != 0
@@ -485,35 +689,50 @@ bool wmap_rnd_load(GameLoadInfo* load_info)
     return true;
 }
 
-// 0x5589D0
+/**
+ * Disables the random encounters.
+ *
+ * 0x5589D0
+ */
 void wmap_rnd_disable()
 {
     wmap_rnd_disabled = true;
 }
 
-// 0x5589E0
+/**
+ * Returns `true` if the specified terrain id is suitable for a random
+ * encounter.
+ *
+ * 0x5589E0
+ */
 bool wmap_rnd_terrain_clear(uint16_t tid)
 {
-    int v1;
-    int v2;
+    int base_terrain_type;
+    int comp_terrain_type;
 
-    v1 = sub_4E8DC0(tid);
-    v2 = sub_4E8DD0(tid);
-    if (!TERRAIN_TYPE_IS_VALID(v1) || !TERRAIN_TYPE_IS_VALID(v2)) {
+    base_terrain_type = sub_4E8DC0(tid);
+    comp_terrain_type = sub_4E8DD0(tid);
+    if (!TERRAIN_TYPE_IS_VALID(base_terrain_type) || !TERRAIN_TYPE_IS_VALID(comp_terrain_type)) {
         tig_debug_println("Error:  Unknown terrain encountered in wmap_rnd_terrain_clear");
         return false;
     }
 
-    if (dword_5C79C4[v1] == WMAP_TERRAIN_TYPE_INVALID
-        || dword_5C79C4[v2] == WMAP_TERRAIN_TYPE_INVALID) {
+    if (wmap_rnd_terrain_type_tbl[base_terrain_type] == WMAP_TERRAIN_TYPE_INVALID
+        || wmap_rnd_terrain_type_tbl[comp_terrain_type] == WMAP_TERRAIN_TYPE_INVALID) {
         return false;
     }
 
     return true;
 }
 
-// 0x558A40
-bool sub_558A40(MesFileEntry* mes_file_entry, int cnt, int* value_ptr)
+/**
+ * Counts the number of consecutive message entries present in the given range.
+ * On success the count is written to `*value_ptr` and `true` is returned.
+ * Returns `false` if a duplicate entry number is detected.
+ *
+ * 0x558A40
+ */
+bool wmap_rnd_mes_count_entries(MesFileEntry* mes_file_entry, int cnt, int* value_ptr)
 {
     int end;
     int index = 0;
@@ -540,13 +759,21 @@ bool sub_558A40(MesFileEntry* mes_file_entry, int cnt, int* value_ptr)
     return false;
 }
 
-// 0x558AC0
+/**
+ * Initializes an encounter table to an empty state.
+ *
+ * 0x558AC0
+ */
 void wmap_rnd_encounter_table_init(WmapRndEncounterTable* table)
 {
     table->num_entries = 0;
 }
 
-// 0x558AD0
+/**
+ * Initializes an encounter table entry.
+ *
+ * 0x558AD0
+ */
 void wmap_rnd_encounter_table_entry_init(WmapRndEncounterTableEntry* entry)
 {
     entry->critter_basic_prototype[0] = 0;
@@ -557,7 +784,11 @@ void wmap_rnd_encounter_table_entry_init(WmapRndEncounterTableEntry* entry)
     entry->trigger_cnt = 0;
 }
 
-// 0x558AF0
+/**
+ * Frees all encounter tables and their entries.
+ *
+ * 0x558AF0
+ */
 void wmap_rnd_encounter_table_clear()
 {
     int index;
@@ -572,7 +803,12 @@ void wmap_rnd_encounter_table_clear()
     }
 }
 
-// 0x558B50
+/**
+ * Frees all three spatial encounter charts (frequency, power, and encounter
+ * type override).
+ *
+ * 0x558B50
+ */
 void wmap_rnd_encounter_chart_clear()
 {
     wmap_rnd_encounter_chart_exit(&wmap_rnd_frequency_chart);
@@ -580,7 +816,18 @@ void wmap_rnd_encounter_chart_clear()
     wmap_rnd_encounter_chart_exit(&wmap_rnd_encounter_chart);
 }
 
-// 0x558B80
+/**
+ * Parses a spatial encounter chart from the message file, starting at entry
+ * `num`. Up to 10000 consecutive entries are read. If `value_list` is
+ * non-NULL each entry's value field is resolved by matching it against the
+ * list of strings; otherwise it is parsed as a plain integer.
+ *
+ * On success the chart's entries are sorted by ascending radius and true is
+ * returned. Returns false if the chart is empty or the message file is
+ * malformed.
+ *
+ * 0x558B80
+ */
 bool wmap_rnd_encounter_chart_parse(WmapRndEncounterChart* chart, int num, const char** value_list)
 {
     MesFileEntry mes_file_entry;
@@ -589,7 +836,7 @@ bool wmap_rnd_encounter_chart_parse(WmapRndEncounterChart* chart, int num, const
     char* str;
 
     mes_file_entry.num = num;
-    if (!sub_558A40(&mes_file_entry, 10000, &cnt)) {
+    if (!wmap_rnd_mes_count_entries(&mes_file_entry, 10000, &cnt)) {
         return false;
     }
 
@@ -605,8 +852,12 @@ bool wmap_rnd_encounter_chart_parse(WmapRndEncounterChart* chart, int num, const
         mes_get_msg(wmap_rnd_mes_file, &mes_file_entry);
 
         str = mes_file_entry.str;
+
+        // Parse the location and radius common to all chart types.
         wmap_rnd_encounter_chart_entry_parse(&str, &(chart->entries[index]));
 
+        // Parse the value field, either a named string token or a plain
+        // integer.
         if (value_list != NULL) {
             SDL_strlwr(str);
             tig_str_match_str_to_list(&str, value_list, 4, &(chart->entries[index].value));
@@ -615,12 +866,20 @@ bool wmap_rnd_encounter_chart_parse(WmapRndEncounterChart* chart, int num, const
         }
     }
 
+    // Sort by ascending radius so that the smallest (most specific) matching
+    // region is found first in wmap_rnd_encounter_chart_lookup.
     wmap_rnd_encounter_chart_sort(chart);
 
     return true;
 }
 
-// 0x558C90
+/**
+ * Parses the location (x, y) and radius fields of a single chart entry from
+ * the current position in the message string `*str`, advancing the pointer
+ * past the parsed tokens.
+ *
+ * 0x558C90
+ */
 void wmap_rnd_encounter_chart_entry_parse(char** str, WmapRndEncounterChartEntry* entry)
 {
     int64_t x;
@@ -632,7 +891,11 @@ void wmap_rnd_encounter_chart_entry_parse(char** str, WmapRndEncounterChartEntry
     tig_str_parse_value_64(str, &(entry->radius));
 }
 
-// 0x558CE0
+/**
+ * Frees the entries array of a chart and resets its count to zero.
+ *
+ * 0x558CE0
+ */
 void wmap_rnd_encounter_chart_exit(WmapRndEncounterChart* chart)
 {
     if (chart->num_entries != 0) {
@@ -641,13 +904,21 @@ void wmap_rnd_encounter_chart_exit(WmapRndEncounterChart* chart)
     }
 }
 
-// 0x558D00
+/**
+ * Sorts the entries of a chart in ascending order of radius.
+ *
+ * 0x558D00
+ */
 void wmap_rnd_encounter_chart_sort(WmapRndEncounterChart* chart)
 {
     qsort(chart->entries, chart->num_entries, sizeof(*chart->entries), wmap_rnd_encounter_entry_compare);
 }
 
-// 0x558D20
+/**
+ * Comparator that orders encounter chart entries by ascending radius.
+ *
+ * 0x558D20
+ */
 int wmap_rnd_encounter_entry_compare(const void* va, const void* vb)
 {
     const WmapRndEncounterChartEntry* a = (const WmapRndEncounterChartEntry*)va;
@@ -662,7 +933,17 @@ int wmap_rnd_encounter_entry_compare(const void* va, const void* vb)
     }
 }
 
-// 0x558D40
+/**
+ * Parses up to five critter group definitions from the message string `*str`
+ * into the given encounter table entry. Each group is introduced by its slot
+ * keyword ("First:", "Second:", etc.) followed by a prototype ID and a
+ * min-max count range. Parsing stops at the first missing slot keyword.
+ *
+ * Returns `true` if at least one critter group was successfully parsed,
+ * `false` if none were found.
+ *
+ * 0x558D40
+ */
 bool wmap_rnd_parse_critters(char** str, WmapRndEncounterTableEntry* entry)
 {
     int index;
@@ -686,7 +967,15 @@ bool wmap_rnd_parse_critters(char** str, WmapRndEncounterTableEntry* entry)
     return true;
 }
 
-// 0x558DE0
+/**
+ * Entry point for the random encounter roll. Called from the world map time
+ * event handler with the player's current world-map tile location.
+ *
+ * Returns `true` if an encounter was triggered (monsters have been spawned),
+ * `false` otherwise.
+ *
+ * 0x558DE0
+ */
 bool wmap_rnd_check(int64_t loc)
 {
     int hour;
@@ -699,14 +988,18 @@ bool wmap_rnd_check(int64_t loc)
         return false;
     }
 
+    // Cache location components for later use by the spawn routines.
     wmap_rnd_loc = loc;
     wmap_rnd_loc_x = LOCATION_GET_X(loc);
     wmap_rnd_loc_y = LOCATION_GET_Y(loc);
 
-    if (!sub_558F30(&wmap_rnd_frequency_chart, loc, &wmap_rnd_frequency)) {
+    // Look up encounter frequency for this location. Default to 5% if not
+    // covered by any chart entry.
+    if (!wmap_rnd_encounter_chart_lookup(&wmap_rnd_frequency_chart, loc, &wmap_rnd_frequency)) {
         wmap_rnd_frequency = 5;
     }
 
+    // When the player is resting, random encounters are five times more likely.
     if (sleep_ui_is_active()) {
         wmap_rnd_frequency *= 5;
     }
@@ -715,27 +1008,34 @@ bool wmap_rnd_check(int64_t loc)
         return false;
     }
 
-    if (sub_558F30(&wmap_rnd_power_chart, loc, &wmap_rnd_power)) {
+    // Look up power tier.
+    if (wmap_rnd_encounter_chart_lookup(&wmap_rnd_power_chart, loc, &wmap_rnd_power)) {
         if (wmap_rnd_power == 0) {
+            // Power "none" means no encounters are possible in this area.
             return false;
         }
     } else {
         wmap_rnd_power = 2;
     }
 
+    // Determine day vs. night encounters.
     hour = datetime_current_hour();
     wmap_rnd_night = hour < 6 || hour >= 18;
 
-    if (townmap_get(sector_id_from_loc(loc))) {
+    // Town sectors suppress random encounters entirely.
+    if (townmap_get(sector_id_from_loc(loc)) != TOWNMAP_NONE) {
         return false;
     }
 
+    // Determine the encounter terrain type from the tile's base terrain.
     wmap_rnd_terrain_type = wmap_rnd_determine_terrain(loc);
     if (wmap_rnd_terrain_type == WMAP_TERRAIN_TYPE_INVALID) {
         return false;
     }
 
-    if (!sub_558F30(&wmap_rnd_encounter_chart, loc, &wmap_rnd_encounter)) {
+    // Optionally override which encounter table is used for this location.
+    // -1 triggers the computed fallback in `wmap_rnd_encounter_check`.
+    if (!wmap_rnd_encounter_chart_lookup(&wmap_rnd_encounter_chart, loc, &wmap_rnd_encounter)) {
         wmap_rnd_encounter = -1;
     }
 
@@ -746,8 +1046,18 @@ bool wmap_rnd_check(int64_t loc)
     return true;
 }
 
-// 0x558F30
-bool sub_558F30(WmapRndEncounterChart* chart, int64_t loc, int* value_ptr)
+/**
+ * Searches `chart` for the first entry whose circular region contains `loc`
+ * (i.e. distance from `loc` to the entry's centre is at most the entry's
+ * radius). Because the chart is sorted by ascending radius, the first match
+ * is always the most specific (smallest) region.
+ *
+ * On success writes the matched entry's value to `*value_ptr` and returns
+ * `true`. Returns `false` if no entry matches.
+ *
+ * 0x558F30
+ */
+bool wmap_rnd_encounter_chart_lookup(WmapRndEncounterChart* chart, int64_t loc, int* value_ptr)
 {
     int index;
 
@@ -761,7 +1071,16 @@ bool sub_558F30(WmapRndEncounterChart* chart, int64_t loc, int* value_ptr)
     return false;
 }
 
-// 0x558FB0
+/**
+ * Resolves the `WmapTerrainType` for a world-map tile location by reading its
+ * base terrain type from the sector's tile and mapping it through
+ * `wmap_rnd_terrain_type_tbl`.
+ *
+ * Returns `WMAP_TERRAIN_TYPE_INVALID` if the tile is impassable terrain or if
+ * an unrecognised terrain base type is encountered.
+ *
+ * 0x558FB0
+ */
 int wmap_rnd_determine_terrain(int64_t loc)
 {
     uint64_t sec;
@@ -771,27 +1090,37 @@ int wmap_rnd_determine_terrain(int64_t loc)
     sec = sector_id_from_loc(loc);
     tid = sub_4E87F0(sec);
     if (!wmap_rnd_terrain_clear(tid)) {
-        return 0;
+        return WMAP_TERRAIN_TYPE_INVALID;
     }
 
     terrain_base_type = sub_4E8DC0(tid);
     if (terrain_base_type < 0 || terrain_base_type >= 19) {
         tig_debug_println("Error:  Unknown terrain base encountered inwmap_rnd_determine_terrain");
-        return 0;
+        return WMAP_TERRAIN_TYPE_INVALID;
     }
 
-    return dword_5C79C4[terrain_base_type];
+    return wmap_rnd_terrain_type_tbl[terrain_base_type];
 }
 
-// 0x559010
+/**
+ * Selects a specific encounter table entry using a weighted random draw and
+ * triggers the monster spawn.
+ *
+ * Returns `true` if an encounter was successfully set up, `false` if the table
+ * is empty, out of bounds, or all entries are ineligible.
+ *
+ * 0x559010
+ */
 bool wmap_rnd_encounter_check()
 {
-    int v1;
+    int total_frequency;
     WmapRndEncounterTable* table;
     int frequency;
     int index;
-    int v2 = -1;
+    int last_eligible = -1;
 
+    // Compute the default table index from the current terrain/power/time
+    // combination if no location-specific override was provided.
     if (wmap_rnd_encounter == -1) {
         wmap_rnd_encounter = wmap_rnd_night + 2 * wmap_rnd_power + 6 * wmap_rnd_terrain_type - 8;
     }
@@ -804,16 +1133,18 @@ bool wmap_rnd_encounter_check()
     }
 
     table = &(wmap_rnd_encounter_tables[wmap_rnd_encounter]);
-    v1 = wmap_rnd_encounter_total_frequency(table);
-    if (v1 <= 0) {
+    total_frequency = wmap_rnd_encounter_total_frequency(table);
+    if (total_frequency <= 0) {
         return false;
     }
 
-    frequency = random_between(1, v1);
+    // Weighted random selection - subtract each eligible entry's frequency from
+    // the roll until it goes negative, then use that entry.
+    frequency = random_between(1, total_frequency);
 
     for (index = 0; index < table->num_entries; index++) {
         if (wmap_rnd_encounter_entry_check(&(table->entries[index]))) {
-            v2 = index;
+            last_eligible = index;
             if (frequency < table->entries[index].frequency) {
                 break;
             }
@@ -821,11 +1152,13 @@ bool wmap_rnd_encounter_check()
         }
     }
 
+    // If the loop exhausted all entries (rounding edge case), fall back to the
+    // last eligible entry seen.
     if (index >= table->num_entries) {
-        if (v2 == -1) {
+        if (last_eligible == -1) {
             return false;
         }
-        index = v2;
+        index = last_eligible;
     }
 
     table->entries[index].trigger_cnt++;
@@ -835,12 +1168,22 @@ bool wmap_rnd_encounter_check()
         return false;
     }
 
-    sub_559260(&(table->entries[index]));
+    wmap_rnd_encounter_spawn(&(table->entries[index]));
 
     return true;
 }
 
-// 0x559150
+/**
+ * Checks whether a single encounter table entry is currently eligible to be
+ * selected.
+ *
+ * An entry is ineligible if:
+ *   - The player's level is outside [min_level, max_level].
+ *   - A required global flag is not set.
+ *   - The entry has already fired its maximum number of times.
+ *
+ * 0x559150
+ */
 bool wmap_rnd_encounter_entry_check(WmapRndEncounterTableEntry* entry)
 {
     int64_t pc_obj;
@@ -851,16 +1194,19 @@ bool wmap_rnd_encounter_entry_check(WmapRndEncounterTableEntry* entry)
         return false;
     }
 
+    // Check player's level.
     level = stat_level_get(pc_obj, STAT_LEVEL);
     if (level < entry->min_level
         || level > entry->max_level) {
         return false;
     }
 
+    // Check if the required global flag is not set.
     if (entry->global_flag_num != -1 && !script_global_flag_get(entry->global_flag_num)) {
         return false;
     }
 
+    // Check if the entry has already fired its maximum number of times.
     if (entry->max_trigger_cnt > -1 && entry->max_trigger_cnt <= entry->trigger_cnt) {
         return false;
     }
@@ -868,7 +1214,13 @@ bool wmap_rnd_encounter_entry_check(WmapRndEncounterTableEntry* entry)
     return true;
 }
 
-// 0x5591B0
+/**
+ * Computes the sum of the frequency weights of all currently eligible
+ * entries in a table. Used as the upper bound for the weighted random draw
+ * in `wmap_rnd_encounter_check`.
+ *
+ * 0x5591B0
+ */
 int wmap_rnd_encounter_total_frequency(WmapRndEncounterTable* table)
 {
     int frequency = 0;
@@ -883,7 +1235,16 @@ int wmap_rnd_encounter_total_frequency(WmapRndEncounterTable* table)
     return frequency;
 }
 
-// 0x559200
+/**
+ * Randomises and accumulates the per-slot monster counts for an encounter
+ * entry into `wmap_rnd_critter_spawn_counts`, then returns their total.
+ *
+ * For each critter slot with a non-zero prototype, the spawn count is either
+ * the fixed min value (when min equals max) or a random value in [min, max].
+ * Returns 0 if no critter prototypes are defined.
+ *
+ * 0x559200
+ */
 int wmap_rnd_encounter_entry_total_monsters(WmapRndEncounterTableEntry* entry)
 {
     int monsters = 0;
@@ -894,17 +1255,22 @@ int wmap_rnd_encounter_entry_total_monsters(WmapRndEncounterTableEntry* entry)
             break;
         }
 
-        dword_64C74C[index] = entry->critter_min_cnt[index] == entry->critter_max_cnt[index]
+        wmap_rnd_critter_spawn_counts[index] = entry->critter_min_cnt[index] == entry->critter_max_cnt[index]
             ? entry->critter_min_cnt[index]
             : random_between(entry->critter_min_cnt[index], entry->critter_max_cnt[index]);
-        monsters += dword_64C74C[index];
+        monsters += wmap_rnd_critter_spawn_counts[index];
     }
 
     return monsters;
 }
 
-// 0x559260
-void sub_559260(WmapRndEncounterTableEntry* entry)
+/**
+ * Spawns all monsters for a selected encounter entry around the player's
+ * current world-map location.
+ *
+ * 0x559260
+ */
+void wmap_rnd_encounter_spawn(WmapRndEncounterTableEntry* entry)
 {
     int index;
     int k;
@@ -919,14 +1285,15 @@ void sub_559260(WmapRndEncounterTableEntry* entry)
     int rot;
     tig_art_id_t art_id;
 
+    // Randomly choose whether monsters approach from the left or from above.
     if (random_between(1, 100) < 51) {
         // TODO: Check.
         origin = LOCATION_MAKE(wmap_rnd_loc_x - 6, wmap_rnd_loc_y);
-        dword_64C778 = 6;
+        wmap_rnd_spawn_direction = 6;
     } else {
         // TODO: Check.
         origin = LOCATION_MAKE(wmap_rnd_loc_x, wmap_rnd_loc_y - 6);
-        dword_64C778 = 2;
+        wmap_rnd_spawn_direction = 2;
     }
 
     for (index = 0; index < 5; index++) {
@@ -934,16 +1301,21 @@ void sub_559260(WmapRndEncounterTableEntry* entry)
             break;
         }
 
-        for (k = 0; k < dword_64C74C[index]; k++) {
+        for (k = 0; k < wmap_rnd_critter_spawn_counts[index]; k++) {
+            // Calculate the spawn position for this individual monster.
             // TODO: Check.
             dx = LOCATION_GET_X(origin);
             dy = LOCATION_GET_Y(origin);
-            sub_5594E0(k, &dx, &dy);
+            wmap_rnd_spawn_position_offset(k, &dx, &dy);
+
             loc = LOCATION_MAKE(dx, dy);
             wmap_rnd_encounter_build_object(entry->critter_basic_prototype[index], loc, &obj);
+
+            // If the ideal spawn tile is blocked, try to find a nearby clear
+            // tile (range 6). Destroy the monster if none can be found.
             if (tile_is_blocking(loc, 0)) {
                 pc_obj = player_get_local_pc_obj();
-                if (!sub_4F4E40(pc_obj, 6, &loc) || tile_is_blocking(loc, 0)) {
+                if (!sub_4F4E40(pc_obj, 6, &loc) || tile_is_blocking(loc, false)) {
                     object_destroy(obj);
                     obj = OBJ_HANDLE_NULL;
                 } else {
@@ -951,6 +1323,8 @@ void sub_559260(WmapRndEncounterTableEntry* entry)
                 }
             }
 
+            // Destroy the monster if another PC or NPC already occupies the
+            // chosen tile.
             object_list_location(loc, OBJ_TM_PC | OBJ_TM_NPC, &objects);
             node = objects.head;
             while (node != NULL) {
@@ -963,6 +1337,7 @@ void sub_559260(WmapRndEncounterTableEntry* entry)
             }
             object_list_destroy(&objects);
 
+            // Orient the spawned monster to face toward the player's location.
             if (obj != OBJ_HANDLE_NULL) {
                 rot = location_rot(loc, wmap_rnd_loc);
                 art_id = obj_field_int32_get(obj, OBJ_F_CURRENT_AID);
@@ -973,25 +1348,39 @@ void sub_559260(WmapRndEncounterTableEntry* entry)
     }
 }
 
-// TODO: Check.
-//
-// 0x5594E0
-void sub_5594E0(int a1, int64_t* dx_ptr, int64_t* dy_ptr)
+/**
+ * Computes the tile offset for the `index`-th monster within a spawn group,
+ * advancing `*dx_ptr` and `*dy_ptr` to spread monsters across adjacent tiles
+ * rather than stacking them all on the same tile.
+ *
+ * TODO: Check.
+ *
+ * 0x5594E0
+ */
+void wmap_rnd_spawn_position_offset(int index, int64_t* dx_ptr, int64_t* dy_ptr)
 {
     int v1;
 
-    if (a1 != 0) {
-        v1 = (a1 - 1) / 3 + 1;
+    if (index != 0) {
+        v1 = (index - 1) / 3 + 1;
         *dx_ptr = LOCATION_MAKE(LOCATION_GET_X(*dx_ptr) + 1, LOCATION_GET_Y(*dx_ptr) + 1);
 
-        v1 = a1 / 3;
+        v1 = index / 3;
         *dy_ptr = LOCATION_MAKE(LOCATION_GET_X(*dy_ptr) + v1, LOCATION_GET_Y(*dy_ptr) + v1);
     } else {
         *dy_ptr = LOCATION_MAKE(LOCATION_GET_X(*dy_ptr) + 1, LOCATION_GET_Y(*dy_ptr) + 1);
     }
 }
 
-// 0x559550
+/**
+ * Creates a world-map encounter object of the given prototype at `loc` and
+ * returns a handle to it via `*obj_ptr`.
+ *
+ * `name` is the basic prototype identifier passed to the proto lookup
+ * function to obtain the full prototype object before instantiation.
+ *
+ * 0x559550
+ */
 void wmap_rnd_encounter_build_object(int name, int64_t loc, int64_t* obj_ptr)
 {
     int64_t proto_obj;
@@ -1008,20 +1397,33 @@ void wmap_rnd_encounter_build_object(int name, int64_t loc, int64_t* obj_ptr)
     }
 }
 
-// 0x5595B0
+/**
+ * Called when a random encounter timeevent occurs.
+ *
+ * 0x5595B0
+ */
 bool wmap_rnd_timeevent_process(TimeEvent* timeevent)
 {
     int64_t loc;
 
     (void)timeevent;
 
+    // Reschedule before processing so the next event is always queued even
+    // if this one triggers an encounter.
     wmap_rnd_schedule();
 
+    // Random encounters are only possible while navigating the Arcanum worldmap
+    // (that is, not dungeons, sewers, castles, Void, etc.), and not in the
+    // "civilized" areas.
     if (map_current_map() == map_by_type(MAP_TYPE_START_MAP)
         && area_of_object(player_get_local_pc_obj()) == AREA_UNKNOWN) {
+        // Retrieve player's world location.
         wmap_ui_get_current_location(&loc);
+
+        // Check if encounter is triggered.
         if (wmap_rnd_check(loc)) {
             if (wmap_ui_is_created()) {
+                // The player
                 wmap_ui_close();
                 wmap_ui_encounter_start();
             } else if (sleep_ui_is_active()) {
@@ -1033,7 +1435,12 @@ bool wmap_rnd_timeevent_process(TimeEvent* timeevent)
     return true;
 }
 
-// 0x559640
+/**
+ * Schedules the next random encounter time event to fire after a random
+ * delay of 300 to 700 in-game minutes.
+ *
+ * 0x559640
+ */
 void wmap_rnd_schedule()
 {
     TimeEvent timeevent;
