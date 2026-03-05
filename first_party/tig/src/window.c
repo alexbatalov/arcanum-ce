@@ -389,27 +389,25 @@ int tig_window_display()
         return TIG_ERR_NOT_INITIALIZED;
     }
 
-    if (tig_window_dirty_rects == NULL) {
-        return TIG_OK;
-    }
-
-    rc = tig_mouse_get_state(&mouse_state);
-    if (rc != TIG_OK) {
-        return rc;
-    }
-
-    node = tig_window_dirty_rects;
-    while (node != NULL) {
-        tig_window_dirty_rects = node->next;
-
-        sub_51D050(&(node->rect), NULL, 0, 0, TIG_WINDOW_TOP);
-        tig_rect_node_destroy(node);
+    if (tig_window_dirty_rects != NULL) {
+        rc = tig_mouse_get_state(&mouse_state);
+        if (rc != TIG_OK) {
+            return rc;
+        }
 
         node = tig_window_dirty_rects;
-    }
+        while (node != NULL) {
+            tig_window_dirty_rects = node->next;
 
-    if ((mouse_state.flags & TIG_MOUSE_STATE_HIDDEN) == 0) {
-        tig_mouse_display();
+            sub_51D050(&(node->rect), NULL, 0, 0, TIG_WINDOW_TOP);
+            tig_rect_node_destroy(node);
+
+            node = tig_window_dirty_rects;
+        }
+
+        if ((mouse_state.flags & TIG_MOUSE_STATE_HIDDEN) == 0) {
+            tig_mouse_display();
+        }
     }
 
     tig_video_display_fps();
