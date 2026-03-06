@@ -289,7 +289,7 @@ int main(int argc, char** argv)
     }
 
     if (strstr(lpCmdLine, "-logcheck") != NULL) {
-        logbook_check();
+        logbook_ui_check();
     }
 
     tig_debug_printf("[Beginning Game]\n");

@@ -44,142 +44,142 @@ enum LogbookUiTab {
 static void logbook_ui_create();
 static void logbook_ui_destroy();
 static bool logbook_ui_message_filter(TigMessage* msg);
-static void sub_53F490(int a1, int a2);
-static void sub_53F5F0(int a1, int a2);
-static void sub_53F640();
-static void sub_53F6A0();
-static void sub_53F6E0();
-static int sub_53F8F0(int a1, int a2);
-static int sub_53F9E0(int index, TigRect* rect, bool a3, bool a4);
-static int sub_53FAD0(char* buffer, tig_font_handle_t font, TigRect* rect, bool a4, bool a5, bool a6);
-static void sub_53FBB0();
-static void sub_540310(char* buffer, int index);
-static void sub_5403C0(char* buffer, int index);
-static void sub_540470(char* buffer, int index);
-static void sub_540510(char* buffer, int index);
-static void sub_540550(char* buffer, int index);
-static void sub_5405C0(char* buffer, int index);
-static void sub_540760(char* buffer, int index);
-static void sub_5407B0(char* buffer, int index);
+static void logbook_ui_draw_panel(int art_num, bool preserve_page);
+static void logbook_ui_switch_tab(int tab, bool preserve_page);
+static void logbook_ui_turn_page_right();
+static void logbook_ui_turn_page_left();
+static void logbook_ui_refresh();
+static int logbook_ui_draw_page_spread(int start_entry, int max_entry);
+static int logbook_ui_draw_entry(int index, TigRect* rect, bool dry_run, bool can_truncate);
+static int logbook_ui_draw_text(char* buffer, tig_font_handle_t font, TigRect* rect, bool dry_run, bool can_truncate, bool a6);
+static void logbook_ui_load_data();
+static void logbook_ui_format_rumor(char* buffer, int index);
+static void logbook_ui_format_timestamp(char* buffer, int index);
+static void logbook_ui_format_quest(char* buffer, int index);
+static void logbook_ui_format_reputation(char* buffer, int index);
+static void logbook_ui_format_blessing_or_curse(char* buffer, int index);
+static void logbook_ui_format_kill_or_injury(char* buffer, int index);
+static void logbook_ui_format_background(char* buffer, int index);
+static void logbook_ui_format_key(char* buffer, int index);
 
 // 0x5C33F0
 static tig_window_handle_t logbook_ui_window = TIG_WINDOW_HANDLE_INVALID;
 
 // 0x5C33F8
-static TigRect stru_5C33F8[2] = {
+static TigRect logbook_ui_background_rects[2] = {
     { 0, 41, 800, 400 },
     { 150, 11, 501, 365 },
 };
 
 // 0x5C3418
-static TigRect stru_5C3418 = { 25, 24, 89, 89 };
+static TigRect logbook_ui_portrait_rect = { 25, 24, 89, 89 };
 
 // 0x5C3428
-static UiButtonInfo stru_5C3428[LOGBOOK_UI_BUTTON_COUNT] = {
+static UiButtonInfo logbook_ui_page_buttons[LOGBOOK_UI_BUTTON_COUNT] = {
     { 213, 77, 272, TIG_BUTTON_HANDLE_INVALID },
     { 675, 77, 273, TIG_BUTTON_HANDLE_INVALID },
 };
 
 // 0x5C3448
-static UiButtonInfo stru_5C3448[LOGBOOK_UI_TAB_COUNT] = {
-    { 696, 83, 265, TIG_BUTTON_HANDLE_INVALID },
-    { 696, 129, 267, TIG_BUTTON_HANDLE_INVALID },
-    { 696, 175, 271, TIG_BUTTON_HANDLE_INVALID },
-    { 695, 221, 266, TIG_BUTTON_HANDLE_INVALID },
-    { 696, 267, 270, TIG_BUTTON_HANDLE_INVALID },
-    { 696, 313, 268, TIG_BUTTON_HANDLE_INVALID },
-    { 696, 359, 269, TIG_BUTTON_HANDLE_INVALID },
+static UiButtonInfo logbook_ui_tab_buttons[LOGBOOK_UI_TAB_COUNT] = {
+    /*     LOGBOOK_UI_TAB_RUMORS_AND_NOTES */ { 696, 83, 265, TIG_BUTTON_HANDLE_INVALID },
+    /*               LOGBOOK_UI_TAB_QUESTS */ { 696, 129, 267, TIG_BUTTON_HANDLE_INVALID },
+    /*          LOGBOOK_UI_TAB_REPUTATIONS */ { 696, 175, 271, TIG_BUTTON_HANDLE_INVALID },
+    /* LOGBOOK_UI_TAB_BLESSINGS_AND_CURSES */ { 695, 221, 266, TIG_BUTTON_HANDLE_INVALID },
+    /*    LOGBOOK_UI_TAB_KILLS_AND_INJURES */ { 696, 267, 270, TIG_BUTTON_HANDLE_INVALID },
+    /*           LOGBOOK_UI_TAB_BACKGROUND */ { 696, 313, 268, TIG_BUTTON_HANDLE_INVALID },
+    /*                 LOGBOOK_UI_TAB_KEYS */ { 696, 359, 269, TIG_BUTTON_HANDLE_INVALID },
 };
 
 // 0x5C34B8
-static TigRect stru_5C34B8 = { 222, 72, 215, 270 };
-
-// 0x5C34C8
-static TigRect stru_5C34C8 = { 468, 72, 215, 270 };
+static TigRect logbook_ui_page_content_rects[2] = {
+    { 222, 72, 215, 270 },
+    { 468, 72, 215, 270 },
+};
 
 // 0x5C34D8
-static TigRect stru_5C34D8[2] = {
+static TigRect logbook_ui_page_title_rects[2] = {
     { 236, 43, 187, 19 },
     { 482, 43, 187, 19 },
 };
 
 // 0x5C34F8
-static TigRect stru_5C34F8[2] = {
+static TigRect logbook_ui_page_number_rects[2] = {
     { 222, 346, 215, 15 },
     { 468, 346, 215, 15 },
 };
 
 // 0x63CBF0
-static int dword_63CBF0;
+static int logbook_ui_line_height;
 
 // 0x63CBF4
-static int dword_63CBF4[3000];
+static int logbook_ui_quest_states[3000];
 
 // 0x63FAD8
 static int64_t logbook_ui_obj;
 
 // 0x63FAE0
-static tig_font_handle_t dword_63FAE0;
+static tig_font_handle_t logbook_ui_font_quest_completed;
 
 // 0x63FAE4
-static int dword_63FAE4[3000];
+static int logbook_ui_entry_ids[3000];
 
 // 0x6429C4
-static tig_font_handle_t dword_6429C4;
+static tig_font_handle_t logbook_ui_font_struck;
 
 // 0x6429C8
-static tig_font_handle_t dword_6429C8;
+static tig_font_handle_t logbook_ui_font_page_numbers;
 
 // 0x6429CC
 static mes_file_handle_t quotes_mes_file;
 
 // 0x6429D0
-static tig_font_handle_t dword_6429D0;
+static tig_font_handle_t logbook_ui_font_curse;
 
 // 0x6429D8
-static DateTime stru_6429D8[3000];
+static DateTime logbook_ui_entry_datetimes[3000];
 
 // 0x648798
-static int dword_648798;
+static int logbook_ui_current_page;
 
 // 0x64879C
-static int dword_64879C[100];
+static int logbook_ui_page_spread_starts[100];
 
 // 0x64892C
-static tig_font_handle_t dword_64892C;
+static tig_font_handle_t logbook_ui_font_quest_failed;
 
 // 0x648930
-static tig_font_handle_t dword_648930;
+static tig_font_handle_t logbook_ui_font_header;
 
 // 0x648934
-static tig_font_handle_t dword_648934;
+static tig_font_handle_t logbook_ui_font_default;
 
 // 0x64893C
-static tig_font_handle_t dword_64893C;
+static tig_font_handle_t logbook_ui_font_active;
 
 // 0x648938
-static int dword_648938;
+static int logbook_ui_entry_count;
 
 // 0x648940
-static int dword_648940[LBK_COUNT];
+static int logbook_ui_kill_stats[LBK_COUNT];
 
 // 0x648974
-static int dword_648974;
+static int logbook_ui_last_visible_entry;
 
 // 0x648978
 static int logbook_ui_tab;
 
 // 0x64897C
-static int dword_64897C;
+static int logbook_ui_art_num;
 
 // 0x648980
-static int dword_648980;
+static int logbook_ui_quotes_mode;
 
 // 0x648984
 static mes_file_handle_t logbook_ui_mes_file;
 
 // 0x648988
-static tig_font_handle_t dword_648988[3000];
+static tig_font_handle_t logbook_ui_entry_fonts[3000];
 
 // 0x64B868
 static bool logbook_ui_initialized;
@@ -207,70 +207,70 @@ bool logbook_ui_init(GameInitInfo* init_info)
     tig_art_interface_id_create(229, 0, 0, 0, &(font_info.art_id));
     font_info.str = NULL;
     font_info.color = tig_color_make(0, 0, 0);
-    tig_font_create(&font_info, &dword_648934);
+    tig_font_create(&font_info, &logbook_ui_font_default);
 
     font_info.flags = TIG_FONT_CENTERED;
     tig_art_interface_id_create(229, 0, 0, 0, &(font_info.art_id));
     font_info.str = NULL;
     font_info.color = tig_color_make(0, 0, 0);
-    tig_font_create(&font_info, &dword_6429C8);
+    tig_font_create(&font_info, &logbook_ui_font_page_numbers);
 
     font_info.flags = TIG_FONT_STRIKE_THROUGH;
     tig_art_interface_id_create(229, 0, 0, 0, &(font_info.art_id));
     font_info.str = NULL;
     font_info.color = tig_color_make(0, 0, 0);
     font_info.strike_through_color = font_info.color;
-    tig_font_create(&font_info, &dword_6429C4);
+    tig_font_create(&font_info, &logbook_ui_font_struck);
 
     font_info.flags = TIG_FONT_STRIKE_THROUGH;
     tig_art_interface_id_create(229, 0, 0, 0, &(font_info.art_id));
     font_info.str = NULL;
     font_info.color = tig_color_make(0, 120, 0);
     font_info.strike_through_color = font_info.color;
-    tig_font_create(&font_info, &dword_63FAE0);
+    tig_font_create(&font_info, &logbook_ui_font_quest_completed);
 
     font_info.flags = TIG_FONT_STRIKE_THROUGH;
     tig_art_interface_id_create(229, 0, 0, 0, &(font_info.art_id));
     font_info.str = NULL;
     font_info.color = tig_color_make(150, 0, 0);
     font_info.strike_through_color = font_info.color;
-    tig_font_create(&font_info, &dword_64892C);
+    tig_font_create(&font_info, &logbook_ui_font_quest_failed);
 
     font_info.flags = TIG_FONT_CENTERED;
     tig_art_interface_id_create(27, 0, 0, 0, &(font_info.art_id));
     font_info.str = NULL;
     font_info.color = tig_color_make(0, 0, 0);
-    tig_font_create(&font_info, &dword_648930);
+    tig_font_create(&font_info, &logbook_ui_font_header);
 
     font_info.flags = 0;
     tig_art_interface_id_create(229, 0, 0, 0, &(font_info.art_id));
     font_info.str = NULL;
     font_info.color = tig_color_make(0, 0, 150);
-    tig_font_create(&font_info, &dword_64893C);
+    tig_font_create(&font_info, &logbook_ui_font_active);
 
     font_info.flags = 0;
     tig_art_interface_id_create(229, 0, 0, 0, &(font_info.art_id));
     font_info.str = NULL;
     font_info.color = tig_color_make(150, 0, 0);
-    tig_font_create(&font_info, &dword_6429D0);
+    tig_font_create(&font_info, &logbook_ui_font_curse);
 
-    tig_font_push(dword_648934);
+    tig_font_push(logbook_ui_font_default);
     font_info.str = "test";
     font_info.width = 0;
     tig_font_measure(&font_info);
-    dword_63CBF0 = font_info.height;
+    logbook_ui_line_height = font_info.height;
     tig_font_pop();
 
-    dword_64897C = -1;
+    logbook_ui_art_num = -1;
 
     for (index = 0; index < 100; index++) {
-        dword_64879C[index] = -1;
+        logbook_ui_page_spread_starts[index] = -1;
     }
-    dword_64879C[0] = 0;
+    logbook_ui_page_spread_starts[0] = 0;
 
     logbook_ui_tab = LOGBOOK_UI_TAB_RUMORS_AND_NOTES;
     logbook_ui_obj = OBJ_HANDLE_NULL;
-    dword_648798 = 1;
+    logbook_ui_current_page = 1;
     logbook_ui_initialized = true;
 
     return true;
@@ -281,14 +281,14 @@ void logbook_ui_exit()
 {
     mes_unload(logbook_ui_mes_file);
     mes_unload(quotes_mes_file);
-    tig_font_destroy(dword_648934);
-    tig_font_destroy(dword_6429C8);
-    tig_font_destroy(dword_6429C4);
-    tig_font_destroy(dword_63FAE0);
-    tig_font_destroy(dword_64892C);
-    tig_font_destroy(dword_648930);
-    tig_font_destroy(dword_64893C);
-    tig_font_destroy(dword_6429D0);
+    tig_font_destroy(logbook_ui_font_default);
+    tig_font_destroy(logbook_ui_font_page_numbers);
+    tig_font_destroy(logbook_ui_font_struck);
+    tig_font_destroy(logbook_ui_font_quest_completed);
+    tig_font_destroy(logbook_ui_font_quest_failed);
+    tig_font_destroy(logbook_ui_font_header);
+    tig_font_destroy(logbook_ui_font_active);
+    tig_font_destroy(logbook_ui_font_curse);
     logbook_ui_initialized = false;
 }
 
@@ -304,13 +304,13 @@ void logbook_ui_reset()
     logbook_ui_tab = LOGBOOK_UI_TAB_RUMORS_AND_NOTES;
 
     for (index = 0; index < 100; index++) {
-        dword_64879C[index] = -1;
+        logbook_ui_page_spread_starts[index] = -1;
     }
-    dword_64879C[0] = 0;
+    logbook_ui_page_spread_starts[0] = 0;
 
     logbook_ui_obj = OBJ_HANDLE_NULL;
-    dword_64897C = -1;
-    dword_648798 = 1;
+    logbook_ui_art_num = -1;
+    logbook_ui_current_page = 1;
 }
 
 // 0x53F020
@@ -378,15 +378,15 @@ void logbook_ui_create()
 
     if (tig_kb_get_modifier(SDL_KMOD_LCTRL) && tig_kb_get_modifier(SDL_KMOD_LALT)) {
         logbook_ui_tab = LOGBOOK_UI_TAB_RUMORS_AND_NOTES;
-        dword_648798 = 1;
-        dword_648980 = 1;
+        logbook_ui_current_page = 1;
+        logbook_ui_quotes_mode = 1;
         gsound_play_sfx(SND_INTERFACE_BLESS, 1);
     }
 
     src_rect.x = 0;
     src_rect.y = 0;
-    src_rect.width = stru_5C33F8[0].width;
-    src_rect.height = stru_5C33F8[0].height;
+    src_rect.width = logbook_ui_background_rects[0].width;
+    src_rect.height = logbook_ui_background_rects[0].height;
 
     dst_rect.x = 0;
     dst_rect.y = 0;
@@ -401,27 +401,27 @@ void logbook_ui_create()
 
     for (index = 0; index < LOGBOOK_UI_BUTTON_COUNT; index++) {
         intgame_button_create_ex(logbook_ui_window,
-            &(stru_5C33F8[0]),
-            &(stru_5C3428[index]),
+            &(logbook_ui_background_rects[0]),
+            &(logbook_ui_page_buttons[index]),
             TIG_BUTTON_HIDDEN | TIG_BUTTON_MOMENTARY);
     }
 
     for (index = 0; index < LOGBOOK_UI_TAB_COUNT; index++) {
         intgame_button_create_ex(logbook_ui_window,
-            &(stru_5C33F8[0]),
-            &(stru_5C3448[index]),
+            &(logbook_ui_background_rects[0]),
+            &(logbook_ui_tab_buttons[index]),
             TIG_BUTTON_HIDDEN | TIG_BUTTON_MOMENTARY);
-        button_handles[index] = stru_5C3448[index].button_handle;
+        button_handles[index] = logbook_ui_tab_buttons[index].button_handle;
     }
     tig_button_radio_group_create(LOGBOOK_UI_TAB_COUNT, button_handles, logbook_ui_tab);
 
     location_origin_set(obj_field_int64_get(logbook_ui_obj, OBJ_F_LOCATION));
 
     pc_lens.window_handle = logbook_ui_window;
-    pc_lens.rect = &stru_5C3418;
+    pc_lens.rect = &logbook_ui_portrait_rect;
     tig_art_interface_id_create(198, 0, 0, 0, &(pc_lens.art_id));
     intgame_pc_lens_do(PC_LENS_MODE_PASSTHROUGH, &pc_lens);
-    sub_53F490(261, 1);
+    logbook_ui_draw_panel(261, true);
     ui_toggle_primary_button(UI_PRIMARY_BUTTON_LOGBOOK, false);
     gsound_play_sfx(SND_INTERFACE_BOOK_OPEN, 1);
 
@@ -441,10 +441,10 @@ void logbook_ui_destroy()
     gsound_play_sfx(SND_INTERFACE_BOOK_CLOSE, 1);
     logbook_ui_created = false;
 
-    if (dword_648980) {
-        dword_648798 = 1;
+    if (logbook_ui_quotes_mode) {
+        logbook_ui_current_page = 1;
     }
-    dword_648980 = false;
+    logbook_ui_quotes_mode = false;
 }
 
 // 0x53F350
@@ -467,25 +467,25 @@ bool logbook_ui_message_filter(TigMessage* msg)
         switch (msg->data.button.state) {
         case TIG_BUTTON_STATE_PRESSED:
             for (index = 0; index < LOGBOOK_UI_TAB_COUNT; index++) {
-                if (stru_5C3448[index].button_handle == msg->data.button.button_handle) {
-                    sub_53F5F0(index, 0);
+                if (logbook_ui_tab_buttons[index].button_handle == msg->data.button.button_handle) {
+                    logbook_ui_switch_tab(index, false);
                     return true;
                 }
             }
             return false;
         case TIG_BUTTON_STATE_RELEASED:
-            if (stru_5C3428[LOGBOOK_UI_BUTTON_TURN_PAGE_LEFT].button_handle == msg->data.button.button_handle) {
-                sub_53F6A0();
+            if (logbook_ui_page_buttons[LOGBOOK_UI_BUTTON_TURN_PAGE_LEFT].button_handle == msg->data.button.button_handle) {
+                logbook_ui_turn_page_left();
                 return true;
             }
-            if (stru_5C3428[LOGBOOK_UI_BUTTON_TURN_PAGE_RIGHT].button_handle == msg->data.button.button_handle) {
-                sub_53F640();
+            if (logbook_ui_page_buttons[LOGBOOK_UI_BUTTON_TURN_PAGE_RIGHT].button_handle == msg->data.button.button_handle) {
+                logbook_ui_turn_page_right();
                 return true;
             }
             return false;
         case TIG_BUTTON_STATE_MOUSE_INSIDE:
             for (index = 0; index < LOGBOOK_UI_TAB_COUNT; index++) {
-                if (stru_5C3448[index].button_handle == msg->data.button.button_handle) {
+                if (logbook_ui_tab_buttons[index].button_handle == msg->data.button.button_handle) {
                     mes_file_entry.num = index;
                     mes_get_msg(logbook_ui_mes_file, &mes_file_entry);
 
@@ -499,7 +499,7 @@ bool logbook_ui_message_filter(TigMessage* msg)
             return false;
         case TIG_BUTTON_STATE_MOUSE_OUTSIDE:
             for (index = 0; index < LOGBOOK_UI_TAB_COUNT; index++) {
-                if (stru_5C3448[index].button_handle == msg->data.button.button_handle) {
+                if (logbook_ui_tab_buttons[index].button_handle == msg->data.button.button_handle) {
                     sub_550720();
                     return true;
                 }
@@ -513,7 +513,7 @@ bool logbook_ui_message_filter(TigMessage* msg)
 }
 
 // 0x53F490
-void sub_53F490(int a1, int a2)
+void logbook_ui_draw_panel(int art_num, bool preserve_page)
 {
     TigRect src_rect;
     TigRect dst_rect;
@@ -522,20 +522,20 @@ void sub_53F490(int a1, int a2)
     int selected_button_index;
     int index;
 
-    if (dword_64897C != -1) {
-        if (!a2 && a1 == 261) {
+    if (logbook_ui_art_num != -1) {
+        if (!preserve_page && art_num == 261) {
             return;
         }
     } else {
-        a1 = 261;
+        art_num = 261;
     }
 
-    dword_64897C = a1;
+    logbook_ui_art_num = art_num;
 
     src_rect.x = 0;
     src_rect.y = 0;
-    src_rect.width = stru_5C33F8[0].width;
-    src_rect.height = stru_5C33F8[0].height;
+    src_rect.width = logbook_ui_background_rects[0].width;
+    src_rect.height = logbook_ui_background_rects[0].height;
 
     dst_rect.x = 165;
     dst_rect.y = 0;
@@ -548,69 +548,69 @@ void sub_53F490(int a1, int a2)
     blit_info.dst_rect = &dst_rect;
     tig_window_blit_art(logbook_ui_window, &blit_info);
 
-    tig_art_interface_id_create(dword_64897C, 0, 0, 0, &(blit_info.art_id));
+    tig_art_interface_id_create(logbook_ui_art_num, 0, 0, 0, &(blit_info.art_id));
     dst_rect.x = 172;
     dst_rect.y = 23;
     tig_window_blit_art(logbook_ui_window, &blit_info);
 
-    selected_button_handle = sub_538730(stru_5C3448[0].button_handle);
+    selected_button_handle = sub_538730(logbook_ui_tab_buttons[0].button_handle);
     selected_button_index = 0;
 
     for (index = 0; index < LOGBOOK_UI_TAB_COUNT; index++) {
-        tig_button_show(stru_5C3448[index].button_handle);
+        tig_button_show(logbook_ui_tab_buttons[index].button_handle);
 
-        if (selected_button_handle == stru_5C3448[index].button_handle) {
+        if (selected_button_handle == logbook_ui_tab_buttons[index].button_handle) {
             selected_button_index = index;
         }
     }
 
     gsound_play_sfx(SND_INTERFACE_BOOK_SWITCH, 1);
-    sub_53F5F0(selected_button_index, a2);
+    logbook_ui_switch_tab(selected_button_index, preserve_page);
 }
 
 // 0x53F5F0
-void sub_53F5F0(int tab, int a2)
+void logbook_ui_switch_tab(int tab, bool preserve_page)
 {
     int index;
 
-    if (a2 == 0) {
+    if (!preserve_page) {
         for (index = 0; index < 100; index++) {
-            dword_64879C[index] = -1;
+            logbook_ui_page_spread_starts[index] = -1;
         }
-        dword_64879C[0] = 0;
-        dword_648798 = 1;
+        logbook_ui_page_spread_starts[0] = 0;
+        logbook_ui_current_page = 1;
         logbook_ui_tab = tab;
     }
 
-    sub_53FBB0();
-    sub_53F6E0();
+    logbook_ui_load_data();
+    logbook_ui_refresh();
     gsound_play_sfx(SND_INTERFACE_BOOK_PAGE_TURN, 1);
 }
 
 // 0x53F640
-void sub_53F640()
+void logbook_ui_turn_page_right()
 {
-    if (dword_648974 < dword_648938 - 1
-        && (dword_648798 - 1) / 2 < 100) {
-        dword_648798 += 2;
-        dword_64879C[(dword_648798 - 1) / 2] = dword_648974 + 1;
-        sub_53F6E0();
+    if (logbook_ui_last_visible_entry < logbook_ui_entry_count - 1
+        && (logbook_ui_current_page - 1) / 2 < 100) {
+        logbook_ui_current_page += 2;
+        logbook_ui_page_spread_starts[(logbook_ui_current_page - 1) / 2] = logbook_ui_last_visible_entry + 1;
+        logbook_ui_refresh();
         gsound_play_sfx(SND_INTERFACE_BOOK_PAGE_TURN, 1);
     }
 }
 
 // 0x53F6A0
-void sub_53F6A0()
+void logbook_ui_turn_page_left()
 {
-    if (dword_64879C[(dword_648798 - 1) / 2] > 0) {
-        dword_648798 -= 2;
-        sub_53F6E0();
+    if (logbook_ui_page_spread_starts[(logbook_ui_current_page - 1) / 2] > 0) {
+        logbook_ui_current_page -= 2;
+        logbook_ui_refresh();
         gsound_play_sfx(SND_INTERFACE_BOOK_PAGE_TURN, 1);
     }
 }
 
 // 0x53F6E0
-void sub_53F6E0()
+void logbook_ui_refresh()
 {
     TigArtBlitInfo blit_info;
     TigRect src_rect;
@@ -619,13 +619,13 @@ void sub_53F6E0()
     int index;
     char buffer[80];
 
-    tig_button_hide(stru_5C3428[LOGBOOK_UI_BUTTON_TURN_PAGE_LEFT].button_handle);
-    tig_button_hide(stru_5C3428[LOGBOOK_UI_BUTTON_TURN_PAGE_RIGHT].button_handle);
+    tig_button_hide(logbook_ui_page_buttons[LOGBOOK_UI_BUTTON_TURN_PAGE_LEFT].button_handle);
+    tig_button_hide(logbook_ui_page_buttons[LOGBOOK_UI_BUTTON_TURN_PAGE_RIGHT].button_handle);
 
     src_rect.x = 0;
     src_rect.y = 0;
-    src_rect.width = stru_5C33F8[0].width;
-    src_rect.height = stru_5C33F8[0].height;
+    src_rect.width = logbook_ui_background_rects[0].width;
+    src_rect.height = logbook_ui_background_rects[0].height;
 
     dst_rect.x = 165;
     dst_rect.y = 0;
@@ -639,36 +639,36 @@ void sub_53F6E0()
 
     tig_window_blit_art(logbook_ui_window, &blit_info);
 
-    if (dword_648938 != 0) {
-        dword_648974 = sub_53F8F0(dword_64879C[(dword_648798 - 1) / 2], dword_648938 - 1);
+    if (logbook_ui_entry_count != 0) {
+        logbook_ui_last_visible_entry = logbook_ui_draw_page_spread(logbook_ui_page_spread_starts[(logbook_ui_current_page - 1) / 2], logbook_ui_entry_count - 1);
     } else {
-        dword_648974 = 0;
+        logbook_ui_last_visible_entry = 0;
     }
 
-    if (dword_64879C[(dword_648798 - 1) / 2] > 0) {
-        tig_button_show(stru_5C3428[LOGBOOK_UI_BUTTON_TURN_PAGE_LEFT].button_handle);
+    if (logbook_ui_page_spread_starts[(logbook_ui_current_page - 1) / 2] > 0) {
+        tig_button_show(logbook_ui_page_buttons[LOGBOOK_UI_BUTTON_TURN_PAGE_LEFT].button_handle);
     }
 
-    if (dword_648974 < dword_648938 - 1) {
-        tig_button_show(stru_5C3428[LOGBOOK_UI_BUTTON_TURN_PAGE_RIGHT].button_handle);
+    if (logbook_ui_last_visible_entry < logbook_ui_entry_count - 1) {
+        tig_button_show(logbook_ui_page_buttons[LOGBOOK_UI_BUTTON_TURN_PAGE_RIGHT].button_handle);
     }
 
-    mes_file_entry.num = logbook_ui_tab == LOGBOOK_UI_TAB_RUMORS_AND_NOTES && dword_648980
+    mes_file_entry.num = logbook_ui_tab == LOGBOOK_UI_TAB_RUMORS_AND_NOTES && logbook_ui_quotes_mode
         ? 100
         : logbook_ui_tab;
     mes_get_msg(logbook_ui_mes_file, &mes_file_entry);
 
-    tig_font_push(dword_648930);
+    tig_font_push(logbook_ui_font_header);
     for (index = 0; index < 2; index++) {
         snprintf(buffer, sizeof(buffer), "%c%s%c", '-', mes_file_entry.str, '-');
-        tig_window_text_write(logbook_ui_window, buffer, &(stru_5C34D8[index]));
+        tig_window_text_write(logbook_ui_window, buffer, &(logbook_ui_page_title_rects[index]));
     }
     tig_font_pop();
 
-    tig_font_push(dword_6429C8);
+    tig_font_push(logbook_ui_font_page_numbers);
     for (index = 0; index < 2; index++) {
-        snprintf(buffer, sizeof(buffer), "%c%d%c", '-', dword_648798 + index, '-');
-        tig_window_text_write(logbook_ui_window, buffer, &(stru_5C34F8[index]));
+        snprintf(buffer, sizeof(buffer), "%c%d%c", '-', logbook_ui_current_page + index, '-');
+        tig_window_text_write(logbook_ui_window, buffer, &(logbook_ui_page_number_rects[index]));
     }
     tig_font_pop();
 }
@@ -676,95 +676,106 @@ void sub_53F6E0()
 // TODO: Review.
 //
 // 0x53F8F0
-int sub_53F8F0(int a1, int a2)
+int logbook_ui_draw_page_spread(int start_entry, int max_entry)
 {
-    TigRect v9;
-    int v2;
-    bool v3;
-    bool v4;
-    int v5;
-    bool v6;
-    int v7;
+    TigRect page_rect;
+    int entry_idx;
+    bool on_right_page;
+    bool is_first_on_page;
+    int step;
+    bool dry_run;
+    int entry_height;
 
-    v9 = stru_5C34B8;
-    v2 = a1;
-    v3 = false;
-    v4 = true;
-    if (a1 > a2) {
-        v5 = -1;
-        v6 = true;
+    page_rect = logbook_ui_page_content_rects[0];
+    entry_idx = start_entry;
+    on_right_page = false;
+    is_first_on_page = true;
+    if (start_entry > max_entry) {
+        step = -1;
+        dry_run = true;
     } else {
-        v5 = 1;
-        v6 = false;
+        step = 1;
+        dry_run = false;
     }
 
-    while (v2 != v5 + a2) {
-        v7 = sub_53F9E0(v2, &v9, v6, v4);
-        v4 = false;
-        if (v7 > 0 && v7 <= v9.height) {
-            v9.y += v7;
-            v9.height -= v7;
+    // Iterate until we reach one step past the final entry.
+    while (entry_idx != step + max_entry) {
+        entry_height = logbook_ui_draw_entry(entry_idx, &page_rect, dry_run, is_first_on_page);
+        is_first_on_page = false;
+        if (entry_height > 0 && entry_height <= page_rect.height) {
+            // Entry fits, consume vertical space and move to the next entry.
+            page_rect.y += entry_height;
+            page_rect.height -= entry_height;
         } else {
-            if (v3) {
-                if (v7 > 0) {
-                    v2 += v5;
+            if (on_right_page) {
+                // The right page is also full (or the entry is too tall even
+                // for a fresh page). If the entry was non-empty, back up so
+                // the caller records the correct last-visible index.
+                if (entry_height > 0) {
+                    entry_idx += step;
                 }
                 break;
             }
 
-            v9 = stru_5C34C8;
-            v3 = true;
-            v4 = true;
-            if (v7 == 0) {
-                v2 -= v5;
+            // Switch to the right page and retry from the same entry.
+            page_rect = logbook_ui_page_content_rects[1];
+            on_right_page = true;
+            is_first_on_page = true;
+
+            // If the entry reported zero height it's "too tall for available
+            // space". Back up one step so it is retried against the fresh right
+            // page.
+            if (entry_height == 0) {
+                entry_idx -= step;
             }
         }
 
-        v2 += v5;
+        entry_idx += step;
     }
 
-    return v2 - v5;
+    // Return the last successfully drawn entry index.
+    return entry_idx - step;
 }
 
 // 0x53F9E0
-int sub_53F9E0(int index, TigRect* rect, bool a3, bool a4)
+int logbook_ui_draw_entry(int index, TigRect* rect, bool dry_run, bool can_truncate)
 {
     char buffer[2000];
     bool v1;
 
-    v1 = index < dword_648938 - 1;
+    v1 = index < logbook_ui_entry_count - 1;
     buffer[0] = '\0';
 
     switch (logbook_ui_tab) {
     case LOGBOOK_UI_TAB_RUMORS_AND_NOTES:
-        sub_540310(buffer, index);
+        logbook_ui_format_rumor(buffer, index);
         break;
     case LOGBOOK_UI_TAB_QUESTS:
-        sub_540470(buffer, index);
+        logbook_ui_format_quest(buffer, index);
         break;
     case LOGBOOK_UI_TAB_REPUTATIONS:
-        sub_540510(buffer, index);
+        logbook_ui_format_reputation(buffer, index);
         break;
     case LOGBOOK_UI_TAB_BLESSINGS_AND_CURSES:
-        sub_540550(buffer, index);
+        logbook_ui_format_blessing_or_curse(buffer, index);
         break;
     case LOGBOOK_UI_TAB_KILLS_AND_INJURES:
-        sub_5405C0(buffer, index);
+        logbook_ui_format_kill_or_injury(buffer, index);
         v1 = false;
         break;
     case LOGBOOK_UI_TAB_BACKGROUND:
-        sub_540760(buffer, index);
+        logbook_ui_format_background(buffer, index);
         break;
     case LOGBOOK_UI_TAB_KEYS:
-        sub_5407B0(buffer, index);
+        logbook_ui_format_key(buffer, index);
         break;
     }
 
-    return sub_53FAD0(buffer, dword_648988[index], rect, a3, a4, v1);
+    return logbook_ui_draw_text(buffer, logbook_ui_entry_fonts[index], rect, dry_run, can_truncate, v1);
 }
 
 // 0x53FAD0
-int sub_53FAD0(char* buffer, tig_font_handle_t font, TigRect* rect, bool a4, bool a5, bool a6)
+int logbook_ui_draw_text(char* buffer, tig_font_handle_t font, TigRect* rect, bool dry_run, bool can_truncate, bool a6)
 {
     TigFont font_info;
     bool warned = false;
@@ -785,7 +796,7 @@ int sub_53FAD0(char* buffer, tig_font_handle_t font, TigRect* rect, bool a4, boo
             break;
         }
 
-        if (!a5 || (pos = strlen(buffer)) == 0) {
+        if (!can_truncate || (pos = strlen(buffer)) == 0) {
             tig_font_pop();
             return 0;
         }
@@ -798,42 +809,42 @@ int sub_53FAD0(char* buffer, tig_font_handle_t font, TigRect* rect, bool a4, boo
         warned = true;
     }
 
-    if (!a4) {
+    if (!dry_run) {
         tig_window_text_write(logbook_ui_window, buffer, rect);
     }
 
+    tig_font_pop();
+
     if (a6) {
-        tig_font_pop();
-        return dword_63CBF0 + font_info.height;
+        return logbook_ui_line_height + font_info.height;
     }
 
-    tig_font_pop();
     return font_info.height;
 }
 
 // 0x53FBB0
-void sub_53FBB0()
+void logbook_ui_load_data()
 {
     int index;
 
     if (logbook_ui_tab == LOGBOOK_UI_TAB_RUMORS_AND_NOTES) {
         RumorLogbookEntry rumors[MAX_RUMORS]; // NOTE: Forces `alloca(72000)`.
 
-        dword_648938 = rumor_get_logbook_data(logbook_ui_obj, rumors);
+        logbook_ui_entry_count = rumor_get_logbook_data(logbook_ui_obj, rumors);
 
-        if (dword_648980) {
-            dword_648938 = mes_num_entries(quotes_mes_file);
-            for (index = 0; index < dword_648938; index++) {
-                dword_648988[index] = dword_648934;
+        if (logbook_ui_quotes_mode) {
+            logbook_ui_entry_count = mes_num_entries(quotes_mes_file);
+            for (index = 0; index < logbook_ui_entry_count; index++) {
+                logbook_ui_entry_fonts[index] = logbook_ui_font_default;
             }
         } else {
-            for (index = 0; index < dword_648938; index++) {
-                dword_63FAE4[index] = rumors[index].num;
-                stru_6429D8[index] = rumors[index].datetime;
+            for (index = 0; index < logbook_ui_entry_count; index++) {
+                logbook_ui_entry_ids[index] = rumors[index].num;
+                logbook_ui_entry_datetimes[index] = rumors[index].datetime;
                 if (rumors[index].quelled) {
-                    dword_648988[index] = dword_6429C4;
+                    logbook_ui_entry_fonts[index] = logbook_ui_font_struck;
                 } else {
-                    dword_648988[index] = dword_648934;
+                    logbook_ui_entry_fonts[index] = logbook_ui_font_default;
                 }
             }
         }
@@ -844,27 +855,27 @@ void sub_53FBB0()
     if (logbook_ui_tab == LOGBOOK_UI_TAB_QUESTS) {
         QuestLogbookEntry quests[2000]; // NOTE: Forces `alloca(48000)`.
 
-        dword_648938 = quest_get_logbook_data(logbook_ui_obj, quests);
+        logbook_ui_entry_count = quest_get_logbook_data(logbook_ui_obj, quests);
 
-        for (index = 0; index < dword_648938; index++) {
-            dword_63FAE4[index] = quests[index].num;
-            stru_6429D8[index] = quests[index].datetime;
-            dword_63CBF4[index] = quests[index].state;
+        for (index = 0; index < logbook_ui_entry_count; index++) {
+            logbook_ui_entry_ids[index] = quests[index].num;
+            logbook_ui_entry_datetimes[index] = quests[index].datetime;
+            logbook_ui_quest_states[index] = quests[index].state;
 
-            switch (dword_63CBF4[index]) {
+            switch (logbook_ui_quest_states[index]) {
             case QUEST_STATE_COMPLETED:
-                dword_648988[index] = dword_63FAE0;
+                logbook_ui_entry_fonts[index] = logbook_ui_font_quest_completed;
                 break;
             case QUEST_STATE_OTHER_COMPLETED:
             case QUEST_STATE_BOTCHED:
-                dword_648988[index] = dword_64892C;
+                logbook_ui_entry_fonts[index] = logbook_ui_font_quest_failed;
                 break;
             case QUEST_STATE_ACCEPTED:
             case QUEST_STATE_ACHIEVED:
-                dword_648988[index] = dword_64893C;
+                logbook_ui_entry_fonts[index] = logbook_ui_font_active;
                 break;
             default:
-                dword_648988[index] = dword_648934;
+                logbook_ui_entry_fonts[index] = logbook_ui_font_default;
             }
         }
 
@@ -874,13 +885,13 @@ void sub_53FBB0()
     if (logbook_ui_tab == LOGBOOK_UI_TAB_REPUTATIONS) {
         ReputationLogbookEntry reps[2000]; // NOTE: Forces `alloca(32000)`.
 
-        dword_648938 = reputation_get_logbook_data(logbook_ui_obj, reps);
+        logbook_ui_entry_count = reputation_get_logbook_data(logbook_ui_obj, reps);
 
-        for (index = 0; index < dword_648938; index++) {
-            dword_63FAE4[index] = reps[index].reputation;
-            stru_6429D8[index] = reps[index].datetime;
+        for (index = 0; index < logbook_ui_entry_count; index++) {
+            logbook_ui_entry_ids[index] = reps[index].reputation;
+            logbook_ui_entry_datetimes[index] = reps[index].datetime;
 
-            dword_648988[index] = dword_648934;
+            logbook_ui_entry_fonts[index] = logbook_ui_font_default;
         }
 
         return;
@@ -897,21 +908,21 @@ void sub_53FBB0()
 
         num_blessings = bless_get_logbook_data(logbook_ui_obj, blessings);
         num_curses = curse_get_logbook_data(logbook_ui_obj, curses);
-        dword_648938 = num_blessings + num_curses;
+        logbook_ui_entry_count = num_blessings + num_curses;
 
         bless_idx = 0;
         curse_idx = 0;
-        for (idx = 0; idx < dword_648938; idx++) {
+        for (idx = 0; idx < logbook_ui_entry_count; idx++) {
             if (bless_idx < num_blessings
                 && (curse_idx == num_curses || datetime_compare(&(blessings[bless_idx].datetime), &(curses[curse_idx].datetime)))) {
-                dword_63FAE4[idx] = blessings[bless_idx].id;
-                stru_6429D8[idx] = blessings[bless_idx].datetime;
-                dword_648988[idx] = dword_64893C;
+                logbook_ui_entry_ids[idx] = blessings[bless_idx].id;
+                logbook_ui_entry_datetimes[idx] = blessings[bless_idx].datetime;
+                logbook_ui_entry_fonts[idx] = logbook_ui_font_active;
                 bless_idx++;
             } else {
-                dword_63FAE4[idx] = curses[curse_idx].id;
-                stru_6429D8[idx] = curses[curse_idx].datetime;
-                dword_648988[idx] = dword_6429D0;
+                logbook_ui_entry_ids[idx] = curses[curse_idx].id;
+                logbook_ui_entry_datetimes[idx] = curses[curse_idx].datetime;
+                logbook_ui_entry_fonts[idx] = logbook_ui_font_curse;
                 curse_idx++;
             }
         }
@@ -925,61 +936,61 @@ void sub_53FBB0()
         unsigned int flags;
         int cnt;
 
-        logbook_get_kills(logbook_ui_obj, dword_648940);
+        logbook_get_kills(logbook_ui_obj, logbook_ui_kill_stats);
 
         for (index = 0; index < 9; index++) {
-            dword_648988[index] = dword_648934;
+            logbook_ui_entry_fonts[index] = logbook_ui_font_default;
         }
 
-        dword_648938 = 9;
+        logbook_ui_entry_count = 9;
 
         index = logbook_find_first_injury(logbook_ui_obj, &desc, &injury);
         while (index != 0) {
-            dword_63FAE4[dword_648938] = desc;
-            stru_6429D8[dword_648938].milliseconds = injury;
-            dword_648988[dword_648938] = dword_6429C4;
-            dword_648938++;
+            logbook_ui_entry_ids[logbook_ui_entry_count] = desc;
+            logbook_ui_entry_datetimes[logbook_ui_entry_count].milliseconds = injury;
+            logbook_ui_entry_fonts[logbook_ui_entry_count] = logbook_ui_font_struck;
+            logbook_ui_entry_count++;
             index = logbook_find_next_injury(logbook_ui_obj, index, &desc, &injury);
         }
 
         flags = obj_field_int32_get(logbook_ui_obj, OBJ_F_CRITTER_FLAGS);
         if ((flags & OCF_BLINDED) != 0) {
-            for (index = dword_648938 - 1; index >= 9; index--) {
-                if (stru_6429D8[index].milliseconds == LBI_BLINDED) {
-                    dword_648988[index] = dword_648934;
+            for (index = logbook_ui_entry_count - 1; index >= 9; index--) {
+                if (logbook_ui_entry_datetimes[index].milliseconds == LBI_BLINDED) {
+                    logbook_ui_entry_fonts[index] = logbook_ui_font_default;
                     break;
                 }
             }
         }
         if ((flags & OCF_CRIPPLED_LEGS_BOTH) != 0) {
-            for (index = dword_648938 - 1; index >= 9; index--) {
-                if (stru_6429D8[index].milliseconds == LBI_CRIPPLED_LEG) {
-                    dword_648988[index] = dword_648934;
+            for (index = logbook_ui_entry_count - 1; index >= 9; index--) {
+                if (logbook_ui_entry_datetimes[index].milliseconds == LBI_CRIPPLED_LEG) {
+                    logbook_ui_entry_fonts[index] = logbook_ui_font_default;
                     break;
                 }
             }
         }
         if ((flags & OCF_CRIPPLED_ARMS_BOTH) != 0) {
-            for (index = dword_648938 - 1; index >= 9; index--) {
-                if (stru_6429D8[index].milliseconds == LBI_CRIPPLED_ARM) {
-                    dword_648988[index] = dword_648934;
+            for (index = logbook_ui_entry_count - 1; index >= 9; index--) {
+                if (logbook_ui_entry_datetimes[index].milliseconds == LBI_CRIPPLED_ARM) {
+                    logbook_ui_entry_fonts[index] = logbook_ui_font_default;
                     break;
                 }
             }
         }
         if ((flags & OCF_CRIPPLED_ARMS_ONE) != 0) {
-            for (index = dword_648938 - 1; index >= 9; index--) {
-                if (stru_6429D8[index].milliseconds == LBI_CRIPPLED_ARM) {
-                    dword_648988[index] = dword_648934;
+            for (index = logbook_ui_entry_count - 1; index >= 9; index--) {
+                if (logbook_ui_entry_datetimes[index].milliseconds == LBI_CRIPPLED_ARM) {
+                    logbook_ui_entry_fonts[index] = logbook_ui_font_default;
                     break;
                 }
             }
         }
         cnt = effect_count_effects_of_type(logbook_ui_obj, EFFECT_SCARRING);
         if (cnt > 0) {
-            for (index = dword_648938 - 1; index >= 9; index--) {
-                if (stru_6429D8[index].milliseconds == LBI_SCARRED) {
-                    dword_648988[index] = dword_648934;
+            for (index = logbook_ui_entry_count - 1; index >= 9; index--) {
+                if (logbook_ui_entry_datetimes[index].milliseconds == LBI_SCARRED) {
+                    logbook_ui_entry_fonts[index] = logbook_ui_font_default;
                     break;
                 }
             }
@@ -998,21 +1009,21 @@ void sub_53FBB0()
         TigFont font_desc;
         char ch;
 
-        dword_648938 = 1;
-        dword_63FAE4[0] = background_text_get(logbook_ui_obj);
-        dword_648988[0] = dword_648934;
+        logbook_ui_entry_count = 1;
+        logbook_ui_entry_ids[0] = background_text_get(logbook_ui_obj);
+        logbook_ui_entry_fonts[0] = logbook_ui_font_default;
 
-        strcpy(str, background_description_get_body(dword_63FAE4[0]));
+        strcpy(str, background_description_get_body(logbook_ui_entry_ids[0]));
         end = strlen(str);
 
-        tig_font_push(dword_648988[0]);
+        tig_font_push(logbook_ui_entry_fonts[0]);
         font_desc.str = str;
-        font_desc.width = stru_5C34B8.width;
+        font_desc.width = logbook_ui_page_content_rects[0].width;
         tig_font_measure(&font_desc);
 
         prev_truncate_pos = 0;
         curr = str;
-        while (font_desc.height > stru_5C34B8.height) {
+        while (font_desc.height > logbook_ui_page_content_rects[0].height) {
             truncate_pos = 0;
 
             for (pos = 0; pos < end; pos++) {
@@ -1022,7 +1033,7 @@ void sub_53FBB0()
                     tig_font_measure(&font_desc);
                     curr[pos] = ch;
 
-                    if (font_desc.height > stru_5C34B8.height) {
+                    if (font_desc.height > logbook_ui_page_content_rects[0].height) {
                         break;
                     }
 
@@ -1036,26 +1047,26 @@ void sub_53FBB0()
 
             prev_truncate_pos += truncate_pos;
 
-            dword_648988[dword_648938] = dword_648988[0];
-            dword_63FAE4[dword_648938] = (int)prev_truncate_pos;
-            dword_648938++;
+            logbook_ui_entry_fonts[logbook_ui_entry_count] = logbook_ui_entry_fonts[0];
+            logbook_ui_entry_ids[logbook_ui_entry_count] = (int)prev_truncate_pos;
+            logbook_ui_entry_count++;
 
             end -= truncate_pos;
             font_desc.str = &(curr[truncate_pos]);
             tig_font_measure(&font_desc);
         }
 
-        dword_63FAE4[dword_648938] = (int)(prev_truncate_pos + end);
+        logbook_ui_entry_ids[logbook_ui_entry_count] = (int)(prev_truncate_pos + end);
         tig_font_pop();
 
         return;
     }
 
     if (logbook_ui_tab == LOGBOOK_UI_TAB_KEYS) {
-        dword_648938 = item_get_keys(logbook_ui_obj, dword_63FAE4);
-        if (dword_648938 > 0) {
-            for (index = 0; index < dword_648938; index++) {
-                dword_648988[index] = dword_648934;
+        logbook_ui_entry_count = item_get_keys(logbook_ui_obj, logbook_ui_entry_ids);
+        if (logbook_ui_entry_count > 0) {
+            for (index = 0; index < logbook_ui_entry_count; index++) {
+                logbook_ui_entry_fonts[index] = logbook_ui_font_default;
             }
         }
         return;
@@ -1063,12 +1074,12 @@ void sub_53FBB0()
 }
 
 // 0x540310
-void sub_540310(char* buffer, int index)
+void logbook_ui_format_rumor(char* buffer, int index)
 {
     MesFileEntry mes_file_entry;
     size_t pos;
 
-    if (dword_648980) {
+    if (logbook_ui_quotes_mode) {
         mes_file_entry.num = index;
         if (mes_search(quotes_mes_file, &mes_file_entry)) {
             strcpy(buffer, mes_file_entry.str);
@@ -1076,17 +1087,17 @@ void sub_540310(char* buffer, int index)
             buffer[0] = '\0';
         }
     } else {
-        sub_5403C0(buffer, index);
+        logbook_ui_format_timestamp(buffer, index);
 
         pos = strlen(buffer);
         buffer[pos] = '\n';
 
-        rumor_copy_logbook_str(logbook_ui_obj, dword_63FAE4[index], &(buffer[pos + 1]));
+        rumor_copy_logbook_str(logbook_ui_obj, logbook_ui_entry_ids[index], &(buffer[pos + 1]));
     }
 }
 
 // 0x5403C0
-void sub_5403C0(char* buffer, int index)
+void logbook_ui_format_timestamp(char* buffer, int index)
 {
     DateTime* datetime;
     int year;
@@ -1097,13 +1108,14 @@ void sub_5403C0(char* buffer, int index)
     char am_pm;
     MesFileEntry mes_file_entry;
 
-    datetime = &(stru_6429D8[index]);
+    datetime = &(logbook_ui_entry_datetimes[index]);
     month = datetime_get_month(datetime);
     day = datetime_get_day(datetime);
     year = datetime_get_year(datetime);
     hour = datetime_get_hour(datetime);
     minute = datetime_get_minute(datetime);
 
+    // Convert 24-hour time to 12-hour with AM/PM indicator.
     if (hour < 12) {
         am_pm = 'a';
         if (hour == 0) {
@@ -1129,52 +1141,52 @@ void sub_5403C0(char* buffer, int index)
 }
 
 // 0x540470
-void sub_540470(char* buffer, int index)
+void logbook_ui_format_quest(char* buffer, int index)
 {
     MesFileEntry mes_file_entry;
     size_t pos;
 
-    sub_5403C0(buffer, index);
-    mes_file_entry.num = dword_63CBF4[index] + 19;
+    logbook_ui_format_timestamp(buffer, index);
+    mes_file_entry.num = logbook_ui_quest_states[index] + 19;
     mes_get_msg(logbook_ui_mes_file, &mes_file_entry);
     strcat(buffer, mes_file_entry.str);
 
     pos = strlen(buffer);
     buffer[pos] = '\n';
 
-    quest_copy_description(logbook_ui_obj, dword_63FAE4[index], &(buffer[pos + 1]));
+    quest_copy_description(logbook_ui_obj, logbook_ui_entry_ids[index], &(buffer[pos + 1]));
 }
 
 // 0x540510
-void sub_540510(char* buffer, int index)
+void logbook_ui_format_reputation(char* buffer, int index)
 {
     size_t pos;
 
-    sub_5403C0(buffer, index);
+    logbook_ui_format_timestamp(buffer, index);
     pos = strlen(buffer);
     buffer[pos] = '\n';
 
-    reputation_name(dword_63FAE4[index], &(buffer[pos + 1]));
+    reputation_name(logbook_ui_entry_ids[index], &(buffer[pos + 1]));
 }
 
 // 0x540550
-void sub_540550(char* buffer, int index)
+void logbook_ui_format_blessing_or_curse(char* buffer, int index)
 {
     size_t pos;
 
-    sub_5403C0(buffer, index);
+    logbook_ui_format_timestamp(buffer, index);
     pos = strlen(buffer);
     buffer[pos] = '\n';
 
-    if (dword_648988[index] == dword_64893C) {
-        bless_copy_name(dword_63FAE4[index], &(buffer[pos + 1]));
+    if (logbook_ui_entry_fonts[index] == logbook_ui_font_active) {
+        bless_copy_name(logbook_ui_entry_ids[index], &(buffer[pos + 1]));
     } else {
-        curse_copy_name(dword_63FAE4[index], &(buffer[pos + 1]));
+        curse_copy_name(logbook_ui_entry_ids[index], &(buffer[pos + 1]));
     }
 }
 
 // 0x5405C0
-void sub_5405C0(char* buffer, int index)
+void logbook_ui_format_kill_or_injury(char* buffer, int index)
 {
     MesFileEntry mes_file_entry;
     const char* desc_str;
@@ -1187,27 +1199,27 @@ void sub_5405C0(char* buffer, int index)
 
         // NOTE: Original code is slightly different but does the same thing.
         if (index == 0) {
-            SDL_itoa(dword_648940[LBK_TOTAL_KILLS], tmp, 10);
+            SDL_itoa(logbook_ui_kill_stats[LBK_TOTAL_KILLS], tmp, 10);
             sprintf(buffer, "%s: %s", mes_file_entry.str, tmp);
         } else {
             switch (index) {
             case 1:
-                desc = dword_648940[LBK_MOST_POWERFUL_NAME];
+                desc = logbook_ui_kill_stats[LBK_MOST_POWERFUL_NAME];
                 break;
             case 2:
-                desc = dword_648940[LBK_LEAST_POWERFUL_NAME];
+                desc = logbook_ui_kill_stats[LBK_LEAST_POWERFUL_NAME];
                 break;
             case 3:
-                desc = dword_648940[LBK_MOST_GOOD_NAME];
+                desc = logbook_ui_kill_stats[LBK_MOST_GOOD_NAME];
                 break;
             case 4:
-                desc = dword_648940[LBK_MOST_EVIL_NAME];
+                desc = logbook_ui_kill_stats[LBK_MOST_EVIL_NAME];
                 break;
             case 5:
-                desc = dword_648940[LBK_MOST_MAGICAL_NAME];
+                desc = logbook_ui_kill_stats[LBK_MOST_MAGICAL_NAME];
                 break;
             case 6:
-                desc = dword_648940[LBK_MOST_TECH_NAME];
+                desc = logbook_ui_kill_stats[LBK_MOST_TECH_NAME];
                 break;
             default:
                 // Should be unreachable.
@@ -1233,10 +1245,10 @@ void sub_5405C0(char* buffer, int index)
         mes_get_msg(logbook_ui_mes_file, &mes_file_entry);
         strcpy(buffer, mes_file_entry.str);
     } else {
-        mes_file_entry.num = stru_6429D8[index].milliseconds + 34;
+        mes_file_entry.num = logbook_ui_entry_datetimes[index].milliseconds + 34;
         mes_get_msg(logbook_ui_mes_file, &mes_file_entry);
 
-        desc_str = description_get(dword_63FAE4[index]);
+        desc_str = description_get(logbook_ui_entry_ids[index]);
         if (desc_str != NULL) {
             sprintf(buffer, "%s %s", mes_file_entry.str, desc_str);
         }
@@ -1244,62 +1256,62 @@ void sub_5405C0(char* buffer, int index)
 }
 
 // 0x540760
-void sub_540760(char* buffer, int index)
+void logbook_ui_format_background(char* buffer, int index)
 {
     const char* body;
     int start;
     int end;
 
-    body = background_description_get_body(dword_63FAE4[0]);
+    body = background_description_get_body(logbook_ui_entry_ids[0]);
     if (index != 0) {
-        start = dword_63FAE4[index];
+        start = logbook_ui_entry_ids[index];
     } else {
         start = 0;
     }
 
-    end = dword_63FAE4[index + 1] - start;
+    end = logbook_ui_entry_ids[index + 1] - start;
     strncpy(buffer, &(body[start]), end);
     buffer[end] = '\0';
 }
 
 // 0x5407B0
-void sub_5407B0(char* buffer, int index)
+void logbook_ui_format_key(char* buffer, int index)
 {
-    strcpy(buffer, key_description_get(dword_63FAE4[index]));
+    strcpy(buffer, key_description_get(logbook_ui_entry_ids[index]));
 }
 
 // 0x5407F0
-void logbook_check()
+void logbook_ui_check()
 {
     int index;
     char buffer[2000];
     size_t pos;
     TigRect rect;
 
-    stru_6429D8[0] = sub_45A7C0();
+    logbook_ui_entry_datetimes[0] = sub_45A7C0();
 
     for (index = 0; index < 3000; index++) {
-        rect = stru_5C34B8;
+        rect = logbook_ui_page_content_rects[0];
 
-        sub_5403C0(buffer, 0);
+        logbook_ui_format_timestamp(buffer, 0);
         pos = strlen(buffer);
         buffer[pos] = '\n';
 
         rumor_copy_logbook_normal_str(index, &(buffer[pos + 1]));
         if (buffer[pos + 1] != '\0') {
             tig_debug_printf("Checking rumor %d\n", index);
-            sub_53FAD0(buffer, dword_648934, &rect, 1, 1, 1);
+            logbook_ui_draw_text(buffer, logbook_ui_font_default, &rect, 1, 1, 1);
         }
 
-        rect = stru_5C34B8;
+        rect = logbook_ui_page_content_rects[0];
 
-        sub_5403C0(buffer, 0);
+        logbook_ui_format_timestamp(buffer, 0);
         pos = strlen(buffer);
         buffer[pos] = '\n';
         rumor_copy_logbook_dumb_str(index, &(buffer[pos + 1]));
         if (buffer[pos + 1] != '\0') {
             tig_debug_printf("Checking dumb rumor %d\n", index);
-            sub_53FAD0(buffer, dword_648934, &rect, 1, 1, 1);
+            logbook_ui_draw_text(buffer, logbook_ui_font_default, &rect, 1, 1, 1);
         }
     }
 }
