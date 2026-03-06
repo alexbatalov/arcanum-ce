@@ -1765,7 +1765,7 @@ bool wmap_ui_teleport(int64_t loc)
 
     sector_flush(0);
 
-    teleport_data.flags = TELEPORT_0x0020;
+    teleport_data.flags = TELEPORT_RENDER_LOCK;
     teleport_data.obj = player_get_local_pc_obj();
     teleport_data.loc = loc;
     teleport_data.map = map_by_type(MAP_TYPE_START_MAP);

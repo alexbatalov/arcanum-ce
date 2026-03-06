@@ -22,6 +22,11 @@
 #include "game/ui.h"
 #include "game/wallcheck.h"
 
+/**
+ * Internal flag set automatically when the teleporting object is the local PC.
+ */
+#define TELEPORT_IS_LOCAL_PC 0x80000000u
+
 typedef struct TeleportObjectNode {
     int64_t loc;
     int64_t obj;
@@ -98,8 +103,8 @@ void teleport_ping(tig_timestamp_t timestamp)
 
         teleport_pending = false;
 
-        if ((current_teleport_data.flags & TELEPORT_0x80000000) != 0
-            && (current_teleport_data.flags & TELEPORT_0x0020) != 0) {
+        if ((current_teleport_data.flags & TELEPORT_IS_LOCAL_PC) != 0
+            && (current_teleport_data.flags & TELEPORT_RENDER_LOCK) != 0) {
             gamelib_renderlock_release();
         }
     }
@@ -109,7 +114,7 @@ void teleport_ping(tig_timestamp_t timestamp)
 bool teleport_do(TeleportData* teleport_data)
 {
     if (teleport_pending) {
-        if ((current_teleport_data.flags & TELEPORT_0x80000000) != 0) {
+        if ((current_teleport_data.flags & TELEPORT_IS_LOCAL_PC) != 0) {
             return false;
         }
     }
@@ -118,13 +123,13 @@ bool teleport_do(TeleportData* teleport_data)
     teleport_pending = true;
 
     if (player_is_local_pc_obj(teleport_data->obj)) {
-        current_teleport_data.flags |= TELEPORT_0x80000000;
+        current_teleport_data.flags |= TELEPORT_IS_LOCAL_PC;
 
         if ((current_teleport_data.flags & TELEPORT_FADE_OUT) != 0) {
             gfade_run(&(current_teleport_data.fade_out));
         }
 
-        if ((current_teleport_data.flags & TELEPORT_0x0020) != 0) {
+        if ((current_teleport_data.flags & TELEPORT_RENDER_LOCK) != 0) {
             sub_402FC0();
             gamelib_renderlock_acquire();
         }
@@ -202,7 +207,7 @@ bool teleport_process(TeleportData* teleport_data)
         }
     }
 
-    if ((teleport_data->flags & TELEPORT_0x0100) == 0) {
+    if ((teleport_data->flags & TELEPORT_SKIP_FOLLOWERS) == 0) {
         ObjectList objects;
         ObjectNode* node;
 

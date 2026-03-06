@@ -2671,7 +2671,7 @@ void MTComponentMovement_ProcFunc()
 
                     teleport_data.loc = loc;
                     teleport_data.map = map_current_map();
-                    teleport_data.flags = TELEPORT_0x0020 | TELEPORT_0x0100;
+                    teleport_data.flags = TELEPORT_RENDER_LOCK | TELEPORT_SKIP_FOLLOWERS;
                     teleport_data.obj = stru_5E6D28.field_20;
                     teleport_do(&teleport_data);
                     return;
@@ -2727,7 +2727,7 @@ void sub_452650(int64_t obj)
 
             teleport_data.loc = loc;
             teleport_data.map = map_current_map();
-            teleport_data.flags = TELEPORT_0x0100 | TELEPORT_0x0020;
+            teleport_data.flags = TELEPORT_SKIP_FOLLOWERS | TELEPORT_RENDER_LOCK;
             teleport_data.obj = obj;
             teleport_do(&teleport_data);
         } else {
@@ -2735,7 +2735,7 @@ void sub_452650(int64_t obj)
 
             teleport_data.loc = loc;
             teleport_data.map = map_by_type(MAP_TYPE_START_MAP);
-            teleport_data.flags = TELEPORT_0x0100 | TELEPORT_0x0020;
+            teleport_data.flags = TELEPORT_SKIP_FOLLOWERS | TELEPORT_RENDER_LOCK;
             teleport_data.obj = obj;
             teleport_do(&teleport_data);
         }
