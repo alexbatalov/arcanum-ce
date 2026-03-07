@@ -28,7 +28,7 @@ static void combat_ui_destroy();
 static void combat_ui_draw_compact_ap_bar(int available_ap);
 static void combat_ui_draw_ap_bar_segment(tig_window_handle_t window_handle, TigRect* rect, tig_color_t color);
 static void sub_56F430(int a1);
-static void sub_56F840();
+static void combat_ui_draw_compact_npc_turn_indicator();
 static void sub_56F990(int64_t obj);
 static bool combat_ui_message_filter(TigMessage* msg);
 
@@ -554,7 +554,7 @@ void combat_ui_refresh()
         return;
     }
 
-    sub_56F840();
+    combat_ui_draw_compact_npc_turn_indicator();
 
     obj = combat_turn_based_whos_turn_get();
     if (!player_is_local_pc_obj(obj)) {
@@ -610,7 +610,7 @@ void combat_ui_refresh()
 }
 
 // 0x56F840
-void sub_56F840()
+void combat_ui_draw_compact_npc_turn_indicator()
 {
     int64_t obj;
     TigRect rect;
