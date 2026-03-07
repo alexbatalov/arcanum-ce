@@ -26,7 +26,7 @@ static void combat_ui_create();
 static void sub_56EF40();
 static void combat_ui_destroy();
 static void combat_ui_draw_compact_ap_bar(int available_ap);
-static void sub_56F2F0(tig_window_handle_t window_handle, TigRect* rect, tig_color_t color);
+static void combat_ui_draw_ap_bar_segment(tig_window_handle_t window_handle, TigRect* rect, tig_color_t color);
 static void sub_56F430(int a1);
 static void sub_56F840();
 static void sub_56F990(int64_t obj);
@@ -373,7 +373,7 @@ void combat_ui_draw_compact_ap_bar(int available_ap)
     rect.x = 2;
     rect.width = 120 * green_ap / 25;
     if (rect.width > 0) {
-        sub_56F2F0(combat_ui_compact_ap_bar_window_handle,
+        combat_ui_draw_ap_bar_segment(combat_ui_compact_ap_bar_window_handle,
             &rect,
             tig_color_make(0, 255, 0));
     }
@@ -381,7 +381,7 @@ void combat_ui_draw_compact_ap_bar(int available_ap)
     rect.x += rect.width;
     rect.width = 120 * orange_ap / 25;
     if (rect.width > 0) {
-        sub_56F2F0(combat_ui_compact_ap_bar_window_handle,
+        combat_ui_draw_ap_bar_segment(combat_ui_compact_ap_bar_window_handle,
             &rect,
             tig_color_make(255, 128, 0));
     }
@@ -389,14 +389,14 @@ void combat_ui_draw_compact_ap_bar(int available_ap)
     rect.x += rect.width;
     rect.width = 120 * red_ap / 25;
     if (rect.width > 0) {
-        sub_56F2F0(combat_ui_compact_ap_bar_window_handle,
+        combat_ui_draw_ap_bar_segment(combat_ui_compact_ap_bar_window_handle,
             &rect,
             tig_color_make(255, 0, 0));
     }
 }
 
 // 0x56F2F0
-void sub_56F2F0(tig_window_handle_t window_handle, TigRect* rect, tig_color_t color)
+void combat_ui_draw_ap_bar_segment(tig_window_handle_t window_handle, TigRect* rect, tig_color_t color)
 {
     bool odd = false;
     int cnt;
@@ -633,7 +633,7 @@ void sub_56F840()
     rect.x = 120 * dword_680EB4 / 25;
     rect.width = 4;
     rect.height += 4;
-    sub_56F2F0(combat_ui_compact_ap_bar_window_handle, &rect, tig_color_make(0, 255, 0));
+    combat_ui_draw_ap_bar_segment(combat_ui_compact_ap_bar_window_handle, &rect, tig_color_make(0, 255, 0));
 }
 
 // 0x56F990
