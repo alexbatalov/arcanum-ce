@@ -13,7 +13,7 @@ void hotkey_ui_exit();
 void hotkey_ui_resize(GameResizeInfo* resize_info);
 bool hotkey_ui_start(tig_window_handle_t primary_window_handle, TigRect* rect, tig_window_handle_t secondary_window_handle, bool fullscreen);
 void hotkey_ui_end();
-void sub_57DAB0();
+void hotkey_ui_reset_recent_actions();
 bool hotkey_ui_save(TigFile* stream);
 bool hotkey_ui_load(GameLoadInfo* load_info);
 void sub_57DC20();

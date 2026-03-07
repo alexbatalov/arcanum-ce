@@ -1035,7 +1035,7 @@ void intgame_reset()
 
     dword_64C6D8 = 0;
     intgame_refresh_cursor();
-    sub_57DAB0();
+    hotkey_ui_reset_recent_actions();
     intgame_clock_process_callback(NULL);
     iso_interface_window_swap(ROTWIN_TYPE_MSG);
 

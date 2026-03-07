@@ -234,7 +234,7 @@ void hotkey_ui_end()
 }
 
 // 0x57DAB0
-void sub_57DAB0()
+void hotkey_ui_reset_recent_actions()
 {
     int index;
     tig_button_handle_t button_handle;
@@ -244,7 +244,7 @@ void sub_57DAB0()
 
     for (index = 0; index < 2; index++) {
         sub_57E5A0(&(stru_683518[index]));
-        stru_683518[index].type = 2;
+        stru_683518[index].type = HOTKEY_SKILL;
         stru_683518[index].data = sub_557B50(index);
         intgame_recent_action_button_get(index)->art_num = sub_579F70(stru_683518[index].data);
 
