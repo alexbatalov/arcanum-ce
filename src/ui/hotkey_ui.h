@@ -24,7 +24,7 @@ void sub_57E5A0(Hotkey* hotkey);
 bool hotkey_ui_begin_drag();
 void sub_57EF90(int index);
 void sub_57EFA0(int type, int data, int64_t item_obj);
-void sub_57E8B0();
+void hotkey_ui_cancel_drag();
 bool sub_57E8D0(TigMessageMouseEvent mouse_event);
 bool sub_57EDA0(TigMessageMouseEvent mouse_event);
 void sub_57EDF0(int64_t obj, int64_t a2, int a3);

@@ -2678,7 +2678,7 @@ void intgame_process_event(TigMessage* msg)
 
                             v2 = inven_ui_drag_item_obj_get();
                             if (hotkey_ui_is_dragging()) {
-                                sub_57E8B0();
+                                hotkey_ui_cancel_drag();
                                 sub_573740(v2, false);
                                 if (inven_ui_drag_item_obj_get() != OBJ_HANDLE_NULL) {
                                     v2 = inven_ui_drag_item_obj_get();
@@ -3261,7 +3261,7 @@ void sub_54ED30(S4F2810* a1)
 
         item_obj = inven_ui_drag_item_obj_get();
         if (hotkey_ui_is_dragging()) {
-            sub_57E8B0();
+            hotkey_ui_cancel_drag();
             sub_573740(item_obj, false);
         }
 

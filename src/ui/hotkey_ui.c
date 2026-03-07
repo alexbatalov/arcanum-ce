@@ -800,7 +800,7 @@ bool hotkey_ui_begin_drag()
 }
 
 // 0x57E8B0
-void sub_57E8B0()
+void hotkey_ui_cancel_drag()
 {
     sub_575770();
     intgame_refresh_cursor();
