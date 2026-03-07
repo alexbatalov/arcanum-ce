@@ -5,8 +5,8 @@
 #include "game/obj.h"
 #include "ui/types.h"
 
-extern int dword_5CB4E4;
-extern int dword_6839B0;
+extern int hotkey_ui_dragging_index;
+extern bool hotkey_ui_dragging;
 
 bool hotkey_ui_init(GameInitInfo* init_info);
 void hotkey_ui_exit();
@@ -18,7 +18,7 @@ bool hotkey_ui_save(TigFile* stream);
 bool hotkey_ui_load(GameLoadInfo* load_info);
 void sub_57DC20();
 bool hotkey_ui_process_event(TigMessage* msg);
-bool sub_57DE00();
+bool hotkey_ui_is_dragging();
 void intgame_hotkey_refresh(int index);
 void sub_57E5A0(Hotkey* hotkey);
 bool hotkey_ui_begin_drag();

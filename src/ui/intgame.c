@@ -2677,7 +2677,7 @@ void intgame_process_event(TigMessage* msg)
                             int64_t v2;
 
                             v2 = inven_ui_drag_item_obj_get();
-                            if (sub_57DE00()) {
+                            if (hotkey_ui_is_dragging()) {
                                 sub_57E8B0();
                                 sub_573740(v2, false);
                                 if (inven_ui_drag_item_obj_get() != OBJ_HANDLE_NULL) {
@@ -2685,7 +2685,7 @@ void intgame_process_event(TigMessage* msg)
                                 }
                             }
 
-                            if (!sub_57DE00()) {
+                            if (!hotkey_ui_is_dragging()) {
                                 if (critter_is_active(pc_obj)) {
                                     sub_573840();
                                     intgame_refresh_cursor();
@@ -3122,7 +3122,7 @@ void sub_54EA80(S4F2810* a1)
 // 0x54EB50
 bool sub_54EB50()
 {
-    return sub_57DE00();
+    return hotkey_ui_is_dragging();
 }
 
 // 0x54EB60
@@ -3260,12 +3260,12 @@ void sub_54ED30(S4F2810* a1)
         }
 
         item_obj = inven_ui_drag_item_obj_get();
-        if (sub_57DE00()) {
+        if (hotkey_ui_is_dragging()) {
             sub_57E8B0();
             sub_573740(item_obj, false);
         }
 
-        if (sub_57DE00()) {
+        if (hotkey_ui_is_dragging()) {
             return;
         }
 
@@ -6138,7 +6138,7 @@ void intgame_refresh_cursor()
         }
     }
 
-    if (!sub_57DE00()) {
+    if (!hotkey_ui_is_dragging()) {
         // FIXME: Meaningless.
         tig_mouse_cursor_get_art_id();
 
@@ -8108,10 +8108,10 @@ void intgame_notify_item_inserted_or_removed(int64_t item_obj, bool removed, int
         intgame_mt_button_enable();
     }
 
-    if (sub_57DE00()) {
+    if (hotkey_ui_is_dragging()) {
         intgame_refresh_cursor();
-        dword_6839B0 = 0;
-        dword_5CB4E4 = -1;
+        hotkey_ui_dragging = false;
+        hotkey_ui_dragging_index = -1;
     }
 }
 

@@ -53,7 +53,7 @@ static int dword_5CB4BC[10] = {
 };
 
 // 0x5CB4E4
-int dword_5CB4E4 = -1;
+int hotkey_ui_dragging_index = -1;
 
 // 0x683510
 static tig_window_handle_t hotkey_secondary_window_handle;
@@ -80,7 +80,7 @@ static int hotkey_slot_width;
 static int hotkey_slot_height;
 
 // 0x6839B0
-int dword_6839B0;
+bool hotkey_ui_dragging;
 
 // 0x57D700
 bool hotkey_ui_init(GameInitInfo* init_info)
@@ -240,7 +240,7 @@ void hotkey_ui_reset_recent_actions()
     tig_button_handle_t button_handle;
     tig_art_id_t art_id;
 
-    dword_6839B0 = false;
+    hotkey_ui_dragging = false;
 
     for (index = 0; index < 2; index++) {
         sub_57E5A0(&(stru_683518[index]));
@@ -306,7 +306,7 @@ void sub_57DC20()
     stru_683950.slot = -1;
     stru_683950.type = HOTKEY_ITEM;
     sub_4440E0(inven_ui_drag_item_obj_get(), &(stru_683950.item_obj));
-    dword_6839B0 = true;
+    hotkey_ui_dragging = true;
 }
 
 // 0x57DC60
@@ -326,7 +326,7 @@ bool hotkey_ui_process_event(TigMessage* msg)
             }
             for (index = 0; index < 10; index++) {
                 if (msg->data.button.button_handle == stru_6835E0[index].info.button_handle) {
-                    if (dword_6839B0 || inven_ui_drag_item_obj_get() != OBJ_HANDLE_NULL) {
+                    if (hotkey_ui_dragging || inven_ui_drag_item_obj_get() != OBJ_HANDLE_NULL) {
                         if (inven_ui_drag_item_obj_get() != OBJ_HANDLE_NULL) {
                             sub_57DC20();
                         }
@@ -372,9 +372,9 @@ bool hotkey_ui_process_event(TigMessage* msg)
 }
 
 // 0x57DE00
-bool sub_57DE00()
+bool hotkey_ui_is_dragging()
 {
-    return dword_6839B0;
+    return hotkey_ui_dragging;
 }
 
 // 0x57DE10
@@ -693,7 +693,7 @@ void sub_57E5A0(Hotkey* hotkey)
     hotkey->flags = 0;
     hotkey->art_id = TIG_ART_ID_INVALID;
     hotkey->item_obj.field_8.objid.type = OID_TYPE_NULL;
-    dword_5CB4E4 = -1;
+    hotkey_ui_dragging_index = -1;
 }
 
 // 0x57E5D0
@@ -706,7 +706,7 @@ bool hotkey_ui_begin_drag()
     int spl;
     bool v1 = true;
 
-    if (dword_6839B0) {
+    if (hotkey_ui_dragging) {
         return false;
     }
 
@@ -721,7 +721,7 @@ bool hotkey_ui_begin_drag()
         }
 
         if (hotkey->type != HOTKEY_NONE) {
-            dword_5CB4E4 = index;
+            hotkey_ui_dragging_index = index;
             switch (hotkey->type) {
             case HOTKEY_ITEM:
                 stru_683950.type = hotkey->type;
@@ -755,7 +755,7 @@ bool hotkey_ui_begin_drag()
             hotkey->flags |= HOTKEY_DRAGGED;
             intgame_hotkey_refresh(index);
             intgame_hotkey_mouse_load(art_id, v1);
-            dword_6839B0 = true;
+            hotkey_ui_dragging = true;
             return true;
         }
     }
@@ -768,7 +768,7 @@ bool hotkey_ui_begin_drag()
             sub_557AC0(sub_557AB0(), index, &button_info);
             tig_art_interface_id_create(button_info.art_num, 0, 0, 0, &art_id);
             intgame_hotkey_mouse_load(art_id, true);
-            dword_6839B0 = true;
+            hotkey_ui_dragging = true;
             return true;
         }
 
@@ -778,7 +778,7 @@ bool hotkey_ui_begin_drag()
             stru_683950.data = index;
             tig_art_interface_id_create(sub_579F70(index), 0, 0, 0, &art_id);
             intgame_hotkey_mouse_load(art_id, true);
-            dword_6839B0 = true;
+            hotkey_ui_dragging = true;
             return true;
         }
 
@@ -791,7 +791,7 @@ bool hotkey_ui_begin_drag()
             stru_683950.info.art_num = spell_icon(spl);
             tig_art_interface_id_create(stru_683950.info.art_num, 0, 0, 0, &art_id);
             intgame_hotkey_mouse_load(art_id, true);
-            dword_6839B0 = true;
+            hotkey_ui_dragging = true;
             return true;
         }
     }
@@ -804,8 +804,8 @@ void sub_57E8B0()
 {
     sub_575770();
     intgame_refresh_cursor();
-    dword_6839B0 = false;
-    dword_5CB4E4 = -1;
+    hotkey_ui_dragging = false;
+    hotkey_ui_dragging_index = -1;
 }
 
 // 0x57E8D0
@@ -822,8 +822,8 @@ bool sub_57E8D0(TigMessageMouseEvent mouse_event)
     int64_t v3;
     unsigned int flags;
 
-    if (!dword_6839B0) {
-        dword_5CB4E4 = -1;
+    if (!hotkey_ui_dragging) {
+        hotkey_ui_dragging_index = -1;
         return false;
     }
 
@@ -837,20 +837,20 @@ bool sub_57E8D0(TigMessageMouseEvent mouse_event)
     if (stru_683950.item_obj.obj != OBJ_HANDLE_NULL) {
         if (item_parent(stru_683950.item_obj.obj, &parent_obj)
             && !player_is_local_pc_obj(parent_obj)) {
-            dword_6839B0 = false;
+            hotkey_ui_dragging = false;
             sub_575770();
             intgame_refresh_cursor();
-            dword_5CB4E4 = -1;
+            hotkey_ui_dragging_index = -1;
             return false;
         }
 
         obj_type = obj_field_int32_get(stru_683950.item_obj.obj, OBJ_F_TYPE);
         if (obj_type == OBJ_TYPE_AMMO
             || obj_type == OBJ_TYPE_GOLD) {
-            dword_6839B0 = false;
+            hotkey_ui_dragging = false;
             sub_575770();
             intgame_refresh_cursor();
-            dword_5CB4E4 = -1;
+            hotkey_ui_dragging_index = -1;
             return false;
         }
 
@@ -862,10 +862,10 @@ bool sub_57E8D0(TigMessageMouseEvent mouse_event)
             ui_message.str = mes_file_entry.str;
             sub_550750(&ui_message);
 
-            dword_6839B0 = false;
+            hotkey_ui_dragging = false;
             sub_575770();
             intgame_refresh_cursor();
-            dword_5CB4E4 = -1;
+            hotkey_ui_dragging_index = -1;
             return false;
         }
     }
@@ -873,7 +873,7 @@ bool sub_57E8D0(TigMessageMouseEvent mouse_event)
     index = sub_57E460();
     if (index < 10) {
         hotkey = &(stru_6835E0[index]);
-        if (dword_5CB4E4 == index) {
+        if (hotkey_ui_dragging_index == index) {
             sound_id = sfx_item_sound(hotkey->item_obj.obj, player_get_local_pc_obj(), OBJ_HANDLE_NULL, ITEM_SOUND_DROP);
             if (sound_id != -1) {
                 gsound_play_sfx(sound_id, 1);
@@ -882,15 +882,15 @@ bool sub_57E8D0(TigMessageMouseEvent mouse_event)
             hotkey->flags &= ~HOTKEY_DRAGGED;
             intgame_hotkey_refresh(index);
 
-            dword_6839B0 = false;
+            hotkey_ui_dragging = false;
             sub_573840();
             intgame_refresh_cursor();
-            dword_5CB4E4 = -1;
+            hotkey_ui_dragging_index = -1;
             return true;
         }
 
-        if (dword_5CB4E4 != -1) {
-            sub_57E5A0(&(stru_6835E0[dword_5CB4E4]));
+        if (hotkey_ui_dragging_index != -1) {
+            sub_57E5A0(&(stru_6835E0[hotkey_ui_dragging_index]));
         }
 
         v2 = hotkey->item_obj.obj;
@@ -903,13 +903,13 @@ bool sub_57E8D0(TigMessageMouseEvent mouse_event)
             }
         }
 
-        if (dword_5CB4E4 != -1) {
+        if (hotkey_ui_dragging_index != -1) {
             if (hotkey->type == HOTKEY_NONE) {
-                intgame_hotkey_refresh(dword_5CB4E4);
+                intgame_hotkey_refresh(hotkey_ui_dragging_index);
             } else {
-                sub_57ED60(hotkey, dword_5CB4E4);
+                sub_57ED60(hotkey, hotkey_ui_dragging_index);
             }
-            dword_5CB4E4 = -1;
+            hotkey_ui_dragging_index = -1;
         }
 
         hotkey->count = -1;
@@ -962,8 +962,8 @@ bool sub_57E8D0(TigMessageMouseEvent mouse_event)
     } else {
         if (stru_683950.type == HOTKEY_ITEM) {
             if (inven_ui_is_created()) {
-                dword_6839B0 = false;
-                dword_5CB4E4 = -1;
+                hotkey_ui_dragging = false;
+                hotkey_ui_dragging_index = -1;
             }
 
             return false;
@@ -982,8 +982,8 @@ bool sub_57E8D0(TigMessageMouseEvent mouse_event)
         //
         // I assume the "destruction tab" refers to the round metal element to
         // the right of the hotkey bar, but it was never implemented.
-        if (dword_5CB4E4 != -1) {
-            sub_57F210(dword_5CB4E4);
+        if (hotkey_ui_dragging_index != -1) {
+            sub_57F210(hotkey_ui_dragging_index);
         }
     }
 
@@ -994,9 +994,9 @@ bool sub_57E8D0(TigMessageMouseEvent mouse_event)
         }
     }
 
-    dword_6839B0 = false;
+    hotkey_ui_dragging = false;
     intgame_refresh_cursor();
-    dword_5CB4E4 = -1;
+    hotkey_ui_dragging_index = -1;
 
     return true;
 }
@@ -1004,9 +1004,9 @@ bool sub_57E8D0(TigMessageMouseEvent mouse_event)
 // 0x57ED60
 void sub_57ED60(Hotkey* hotkey, int a2)
 {
-    stru_6835E0[dword_5CB4E4].flags = 0;
-    stru_6835E0[dword_5CB4E4].type = hotkey->type;
-    stru_6835E0[dword_5CB4E4].data = hotkey->data;
+    stru_6835E0[hotkey_ui_dragging_index].flags = 0;
+    stru_6835E0[hotkey_ui_dragging_index].type = hotkey->type;
+    stru_6835E0[hotkey_ui_dragging_index].data = hotkey->data;
     intgame_hotkey_refresh(a2);
 }
 
@@ -1017,7 +1017,7 @@ bool sub_57EDA0(TigMessageMouseEvent mouse_event)
         stru_683950.slot = -1;
         stru_683950.type = HOTKEY_ITEM;
         sub_4440E0(inven_ui_drag_item_obj_get(), &(stru_683950.item_obj));
-        dword_6839B0 = true;
+        hotkey_ui_dragging = true;
     }
 
     return sub_57E8D0(mouse_event);
@@ -1219,8 +1219,8 @@ bool sub_57F260()
         }
     }
 
-    dword_6839B0 = 0;
-    dword_5CB4E4 = -1;
+    hotkey_ui_dragging = false;
+    hotkey_ui_dragging_index = -1;
 
     return ret;
 }
