@@ -81,7 +81,7 @@
 #define VERSION_PATCH 7
 #define VERSION_BUILD 4
 
-#define TEN 10
+#define GAMELIB_MAX_PATCH_COUNT 10
 
 typedef bool(GameInitFunc)(GameInitInfo* init_info);
 typedef void(GameResetFunc)();
@@ -121,8 +121,8 @@ static void gamelib_draw_editor(GameDrawInfo* draw_info);
 static void gamelib_logo();
 static void gamelib_splash(tig_window_handle_t window_handle);
 static void gamelib_load_data();
-static bool sub_404C10(const char* module_name);
-static void sub_405070();
+static bool gamelib_load_module_data(const char* module_name);
+static void gamelib_unload_module_data();
 
 // 0x59A330
 static GameLibModule gamelib_modules[] = {
@@ -203,7 +203,7 @@ static char gamelib_current_module_name[TIG_MAX_PATH] = "Arcanum";
 static char gamelib_default_module_name[TIG_MAX_PATH] = "Arcanum";
 
 // 0x5CFF08
-static char byte_5CFF08[TIG_MAX_PATH];
+static char gamelib_mod_dir_path[TIG_MAX_PATH];
 
 // 0x5D000C
 static TigRectListNode* gamelib_pending_dirty_rects_head;
@@ -215,7 +215,7 @@ static bool gamelib_dirty;
 static TigRect gamelib_iso_content_rect;
 
 // 0x5D0028
-static char byte_5D0028[TEN][TIG_MAX_PATH];
+static char gamelib_mod_patch_paths[GAMELIB_MAX_PATCH_COUNT][TIG_MAX_PATH];
 
 // FIXME: Should be of TIG_MAX_PATH (260), not 256.
 //
@@ -259,7 +259,7 @@ static bool gamelib_mod_loaded;
 static char byte_5D0EA4[TIG_MAX_PATH];
 
 // 0x5D0FA8
-static char byte_5D0FA8[TIG_MAX_PATH];
+static char gamelib_mod_dat_path[TIG_MAX_PATH];
 
 // 0x5D10AC
 static void (*gamelib_draw_func)(GameDrawInfo* draw_info);
@@ -663,12 +663,12 @@ bool gamelib_mod_load(const char* path)
 
     gamelib_mod_unload();
 
-    if (!sub_404C10(path)) {
+    if (!gamelib_load_module_data(path)) {
         return false;
     }
 
-    if (byte_5D0FA8[0] != '\0') {
-        tig_file_repository_guid(byte_5D0FA8, &gamelib_mod_guid);
+    if (gamelib_mod_dat_path[0] != '\0') {
+        tig_file_repository_guid(gamelib_mod_dat_path, &gamelib_mod_guid);
     }
 
     dword_5D10C4 = true;
@@ -677,7 +677,7 @@ bool gamelib_mod_load(const char* path)
         if (!tig_file_is_empty_directory("Save\\Current")) {
             if (!tig_file_empty_directory("Save\\Current")) {
                 tig_debug_printf("gamelib_mod_load(): error emptying folder %s\n", "Save\\Current");
-                sub_405070();
+                gamelib_unload_module_data();
                 return false;
             }
         }
@@ -692,7 +692,7 @@ bool gamelib_mod_load(const char* path)
                 if (!map_preprocess_mobile(file_list.entries[file_index].path)) {
                     tig_debug_printf("gamelib_mod_load(): error preprocessing mobile object data for map %s\n",
                         file_list.entries[file_index].path);
-                    sub_405070();
+                    gamelib_unload_module_data();
                     return false;
                 }
             }
@@ -714,7 +714,7 @@ bool gamelib_mod_load(const char* path)
                     }
                 }
 
-                sub_405070();
+                gamelib_unload_module_data();
 
                 return false;
             }
@@ -1815,7 +1815,7 @@ void gamelib_load_data()
 }
 
 // 0x404C10
-bool sub_404C10(const char* module_name)
+bool gamelib_load_module_data(const char* module_name)
 {
     char path1[TIG_MAX_PATH];
     char path2[TIG_MAX_PATH];
@@ -1837,18 +1837,18 @@ bool sub_404C10(const char* module_name)
             return false;
         }
 
-        strcpy(byte_5D0FA8, path1);
+        strcpy(gamelib_mod_dat_path, path1);
 
         path1[end] = '\0';
 
-        for (index = 0; index < TEN; index++) {
+        for (index = 0; index < GAMELIB_MAX_PATCH_COUNT; index++) {
             snprintf(path2, TIG_MAX_PATH, "%s.patch%d", path1, index);
             if (tig_file_exists(path2, NULL)) {
                 if (!tig_file_repository_add(path2)) {
                     return false;
                 }
 
-                strcpy(byte_5D0028[index], path2);
+                strcpy(gamelib_mod_patch_paths[index], path2);
             }
         }
     }
@@ -1857,56 +1857,56 @@ bool sub_404C10(const char* module_name)
 
     if (tig_file_is_directory(path1)) {
         tig_file_repository_add(path1);
-        strcpy(byte_5CFF08, path1);
+        strcpy(gamelib_mod_dir_path, path1);
         return true;
     }
 
     if (tig_file_mkdir(path1)) {
         if (gamelib_init_info.editor) {
-            if (byte_5D0FA8[0] == '\0') {
+            if (gamelib_mod_dat_path[0] == '\0') {
                 tig_file_copy_directory(path1, "Module template");
             }
         }
 
         tig_file_repository_add(path1);
-        strcpy(byte_5CFF08, path1);
+        strcpy(gamelib_mod_dir_path, path1);
         return true;
     }
 
     tig_debug_printf("gamelib_mod_load(): error creating folder %s\n", path1);
 
-    if (byte_5D0FA8[0] != '\0') {
-        tig_file_repository_remove(byte_5D0FA8);
+    if (gamelib_mod_dat_path[0] != '\0') {
+        tig_file_repository_remove(gamelib_mod_dat_path);
     }
 
     return false;
 }
 
 // 0x405070
-void sub_405070()
+void gamelib_unload_module_data()
 {
     int index;
 
-    tig_file_repository_remove(byte_5CFF08);
+    tig_file_repository_remove(gamelib_mod_dir_path);
 
     if (byte_5D0B58[0] != '\0') {
         tig_file_repository_remove(byte_5D0B58);
     }
 
-    for (index = TEN - 1; index >= 0; index--) {
-        if (byte_5D0028[index][0] != '\0') {
-            tig_file_repository_remove(byte_5D0028[index]);
-            byte_5D0028[index][0] = '\0';
+    for (index = GAMELIB_MAX_PATCH_COUNT - 1; index >= 0; index--) {
+        if (gamelib_mod_patch_paths[index][0] != '\0') {
+            tig_file_repository_remove(gamelib_mod_patch_paths[index]);
+            gamelib_mod_patch_paths[index][0] = '\0';
         }
     }
 
-    if (byte_5D0FA8[0] != '\0') {
-        tig_file_repository_remove(byte_5D0FA8);
+    if (gamelib_mod_dat_path[0] != '\0') {
+        tig_file_repository_remove(gamelib_mod_dat_path);
     }
 
-    byte_5CFF08[0] = '\0';
+    gamelib_mod_dir_path[0] = '\0';
     byte_5D0B58[0] = '\0';
-    byte_5D0FA8[0] = '\0';
+    gamelib_mod_dat_path[0] = '\0';
     byte_5D0EA4[0] = '\0';
 
     memset(&gamelib_mod_guid, 0, sizeof(gamelib_mod_guid));
