@@ -686,7 +686,7 @@ static MagicTechRunInfo* magictech_cur_run_info;
 static mes_file_handle_t magictech_mes_file;
 
 // 0x5E75F8
-static char** magictech_component_names;
+static const char** magictech_component_names;
 
 // 0x5E75FC
 static bool magictech_cheat_mode;
@@ -747,7 +747,7 @@ bool magictech_init(GameInitInfo* init_info)
 
     dword_5E6D24 = init_info->invalidate_rect_func;
     magictech_editor = init_info->editor;
-    magictech_component_names = (char**)CALLOC(25, sizeof(char*));
+    magictech_component_names = (const char**)CALLOC(25, sizeof(const char*));
     magictech_run_info = (MagicTechRunInfo*)CALLOC(512, sizeof(MagicTechRunInfo));
     sub_455710();
 
