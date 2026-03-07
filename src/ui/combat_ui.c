@@ -25,7 +25,7 @@ static void sub_56ED00();
 static void combat_ui_create();
 static void sub_56EF40();
 static void combat_ui_destroy();
-static void sub_56EFA0(int a1);
+static void combat_ui_draw_compact_ap_bar(int available_ap);
 static void sub_56F2F0(tig_window_handle_t window_handle, TigRect* rect, tig_color_t color);
 static void sub_56F430(int a1);
 static void sub_56F840();
@@ -281,7 +281,7 @@ void combat_ui_create()
         return;
     }
 
-    sub_56EFA0(0);
+    combat_ui_draw_compact_ap_bar(0);
 
     if (!intgame_is_compact_interface()) {
         tig_window_hide(combat_ui_compact_ap_bar_window_handle);
@@ -314,11 +314,11 @@ void combat_ui_destroy()
 }
 
 // 0x56EFA0
-void sub_56EFA0(int a1)
+void combat_ui_draw_compact_ap_bar(int available_ap)
 {
-    int v1 = 0;
-    int action_points;
-    int v4;
+    int red_ap = 0;
+    int orange_ap;
+    int green_ap;
     TigRect rect;
 
     if (combat_ui_compact_ap_bar_window_handle == TIG_WINDOW_HANDLE_INVALID) {
@@ -350,28 +350,28 @@ void sub_56EFA0(int a1)
     rect.width = combat_ui_compact_ap_bar_frame.width;
     rect.height = combat_ui_compact_ap_bar_frame.height;
 
-    action_points = combat_required_action_points_get();
-    v4 = a1 - action_points;
-    if (v4 >= 25) {
-        v1 = 0;
-        action_points = 0;
-        v4 = 25;
-    } else if (action_points > a1) {
-        v1 = action_points - a1;
-        action_points = a1;
-        v4 = 0;
+    orange_ap = combat_required_action_points_get();
+    green_ap = available_ap - orange_ap;
+    if (green_ap >= 25) {
+        red_ap = 0;
+        orange_ap = 0;
+        green_ap = 25;
+    } else if (orange_ap > available_ap) {
+        red_ap = orange_ap - available_ap;
+        orange_ap = available_ap;
+        green_ap = 0;
     }
 
-    if (action_points + v4 > 25) {
-        action_points = 25 - v4;
+    if (orange_ap + green_ap > 25) {
+        orange_ap = 25 - green_ap;
     }
 
-    if (v1 + action_points + v4 > 25) {
-        v1 = 25 - action_points - v4;
+    if (red_ap + orange_ap + green_ap > 25) {
+        red_ap = 25 - orange_ap - green_ap;
     }
 
     rect.x = 2;
-    rect.width = 120 * v4 / 25;
+    rect.width = 120 * green_ap / 25;
     if (rect.width > 0) {
         sub_56F2F0(combat_ui_compact_ap_bar_window_handle,
             &rect,
@@ -379,7 +379,7 @@ void sub_56EFA0(int a1)
     }
 
     rect.x += rect.width;
-    rect.width = 120 * action_points / 25;
+    rect.width = 120 * orange_ap / 25;
     if (rect.width > 0) {
         sub_56F2F0(combat_ui_compact_ap_bar_window_handle,
             &rect,
@@ -387,7 +387,7 @@ void sub_56EFA0(int a1)
     }
 
     rect.x += rect.width;
-    rect.width = 120 * v1 / 25;
+    rect.width = 120 * red_ap / 25;
     if (rect.width > 0) {
         sub_56F2F0(combat_ui_compact_ap_bar_window_handle,
             &rect,
@@ -457,7 +457,7 @@ void sub_56F430(int a1)
         return;
     }
 
-    sub_56EFA0(a1);
+    combat_ui_draw_compact_ap_bar(a1);
 
     if (tig_art_interface_id_create(294, 0, 0, 0, &art_id) == TIG_OK
         && tig_art_frame_data(art_id, &art_frame_data) == TIG_OK
