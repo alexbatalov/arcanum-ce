@@ -222,7 +222,7 @@ void options_ui_start(OptionsUiTab tab, tig_window_handle_t window_handle, bool 
 
             // Load available modules and configure control appropriately.
             gamelib_modlist_create(&options_ui_modlist, 0);
-            control_info.text_array = options_ui_modlist.paths;
+            control_info.text_array = (const char* const*)options_ui_modlist.paths;
             control_info.text_array_size = options_ui_modlist.count;
 
             options_ui_modlist_initialized = true;
