@@ -130,7 +130,7 @@ bool teleport_do(TeleportData* teleport_data)
         }
 
         if ((current_teleport_data.flags & TELEPORT_RENDER_LOCK) != 0) {
-            sub_402FC0();
+            gamelib_clear_screen();
             gamelib_renderlock_acquire();
         }
     }

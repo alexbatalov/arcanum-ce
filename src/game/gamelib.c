@@ -900,7 +900,7 @@ void gamelib_renderlock_release()
 }
 
 // 0x402FC0
-void sub_402FC0()
+void gamelib_clear_screen()
 {
     tig_window_fill(gamelib_init_info.iso_window_handle, NULL, 0);
     tig_window_display();

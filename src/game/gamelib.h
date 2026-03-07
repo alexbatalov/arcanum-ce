@@ -101,7 +101,7 @@ void gamelib_invalidate_rect(TigRect* rect);
 bool gamelib_draw();
 void gamelib_renderlock_acquire();
 void gamelib_renderlock_release();
-void sub_402FC0();
+void gamelib_clear_screen();
 const char* gamelib_current_module_name_get();
 void gamelib_current_mode_name_set(const char* name);
 bool gamelib_save(const char* name, const char* description);
