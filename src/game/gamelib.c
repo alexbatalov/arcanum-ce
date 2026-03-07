@@ -120,7 +120,7 @@ static void gamelib_draw_game(GameDrawInfo* draw_info);
 static void gamelib_draw_editor(GameDrawInfo* draw_info);
 static void gamelib_logo();
 static void gamelib_splash(tig_window_handle_t window_handle);
-static void sub_404A20();
+static void gamelib_load_data();
 static bool sub_404C10(const char* module_name);
 static void sub_405070();
 
@@ -326,7 +326,7 @@ bool gamelib_init(GameInitInfo* init_info)
     difficulty_changed();
 
     gamelib_mod_loaded = false;
-    sub_404A20();
+    gamelib_load_data();
 
     if (!init_info->editor) {
         gamelib_logo();
@@ -1797,7 +1797,7 @@ void gamelib_splash(tig_window_handle_t window_handle)
 }
 
 // 0x404A20
-void sub_404A20()
+void gamelib_load_data()
 {
     TigFileList file_list;
     unsigned int index;
