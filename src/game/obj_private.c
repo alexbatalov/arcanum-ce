@@ -17,7 +17,7 @@ typedef struct S603720 {
     uint16_t field_2;
 } S603720;
 
-static void sub_4E4C80(S4E4BD0* a1, int size);
+static void write_buffer_ensure_size(WriteBuffer* wb, int size);
 static void sub_4E6040(int a1, int a2);
 static void sub_4E6130(int a1, int a2);
 static void sub_4E61B0(int start, int end, int inc);
@@ -647,23 +647,23 @@ bool sub_4E47E0(ObjSa* a1, TigFile* stream)
 }
 
 // 0x4E4990
-void sub_4E4990(ObjSa* a1, S4E4BD0* a2)
+void sub_4E4990(ObjSa* a1, WriteBuffer* wb)
 {
     // uint8_t presence;
     // int size;
 
     // switch (a1->type) {
     // case 3:
-    //     sub_4E4C00(a1->d.int_value, sizeof(a1->d.int_value), a2);
+    //     write_buffer_append(a1->d.int_value, sizeof(a1->d.int_value), wb);
     //     break;
     // case 4:
     //     if (*a1->d.b != NULL) {
     //         presence = 1;
-    //         sub_4E4C00(&presence, sizeof(presence), a2);
-    //         sub_4E4C00(*a1->d.b, sizeof(*a1->d.b), a2);
+    //         write_buffer_append(&presence, sizeof(presence), wb);
+    //         write_buffer_append(*a1->d.b, sizeof(*a1->d.b), wb);
     //     } else {
     //         presence = 0;
-    //         sub_4E4C00(&presence, sizeof(presence), a2);
+    //         write_buffer_append(&presence, sizeof(presence), wb);
     //     }
     //     break;
     // case 5:
@@ -675,37 +675,37 @@ void sub_4E4990(ObjSa* a1, S4E4BD0* a2)
     // case 13:
     //     if (*a1->d.a.sa_ptr != NULL) {
     //         presence = 1;
-    //         sub_4E4C00(&presence, sizeof(presence), a2);
+    //         write_buffer_append(&presence, sizeof(presence), wb);
     //         size = sub_4E77B0(a1->d.a.sa_ptr);
-    //         sub_4E4C80(a2, size);
-    //         sub_4E77E0(a1->d.a.sa_ptr, a2->field_4);
-    //         a2->field_4 += size;
-    //         a2->field_C -= size;
+    //         write_buffer_ensure_size(wb, size);
+    //         sub_4E77E0(a1->d.a.sa_ptr, wb->field_4);
+    //         wb->field_4 += size;
+    //         wb->field_C -= size;
     //     } else {
     //         presence = 0;
-    //         sub_4E4C00(&presence, sizeof(presence), a2);
+    //         write_buffer_append(&presence, sizeof(presence), wb);
     //     }
     //     break;
     // case 11:
     //     if (*a1->d.str != NULL) {
     //         presence = 1;
-    //         sub_4E4C00(&presence, sizeof(presence), a2);
+    //         write_buffer_append(&presence, sizeof(presence), wb);
     //         size = strlen(*a1->d.str);
-    //         sub_4E4C00(&size, sizeof(size), a2);
-    //         sub_4E4C00(*a1->d.str, size + 1, a2);
+    //         write_buffer_append(&size, sizeof(size), wb);
+    //         write_buffer_append(*a1->d.str, size + 1, wb);
     //     } else {
     //         presence = 0;
-    //         sub_4E4C00(&presence, sizeof(presence), a2);
+    //         write_buffer_append(&presence, sizeof(presence), wb);
     //     }
     //     break;
     // case 12:
     //     if (*a1->d.oid != NULL) {
     //         presence = 1;
-    //         sub_4E4C00(&presence, sizeof(presence), a2);
-    //         sub_4E4C00(*a1->d.oid, sizeof(**a1->d.oid), a2);
+    //         write_buffer_append(&presence, sizeof(presence), wb);
+    //         write_buffer_append(*a1->d.oid, sizeof(**a1->d.oid), wb);
     //     } else {
     //         presence = 0;
-    //         sub_4E4C00(&presence, sizeof(presence), a2);
+    //         write_buffer_append(&presence, sizeof(presence), wb);
     //     }
     //     break;
     // }
@@ -752,21 +752,21 @@ int sub_4E4BA0(ObjSa* a1)
 }
 
 // 0x4E4BD0
-void sub_4E4BD0(S4E4BD0* a1)
+void write_buffer_init(WriteBuffer* wb)
 {
-    a1->field_0 = (uint8_t*)MALLOC(256);
-    a1->field_4 = a1->field_0;
-    a1->field_8 = 256;
-    a1->field_C = a1->field_8;
+    wb->base = (uint8_t*)MALLOC(256);
+    wb->curr = wb->base;
+    wb->size = 256;
+    wb->remaining = wb->size;
 }
 
 // 0x4E4C00
-void sub_4E4C00(const void* data, int size, S4E4BD0* a3)
+void write_buffer_append(const void* data, int size, WriteBuffer* wb)
 {
-    sub_4E4C80(a3, size);
-    memcpy(a3->field_4, data, size);
-    a3->field_4 += size;
-    a3->field_C -= size;
+    write_buffer_ensure_size(wb, size);
+    memcpy(wb->curr, data, size);
+    wb->curr += size;
+    wb->remaining -= size;
 }
 
 // 0x4E4C50
@@ -777,18 +777,18 @@ void sub_4E4C50(void* buffer, int size, uint8_t** data)
 }
 
 // 0x4E4C80
-void sub_4E4C80(S4E4BD0* a1, int size)
+void write_buffer_ensure_size(WriteBuffer* wb, int size)
 {
     int extra_size;
     int new_size;
 
-    extra_size = size - a1->field_C;
+    extra_size = size - wb->remaining;
     if (extra_size > 0) {
         new_size = (extra_size / 256 + 1) * 256;
-        a1->field_8 += new_size;
-        a1->field_0 = (uint8_t*)REALLOC(a1->field_0, a1->field_8);
-        a1->field_4 = a1->field_0 + a1->field_8 - a1->field_C - new_size;
-        a1->field_C += new_size;
+        wb->size += new_size;
+        wb->base = (uint8_t*)REALLOC(wb->base, wb->size);
+        wb->curr = wb->base + wb->size - wb->remaining - new_size;
+        wb->remaining += new_size;
     }
 }
 

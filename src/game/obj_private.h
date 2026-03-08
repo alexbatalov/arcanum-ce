@@ -27,12 +27,12 @@ typedef enum SaType {
     SA_TYPE_PTR_ARRAY = 15,
 } SaType;
 
-typedef struct S4E4BD0 {
-    uint8_t* field_0;
-    uint8_t* field_4;
-    int field_8;
-    int field_C;
-} S4E4BD0;
+typedef struct WriteBuffer {
+    uint8_t* base;
+    uint8_t* curr;
+    int size;
+    int remaining;
+} WriteBuffer;
 
 typedef struct ObjSa {
     /* 0000 */ int type;
@@ -60,11 +60,11 @@ bool sub_4E4360(ObjSa* a1, TigFile* stream);
 bool sub_4E44F0(ObjSa* a1, TigFile* stream);
 void sub_4E4660(ObjSa* a1, uint8_t** data);
 bool sub_4E47E0(ObjSa* a1, TigFile* stream);
-void sub_4E4990(ObjSa* a1, S4E4BD0* a2);
+void sub_4E4990(ObjSa* a1, WriteBuffer* wb);
 void sub_4E4B70(ObjSa* a1);
 int sub_4E4BA0(ObjSa* a1);
-void sub_4E4BD0(S4E4BD0* a1);
-void sub_4E4C00(const void* data, int size, S4E4BD0* a3);
+void write_buffer_init(WriteBuffer* wb);
+void write_buffer_append(const void* data, int size, WriteBuffer* wb);
 void sub_4E4C50(void* buffer, int size, uint8_t** data);
 void sub_4E59B0();
 void sub_4E5A50();
