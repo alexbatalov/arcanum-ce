@@ -551,7 +551,7 @@ bool obj_init(GameInitInfo* init_info)
     dword_5D1100 = (int*)CALLOC(21, sizeof(int));
     object_fields_count_per_type = (int16_t*)CALLOC(18, sizeof(int16_t));
     obj_editor = init_info->editor;
-    sub_4E59B0();
+    bitset_pool_init();
     obj_pool_init(sizeof(Object), obj_editor);
     sub_4E3F80();
     obj_find_init();
@@ -579,7 +579,7 @@ void obj_exit()
     obj_find_exit();
     obj_pool_exit();
     sub_4E3F90();
-    sub_4E5A50();
+    bitset_pool_exit();
 
     FREE(object_fields);
     FREE(dword_5D10F0);
@@ -594,8 +594,8 @@ void sub_405250()
 {
     obj_pool_exit();
     sub_4E3F90();
-    sub_4E5A50();
-    sub_4E59B0();
+    bitset_pool_exit();
+    bitset_pool_init();
     obj_pool_init(sizeof(Object), obj_editor);
     sub_4E3F80();
 }
@@ -4735,10 +4735,10 @@ bool sub_40CE20(Object* object, int start, int end, ObjEnumerateCallbackEx* call
     int fld;
 
     for (index = 0; index < object_fields[start + 1].change_array_idx; index++) {
-        v1 += sub_4E5FE0(object->field_48[index], 32);
+        v1 += bitset_count_bits(object->field_48[index], 32);
     }
 
-    v1 += sub_4E5FE0(object->field_48[index], object_fields[start + 1].bit);
+    v1 += bitset_count_bits(object->field_48[index], object_fields[start + 1].bit);
 
     for (fld = start + 1; fld < end; fld++) {
         if ((object->field_48[object_fields[fld].change_array_idx] & object_fields[fld].mask) != 0) {
@@ -4902,10 +4902,10 @@ bool sub_40D170(Object* object, int start, int end, ObjEnumerateCallbackEx* call
     int fld;
 
     for (index = 0; index < object_fields[start + 1].change_array_idx; index++) {
-        v1 += sub_4E5FE0(object->field_48[index], 32);
+        v1 += bitset_count_bits(object->field_48[index], 32);
     }
 
-    v1 += sub_4E5FE0(object->field_48[index], object_fields[start + 1].bit);
+    v1 += bitset_count_bits(object->field_48[index], object_fields[start + 1].bit);
 
     for (fld = start + 1; fld < end; fld++) {
         if (!callback(object, v1, &(object_fields[fld]))) {
@@ -4927,10 +4927,10 @@ int sub_40D230(Object* object, int fld)
     int index;
 
     for (index = 0; index < object_fields[fld].change_array_idx; index++) {
-        v1 += sub_4E5FE0(object->field_48[index], 32);
+        v1 += bitset_count_bits(object->field_48[index], 32);
     }
 
-    v1 += sub_4E5FE0(object->field_48[index], object_fields[fld].bit);
+    v1 += bitset_count_bits(object->field_48[index], object_fields[fld].bit);
 
     return v1;
 }

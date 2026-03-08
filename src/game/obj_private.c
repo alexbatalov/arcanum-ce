@@ -7,71 +7,172 @@
 #include "game/object.h"
 #include "game/sector.h"
 
-typedef struct S603710 {
-    /* 0000 */ int field_0;
-    /* 0004 */ int field_4;
-} S603710;
+/**
+ * Initial capacity for the `BitsetDescriptor` array, and the granularity at
+ * which it is grown when more bitsets are needed.
+ */
+#define BITSET_DESCRIPTORS_INITIAL_CAPACITY 4096
+#define BITSET_DESCRIPTORS_GROWTH_STEP BITSET_DESCRIPTORS_INITIAL_CAPACITY
 
-typedef struct S603720 {
-    uint16_t field_0;
-    uint16_t field_2;
-} S603720;
+/**
+ * Initial capacity for the free indices array, and the granularity at
+ * which it is grown when more bitsets are freed.
+ */
+#define BITSET_FREE_LIST_INITIAL_CAPACITY 4096
+#define BITSET_FREE_LIST_GROWTH_STEP BITSET_FREE_LIST_INITIAL_CAPACITY
+
+/**
+ * Initial capacity for the flat storage array that backs all live bitsets, and
+ * the granularity at which it is grown when more space is needed.
+ */
+#define BITSET_STORAGE_INITIAL_CAPACITY 8192
+#define BITSET_STORAGE_GROWTH_STEP BITSET_STORAGE_INITIAL_CAPACITY
+
+/**
+ * Every newly allocated (or recycled) bitset starts with this many 32-bit
+ * storage items, giving a minimum capacity of `BITSET_MIN_STORAGE_ITEMS` *
+ * `BITS_PER_STORAGE_ITEM` bits.
+ */
+#define BITSET_MIN_STORAGE_ITEMS 2
+
+/**
+ * Number of bits that fit in one storage item (int).
+ */
+#define BITS_PER_STORAGE_ITEM 32
+
+/**
+ * Number of entries in the 16-bit population-count lookup table.
+ */
+#define POPCOUNT_TABLE_SIZE 65536
+
+/**
+ * Number of entries in the split-mask table used by `bitset_count_bits`.
+ */
+#define POPCOUNT_MASKS_COUNT (BITS_PER_STORAGE_ITEM + 1)
+
+typedef struct BitsetDescriptor {
+    /* 0000 */ int cnt;
+    /* 0004 */ int offset;
+} BitsetDescriptor;
+
+typedef struct PopCountMask {
+    uint16_t lo_mask;
+    uint16_t hi_mask;
+} PopCountMask;
 
 static void write_buffer_ensure_size(WriteBuffer* wb, int size);
-static void sub_4E6040(int a1, int a2);
-static void sub_4E6130(int a1, int a2);
-static void sub_4E61B0(int start, int end, int inc);
-static int sub_4E61E0(int a1);
-static int sub_4E61F0(int a1);
-static void sub_4E6210();
-static void sub_4E6240();
+static void bitset_grow(int id, int cnt);
+static void bitset_shrink(int id, int cnt);
+static void bitset_shift_offsets(int start, int end, int delta);
+static int bitset_index_of(int bit);
+static int bitset_mask_of(int bit);
+static void popcount_table_init();
+static void popcount_masks_init();
 
 // 0x6036A8
 static bool dword_6036A8;
 
-// 0x6036FC
-static uint8_t* dword_6036FC;
+/**
+ * Lookup table for every 16-bit value.
+ *
+ * `popcount_table[n]` is the number of set bits in the 16-bit value `n`.
+ *
+ * Size: `65536`
+ *
+ * 0x6036FC
+ */
+static uint8_t* popcount_tbl;
 
-// 0x603700
-static int dword_603700;
+/**
+ * Capacity of the `bitset_descriptors` array.
+ *
+ * 0x603700
+ */
+static int bitset_descriptors_capacity;
 
-// 0x603704
-static int dword_603704;
+/**
+ * Capacity of the `bitset_free_list` array.
+ *
+ * 0x603704
+ */
+static int bitset_free_list_capacity;
 
-// 0x603708
-static int dword_603708;
+/**
+ * Total number of 32-bit storage items currently in use across all live
+ * bitsets.
+ *
+ * 0x603708
+ */
+static int bitset_storage_size;
 
-// Capacity: 0x603704
-// Size: 0x603714
-//
-// 0x60370C
-static int* dword_60370C;
+/**
+ * List of recycled bitset indices available for reuse.
+ *
+ * Capacity: `bitset_free_list_capacity`
+ * Size: `bitset_free_list_count`
+ *
+ * 0x60370C
+ */
+static int* bitset_free_list;
 
-// Capacity: 0x603700
-// Size: 0x603724
-//
-// 0x603710
-static S603710* dword_603710;
+/**
+ * Array of `BitsetDescriptor` entries, one per allocated bitset.
+ *
+ * Capacity: `bitset_descriptors_capacity`
+ * Size: `bitset_count`
+ *
+ * 0x603710
+ */
+static BitsetDescriptor* bitset_descriptors;
 
-// 0x603714
-static int dword_603714;
+/**
+ * Current number of entries on the `bitset_free_list`.
+ *
+ * 0x603714
+ */
+static int bitset_free_list_count;
 
-// Capacity: 0x60371C
-//
-// 0x603718
-static int* dword_603718;
+/**
+ * Flat array that stores the actual bit data for all live bitsets. Each
+ * bitset owns a contiguous slice of this array.
+ *
+ * Capacity: `bitset_storage_capacity`
+ * Size: `bitset_storage_size`
+ *
+ * 0x603718
+ */
+static int* bitset_storage;
 
-// 0x60371C
-static int dword_60371C;
+/**
+ * Total allocated capacity of `bitset_storage` in number of ints.
+ *
+ * 0x60371C
+ */
+static int bitset_storage_capacity;
 
-// 0x603720
-static S603720* dword_603720;
+/**
+ * Split-mask table used to count set bits in the first N bits of a 32-bit value
+ * via two 16-bit lookups into `popcount_table`.
+ *
+ * Size: `33`
+ *
+ * 0x603720
+ */
+static PopCountMask* popcount_masks;
 
-// 0x603724
-static int dword_603724;
+/**
+ * Total number of bitset ever created.
+ *
+ * 0x603724
+ */
+static int bitset_count;
 
-// 0x603728
-static bool dword_603728;
+/**
+ * Flag indicating whether the bitset pool has been initialized.
+ *
+ * 0x603728
+ */
+static bool bitset_pool_initialized;
 
 // 0x4E3F80
 void sub_4E3F80()
@@ -792,193 +893,254 @@ void write_buffer_ensure_size(WriteBuffer* wb, int size)
     }
 }
 
-// 0x4E59B0
-void sub_4E59B0()
+/**
+ * Initializes the bitset pool and allocates all backing arrays.
+ *
+ * 0x4E59B0
+ */
+void bitset_pool_init()
 {
-    dword_603724 = 0;
-    dword_603700 = 4096;
-    dword_603714 = 0;
-    dword_603704 = 4096;
-    dword_603708 = 0;
-    dword_60371C = 8192;
-    dword_603710 = (S603710*)MALLOC(sizeof(*dword_603710) * dword_603700);
-    dword_60370C = (int*)MALLOC(sizeof(*dword_60370C) * dword_603704);
-    dword_603718 = (int*)MALLOC(sizeof(*dword_603718) * dword_60371C);
-    dword_6036FC = (uint8_t*)MALLOC(65536);
-    dword_603720 = (S603720*)MALLOC(sizeof(*dword_603720) * 33);
-    sub_4E6210();
-    sub_4E6240();
-    dword_603728 = true;
+    bitset_count = 0;
+    bitset_descriptors_capacity = BITSET_DESCRIPTORS_INITIAL_CAPACITY;
+
+    bitset_free_list_count = 0;
+    bitset_free_list_capacity = BITSET_FREE_LIST_INITIAL_CAPACITY;
+
+    bitset_storage_size = 0;
+    bitset_storage_capacity = BITSET_STORAGE_INITIAL_CAPACITY;
+
+    bitset_descriptors = (BitsetDescriptor*)MALLOC(sizeof(*bitset_descriptors) * bitset_descriptors_capacity);
+    bitset_free_list = (int*)MALLOC(sizeof(*bitset_free_list) * bitset_free_list_capacity);
+    bitset_storage = (int*)MALLOC(sizeof(*bitset_storage) * bitset_storage_capacity);
+
+    popcount_tbl = (uint8_t*)MALLOC(POPCOUNT_TABLE_SIZE);
+    popcount_masks = (PopCountMask*)MALLOC(sizeof(*popcount_masks) * POPCOUNT_MASKS_COUNT);
+    popcount_table_init();
+    popcount_masks_init();
+
+    bitset_pool_initialized = true;
 }
 
-// 0x4E5A50
-void sub_4E5A50()
+/**
+ * Shuts down the bitset pool and frees all backing storage.
+ *
+ * 0x4E5A50
+ */
+void bitset_pool_exit()
 {
-    FREE(dword_603720);
-    FREE(dword_6036FC);
-    FREE(dword_603718);
-    FREE(dword_60370C);
-    FREE(dword_603710);
-    dword_603728 = false;
+    FREE(popcount_masks);
+    FREE(popcount_tbl);
+    FREE(bitset_storage);
+    FREE(bitset_free_list);
+    FREE(bitset_descriptors);
+
+    bitset_pool_initialized = false;
 }
 
-// 0x4E5AA0
-int sub_4E5AA0()
+/**
+ * Allocates a new bitset from the pool and returns its ID.
+ *
+ * 0x4E5AA0
+ */
+int bitset_alloc()
 {
     int index;
 
-    if (dword_603714 != 0) {
-        return dword_60370C[--dword_603714];
+    // Reuse a recycled slot from the free list if one is available.
+    if (bitset_free_list_count != 0) {
+        return bitset_free_list[--bitset_free_list_count];
     }
 
-    if (dword_603724 == dword_603700) {
-        dword_603700 += 4096;
-        dword_603710 = (S603710*)REALLOC(dword_603710, sizeof(S603710) * dword_603700);
+    // No recycled slots, grow the descriptor array on demand.
+    if (bitset_count == bitset_descriptors_capacity) {
+        bitset_descriptors_capacity += BITSET_DESCRIPTORS_GROWTH_STEP;
+        bitset_descriptors = (BitsetDescriptor*)REALLOC(bitset_descriptors, sizeof(BitsetDescriptor) * bitset_descriptors_capacity);
     }
 
-    index = dword_603724++;
+    // Assign the storage item offset for this new entry. The first entry starts
+    // at 0, every subsequent entry is packed directly after the previous one.
+    index = bitset_count++;
     if (index == 0) {
-        dword_603710[0].field_4 = index;
+        bitset_descriptors[0].offset = index;
     } else {
-        dword_603710[index].field_4 = dword_603710[index - 1].field_0 + dword_603710[index - 1].field_4;
+        bitset_descriptors[index].offset = bitset_descriptors[index - 1].cnt + bitset_descriptors[index - 1].offset;
     }
 
-    dword_603710[index].field_0 = 0;
-    sub_4E6040(index, 2);
+    // Grow newly allocated bitset to the minimum size.
+    bitset_descriptors[index].cnt = 0;
+    bitset_grow(index, BITSET_MIN_STORAGE_ITEMS);
 
     return index;
 }
 
-// 0x4E5B40
-int sub_4E5B40(int a1)
+/**
+ * Returns a bitset to the pool for future reuse.
+ *
+ * 0x4E5B40
+ */
+void bitset_free(int id)
 {
-    S603710* v1;
+    BitsetDescriptor* desc;
     int index;
 
-    v1 = &(dword_603710[a1]);
-    if (v1->field_0 != 2) {
-        sub_4E6130(a1, v1->field_0 - 2);
+    desc = &(bitset_descriptors[id]);
+
+    // Shrink to the minimum size to reclaim excess storage items in
+    // `bitset_storage`.
+    if (desc->cnt != BITSET_MIN_STORAGE_ITEMS) {
+        bitset_shrink(id, desc->cnt - BITSET_MIN_STORAGE_ITEMS);
     }
 
-    for (index = v1->field_4; index < v1->field_0 + v1->field_4; index++) {
-        dword_603718[index] = 0;
+    // Clear all remaining bits.
+    for (index = desc->offset; index < desc->cnt + desc->offset; index++) {
+        bitset_storage[index] = 0;
     }
 
-    if (dword_603714 == dword_603704) {
-        dword_603704 += 4096;
-        dword_60370C = (int*)REALLOC(dword_60370C, sizeof(int) * dword_603704);
+    // Push onto the free list, growing the list on demand.
+    if (bitset_free_list_count == bitset_free_list_capacity) {
+        bitset_free_list_capacity += BITSET_FREE_LIST_GROWTH_STEP;
+        bitset_free_list = (int*)REALLOC(bitset_free_list, sizeof(int) * bitset_free_list_capacity);
     }
 
-    dword_60370C[dword_603714] = a1;
-
-    return ++dword_603714;
+    bitset_free_list[bitset_free_list_count++] = id;
 }
 
-// 0x4E5BF0
-int sub_4E5BF0(int a1)
+/**
+ * Creates a copy the specified bitset.
+ *
+ * 0x4E5BF0
+ */
+int bitset_copy(int src)
 {
-    int v1;
-    int v2;
+    int dst;
+    int delta;
     int index;
 
-    v1 = sub_4E5AA0();
-    v2 = dword_603710[a1].field_0 - dword_603710[v1].field_0;
-    if (v2 != 0) {
-        sub_4E6040(v1, v2);
+    dst = bitset_alloc();
+
+    // Resize the new bitset to match the source's storage item count.
+    delta = bitset_descriptors[src].cnt - bitset_descriptors[dst].cnt;
+    if (delta != 0) {
+        bitset_grow(dst, delta);
     }
 
-    for (index = 0; index < dword_603710[a1].field_0; index++) {
-        dword_603718[dword_603710[v1].field_4 + index] = dword_603718[dword_603710[a1].field_4 + index];
+    // Bulk-copy all storage items from src into dst.
+    for (index = 0; index < bitset_descriptors[src].cnt; index++) {
+        bitset_storage[bitset_descriptors[dst].offset + index] = bitset_storage[bitset_descriptors[src].offset + index];
     }
 
-    return v1;
+    return dst;
 }
 
-// 0x4E5C60
-void sub_4E5C60(int a1, int a2, bool a3)
+/**
+ * Sets or clears a single bit in a bitset.
+ *
+ * 0x4E5C60
+ */
+void bitset_set(int id, int pos, bool val)
 {
-    int v1;
-    int v2;
+    int idx;
+    int mask;
 
-    v1 = sub_4E61E0(a2);
-    if (v1 >= dword_603710[a1].field_0) {
-        if (!a3) {
+    idx = bitset_index_of(pos);
+    if (idx >= bitset_descriptors[id].cnt) {
+        if (!val) {
+            // Clearing an out-of-range bit is a no-op, those bits are always 0.
             return;
         }
 
-        sub_4E6040(a1, v1 - dword_603710[a1].field_0 + 1);
+        // Grow the bitset to include the storage item that contains `pos`.
+        bitset_grow(id, idx - bitset_descriptors[id].cnt + 1);
     }
 
-    v2 = sub_4E61F0(a2);
-    if (a3) {
-        dword_603718[v1 + dword_603710[a1].field_4] |= v2;
+    mask = bitset_mask_of(pos);
+    if (val) {
+        bitset_storage[idx + bitset_descriptors[id].offset] |= mask;
     } else {
-        dword_603718[v1 + dword_603710[a1].field_4] &= ~v2;
+        bitset_storage[idx + bitset_descriptors[id].offset] &= ~mask;
     }
 }
 
-// 0x4E5CE0
-int sub_4E5CE0(int a1, int a2)
+/**
+ * Tests whether the bit at a specified position in a bitset is set to 1.
+ *
+ * 0x4E5CE0
+ */
+bool bitset_test(int id, int pos)
 {
-    int v1;
-    int v2;
+    int idx;
+    int mask;
 
-    v1 = sub_4E61E0(a2);
-    if (v1 > dword_603710[a1].field_0 - 1) {
+    idx = bitset_index_of(pos);
+    if (idx > bitset_descriptors[id].cnt - 1) {
         return 0;
     }
 
-    v2 = sub_4E61F0(a2);
-    return v2 & dword_603718[v1 + dword_603710[a1].field_4];
+    mask = bitset_mask_of(pos);
+    return (mask & bitset_storage[idx + bitset_descriptors[id].offset]) != 0;
 }
 
-// 0x4E5D30
-int sub_4E5D30(int a1, int a2)
+/**
+ * Returns the number of set bits strictly before position `pos` in the
+ * bitset with ID `id`.
+ *
+ * 0x4E5D30
+ */
+int bitset_rank(int id, int pos)
 {
-    int v1 = 0;
-    int v2;
-    int v3;
-    int v4;
+    int cnt = 0;
+    int base_item_offset;
+    int idx;
+    int stop_item_offset;
 
-    v2 = dword_603710[a1].field_4;
-    v3 = sub_4E61E0(a2);
-    v4 = v2 + v3;
-    if (v3 < dword_603710[a1].field_0) {
-        v1 += sub_4E5FE0(dword_603718[v4], a2 % 32);
+    base_item_offset = bitset_descriptors[id].offset;
+    idx = bitset_index_of(pos);
+    stop_item_offset = base_item_offset + idx;
+    if (idx < bitset_descriptors[id].cnt) {
+        // Count only the bits in the target storage item that precede `pos`.
+        cnt += bitset_count_bits(bitset_storage[stop_item_offset], pos % BITS_PER_STORAGE_ITEM);
     } else {
-        v4 = v2 + dword_603710[a1].field_0;
+        // `pos` is past the end, count up to the last allocated storage item
+        // instead.
+        stop_item_offset = base_item_offset + bitset_descriptors[id].cnt;
     }
 
-    while (v2 < v4) {
-        v1 += sub_4E5FE0(dword_603718[v2++], 32);
+    // Count all set bits in every complete storage item that comes before the
+    // target.
+    while (base_item_offset < stop_item_offset) {
+        cnt += bitset_count_bits(bitset_storage[base_item_offset++], BITS_PER_STORAGE_ITEM);
     }
 
-    return v1;
+    return cnt;
 }
 
-// 0x4E5DB0
-bool sub_4E5DB0(int a1, bool (*callback)(int))
+/**
+ * Iterates over all set bits in a bitset, invoking `callback` for each.
+ *
+ * 0x4E5DB0
+ */
+bool bitset_enumerate(int id, bool (*callback)(int))
 {
-    int v1;
-    int v2;
+    int start;
+    int end;
     int pos;
     int idx;
     int bit;
-    unsigned int flags;
+    uint32_t flags;
 
-    v1 = dword_603710[a1].field_4;
-    v2 = dword_603710[a1].field_0 + v1;
+    start = bitset_descriptors[id].offset;
+    end = bitset_descriptors[id].cnt + start;
 
     pos = 0;
-    for (idx = v1; idx < v2; idx++) {
+    for (idx = start; idx < end; idx++) {
         flags = 1;
         for (bit = 0; bit < 32; bit++) {
-            if ((flags & dword_603718[idx]) != 0) {
+            if ((flags & bitset_storage[idx]) != 0) {
                 if (!callback(pos)) {
                     return false;
                 }
             }
-            flags *= 2;
+            flags <<= 1;
             pos++;
         }
     }
@@ -986,190 +1148,282 @@ bool sub_4E5DB0(int a1, bool (*callback)(int))
     return true;
 }
 
-// 0x4E5E20
-bool sub_4E5E20(int a1, TigFile* stream)
+/**
+ * Serializes the bitset with ID `id` to a `TigFile` stream.
+ *
+ * Returns `true` on success, `false` on write error.
+ *
+ * 0x4E5E20
+ */
+bool bitset_write_file(int id, TigFile* stream)
 {
-    if (tig_file_fwrite(&(dword_603710[a1].field_0), sizeof(int), 1, stream) != 1) {
+    if (tig_file_fwrite(&(bitset_descriptors[id].cnt), sizeof(int), 1, stream) != 1) {
         return false;
     }
 
-    if (tig_file_fwrite(&(dword_603718[dword_603710[a1].field_4]), sizeof(int) * dword_603710[a1].field_0, 1, stream) != 1) {
+    if (tig_file_fwrite(&(bitset_storage[bitset_descriptors[id].offset]), sizeof(int) * bitset_descriptors[id].cnt, 1, stream) != 1) {
         return false;
     }
 
     return true;
 }
 
-// 0x4E5E80
-bool sub_4E5E80(int* a1, TigFile* stream)
+/**
+ * Deserializes a bitset from a `TigFile` stream.
+ *
+ * Returns `true` on success, `false` on read error.
+ *
+ * 0x4E5E80
+ */
+bool bitset_read_file(int* out_id, TigFile* stream)
 {
-    int v1;
-    int v2;
+    int id;
+    int cnt;
 
-    v1 = sub_4E5AA0();
+    id = bitset_alloc();
 
-    if (tig_file_fread(&v2, sizeof(v2), 1, stream) != 1) {
+    if (tig_file_fread(&cnt, sizeof(cnt), 1, stream) != 1) {
         return false;
     }
 
-    if (v2 != dword_603710[v1].field_0 && v2 - dword_603710[v1].field_0 > 0) {
-        sub_4E6040(v1, v2 - dword_603710[v1].field_0);
+    // Grow if the stored size exceeds the freshly allocated minimum.
+    if (cnt != bitset_descriptors[id].cnt && cnt - bitset_descriptors[id].cnt > 0) {
+        bitset_grow(id, cnt - bitset_descriptors[id].cnt);
     }
 
-    if (tig_file_fread(&(dword_603718[dword_603710[v1].field_4]), 4 * v2, 1, stream) != 1) {
+    // Read exactly `cnt` storage items.
+    if (tig_file_fread(&(bitset_storage[bitset_descriptors[id].offset]), sizeof(*bitset_storage) * cnt, 1, stream) != 1) {
         return false;
     }
 
-    *a1 = v1;
+    *out_id = id;
 
     return true;
 }
 
-// 0x4E5F10
-int sub_4E5F10(int a1)
+/**
+ * Returns the number of bytes required to serialize the specified bitset.
+ *
+ * 0x4E5F10
+ */
+int bitset_serialized_size(int id)
 {
-    return 4 * (dword_603710[a1].field_0 + 1);
+    return sizeof(int) + sizeof(int) * (bitset_descriptors[id].cnt);
 }
 
-// 0x4E5F30
-void sub_4E5F30(int a1, void* a2)
+/**
+ * Serializes a bitset to a memory buffer.
+ *
+ * 0x4E5F30
+ */
+void bitset_write_mem(int id, uint8_t* dst)
 {
-    int v1;
-    int v2;
+    int offset;
+    int cnt;
 
-    v1 = dword_603710[a1].field_4;
-    v2 = dword_603710[a1].field_0;
+    offset = bitset_descriptors[id].offset;
+    cnt = bitset_descriptors[id].cnt;
 
-    *(int*)a2 = dword_603710[a1].field_0;
-    memcpy((int*)a2 + 1, &(dword_603718[v1]), sizeof(int) * v2);
+    memcpy(dst, &cnt, sizeof(cnt));
+    memcpy(dst + sizeof(cnt), &(bitset_storage[offset]), sizeof(*bitset_storage) * cnt);
 }
 
-// 0x4E5F70
-void sub_4E5F70(int* a1, uint8_t** data)
+/**
+ * Deserializes a bitset from a memory buffer.
+ *
+ * 0x4E5F70
+ */
+void bitset_read_mem(int* id_ptr, uint8_t** data)
 {
-    int v1;
-    int v2;
+    int id;
+    int cnt;
 
-    v1 = sub_4E5AA0();
+    id = bitset_alloc();
 
-    sub_4E4C50(&v2, sizeof(v2), data);
+    sub_4E4C50(&cnt, sizeof(cnt), data);
 
-    if (v2 != dword_603710[v1].field_0) {
-        sub_4E6040(v1, v2 - dword_603710[v1].field_0);
+    if (cnt != bitset_descriptors[id].cnt) {
+        bitset_grow(id, cnt - bitset_descriptors[id].cnt);
     }
 
-    sub_4E4C50(&(dword_603718[dword_603710[v1].field_4]), 4 * v2, data);
+    sub_4E4C50(&(bitset_storage[bitset_descriptors[id].offset]), sizeof(*bitset_storage) * cnt, data);
 
-    *a1 = v1;
+    *id_ptr = id;
 }
 
-// 0x4E5FE0
-int sub_4E5FE0(int a1, int a2)
+/**
+ * Counts the number of set bits in the first `n` bits of a 32-bit value.
+ *
+ * Uses the precomputed `popcount_table` (one byte per 16-bit value) together
+ * with `popcount_masks[n]` to isolate exactly the `n` lowest bits, split across
+ * both 16-bit halves.
+ *
+ * 0x4E5FE0
+ */
+int bitset_count_bits(int value, int n)
 {
-    return dword_6036FC[dword_603720[a2].field_0 & (a1 & 0xFFFF)]
-        + dword_6036FC[dword_603720[a2].field_2 & ((a1 >> 16) & 0xFFFF)];
+    return popcount_tbl[popcount_masks[n].lo_mask & (value & 0xFFFF)]
+        + popcount_tbl[popcount_masks[n].hi_mask & ((value >> 16) & 0xFFFF)];
 }
 
-// 0x4E6040
-void sub_4E6040(int a1, int a2)
+/**
+ * Grows bitset `id` by `cnt` additional 32-bit storage items.
+ *
+ * All added storage items are initialized to 0. Because every bitset occupies a
+ * contiguous slice of the shared `bitset_storage` array, inserting new items
+ * into one bitset requires shifting the data of all higher-indexed bitsets to
+ * the right and updating their `offset` fields accordingly.
+ *
+ * 0x4E6040
+ */
+void bitset_grow(int id, int cnt)
 {
-    int* v1;
+    int* base;
     int idx;
 
-    if (dword_603708 + a2 > dword_60371C) {
-        dword_60371C += ((dword_603708 + a2 - dword_60371C - 1) / 8192 + 1) * 8192;
-        dword_603718 = REALLOC(dword_603718, sizeof(*dword_603718) * dword_60371C);
+    if (bitset_storage_size + cnt > bitset_storage_capacity) {
+        bitset_storage_capacity += ((bitset_storage_size + cnt - bitset_storage_capacity - 1) / BITSET_STORAGE_GROWTH_STEP + 1) * BITSET_STORAGE_GROWTH_STEP;
+        bitset_storage = REALLOC(bitset_storage, sizeof(*bitset_storage) * bitset_storage_capacity);
     }
 
-    if (a1 != dword_603724 - 1) {
-        v1 = &(dword_603718[dword_603710[a1 + 1].field_4]);
-        memmove(&(v1[a2]), v1, sizeof(*v1) * (dword_603708 - dword_603710[a1 + 1].field_4));
-        sub_4E61B0(a1 + 1, dword_603724 - 1, a2);
+    // Shift the data of all bitsets that come after `id` to make room.
+    if (id != bitset_count - 1) {
+        base = &(bitset_storage[bitset_descriptors[id + 1].offset]);
+        memmove(&(base[cnt]),
+            base,
+            sizeof(*base) * (bitset_storage_size - bitset_descriptors[id + 1].offset));
+
+        // Adjust the stored offset of every subsequent bitset.
+        bitset_shift_offsets(id + 1, bitset_count - 1, cnt);
     }
 
-    dword_603710[a1].field_0 += a2;
-    dword_603708 += a2;
+    // Update the descriptor and usage counter.
+    bitset_descriptors[id].cnt += cnt;
+    bitset_storage_size += cnt;
 
-    for (idx = dword_603710[a1].field_0 + dword_603710[a1].field_4 - a2; idx < dword_603710[a1].field_0 + dword_603710[a1].field_4; idx++) {
-        dword_603718[idx] = 0;
+    // Zero-initialize the newly appended items.
+    for (idx = bitset_descriptors[id].cnt + bitset_descriptors[id].offset - cnt; idx < bitset_descriptors[id].cnt + bitset_descriptors[id].offset; idx++) {
+        bitset_storage[idx] = 0;
     }
 }
 
-// 0x4E6130
-void sub_4E6130(int a1, int a2)
+/**
+ * Shrinks bitset `id` by removing `cnt` 32-bit storage items from its tail.
+ *
+ * Shifts the data of all higher-indexed bitsets to the left and updates their
+ * `offset` fields accordingly.
+ *
+ * 0x4E6130
+ */
+void bitset_shrink(int id, int cnt)
 {
-    int* v1;
+    int* base;
 
-    if (a1 != dword_603724 - 1) {
-        v1 = &(dword_603718[dword_603710[a1 + 1].field_4]);
-        memmove(&(v1[-a2]), v1, sizeof(*v1) * (dword_603708 - dword_603710[a1 + 1].field_4));
-        sub_4E61B0(a1 + 1, dword_603724 - 1, -a2);
+    // Close the gap by shifting higher bitset data to the left.
+    if (id != bitset_count - 1) {
+        base = &(bitset_storage[bitset_descriptors[id + 1].offset]);
+        memmove(&(base[-cnt]),
+            base,
+            sizeof(*base) * (bitset_storage_size - bitset_descriptors[id + 1].offset));
+
+        // Adjust the stored offset of every subsequent bitset.
+        bitset_shift_offsets(id + 1, bitset_count - 1, -cnt);
     }
 
-    dword_603710[a1].field_0 -= a2;
-    dword_603708 -= a2;
+    bitset_descriptors[id].cnt -= cnt;
+    bitset_storage_size -= cnt;
 }
 
-// 0x4E61B0
-void sub_4E61B0(int start, int end, int inc)
+/**
+ * Adds `delta` to the `offset` of every bitset within the specified range.
+ *
+ * Called by `bitset_grow` and `bitset_shrink` after inserting or removing
+ * indices so that all descriptor offsets stay consistent with the flat array.
+ *
+ * 0x4E61B0
+ */
+void bitset_shift_offsets(int start, int end, int delta)
 {
     int index;
 
     for (index = start; index <= end; index++) {
-        dword_603710[index].field_4 += inc;
+        bitset_descriptors[index].offset += delta;
     }
 }
 
-// 0x4E61E0
-int sub_4E61E0(int a1)
+/**
+ * Returns the index of a given bit position in contiguous data array.
+ *
+ * 0x4E61E0
+ */
+int bitset_index_of(int pos)
 {
-    return a1 / 32;
+    return pos / 32;
 }
 
-// 0x4E61F0
-int sub_4E61F0(int a1)
+/**
+ * Returns the single-bit mask for a given bit position.
+ *
+ * 0x4E61F0
+ */
+int bitset_mask_of(int pos)
 {
-    return 1 << (a1 % 32);
+    return 1 << (pos % 32);
 }
 
-// 0x4E6210
-void sub_4E6210()
+/**
+ * Fills `popcount_tbl` so that `popcount_tbl[n]` gives the number of set
+ * bits in the 16-bit value `n`.
+ *
+ * 0x4E6210
+ */
+void popcount_table_init()
 {
     int idx;
-    uint8_t v1;
-    int v2;
-    int v3;
+    uint8_t cnt;
+    uint16_t mask;
+    int bit;
 
-    for (idx = 0; idx <= 65535; idx++) {
-        v1 = 0;
-        v2 = 1;
-        for (v3 = 16; v3 != 0; v3--) {
-            if ((v2 & idx) != 0) {
-                v1++;
+    for (idx = 0; idx < POPCOUNT_TABLE_SIZE; idx++) {
+        cnt = 0;
+        mask = 1;
+        for (bit = 16; bit != 0; bit--) {
+            if ((mask & idx) != 0) {
+                cnt++;
             }
-            v2 *= 2;
+            mask <<= 1;
         }
-        dword_6036FC[idx] = v1;
+        popcount_tbl[idx] = cnt;
     }
 }
 
-// 0x4E6240
-void sub_4E6240()
+/**
+ * Fills `popcount_masks` so that `popcount_masks[n]` isolates exactly the
+ * first `n `bits of a 32-bit value, split across the two 16-bit halves.
+ *
+ * 0x4E6240
+ */
+void popcount_masks_init()
 {
     int idx;
-    int v1 = 1;
-    int v2 = 0;
+    uint16_t step = 1;
+    uint16_t accum = 0;
 
-    dword_603720[0].field_0 = 0;
-    dword_603720[0].field_2 = 0;
+    // Entry 0: no bits selected in either half.
+    popcount_masks[0].lo_mask = 0;
+    popcount_masks[0].hi_mask = 0;
 
     for (idx = 1; idx <= 16; idx++) {
-        v2 += v1;
-        v1 *= 2;
+        accum += step;
+        step <<= 1;
 
-        dword_603720[idx].field_0 = v2;
-        dword_603720[idx].field_2 = 0;
-        dword_603720[idx + 16].field_0 = -1;
-        dword_603720[idx + 16].field_2 = v2;
+        // Entries 1–16: all idx target bits are within the low 16-bit half.
+        popcount_masks[idx].lo_mask = accum;
+        popcount_masks[idx].hi_mask = 0;
+
+        // Entries 17–32: the low half is fully selected (0xFFFF). The high half
+        // selects the remaining idx bits (mirroring the low-half pattern).
+        popcount_masks[idx + 16].lo_mask = 0xFFFF;
+        popcount_masks[idx + 16].hi_mask = accum;
     }
 }

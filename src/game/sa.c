@@ -31,13 +31,13 @@ void sa_allocate(SizeableArray** sa_ptr, int size)
     *sa_ptr = (SizeableArray*)MALLOC(sizeof(SizeableArray));
     (*sa_ptr)->size = size;
     (*sa_ptr)->count = 0;
-    (*sa_ptr)->field_8 = sub_4E5AA0();
+    (*sa_ptr)->field_8 = bitset_alloc();
 }
 
 // 0x4E7470
 void sa_deallocate(SizeableArray** sa_ptr)
 {
-    sub_4E5B40((*sa_ptr)->field_8);
+    bitset_free((*sa_ptr)->field_8);
     FREE(*sa_ptr);
     *sa_ptr = NULL;
 }
@@ -54,7 +54,7 @@ void sub_4E74A0(SizeableArray** dst, SizeableArray** src)
     size = sa_byte_size(*src);
     *dst = (SizeableArray*)MALLOC(size);
     memcpy(*dst, *src, size);
-    (*dst)->field_8 = sub_4E5BF0((*src)->field_8);
+    (*dst)->field_8 = bitset_copy((*src)->field_8);
 }
 
 // 0x4E7500
@@ -86,7 +86,7 @@ bool sa_write(SizeableArray** sa_ptr, TigFile* stream)
         return false;
     }
 
-    return sub_4E5E20((*sa_ptr)->field_8, stream);
+    return bitset_write_file((*sa_ptr)->field_8, stream);
 }
 
 // 0x4E75E0
@@ -104,7 +104,7 @@ bool sa_enumerate(SizeableArray** sa_ptr, SizeableArrayEnumerateCallback* callba
 {
     dword_60373C = callback;
     dword_603744 = *sa_ptr;
-    return sub_4E5DB0(dword_603744->field_8, sub_4E7A70);
+    return bitset_enumerate(dword_603744->field_8, sub_4E7A70);
 }
 
 // 0x4E7640
@@ -112,9 +112,9 @@ void sa_set(SizeableArray** sa_ptr, int a2, const void* value)
 {
     int index;
 
-    index = sub_4E5D30((*sa_ptr)->field_8, a2);
-    if (!sub_4E5CE0((*sa_ptr)->field_8, a2)) {
-        sub_4E5C60((*sa_ptr)->field_8, a2, 1);
+    index = bitset_rank((*sa_ptr)->field_8, a2);
+    if (!bitset_test((*sa_ptr)->field_8, a2)) {
+        bitset_set((*sa_ptr)->field_8, a2, 1);
         sub_4E7990(sa_ptr, index);
     }
 
@@ -133,7 +133,7 @@ void sa_get(SizeableArray** sa_ptr, int a2, void* value)
         return;
     }
 
-    index = sub_4E5D30((*sa_ptr)->field_8, a2);
+    index = bitset_rank((*sa_ptr)->field_8, a2);
     memcpy(value,
         (uint8_t*)sa_data(*sa_ptr) + (*sa_ptr)->size * index,
         (*sa_ptr)->size);
@@ -146,15 +146,15 @@ bool sa_has(SizeableArray** sa_ptr, int a2)
         return false;
     }
 
-    return sub_4E5CE0((*sa_ptr)->field_8, a2);
+    return bitset_test((*sa_ptr)->field_8, a2);
 }
 
 // 0x4E7760
 void sub_4E7760(SizeableArray** sa_ptr, int a2)
 {
     if (sa_has(sa_ptr, a2)) {
-        sub_4E79F0(sa_ptr, sub_4E5D30((*sa_ptr)->field_8, a2));
-        sub_4E5C60((*sa_ptr)->field_8, a2, 0);
+        sub_4E79F0(sa_ptr, bitset_rank((*sa_ptr)->field_8, a2));
+        bitset_set((*sa_ptr)->field_8, a2, 0);
     }
 }
 
@@ -167,7 +167,7 @@ int sa_count(SizeableArray** sa_ptr)
 // 0x4E77B0
 int sub_4E77B0(SizeableArray** sa_ptr)
 {
-    return sub_4E5F10((*sa_ptr)->field_8) + sa_byte_size(*sa_ptr);
+    return bitset_serialized_size((*sa_ptr)->field_8) + sa_byte_size(*sa_ptr);
 }
 
 // 0x4E77E0
@@ -178,7 +178,7 @@ void sub_4E77E0(SizeableArray** src, SizeableArray* dst)
     size = sa_byte_size(*src);
     memcpy(dst, *src, size);
 
-    sub_4E5F30((*src)->field_8, (uint8_t*)dst + size);
+    bitset_write_mem((*src)->field_8, (uint8_t*)dst + size);
 }
 
 // 0x4E7820
@@ -204,7 +204,7 @@ void sub_4E7820(SizeableArray** sa_ptr, uint8_t** data)
         sub_4E4C50(sa_data(*sa_ptr), size - sizeof(SizeableArray), data);
     }
 
-    sub_4E5F70(&((*sa_ptr)->field_8), data);
+    bitset_read_mem(&((*sa_ptr)->field_8), data);
 }
 
 // 0x4E78F0
@@ -230,7 +230,7 @@ bool sa_read_no_dealloc(SizeableArray** sa_ptr, TigFile* stream)
         }
     }
 
-    return sub_4E5E80(&((*sa_ptr)->field_8), stream);
+    return bitset_read_file(&((*sa_ptr)->field_8), stream);
 }
 
 // 0x4E7990
@@ -287,7 +287,7 @@ bool sub_4E7A70(int a1)
 {
     int index;
 
-    index = sub_4E5D30(dword_603744->field_8, a1);
+    index = bitset_rank(dword_603744->field_8, a1);
     return dword_60373C((uint8_t*)sa_data(dword_603744) + dword_603744->size * index, a1);
 }
 
