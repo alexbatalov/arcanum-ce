@@ -196,7 +196,9 @@ bool map_init(GameInitInfo* init_info)
     for (int index = 0; index < MAP_MODULE_COUNT; index++) {
         if (map_modules[index].init_func != NULL) {
             if (!map_modules[index].init_func(init_info)) {
-                tig_debug_printf("map_init(): init function %d (%s) failed\n", map_modules[index].name);
+                tig_debug_printf("map_init(): init function %d (%s) failed\n",
+                    index,
+                    map_modules[index].name);
 
                 while (--index >= 0) {
                     if (map_modules[index].exit_func != NULL) {
