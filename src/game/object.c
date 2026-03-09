@@ -1799,7 +1799,7 @@ bool sub_43D9F0(int x, int y, int64_t* obj_ptr, unsigned int flags)
         return false;
     }
 
-    if (sub_439890(x, y)) {
+    if (roof_hit_test(x, y)) {
         return false;
     }
 

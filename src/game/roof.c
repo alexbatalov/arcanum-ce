@@ -462,7 +462,7 @@ bool roof_art_id_set(int64_t loc, tig_art_id_t aid)
 }
 
 // 0x439890
-bool sub_439890(int x, int y)
+bool roof_hit_test(int x, int y)
 {
     int64_t loc;
     int64_t loc_x;
@@ -493,7 +493,7 @@ bool sub_439890(int x, int y)
         && y >= rect.y
         && x < rect.x + rect.width
         && y < rect.y + rect.height
-        && !sub_502FD0(aid, x - rect.x, y - rect.y)) {
+        && sub_502FD0(aid, x - rect.x, y - rect.y) == TIG_OK) {
         return true;
     }
 

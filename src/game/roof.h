@@ -10,7 +10,7 @@ void roof_update_view(ViewOptions* view_options);
 void roof_toggle();
 void roof_draw(GameDrawInfo* draw_info);
 int64_t roof_normalize_loc(int64_t loc);
-bool sub_439890(int x, int y);
+bool roof_hit_test(int x, int y);
 void roof_recalc(int64_t loc);
 void roof_fill_off(int64_t loc);
 void roof_fill_on(int64_t loc);
