@@ -3,6 +3,8 @@
 #include "game/path.h"
 #include "game/target.h"
 
+static void convert_screen_to_world_coords(int64_t sx, int64_t sy, int64_t* wx, int64_t* wy);
+
 // 0x5FC278
 static TigRect location_iso_content_rect;
 
@@ -443,10 +445,10 @@ bool location_screen_rect_to_loc_rect(TigRect* rect, LocRect* loc_rect)
         frame = location_iso_content_rect;
     }
 
-    sub_4B98B0(frame.x, frame.y, &tmp, &(loc_rect->y1));
-    sub_4B98B0(frame.x + frame.width, frame.y, &(loc_rect->x1), &tmp);
-    sub_4B98B0(frame.x, frame.y + frame.height, &(loc_rect->x2), &tmp);
-    sub_4B98B0(frame.x + frame.width, frame.y + frame.height, &tmp, &(loc_rect->y2));
+    convert_screen_to_world_coords(frame.x, frame.y, &tmp, &(loc_rect->y1));
+    convert_screen_to_world_coords(frame.x + frame.width, frame.y, &(loc_rect->x1), &tmp);
+    convert_screen_to_world_coords(frame.x, frame.y + frame.height, &(loc_rect->x2), &tmp);
+    convert_screen_to_world_coords(frame.x + frame.width, frame.y + frame.height, &tmp, &(loc_rect->y2));
 
     if (loc_rect->x1 > loc_rect->x2
         || loc_rect->y1 > loc_rect->y2) {
@@ -583,19 +585,19 @@ int64_t location_center_get()
 }
 
 // 0x4B98B0
-void sub_4B98B0(int64_t a1, int64_t a2, int64_t* a3, int64_t* a4)
+void convert_screen_to_world_coords(int64_t sx, int64_t sy, int64_t* wx, int64_t* wy)
 {
-    int v1;
-    int v2;
+    int dx;
+    int dy;
 
     if (location_view_options.type == VIEW_TYPE_ISOMETRIC) {
-        v1 = (int)((a1 - location_origin_x) / 2);
-        v2 = (int)(a2 - location_origin_y);
-        *a3 = (v2 - v1) / 40;
-        *a4 = (v1 + v2) / 40;
+        dx = (int)((sx - location_origin_x) / 2);
+        dy = (int)(sy - location_origin_y);
+        *wx = (dy - dx) / 40;
+        *wy = (dy + dx) / 40;
     } else {
-        *a3 = (location_origin_x + location_view_options.zoom - a1 - 1) / location_view_options.zoom;
-        *a4 = (a2 - location_origin_y) / location_view_options.zoom;
+        *wx = (location_origin_x + location_view_options.zoom - sx - 1) / location_view_options.zoom;
+        *wy = (sy - location_origin_y) / location_view_options.zoom;
     }
 }
 
