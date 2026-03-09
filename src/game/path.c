@@ -61,7 +61,7 @@ static int dword_5DE5FC;
 static tig_duration_t dword_5DE600;
 
 // 0x41F3C0
-int sub_41F3C0(PathCreateInfo* path_create_info)
+int path_make(PathCreateInfo* path_create_info)
 {
     bool v1 = false;
 

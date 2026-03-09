@@ -2550,7 +2550,7 @@ void ai_action_perform_baking_off(Ai* ai)
             path_create_info.rotations = rotations;
             path_create_info.flags = PATH_FLAG_0x0800;
             path_create_info.field_24 = combat_min_dist;
-            if (sub_41F3C0(&path_create_info)) {
+            if (path_make(&path_create_info)) {
                 sub_433C80(ai->obj, path_create_info.to);
             } else {
                 obj_field_int32_set(ai->obj, OBJ_F_NPC_FLAGS, npc_flags & ~(ONF_BACKING_OFF));

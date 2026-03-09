@@ -37,7 +37,7 @@ typedef struct WmapPathInfo {
     /* 0018 */ int field_18;
 } WmapPathInfo;
 
-int sub_41F3C0(PathCreateInfo* path_create_info);
+int path_make(PathCreateInfo* path_create_info);
 unsigned int path_translate_flags(PathFlags flags);
 int sub_4201C0(int64_t from, int64_t to, int8_t* rotations);
 int wmap_path_make(WmapPathInfo* path_info);

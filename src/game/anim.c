@@ -4840,7 +4840,7 @@ bool sub_425930(AnimRunInfo* run_info)
     path_create_info.flags = 0;
 
     if (sub_425BF0(&path_create_info, 1)) {
-        run_info->path.max = sub_41F3C0(&path_create_info);
+        run_info->path.max = path_make(&path_create_info);
     } else {
         run_info->path.max = 0;
     }
@@ -4854,7 +4854,7 @@ bool sub_425930(AnimRunInfo* run_info)
             return false;
         }
 
-        run_info->path.max = sub_41F3C0(&path_create_info);
+        run_info->path.max = path_make(&path_create_info);
         if (run_info->path.max == 0 || run_info->path.max > range) {
             if (!player_is_pc_obj(obj)) {
                 combat_turn_based_end_critter_turn(obj);
@@ -4965,7 +4965,7 @@ bool sub_425D60(AnimRunInfo* run_info)
     path_create_info.flags = 0;
 
     if (sub_425BF0(&path_create_info, 1)) {
-        run_info->path.max = sub_41F3C0(&path_create_info);
+        run_info->path.max = path_make(&path_create_info);
     } else {
         run_info->path.max = 0;
     }
@@ -4979,7 +4979,7 @@ bool sub_425D60(AnimRunInfo* run_info)
             return false;
         }
 
-        run_info->path.max = sub_41F3C0(&path_create_info);
+        run_info->path.max = path_make(&path_create_info);
         if (run_info->path.max == 0 || run_info->path.max > range) {
             if (!player_is_pc_obj(obj)) {
                 combat_turn_based_end_critter_turn(obj);
@@ -5245,7 +5245,7 @@ bool sub_426560(int64_t obj, int64_t from, int64_t to, AnimPath* path, unsigned 
     path_create_info.flags = flags;
 
     if (sub_425BF0(&path_create_info, true)) {
-        path->max = sub_41F3C0(&path_create_info);
+        path->max = path_make(&path_create_info);
     } else {
         path->max = 0;
     }
@@ -5466,7 +5466,7 @@ bool sub_426A80(AnimRunInfo* run_info)
         return false;
     }
 
-    run_info->path.max = sub_41F3C0(&path_create_info);
+    run_info->path.max = path_make(&path_create_info);
     run_info->path.field_E8 = path_create_info.from;
     run_info->path.field_F0 = path_create_info.to;
 
@@ -5925,7 +5925,7 @@ bool sub_427730(AnimRunInfo* run_info)
     if ((run_info->flags & 0x4000) == 0) {
         path_create_info.flags = 0;
         if (sub_425BF0(&path_create_info, true)) {
-            run_info->path.max = sub_41F3C0(&path_create_info);
+            run_info->path.max = path_make(&path_create_info);
         } else {
             run_info->path.max = 0;
         }
@@ -5938,7 +5938,7 @@ bool sub_427730(AnimRunInfo* run_info)
     if (run_info->path.max == 0) {
         path_create_info.flags = PATH_FLAG_0x0001;
         if (sub_425BF0(&path_create_info, true)) {
-            run_info->path.max = sub_41F3C0(&path_create_info);
+            run_info->path.max = path_make(&path_create_info);
             run_info->path.field_E8 = path_create_info.from;
             run_info->path.field_F0 = path_create_info.to;
         }
@@ -6039,7 +6039,7 @@ bool sub_427990(AnimRunInfo* run_info)
     }
 
     if (sub_425BF0(&path_create_info, false)) {
-        run_info->path.max = sub_41F3C0(&path_create_info);
+        run_info->path.max = path_make(&path_create_info);
     } else {
         run_info->path.max = 0;
     }
@@ -6076,7 +6076,7 @@ bool sub_427990(AnimRunInfo* run_info)
             return false;
         }
 
-        run_info->path.max = sub_41F3C0(&path_create_info);
+        run_info->path.max = path_make(&path_create_info);
         run_info->path.field_E8 = path_create_info.from;
         run_info->path.field_F0 = path_create_info.to;
 
@@ -6128,7 +6128,7 @@ bool sub_427990(AnimRunInfo* run_info)
     path_create_info.flags = (run_info->flags & 0x4000) != 0 ? PATH_FLAG_0x0001 : 0;
 
     if (sub_425BF0(&path_create_info, true)) {
-        run_info->path.max = sub_41F3C0(&path_create_info);
+        run_info->path.max = path_make(&path_create_info);
     } else {
         run_info->path.max = 0;
     }
@@ -6165,7 +6165,7 @@ bool sub_427990(AnimRunInfo* run_info)
         return false;
     }
 
-    run_info->path.max = sub_41F3C0(&path_create_info);
+    run_info->path.max = path_make(&path_create_info);
     run_info->path.field_E8 = path_create_info.from;
     run_info->path.field_F0 = path_create_info.to;
 
@@ -6254,7 +6254,7 @@ bool sub_4280D0(AnimRunInfo* run_info)
     }
 
     if (sub_425BF0(&path_create_info, false)) {
-        run_info->path.max = sub_41F3C0(&path_create_info);
+        run_info->path.max = path_make(&path_create_info);
     } else {
         run_info->path.max = 0;
     }
@@ -6291,7 +6291,7 @@ bool sub_4280D0(AnimRunInfo* run_info)
         return false;
     }
 
-    run_info->path.max = sub_41F3C0(&path_create_info);
+    run_info->path.max = path_make(&path_create_info);
     run_info->path.field_E8 = path_create_info.from;
     run_info->path.field_F0 = path_create_info.to;
 

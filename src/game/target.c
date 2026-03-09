@@ -878,7 +878,7 @@ bool sub_4F2D20(S603CB8* a1)
         stru_603B88.rotations = byte_603BC4;
         stru_603B88.flags = PATH_FLAG_0x0010;
 
-        dword_603C98 = sub_41F3C0(&stru_603B88);
+        dword_603C98 = path_make(&stru_603B88);
         qword_603CA8 = stru_603B88.from;
         qword_603CB0 = stru_603B88.to;
 
@@ -1478,7 +1478,7 @@ bool sub_4F4E40(int64_t obj, int distance, int64_t* loc_ptr)
     stru_603B88.rotations = byte_603BC4;
     stru_603B88.flags = PATH_FLAG_0x0010;
 
-    dword_603C98 = sub_41F3C0(&stru_603B88);
+    dword_603C98 = path_make(&stru_603B88);
     qword_603CB0 = stru_603B88.to;
     qword_603CA8 = stru_603B88.from;
 

@@ -640,7 +640,7 @@ bool sub_4B99C0(int64_t from, int64_t* to)
                 path_create_info.max_rotations = sizeof(byte_5FC2A8);
                 path_create_info.rotations = byte_5FC2A8;
                 path_create_info.flags = PATH_FLAG_0x0010 | PATH_FLAG_0x0004 | PATH_FLAG_0x0002;
-                if (sub_41F3C0(&path_create_info)) {
+                if (path_make(&path_create_info)) {
                     if (to != NULL) {
                         *to = v3.entries[idx].loc;
                     }
