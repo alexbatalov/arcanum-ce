@@ -8,7 +8,7 @@
 #include "game/tile.h"
 
 static int roof_id_from_loc(int64_t loc);
-static int sub_4395C0(int a1);
+static int roof_id_from_tile_id(int tile_id);
 static void roof_xy(int64_t loc, int64_t* sx, int64_t* sy);
 static tig_art_id_t roof_art_id_get(int64_t loc);
 static bool roof_art_id_set(int64_t loc, tig_art_id_t aid);
@@ -376,13 +376,13 @@ void roof_draw(GameDrawInfo* draw_info)
 // 0x4395A0
 int roof_id_from_loc(int64_t loc)
 {
-    return sub_4395C0(tile_id_from_loc(loc));
+    return roof_id_from_tile_id(tile_id_from_loc(loc));
 }
 
 // 0x4395C0
-int sub_4395C0(int a1)
+int roof_id_from_tile_id(int tile_id)
 {
-    return ((a1 >> 2) & 0xF) + ((a1 >> 8) << 4);
+    return ((tile_id >> 2) & 0xF) + ((tile_id >> 8) << 4);
 }
 
 // 0x4395E0
