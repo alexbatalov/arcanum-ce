@@ -12,7 +12,7 @@ static int roof_id_from_tile_id(int tile_id);
 static void roof_xy(int64_t loc, int64_t* sx, int64_t* sy);
 static tig_art_id_t roof_art_id_get(int64_t loc);
 static bool roof_art_id_set(int64_t loc, tig_art_id_t aid);
-static void sub_43A140(int x, int y, tig_art_id_t aid, TigRect* rect);
+static void roof_get_rect(int x, int y, tig_art_id_t aid, TigRect* rect);
 static void roof_fill(int64_t loc, bool fill, int a3);
 
 // 0x5A53A0
@@ -255,7 +255,7 @@ void roof_draw(GameDrawInfo* draw_info)
                     && loc_x < INT_MAX
                     && loc_y > INT_MIN
                     && loc_y < INT_MAX) {
-                    sub_43A140((int)loc_x, (int)loc_y, aid, &roof_rect);
+                    roof_get_rect((int)loc_x, (int)loc_y, aid, &roof_rect);
                     node = *draw_info->rects;
                     while (node != NULL) {
                         if (tig_rect_intersection(&roof_rect, &node->rect, &dst_rect) == TIG_OK) {
@@ -454,7 +454,7 @@ bool roof_art_id_set(int64_t loc, tig_art_id_t aid)
         && sx < INT_MAX
         && sy > INT_MIN
         && sy < INT_MAX) {
-        sub_43A140((int)sx, (int)sy, aid, &rect);
+        roof_get_rect((int)sx, (int)sy, aid, &rect);
         roof_iso_window_invalidate_rect(&rect);
     }
 
@@ -488,7 +488,7 @@ bool roof_hit_test(int x, int y)
     }
 
     roof_xy(loc, &loc_x, &loc_y);
-    sub_43A140((int)loc_x, (int)loc_y, aid, &rect);
+    roof_get_rect((int)loc_x, (int)loc_y, aid, &rect);
     if (x >= rect.x
         && y >= rect.y
         && x < rect.x + rect.width
@@ -724,7 +724,7 @@ unsigned int roof_blit_flags_get()
 }
 
 // 0x43A140
-void sub_43A140(int x, int y, tig_art_id_t aid, TigRect* rect)
+void roof_get_rect(int x, int y, tig_art_id_t aid, TigRect* rect)
 {
     TigArtFrameData art_frame_data;
 
