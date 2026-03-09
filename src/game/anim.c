@@ -5228,7 +5228,7 @@ bool sub_426560(int64_t obj, int64_t from, int64_t to, AnimPath* path, unsigned 
         }
 
         if (!tile_is_blocking(adjacent_loc, false)
-            && !sub_43FD70(obj, from, rot, sub_41F570(flags), NULL)) {
+            && !sub_43FD70(obj, from, rot, path_translate_flags(flags), NULL)) {
             from = adjacent_loc;
         } else {
             if (from != adjacent_loc) {

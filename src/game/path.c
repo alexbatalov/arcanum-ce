@@ -139,7 +139,7 @@ int sub_41F3C0(PathCreateInfo* path_create_info)
 }
 
 // 0x41F570
-unsigned int sub_41F570(PathFlags flags)
+unsigned int path_translate_flags(PathFlags flags)
 {
     unsigned int new_flags = 0;
 
@@ -237,7 +237,7 @@ int sub_41F840(PathCreateInfo* path_create_info)
         v1 = true;
     }
 
-    flags = sub_41F570(path_create_info->flags);
+    flags = path_translate_flags(path_create_info->flags);
 
     loc = path_create_info->from;
     for (idx = 0; idx < path_create_info->max_rotations; idx++) {
@@ -344,7 +344,7 @@ int sub_41F9F0(PathCreateInfo* path_create_info)
         v1 = true;
     }
 
-    flags = sub_41F570(path_create_info->flags);
+    flags = path_translate_flags(path_create_info->flags);
 
     if (from_x > to_x) {
         dx = from_x - to_x;
