@@ -70,7 +70,7 @@ bool location_init(GameInitInfo* init_info)
     location_screen_center_y = window_data.rect.height / 2;
 
     location_limits_set(0x100000000, 0x100000000);
-    location_origin_set(sub_4B9810());
+    location_origin_set(location_center_get());
 
     location_view_options.type = VIEW_TYPE_ISOMETRIC;
     location_editor = init_info->editor;
@@ -577,7 +577,7 @@ void location_limits_get(int64_t* x, int64_t* y)
 }
 
 // 0x4B9810
-int64_t sub_4B9810()
+int64_t location_center_get()
 {
     return location_make(location_limit_x / 2, location_limit_y / 2);
 }

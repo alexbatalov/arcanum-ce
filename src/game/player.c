@@ -127,7 +127,7 @@ void player_create()
     if (map == 0
         || !map_get_starting_location(map, &x, &y)
         || (loc = LOCATION_MAKE(x, y)) == 0) {
-        loc = sub_4B9810();
+        loc = location_center_get();
         if (!player_editor) {
             tig_debug_printf("Player: ERROR: Map loaded that is NOT in map list!\n");
         }

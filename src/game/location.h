@@ -32,7 +32,7 @@ bool location_normalize(int64_t* loc, int* offset_x, int* offset_y);
 int64_t location_dist(int64_t a, int64_t b);
 bool location_limits_set(int64_t x, int64_t y);
 void location_limits_get(int64_t* x, int64_t* y);
-int64_t sub_4B9810();
+int64_t location_center_get();
 void sub_4B98B0(int64_t a1, int64_t a2, int64_t* a3, int64_t* a4);
 bool sub_4B99C0(int64_t from, int64_t* to);
 

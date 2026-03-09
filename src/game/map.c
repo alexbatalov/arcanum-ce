@@ -744,7 +744,7 @@ bool map_open(const char* base_path, const char* save_path, bool a3)
     location_limits_set(map_properties.width, map_properties.height);
     sector_limits_set(map_properties.width >> 6, map_properties.height >> 6);
     sector_map_name_set(base_path, save_path);
-    location_origin_set(sub_4B9810());
+    location_origin_set(location_center_get());
     dword_5D1210 = 0;
     pch = strrchr(base_path, '\\');
     map = map_list_info_find(pch != NULL ? pch + 1 : base_path);
