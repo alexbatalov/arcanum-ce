@@ -922,7 +922,7 @@ static bool intgame_iso_interface_created;
 static int dword_64C6B8;
 
 // 0x64C6BC
-static int intgame_pc_lens_mode;
+static PcLensMode intgame_pc_lens_mode;
 
 // 0x64C6C0
 static int intgame_message_history_size;
@@ -1303,7 +1303,7 @@ void iso_interface_create(tig_window_handle_t window_handle)
     dword_64C6B8 = 0;
     dword_64C634[0] = INTGAME_MODE_MAIN;
     sub_4F25B0(Tgt_Obj_No_T_Wall | Tgt_Tile);
-    intgame_pc_lens_mode = 0;
+    intgame_pc_lens_mode = PC_LENS_MODE_NONE;
 
     font_desc.str = NULL;
     tig_font_measure(&font_desc);
