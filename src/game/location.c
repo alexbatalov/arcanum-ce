@@ -198,7 +198,7 @@ bool location_at(int64_t sx, int64_t sy, int64_t* loc_ptr)
 }
 
 // 0x4B8940
-void sub_4B8940(int64_t location, int64_t* x, int64_t* y)
+void location_calc_dist_from_screen_center(int64_t location, int64_t* dx, int64_t* dy)
 {
     int64_t saved_x;
     int64_t saved_y;
@@ -215,15 +215,15 @@ void sub_4B8940(int64_t location, int64_t* x, int64_t* y)
         location_origin_y = 0;
         location_xy(0, &x1, &y1);
         location_xy(location, &x2, &y2);
-        *x = x1 + location_iso_content_rect.width / 2 - x2 - saved_x;
-        *y = y1 + location_iso_content_rect.height / 2 - y2 - saved_y;
+        *dx = x1 + location_iso_content_rect.width / 2 - x2 - saved_x;
+        *dy = y1 + location_iso_content_rect.height / 2 - y2 - saved_y;
 
         location_origin_x = saved_x;
         location_origin_y = saved_y;
     } else {
         location_xy(location, &x1, &y1);
-        *x = location_screen_center_x - (location_view_options.zoom / 2 + x1);
-        *y = location_screen_center_y - (location_view_options.zoom / 2 + y1);
+        *dx = location_screen_center_x - (location_view_options.zoom / 2 + x1);
+        *dy = location_screen_center_y - (location_view_options.zoom / 2 + y1);
     }
 }
 
@@ -273,7 +273,7 @@ void location_origin_set(int64_t location)
     int64_t sx;
     int64_t sy;
 
-    sub_4B8940(location, &sx, &sy);
+    location_calc_dist_from_screen_center(location, &sx, &sy);
     location_origin_scroll(sx, sy);
 
     location_iso_invalidate_rect(&location_iso_content_rect);

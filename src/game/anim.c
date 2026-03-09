@@ -11656,7 +11656,7 @@ bool sub_4305D0(AnimRunInfo* run_info)
                 int64_t x;
                 int64_t y;
 
-                sub_4B8940(new_loc, &x, &y);
+                location_calc_dist_from_screen_center(new_loc, &x, &y);
 
                 // NOTE: Original code compares by casting to double.
                 if (llabs(x) > 360) {

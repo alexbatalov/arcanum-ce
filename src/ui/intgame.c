@@ -3139,7 +3139,7 @@ void sub_54EB60()
     }
 
     loc = obj_field_int64_get(obj, OBJ_F_LOCATION);
-    sub_4B8940(loc, &x, &y);
+    location_calc_dist_from_screen_center(loc, &x, &y);
 
     if (x != 0 || y != 0) {
         location_origin_set(loc);
@@ -4830,7 +4830,7 @@ void sub_551A10(int64_t obj)
 
     if (obj != OBJ_HANDLE_NULL) {
         location = obj_field_int64_get(obj, OBJ_F_LOCATION);
-        sub_4B8940(location, &x, &y);
+        location_calc_dist_from_screen_center(location, &x, &y);
         if (x != 0 || y != 0) {
             location_origin_set(location);
             iso_redraw();
