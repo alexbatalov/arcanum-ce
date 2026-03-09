@@ -309,7 +309,8 @@ void map_mod_unload()
         }
     }
 
-    memset(map_list_info, 0, 280);
+    // CE: The original code only zeroes one entry.
+    memset(map_list_info, 0, sizeof(*map_list_info) * MAP_LIST_CAPACITY);
     map_list_info_count = 0;
 }
 
