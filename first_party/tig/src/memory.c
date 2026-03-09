@@ -495,7 +495,7 @@ void tig_memory_stats(TigMemoryStats* stats)
     stats->max_blocks = tig_memory_max_blocks;
 }
 
-void tig_memory_reset_stats()
+void tig_memory_reset_stats(void)
 {
     tig_memory_current_overhead = 0;
     tig_memory_current_allocated = 0;
@@ -510,7 +510,7 @@ static void validate_memory_leaks_output_callback(const char* str)
     printf("%s\n", str);
 }
 
-bool tig_memory_validate_memory_leaks()
+bool tig_memory_validate_memory_leaks(void)
 {
     TigMemoryOutputFunc* fn;
 

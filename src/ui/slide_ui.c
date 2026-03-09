@@ -17,9 +17,9 @@
 static void slide_ui_prepare(int type);
 static bool slide_ui_do_slide(tig_window_handle_t window_handle, int slide);
 static bool slide_ui_get_assets(int slide, char* bmp_path, char* speech_path);
-static void slide_ui_fade_out();
-static void slide_ui_fade_in();
-static void slide_ui_queue_clear();
+static void slide_ui_fade_out(void);
+static void slide_ui_fade_in(void);
+static void slide_ui_queue_clear(void);
 
 /**
  * Current number of slides in the queue.
@@ -54,7 +54,7 @@ static bool slide_ui_active;
  *
  * 0x5695B0
  */
-bool slide_ui_mod_load()
+bool slide_ui_mod_load(void)
 {
     mes_load("rules\\slide.mes", &slide_ui_slide_mes_file);
     return true;
@@ -65,7 +65,7 @@ bool slide_ui_mod_load()
  *
  * 0x5695D0
  */
-void slide_ui_mod_unload()
+void slide_ui_mod_unload(void)
 {
     mes_unload(slide_ui_slide_mes_file);
     slide_ui_slide_mes_file = MES_FILE_HANDLE_INVALID;
@@ -76,7 +76,7 @@ void slide_ui_mod_unload()
  *
  * 0x5695F0
  */
-bool slide_ui_is_active()
+bool slide_ui_is_active(void)
 {
     return slide_ui_active;
 }
@@ -344,7 +344,7 @@ bool slide_ui_get_assets(int slide, char* bmp_path, char* speech_path)
  *
  * 0x5699F0
  */
-void slide_ui_fade_out()
+void slide_ui_fade_out(void)
 {
     FadeData fade_data;
 
@@ -360,7 +360,7 @@ void slide_ui_fade_out()
  *
  * 0x569A60
  */
-void slide_ui_fade_in()
+void slide_ui_fade_in(void)
 {
     FadeData fade_data;
 
@@ -375,7 +375,7 @@ void slide_ui_fade_in()
  *
  * 0x569A90
  */
-void slide_ui_queue_clear()
+void slide_ui_queue_clear(void)
 {
     slide_ui_queue_size = 0;
 }

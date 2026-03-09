@@ -392,7 +392,7 @@ bool dialog_init(GameInitInfo* init_info)
 }
 
 // 0x412D80
-void dialog_exit()
+void dialog_exit(void)
 {
     int index;
 
@@ -2955,7 +2955,7 @@ int dialog_parse_params(int* values, char* str)
 }
 
 // 0x418030
-void dialog_check()
+void dialog_check(void)
 {
     TigFileList file_list;
     unsigned int index;
@@ -3040,7 +3040,7 @@ void dialog_load_generated(int gd)
 }
 
 // 0x4182C0
-void dialog_enable_numbers()
+void dialog_enable_numbers(void)
 {
     dialog_numbers_enabled = true;
 }

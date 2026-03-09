@@ -22,8 +22,8 @@
 #define GENERIC_NEWSPAPER_NUM 5000
 
 static bool is_in_queue(int num);
-static void rotate_newspapers();
-static int pick_random_generic_newspaper();
+static void rotate_newspapers(void);
+static int pick_random_generic_newspaper(void);
 
 /**
  * Current number of newspapers in the queue.
@@ -71,7 +71,7 @@ bool newspaper_init(GameInitInfo* init_info)
  *
  * 0x4BF080
  */
-void newspaper_reset()
+void newspaper_reset(void)
 {
     int index;
 
@@ -89,7 +89,7 @@ void newspaper_reset()
  *
  * 0x4BF0B0
  */
-void newspaper_exit()
+void newspaper_exit(void)
 {
     FREE(newspaper_queue);
 }
@@ -249,7 +249,7 @@ bool newspaper_timeevent_process(TimeEvent* timeevent)
  *
  * 0x4BF2C0
  */
-void rotate_newspapers()
+void rotate_newspapers(void)
 {
     int index;
 
@@ -283,7 +283,7 @@ void rotate_newspapers()
  *
  * 0x4BF330
  */
-int pick_random_generic_newspaper()
+int pick_random_generic_newspaper(void)
 {
     int cnt = 0;
     int num = GENERIC_NEWSPAPER_NUM;

@@ -23,8 +23,8 @@ typedef struct TigMessageKeyboardHandler {
     /* 0004 */ TigMessageKeyboardCallback* callback;
 } TigMessageKeyboardHandler;
 
-static TigMessageListNode* tig_message_node_acquire();
-static void tig_message_node_reserve();
+static TigMessageListNode* tig_message_node_acquire(void);
+static void tig_message_node_reserve(void);
 static void tig_message_node_release(TigMessageListNode* node);
 
 // 0x62B1A8
@@ -60,7 +60,7 @@ int tig_message_init(TigInitInfo* init_info)
 }
 
 // 0x52B750
-void tig_message_exit()
+void tig_message_exit(void)
 {
     TigMessageListNode* next;
 
@@ -81,7 +81,7 @@ void tig_message_exit()
 }
 
 // 0x52B7B0
-void tig_message_ping()
+void tig_message_ping(void)
 {
     TigMessage message;
     SDL_Event event;
@@ -284,7 +284,7 @@ int tig_message_post_quit(int exit_code)
 }
 
 // 0x52BED0
-TigMessageListNode* tig_message_node_acquire()
+TigMessageListNode* tig_message_node_acquire(void)
 {
     TigMessageListNode* node;
 
@@ -298,7 +298,7 @@ TigMessageListNode* tig_message_node_acquire()
 }
 
 // 0x52BF10
-void tig_message_node_reserve()
+void tig_message_node_reserve(void)
 {
     int index;
     TigMessageListNode* node;

@@ -33,8 +33,8 @@ typedef struct MainMenuWindowInfoF3C {
 
 typedef struct MainMenuWindowInfo {
     /* 0000 */ int background_art_num;
-    /* 0004 */ void (*init_func)();
-    /* 0008 */ void (*exit_func)();
+    /* 0004 */ void (*init_func)(void);
+    /* 0008 */ void (*exit_func)(void);
     /* 000C */ unsigned int flags;
     /* 0010 */ bool (*button_press_func)(tig_button_handle_t button_handle);
     /* 0014 */ bool (*button_release_func)(tig_button_handle_t button_handle);

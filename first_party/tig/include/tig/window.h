@@ -75,7 +75,7 @@ typedef enum TigWindowModalDialogChoice {
 } TigWindowModalDialogChoice;
 
 typedef bool(TigWindowDialogProcess)(TigWindowModalDialogChoice* choice_ptr);
-typedef void(TigWindowDialogRedraw)();
+typedef void(TigWindowDialogRedraw)(void);
 
 typedef struct TigWindowModalDialogInfo {
     /* 0000 */ int type;
@@ -88,13 +88,13 @@ typedef struct TigWindowModalDialogInfo {
 } TigWindowModalDialogInfo;
 
 int tig_window_init(TigInitInfo* init_info);
-void tig_window_exit();
+void tig_window_exit(void);
 int tig_window_create(TigWindowData* window_data, tig_window_handle_t* window_handle_ptr);
 int tig_window_destroy(tig_window_handle_t window_handle);
 int tig_window_button_destroy(tig_window_handle_t window_handle);
 int tig_window_message_filter_set(tig_window_handle_t window_handle, TigWindowMessageFilterFunc* func);
 int tig_window_data(tig_window_handle_t window_handle, TigWindowData* window_data);
-int tig_window_display();
+int tig_window_display(void);
 void sub_51D050(TigRect* src_rect, TigVideoBuffer* dst_video_buffer, int dx, int dy, int top_window_index);
 int tig_window_fill(tig_window_handle_t window_handle, TigRect* rect, int color);
 int tig_window_line(tig_window_handle_t window_handle, TigLine* line, int color);
@@ -120,8 +120,8 @@ int tig_window_move_on_top(tig_window_handle_t window_handle);
 int tig_window_show(tig_window_handle_t window_handle);
 int tig_window_hide(tig_window_handle_t window_handle);
 bool tig_window_is_hidden(tig_window_handle_t window_handle);
-int sub_51E9E0();
-bool sub_51EA00();
+int sub_51E9E0(void);
+bool sub_51EA00(void);
 int tig_window_vbid_get(tig_window_handle_t window_handle, TigVideoBuffer** video_buffer_ptr);
 int tig_window_modal_dialog(TigWindowModalDialogInfo* modal_info, TigWindowModalDialogChoice* choice_ptr);
 

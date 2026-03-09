@@ -117,7 +117,7 @@ int BINKCALL BinkWait(HBINK bnk)
     }
 }
 
-bool bink_compat_init()
+bool bink_compat_init(void)
 {
 #ifdef _WIN32
     binkw32 = LoadLibraryA("binkw32.dll");

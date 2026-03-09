@@ -403,7 +403,7 @@ void mp_ui_schematic_feedback(bool success, int64_t primary_obj, int64_t seconda
 }
 
 // 0x4EE190
-void mp_ui_follower_refresh()
+void mp_ui_follower_refresh(void)
 {
     Packet100 pkt;
 
@@ -979,19 +979,19 @@ void mp_handle_map_precache_sectors(PacketMapPrecacheSectors* pkt)
 }
 
 // 0x4EF320
-void sub_4EF320()
+void sub_4EF320(void)
 {
     // TODO: Incomplete.
 }
 
 // 0x4EF3D0
-void sub_4EF3D0()
+void sub_4EF3D0(void)
 {
     // TODO: Incomplete.
 }
 
 // 0x4EF540
-void sub_4EF540()
+void sub_4EF540(void)
 {
     // TODO: Incomplete.
 }
@@ -1224,7 +1224,7 @@ void sub_4EFBA0(int64_t obj)
 }
 
 // 0x4EFBE0
-void sub_4EFBE0()
+void sub_4EFBE0(void)
 {
     // TODO: Incomplete.
 }
@@ -1553,7 +1553,7 @@ void sub_4F0570(int64_t obj, int fld, int length)
 }
 
 // 0x4F05F0
-void sub_4F05F0()
+void sub_4F05F0(void)
 {
     // TODO: Incomplete.
 }

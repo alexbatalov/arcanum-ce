@@ -17,7 +17,7 @@ static mes_file_handle_t movies_mes_file = MES_FILE_HANDLE_INVALID;
  *
  * 0x40DE20
  */
-bool gmovie_mod_load()
+bool gmovie_mod_load(void)
 {
     // Load "movies.mes" (might be absent).
     if (!mes_load("movies\\movies.mes", &movies_mes_file)) {
@@ -32,7 +32,7 @@ bool gmovie_mod_load()
  *
  * 0x40DE50
  */
-void gmovie_mod_unload()
+void gmovie_mod_unload(void)
 {
     // Unload "movies.mes".
     if (movies_mes_file != MES_FILE_HANDLE_INVALID) {

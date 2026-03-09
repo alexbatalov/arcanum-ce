@@ -8,13 +8,13 @@
 #include "tig/video.h"
 #include "tig/window.h"
 
-static int tig_mouse_device_init();
-static void tig_mouse_device_exit();
-static void tig_mouse_cursor_fallback();
+static int tig_mouse_device_init(void);
+static void tig_mouse_device_exit(void);
+static void tig_mouse_cursor_fallback(void);
 static bool tig_mouse_cursor_create_video_buffers(tig_art_id_t art_id, int dx, int dy);
-static bool tig_mouse_cursor_destroy_video_buffers();
+static bool tig_mouse_cursor_destroy_video_buffers(void);
 static bool tig_mouse_cursor_set_art_frame(tig_art_id_t art_id, int x, int y);
-static void tig_mouse_cursor_animate();
+static void tig_mouse_cursor_animate(void);
 
 // 0x5BE840
 static int tig_mouse_state_button_down_flags[TIG_MOUSE_BUTTON_COUNT] = {
@@ -153,7 +153,7 @@ int tig_mouse_init(TigInitInfo* init_info)
 }
 
 // 0x4FF0B0
-int tig_mouse_device_init()
+int tig_mouse_device_init(void)
 {
     tig_art_id_t art_id;
     int rc;
@@ -180,7 +180,7 @@ int tig_mouse_device_init()
 }
 
 // 0x4FF2D0
-void tig_mouse_exit()
+void tig_mouse_exit(void)
 {
     if (!tig_mouse_initialized) {
         return;
@@ -193,7 +193,7 @@ void tig_mouse_exit()
 }
 
 // 0x4FF310
-void tig_mouse_device_exit()
+void tig_mouse_device_exit(void)
 {
 }
 
@@ -204,7 +204,7 @@ void tig_mouse_set_active(bool active)
 }
 
 // 0x4FF390
-void tig_mouse_ping()
+void tig_mouse_ping(void)
 {
     TigMessage message;
     int button;
@@ -342,7 +342,7 @@ int tig_mouse_get_state(TigMouseState* mouse_state)
 }
 
 // 0x4FFA30
-int tig_mouse_hide()
+int tig_mouse_hide(void)
 {
     if ((tig_mouse_state.flags & TIG_MOUSE_STATE_HIDDEN) == 0) {
         tig_mouse_state.flags |= TIG_MOUSE_STATE_HIDDEN;
@@ -353,7 +353,7 @@ int tig_mouse_hide()
 }
 
 // 0x4FFA70
-int tig_mouse_show()
+int tig_mouse_show(void)
 {
     if ((tig_mouse_state.flags & TIG_MOUSE_STATE_HIDDEN) != 0) {
         tig_mouse_state.flags &= ~TIG_MOUSE_STATE_HIDDEN;
@@ -364,7 +364,7 @@ int tig_mouse_show()
 }
 
 // 0x4FFAB0
-void tig_mouse_display()
+void tig_mouse_display(void)
 {
     if (tig_mouse_is_hardware) {
         return;
@@ -385,7 +385,7 @@ void tig_mouse_display()
 }
 
 // 0x4FFB40
-void tig_mouse_cursor_refresh()
+void tig_mouse_cursor_refresh(void)
 {
     TigRect src_rect;
     TigRect dst_rect;
@@ -425,7 +425,7 @@ void tig_mouse_cursor_refresh()
 }
 
 // 0x4FFBF0
-void tig_mouse_cursor_fallback()
+void tig_mouse_cursor_fallback(void)
 {
     if (tig_video_buffer_lock(tig_mouse_cursor_video_buffer) == TIG_OK) {
         TigVideoBufferData video_buffer_data;
@@ -477,7 +477,7 @@ bool tig_mouse_cursor_create_video_buffers(tig_art_id_t art_id, int dx, int dy)
 }
 
 // 0x4FFEA0
-bool tig_mouse_cursor_destroy_video_buffers()
+bool tig_mouse_cursor_destroy_video_buffers(void)
 {
     tig_video_buffer_destroy(tig_mouse_cursor_video_buffer);
     return true;
@@ -607,7 +607,7 @@ void tig_mouse_cursor_set_offset(int x, int y)
 }
 
 // 0x500150
-tig_art_id_t tig_mouse_cursor_get_art_id()
+tig_art_id_t tig_mouse_cursor_get_art_id(void)
 {
     return tig_mouse_cursor_art_id;
 }
@@ -791,7 +791,7 @@ int tig_mouse_cursor_overlay(tig_art_id_t art_id, int x, int y)
 }
 
 // 0x500520
-void tig_mouse_cursor_animate()
+void tig_mouse_cursor_animate(void)
 {
     tig_window_invalidate_rect(&(tig_mouse_state.frame));
     tig_mouse_cursor_art_id = tig_art_id_frame_inc(tig_mouse_cursor_art_id);
@@ -800,13 +800,13 @@ void tig_mouse_cursor_animate()
 }
 
 // 0x500560
-int sub_500560()
+int sub_500560(void)
 {
     return 0;
 }
 
 // 0x500570
-void sub_500570()
+void sub_500570(void)
 {
 }
 

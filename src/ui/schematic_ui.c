@@ -46,14 +46,14 @@ typedef enum SchematicUiReadiness {
     SCHEMATIC_UI_READINESS_COUNT,
 } SchematicUiReadiness;
 
-static void sub_56D0D0();
-static void schematic_ui_create();
-static void schematic_ui_destroy();
+static void sub_56D0D0(void);
+static void schematic_ui_create(void);
+static void schematic_ui_destroy(void);
 static bool schematic_ui_message_filter(TigMessage* msg);
 static int tech_from_schematic(int schematic);
-static int schematic_ui_current_id();
+static int schematic_ui_current_id(void);
 static void schematic_ui_parse_items(const char* str, int* items);
-static void schematic_ui_redraw();
+static void schematic_ui_redraw(void);
 static void schematic_ui_draw_component(int ingr, SchematicInfo* schematic_info, bool* a3, bool* a4);
 
 /**
@@ -444,7 +444,7 @@ bool schematic_ui_init(GameInitInfo* init_info)
  *
  * 0x56D040
  */
-void schematic_ui_exit()
+void schematic_ui_exit(void)
 {
     mes_unload(schematic_ui_rules_mes_file);
     mes_unload(schematic_ui_text_mes_file);
@@ -466,7 +466,7 @@ void schematic_ui_exit()
  *
  * 0x56D0B0
  */
-void schematic_ui_reset()
+void schematic_ui_reset(void)
 {
     schematic_ui_primary_obj = OBJ_HANDLE_NULL;
     schematic_ui_secondary_obj = OBJ_HANDLE_NULL;
@@ -474,7 +474,7 @@ void schematic_ui_reset()
 }
 
 // 0x56D0D0
-void sub_56D0D0()
+void sub_56D0D0(void)
 {
     schematic_ui_readiness = SCHEMATIC_UI_READINESS_NO_ITEMS;
 
@@ -574,7 +574,7 @@ void schematic_ui_toggle(int64_t primary_obj, int64_t secondary_obj)
  *
  * 0x56D2D0
  */
-void schematic_ui_close()
+void schematic_ui_close(void)
 {
     if (schematic_ui_created && intgame_mode_set(INTGAME_MODE_MAIN)) {
         schematic_ui_destroy();
@@ -588,7 +588,7 @@ void schematic_ui_close()
  *
  * 0x56D310
  */
-void schematic_ui_create()
+void schematic_ui_create(void)
 {
     int index;
     tig_button_handle_t buttons[TECH_COUNT];
@@ -672,7 +672,7 @@ void schematic_ui_create()
  *
  * 0x56D4D0
  */
-void schematic_ui_destroy()
+void schematic_ui_destroy(void)
 {
     if (!schematic_ui_created) {
         return;
@@ -964,7 +964,7 @@ int tech_from_schematic(int schematic)
  *
  * 0x56DB60
  */
-int schematic_ui_current_id()
+int schematic_ui_current_id(void)
 {
     int index;
     int page;
@@ -1076,7 +1076,7 @@ void schematic_ui_parse_items(const char* str, int* items)
  *
  * 0x56DDC0
  */
-void schematic_ui_redraw()
+void schematic_ui_redraw(void)
 {
     TigRect src_rect;
     TigRect dst_rect;

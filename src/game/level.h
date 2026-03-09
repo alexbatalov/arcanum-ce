@@ -4,7 +4,7 @@
 #include "game/context.h"
 
 bool level_init(GameInitInfo* init_info);
-void level_exit();
+void level_exit(void);
 int level_experience_points_to_next_level(int64_t obj);
 int level_progress_towards_next_level(int64_t obj);
 void level_recalc(int64_t pc_obj);

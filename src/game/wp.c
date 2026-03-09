@@ -10,11 +10,11 @@ typedef struct S5FC668 {
     /* 000C */ int field_C;
 } S5FC668;
 
-static void sub_4C0090();
+static void sub_4C0090(void);
 static void sub_4C00D0(int64_t obj);
 static void sub_4C0140(S5FC668* a1, GameDrawInfo* draw_info);
 static bool sub_4C0280(int64_t location, TigRect* rect);
-static void sub_4C0370();
+static void sub_4C0370(void);
 
 // 0x5FC638
 static int wp_iso_art_num_frames;
@@ -76,7 +76,7 @@ bool wp_init(GameInitInfo* init_info)
 }
 
 // 0x4BFD80
-void wp_exit()
+void wp_exit(void)
 {
     int index;
 
@@ -100,13 +100,13 @@ void wp_update_view(ViewOptions* view_options)
 }
 
 // 0x4BFDD0
-bool wp_is_enabled()
+bool wp_is_enabled(void)
 {
     return wp_enabled;
 }
 
 // 0x4BFDE0
-void wp_toggle()
+void wp_toggle(void)
 {
     wp_enabled = !wp_enabled;
 }
@@ -132,7 +132,7 @@ void wp_draw(GameDrawInfo* draw_info)
 }
 
 // 0x4C0090
-void sub_4C0090()
+void sub_4C0090(void)
 {
     int index;
 
@@ -248,7 +248,7 @@ bool sub_4C0280(int64_t location, TigRect* rect)
 }
 
 // 0x4C0370
-void sub_4C0370()
+void sub_4C0370(void)
 {
     int idx;
 

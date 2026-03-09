@@ -33,7 +33,7 @@
 #include "ui/wmap_ui.h"
 #include "ui/written_ui.h"
 
-static void sub_57CAE0();
+static void sub_57CAE0(void);
 static void tb_inven_ui_update(int64_t obj);
 static void sub_57CAF0(int64_t obj);
 static void show_inven_loot(int64_t pc_obj, int64_t target_obj);
@@ -42,18 +42,18 @@ static void show_inven_npc_identify(int64_t pc_obj, int64_t target_obj);
 static void sub_57CBE0(char* str);
 static void refresh_fatigue_bar(int64_t obj);
 static void sub_57CC70(int64_t a1, int64_t a2);
-static void end_death();
-static void end_game();
+static void end_death(void);
+static void end_game(void);
 static void sub_57CDF0(int a1);
-static void sub_57CE00();
-static void sub_57CE10();
+static void sub_57CE00(void);
+static void sub_57CE10(void);
 static void sub_57CE30(int64_t obj, void* a2, int a3);
 static void handle_sector_changed(int64_t sec, int64_t obj);
 static void charedit_error_msg(int type, int param);
 static void sub_57CF70(int64_t a1, int64_t a2);
-static void sub_57CFA0();
-static bool sub_57CFB0();
-static bool sub_57D080();
+static void sub_57CFA0(void);
+static bool sub_57CFB0(void);
+static bool sub_57D080(void);
 static bool sub_57D150(const char* name, const char* a2);
 
 // 0x57C6E0
@@ -160,12 +160,12 @@ bool tb_ui_init(GameInitInfo* init_info)
 }
 
 // 0x57CA90
-void tb_ui_reset()
+void tb_ui_reset(void)
 {
 }
 
 // 0x57CAA0
-void tb_ui_exit()
+void tb_ui_exit(void)
 {
     ui_exit();
 }
@@ -181,7 +181,7 @@ void tb_inven_ui_update(int64_t obj)
 }
 
 // 0x57CAE0
-void sub_57CAE0()
+void sub_57CAE0(void)
 {
     iso_interface_refresh();
     charedit_refresh();
@@ -292,13 +292,13 @@ bool sub_57CD60(int64_t source_obj, int64_t target_obj, char* buffer)
 }
 
 // 0x57CDC0
-void end_death()
+void end_death(void)
 {
     anim_ui_event_add_delay(ANIM_UI_EVENT_TYPE_END_DEATH, -1, 5000);
 }
 
 // 0x57CDE0
-void end_game()
+void end_game(void)
 {
     anim_ui_event_add_delay(ANIM_UI_EVENT_TYPE_END_GAME, -1, 50);
 }
@@ -310,13 +310,13 @@ void sub_57CDF0(int a1)
 }
 
 // 0x57CE00
-void sub_57CE00()
+void sub_57CE00(void)
 {
     sub_54B3C0();
 }
 
 // 0x57CE10
-void sub_57CE10()
+void sub_57CE10(void)
 {
     intgame_hotkeys_recover();
     intgame_mode_set(INTGAME_MODE_MAIN);
@@ -408,14 +408,14 @@ void sub_57CF70(int64_t a1, int64_t a2)
 }
 
 // 0x57CFA0
-void sub_57CFA0()
+void sub_57CFA0(void)
 {
     sub_575930();
     intgame_refresh_cursor();
 }
 
 // 0x57CFB0
-bool sub_57CFB0()
+bool sub_57CFB0(void)
 {
     mes_file_handle_t mes_file;
     MesFileEntry mes_file_entry;
@@ -450,7 +450,7 @@ bool sub_57CFB0()
 }
 
 // 0x57D080
-bool sub_57D080()
+bool sub_57D080(void)
 {
     mes_file_handle_t mes_file;
     MesFileEntry mes_file_entry;

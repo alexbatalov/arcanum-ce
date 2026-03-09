@@ -19,9 +19,9 @@ typedef struct TileScriptList {
     /* 0004 */ struct TileScriptListNode* head;
 } TileScriptList;
 
-void tile_script_node_init();
-void tile_script_node_exit();
-TileScriptListNode* tile_script_node_create();
+void tile_script_node_init(void);
+void tile_script_node_exit(void);
+TileScriptListNode* tile_script_node_create(void);
 void tile_script_node_destroy(TileScriptListNode* node);
 bool tile_script_list_init(TileScriptList* list);
 bool tile_script_list_reset(TileScriptList* list);

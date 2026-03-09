@@ -6,13 +6,13 @@
 #define AREA_UNKNOWN 0
 
 bool area_init(GameInitInfo* init_info);
-void area_reset();
-void area_exit();
-bool area_mod_load();
-void area_mod_unload();
+void area_reset(void);
+void area_exit(void);
+bool area_mod_load(void);
+void area_mod_unload(void);
 bool area_load(GameLoadInfo* load_info);
 bool area_save(TigFile* stream);
-int area_count();
+int area_count(void);
 char* area_get_name(int area);
 char* area_get_description(int area);
 int64_t area_get_location(int area);

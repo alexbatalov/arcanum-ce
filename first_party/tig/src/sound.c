@@ -47,7 +47,7 @@ typedef struct TigSound {
     /* 0148 */ TigSoundPositionalSize positional_size;
 } TigSound;
 
-static void tig_sound_update();
+static void tig_sound_update(void);
 static void tig_sound_stop_from_destroy(tig_sound_handle_t sound_handle, int fade_duration);
 static int tig_sound_acquire_handle(TigSoundType type);
 static void tig_sound_reset_sound(TigSound* sound);
@@ -106,7 +106,7 @@ int tig_sound_init(TigInitInfo* init_info)
 }
 
 // 0x532DB0
-void tig_sound_exit()
+void tig_sound_exit(void)
 {
     if (tig_sound_initialized) {
         tig_sound_initialized = false;
@@ -120,7 +120,7 @@ void tig_sound_exit()
 }
 
 // 0x532DE0
-void tig_sound_ping()
+void tig_sound_ping(void)
 {
     // 0x739E84
     static tig_timestamp_t tig_sound_ping_timestamp;
@@ -143,7 +143,7 @@ void tig_sound_ping()
 }
 
 // 0x532E30
-void tig_sound_update()
+void tig_sound_update(void)
 {
     int index;
     TigSound* snd;
@@ -220,7 +220,7 @@ void tig_sound_set_file_path_resolver(TigSoundFilePathResolver* func)
 }
 
 // 0x533010
-bool tig_sound_is_initialized()
+bool tig_sound_is_initialized(void)
 {
     return tig_sound_initialized;
 }
@@ -784,7 +784,7 @@ bool tig_sound_is_active(tig_sound_handle_t sound_handle)
 }
 
 // 0x533AC0
-void tig_sound_cache_flush()
+void tig_sound_cache_flush(void)
 {
     if (tig_sound_initialized) {
         tig_file_cache_flush(tig_sound_cache);
@@ -792,7 +792,7 @@ void tig_sound_cache_flush()
 }
 
 // 0x533AE0
-const char* tig_sound_cache_stats()
+const char* tig_sound_cache_stats(void)
 {
     // 0x62B2C4
     static char buffer[100];

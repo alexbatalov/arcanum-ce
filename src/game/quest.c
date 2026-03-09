@@ -102,7 +102,7 @@ bool quest_init(GameInitInfo* init_info)
  *
  * 0x4C4620
  */
-void quest_reset()
+void quest_reset(void)
 {
     int index;
 
@@ -116,7 +116,7 @@ void quest_reset()
  *
  * 0x4C4640
  */
-void quest_exit()
+void quest_exit(void)
 {
     mes_unload(quest_xp_mes_file);
     FREE(quest_gstate);
@@ -128,7 +128,7 @@ void quest_exit()
  *
  * 0x4C4670
  */
-bool quest_mod_load()
+bool quest_mod_load(void)
 {
     int index;
     int state;
@@ -184,7 +184,7 @@ bool quest_mod_load()
  *
  * 0x4C47C0
  */
-void quest_mod_unload()
+void quest_mod_unload(void)
 {
     if (quest_log_mes_file != MES_FILE_HANDLE_INVALID) {
         mes_unload(quest_log_mes_file);

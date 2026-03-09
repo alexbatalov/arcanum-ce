@@ -33,21 +33,21 @@ typedef struct TextFloaterList {
     /* 000C */ struct TextFloaterList* next;
 } TextFloaterList;
 
-static void tf_clear();
-static TextFloaterList* tf_list_create();
+static void tf_clear(void);
+static TextFloaterList* tf_list_create(void);
 static void tf_list_destroy(TextFloaterList* list);
 static void tf_list_free(TextFloaterList* node);
 static void tf_list_get_rect(TextFloaterList* node, TigRect* rect);
 static void tf_calc_rect(int64_t loc, int offset_x, int offset_y, TigRect* rect);
-static TextFloaterEntry* tf_entry_create();
+static TextFloaterEntry* tf_entry_create(void);
 static void tf_entry_free(TextFloaterEntry* entry);
 static void tf_entry_destroy(TextFloaterList* list, TextFloaterEntry* entry);
 static void tf_entry_get_rect(TextFloaterList* list, TextFloaterEntry* entry, TigRect* entry_rect);
 static void tf_entry_get_rect_constrained_to(TigRect* list_rect, TextFloaterEntry* entry, TigRect* entry_rect);
 static void tf_entry_recalc_opacity(TextFloaterEntry* entry);
 static void tf_level_set_internal(int value);
-static void tf_level_changed();
-static void tf_float_speed_changed();
+static void tf_level_changed(void);
+static void tf_float_speed_changed(void);
 
 /**
  * Color values (RGB) for text floater types.
@@ -252,7 +252,7 @@ void tf_resize(GameResizeInfo* resize_info)
  *
  * 0x4D5090
  */
-void tf_reset()
+void tf_reset(void)
 {
     tf_clear();
 }
@@ -262,7 +262,7 @@ void tf_reset()
  *
  * 0x4D5DC0
  */
-void tf_exit()
+void tf_exit(void)
 {
     int index;
     TextFloaterEntry* next_node;
@@ -310,7 +310,7 @@ void tf_update_view(ViewOptions* view_options)
  *
  * 0x4D5150
  */
-void tf_map_close()
+void tf_map_close(void)
 {
     tf_clear();
 }
@@ -333,7 +333,7 @@ int tf_level_set(int value)
  *
  * 0x4D5180
  */
-int tf_level_get()
+int tf_level_get(void)
 {
     return tf_level;
 }
@@ -755,7 +755,7 @@ void tf_remove(int64_t obj)
  *
  * 0x4D5780
  */
-void tf_clear()
+void tf_clear(void)
 {
     TextFloaterList* list;
     TextFloaterList* next;
@@ -779,7 +779,7 @@ void tf_clear()
  *
  * 0x4D57E0
  */
-TextFloaterList* tf_list_create()
+TextFloaterList* tf_list_create(void)
 {
     TextFloaterList* list;
 
@@ -888,7 +888,7 @@ void tf_calc_rect(int64_t loc, int offset_x, int offset_y, TigRect* rect)
  *
  * 0x4D5950
  */
-TextFloaterEntry* tf_entry_create()
+TextFloaterEntry* tf_entry_create(void)
 {
     TextFloaterEntry* entry;
     TigVideoBufferCreateInfo vb_create_info;
@@ -1023,7 +1023,7 @@ void tf_level_set_internal(int value)
  *
  * 0x4D5B40
  */
-void tf_level_changed()
+void tf_level_changed(void)
 {
     tf_level = settings_get_value(&settings, TEXT_FLOATERS_KEY);
 }
@@ -1033,7 +1033,7 @@ void tf_level_changed()
  *
  * 0x4D5B60
  */
-void tf_float_speed_changed()
+void tf_float_speed_changed(void)
 {
     tf_float_speed = settings_get_value(&settings, FLOAT_SPEED_KEY) + 1;
 }

@@ -17,7 +17,7 @@ typedef struct InvenSourceSet {
 } InvenSourceSet;
 
 bool invensource_init(GameInitInfo* init_info);
-void invensource_exit();
+void invensource_exit(void);
 void invensource_get_id_list(int id, InvenSourceSet* set);
 
 #endif /* ARCANUM_GAME_INVENSOURCE_H_ */

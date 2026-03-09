@@ -296,7 +296,7 @@ bool effect_init(GameInitInfo* init_info)
  *
  * 0x4E9AE0
  */
-void effect_exit()
+void effect_exit(void)
 {
     FREE(effect_stat_effects);
     FREE(effect_basic_skill_effects);
@@ -312,7 +312,7 @@ void effect_exit()
  *
  * 0x004E9B40
  */
-bool effect_mod_load()
+bool effect_mod_load(void)
 {
     mes_file_handle_t mes_file;
     MesFileEntry mes_file_entry;
@@ -338,7 +338,7 @@ bool effect_mod_load()
  *
  * 0x4E9BB0
  */
-void effect_mod_unload()
+void effect_mod_unload(void)
 {
     int index;
 

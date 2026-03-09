@@ -10,8 +10,8 @@ typedef struct CurseLogbookEntry {
     /* 0008 */ DateTime datetime;
 } CurseLogbookEntry;
 
-bool curse_mod_load();
-void curse_mod_unload();
+bool curse_mod_load(void);
+void curse_mod_unload(void);
 void curse_copy_name(int curse, char* buffer);
 void curse_copy_description(int curse, char* buffer);
 int curse_get_logbook_data(int64_t obj, CurseLogbookEntry* logbook_entries);

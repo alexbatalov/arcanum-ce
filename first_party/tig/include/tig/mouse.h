@@ -39,9 +39,9 @@ typedef struct TigMouseState {
 } TigMouseState;
 
 int tig_mouse_init(TigInitInfo* init_info);
-void tig_mouse_exit();
+void tig_mouse_exit(void);
 void tig_mouse_set_active(bool active);
-void tig_mouse_ping();
+void tig_mouse_ping(void);
 
 // Forwards "mouse move" event from Windows Messages to mouse system.
 //
@@ -62,18 +62,18 @@ void tig_mouse_set_button(int button, bool pressed);
 int tig_mouse_get_state(TigMouseState* mouse_state);
 
 // Hides mouse cursor.
-int tig_mouse_hide();
+int tig_mouse_hide(void);
 
 // Shows mouse cursor.
-int tig_mouse_show();
+int tig_mouse_show(void);
 
 // Renders mouse cursor to screen.
-void tig_mouse_display();
+void tig_mouse_display(void);
 
 // Refreshes internally managed cursor surface.
 //
 // This function does nothing in hardware cursor mode.
-void tig_mouse_cursor_refresh();
+void tig_mouse_cursor_refresh(void);
 
 // Sets mouse cursor art.
 //
@@ -86,13 +86,13 @@ void tig_mouse_cursor_set_offset(int x, int y);
 // Returns art id of mouse cursor.
 //
 // In hardware cursor mode the result is undefined.
-tig_art_id_t tig_mouse_cursor_get_art_id();
+tig_art_id_t tig_mouse_cursor_get_art_id(void);
 
 // Adds overlay to the mouse cursor.
 int tig_mouse_cursor_overlay(tig_art_id_t art_id, int x, int y);
 
-int sub_500560();
-void sub_500570();
+int sub_500560(void);
+void sub_500570(void);
 
 void tig_mouse_wheel(int dx, int dy);
 

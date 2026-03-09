@@ -76,7 +76,7 @@ bool monstergen_init(GameInitInfo* init_info)
  *
  * 0x4BA400
  */
-void monstergen_reset()
+void monstergen_reset(void)
 {
     int index;
 
@@ -90,7 +90,7 @@ void monstergen_reset()
  *
  * 0x4BA420
  */
-void monstergen_exit()
+void monstergen_exit(void)
 {
     FREE(monstergen_state);
 }

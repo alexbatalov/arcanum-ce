@@ -154,7 +154,7 @@ bool animfx_init(GameInitInfo* init_info)
 }
 
 // 0x4CCD00
-void animfx_exit()
+void animfx_exit(void)
 {
     if (animfx_initialized) {
         animfx_initialized = false;

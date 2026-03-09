@@ -129,7 +129,7 @@ bool jumppoint_init(GameInitInfo* init_info)
  *
  * 0x4E3020
  */
-void jumppoint_reset()
+void jumppoint_reset(void)
 {
     jumppoint_map_close();
 }
@@ -139,7 +139,7 @@ void jumppoint_reset()
  *
  * 0x4E3030
  */
-void jumppoint_exit()
+void jumppoint_exit(void)
 {
     jumppoint_map_close();
     jumppoint_initialized = false;
@@ -220,7 +220,7 @@ bool jumppoint_open(const char* base_path, const char* save_path)
  *
  * 0x4E3140
  */
-void jumppoint_map_close()
+void jumppoint_map_close(void)
 {
     // Free the jumppoints array.
     if (jumppoints != NULL) {
@@ -244,7 +244,7 @@ void jumppoint_map_close()
  *
  * 0x4E3270
  */
-bool jumppoint_flush()
+bool jumppoint_flush(void)
 {
     TigFile* stream;
 
@@ -287,7 +287,7 @@ void jumppoint_update_view(ViewOptions* view_options)
  *
  * 0x4E32F0
  */
-bool jumppoint_is_enabled()
+bool jumppoint_is_enabled(void)
 {
     return jumppoint_enabled;
 }
@@ -300,7 +300,7 @@ bool jumppoint_is_enabled()
  *
  * 0x4E3300
  */
-void jumppoint_toggle()
+void jumppoint_toggle(void)
 {
     jumppoint_enabled = !jumppoint_enabled;
 }
@@ -527,7 +527,7 @@ bool jumppoint_move(int64_t from, int64_t to)
  *
  * 0x4E3690
  */
-bool jumppoint_is_empty()
+bool jumppoint_is_empty(void)
 {
     return jumppoints_count == 0;
 }

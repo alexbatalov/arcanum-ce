@@ -44,17 +44,17 @@ typedef struct Shadow {
 } Shadow;
 
 bool light_init(GameInitInfo* init_info);
-void light_exit();
+void light_exit(void);
 void light_resize(GameResizeInfo* resize_info);
 void light_update_view(ViewOptions* view_options);
-void sub_4D81F0();
-void light_buffers_lock();
-void light_buffers_unlock();
+void sub_4D81F0(void);
+void light_buffers_lock(void);
+void light_buffers_unlock(void);
 void light_draw(GameDrawInfo* draw_info);
 void light_build_color(uint8_t red, uint8_t green, uint8_t blue, unsigned int* color);
 void light_get_color_components(unsigned int color, uint8_t* red, uint8_t* green, uint8_t* blue);
-tig_color_t light_get_outdoor_color();
-tig_color_t light_get_indoor_color();
+tig_color_t light_get_outdoor_color(void);
+tig_color_t light_get_indoor_color(void);
 void light_set_colors(tig_color_t indoor_color, tig_color_t outdoor_color);
 void light_start_animating(Light* light);
 void light_stop_animating(Light* light);

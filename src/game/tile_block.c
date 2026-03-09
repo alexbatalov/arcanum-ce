@@ -82,7 +82,7 @@ bool tileblock_init(GameInitInfo* init_info)
  *
  * 0x4BB050
  */
-void tileblock_exit()
+void tileblock_exit(void)
 {
 }
 
@@ -114,7 +114,7 @@ void tileblock_resize(GameResizeInfo* resize_info)
  *
  * 0x4BB090
  */
-bool tileblock_is_enabled()
+bool tileblock_is_enabled(void)
 {
     return tileblock_enabled;
 }
@@ -127,7 +127,7 @@ bool tileblock_is_enabled()
  *
  * 0x4BB0A0
  */
-void tileblock_toggle()
+void tileblock_toggle(void)
 {
     tileblock_enabled = !tileblock_enabled;
 }

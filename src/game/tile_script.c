@@ -103,7 +103,7 @@ bool tile_script_init(GameInitInfo* init_info)
  *
  * 0x4C05B0
  */
-void tile_script_reset()
+void tile_script_reset(void)
 {
 }
 
@@ -112,7 +112,7 @@ void tile_script_reset()
  *
  * 0x4C05C0
  */
-void tile_script_exit()
+void tile_script_exit(void)
 {
     tile_script_initialized = false;
 
@@ -147,7 +147,7 @@ void tile_script_update_view(ViewOptions* view_options)
  *
  * 0x4C0600
  */
-bool tile_script_is_enabled()
+bool tile_script_is_enabled(void)
 {
     return tile_script_enabled;
 }
@@ -160,7 +160,7 @@ bool tile_script_is_enabled()
  *
  * 0x4C0610
  */
-void tile_script_toggle()
+void tile_script_toggle(void)
 {
     tile_script_enabled = !tile_script_enabled;
 }

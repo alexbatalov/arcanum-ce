@@ -18,7 +18,7 @@ typedef enum TrapKnownReason {
 } TrapKnownReason;
 
 bool trap_init(GameInitInfo* init_info);
-void trap_exit();
+void trap_exit(void);
 bool trap_timeevent_process(TimeEvent* timeevent);
 int trap_type(int64_t obj);
 bool trap_attempt_spot(int64_t pc_obj, int64_t trap_obj);

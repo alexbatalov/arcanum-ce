@@ -54,12 +54,12 @@ void hrp_center(int* x, int* y)
     *y += (hrp_iso_window_height - 600) / 2;
 }
 
-int hrp_iso_window_width_get()
+int hrp_iso_window_width_get(void)
 {
     return hrp_iso_window_width;
 }
 
-int hrp_iso_window_height_get()
+int hrp_iso_window_height_get(void)
 {
     return hrp_iso_window_height;
 }

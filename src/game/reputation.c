@@ -105,7 +105,7 @@ bool reputation_init(GameInitInfo* init_info)
  *
  * 0x4C1600
  */
-void reputation_exit()
+void reputation_exit(void)
 {
     FREE(reputations);
     FREE(reputation_mes_files);
@@ -116,7 +116,7 @@ void reputation_exit()
  *
  * 0x4C1620
  */
-bool reputation_mod_load()
+bool reputation_mod_load(void)
 {
     int index;
     char path[TIG_MAX_PATH];
@@ -151,7 +151,7 @@ bool reputation_mod_load()
  *
  * 0x4C16E0
  */
-void reputation_mod_unload()
+void reputation_mod_unload(void)
 {
     int index;
 

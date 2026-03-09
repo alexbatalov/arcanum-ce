@@ -63,7 +63,7 @@ typedef struct TextBubble {
 static void tb_remove_internal(TextBubble* tb);
 static void tb_get_rect(TextBubble* tb, TigRect* rect);
 static void tb_calc_rect(TextBubble* tb, int64_t loc, int offset_x, int offset_y, TigRect* rect);
-static void tb_text_duration_changed();
+static void tb_text_duration_changed(void);
 static TextBubble* find_text_bubble(int64_t obj);
 static TextBubble* find_free_text_bubble(int64_t obj);
 static void adjust_text_bubble_rect(TigRect* rect, TbPosition pos);
@@ -248,7 +248,7 @@ bool tb_init(GameInitInfo* init_info)
  *
  * 0x4D5DB0
  */
-void tb_reset()
+void tb_reset(void)
 {
     tb_clear();
 }
@@ -258,7 +258,7 @@ void tb_reset()
  *
  * 0x4D5DC0
  */
-void tb_exit()
+void tb_exit(void)
 {
     int idx;
 
@@ -305,7 +305,7 @@ void tb_update_view(ViewOptions* view_options)
  *
  * 0x4D5E80
  */
-void tb_map_close()
+void tb_map_close(void)
 {
     tb_clear();
 }
@@ -315,7 +315,7 @@ void tb_map_close()
  *
  * 0x4D5E90
  */
-void tb_toggle()
+void tb_toggle(void)
 {
     tb_enabled = !tb_enabled;
 }
@@ -522,7 +522,7 @@ void tb_remove(int64_t obj)
  *
  * 0x4D6320
  */
-void tb_clear()
+void tb_clear(void)
 {
     int idx;
 
@@ -666,7 +666,7 @@ void tb_calc_rect(TextBubble* tb, int64_t loc, int offset_x, int offset_y, TigRe
  *
  * 0x4D67F0
  */
-void tb_text_duration_changed()
+void tb_text_duration_changed(void)
 {
     int index;
 

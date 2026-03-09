@@ -11,14 +11,14 @@
 #define MAX_MT_AI 40
 #define MAX_MT_ENTRIES 200
 
-static bool sub_4CC240();
-static void sub_4CC270();
+static bool sub_4CC240(void);
+static void sub_4CC270(void);
 static int sub_4CC2D0(const void* va, const void* vb);
 static int sub_4CC310(int spl);
 static bool sub_4CC350(int index, MagicTechAiActionList* list);
 static bool sub_4CC380(MagicTechAiActionList* list, const char* name);
-static void sub_4CC470();
-static void mt_ai_clear();
+static void sub_4CC470(void);
+static void mt_ai_clear(void);
 static void mt_ai_create_internal(MagicTechAi* magictech_ai, int64_t obj, int action);
 static void sub_4CC520(int slot);
 static void mt_ai_populate(MagicTechAi* magictech_ai);
@@ -88,13 +88,13 @@ bool mt_ai_init(GameInitInfo* init_info)
 }
 
 // 0x4CC210
-void mt_ai_reset()
+void mt_ai_reset(void)
 {
     mt_ai_clear();
 }
 
 // 0x4CC220
-void mt_ai_exit()
+void mt_ai_exit(void)
 {
     if (mt_ai_initialized) {
         sub_4CC270();
@@ -104,7 +104,7 @@ void mt_ai_exit()
 }
 
 // 0x4CC240
-bool sub_4CC240()
+bool sub_4CC240(void)
 {
     int action;
 
@@ -118,7 +118,7 @@ bool sub_4CC240()
 }
 
 // 0x4CC270
-void sub_4CC270()
+void sub_4CC270(void)
 {
     int action;
 
@@ -221,7 +221,7 @@ bool sub_4CC380(MagicTechAiActionList* list, const char* name)
 }
 
 // 0x4CC470
-void sub_4CC470()
+void sub_4CC470(void)
 {
     int slot;
     int action;
@@ -246,7 +246,7 @@ void sub_4CC470()
 }
 
 // 0x4CC4C0
-void mt_ai_clear()
+void mt_ai_clear(void)
 {
     int slot;
 

@@ -113,13 +113,13 @@ bool skill_ui_init(GameInitInfo* init_info)
 }
 
 // 0x579F30
-void skill_ui_reset()
+void skill_ui_reset(void)
 {
     qword_683490 = OBJ_HANDLE_NULL;
 }
 
 // 0x579F40
-void skill_ui_exit()
+void skill_ui_exit(void)
 {
     mes_unload(skill_ui_mes_file);
 }
@@ -137,7 +137,7 @@ int sub_579F70(int index)
 }
 
 // 0x579F90
-int sub_579F90()
+int sub_579F90(void)
 {
     return dword_5CB270;
 }
@@ -227,7 +227,7 @@ void skill_ui_preprocess(int64_t obj, int type)
 }
 
 // 0x57A1A0
-void skill_ui_cancel()
+void skill_ui_cancel(void)
 {
     intgame_mode_set(INTGAME_MODE_MAIN);
     qword_683490 = OBJ_HANDLE_NULL;

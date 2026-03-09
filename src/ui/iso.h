@@ -4,11 +4,11 @@
 #include "game/context.h"
 
 bool iso_init(GameInitInfo* init_info);
-void iso_exit();
-void iso_reset();
+void iso_exit(void);
+void iso_reset(void);
 void iso_resize(GameResizeInfo* resize_info);
 void sub_557FD0(const char* str);
-bool iso_redraw();
+bool iso_redraw(void);
 void sub_558130(TigRect* rect);
 void iso_invalidate_rect(TigRect* rect);
 

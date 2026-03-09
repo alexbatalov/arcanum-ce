@@ -474,7 +474,7 @@ void objlist_fold(SectorObjectList* list, int64_t location, int a4)
 }
 
 // 0x4F1D80
-void sub_4F1D80()
+void sub_4F1D80(void)
 {
     // TODO: Incomplete.
 }

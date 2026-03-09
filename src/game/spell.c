@@ -256,7 +256,7 @@ bool spell_init(GameInitInfo* init_info)
  *
  * 0x4B1520
  */
-void spell_exit()
+void spell_exit(void)
 {
 }
 

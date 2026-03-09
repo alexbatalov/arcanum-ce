@@ -162,7 +162,7 @@ static int sub_505940(unsigned int art_blt_flags, unsigned int* vb_blt_flags_ptr
 static int sub_5059F0(int cache_entry_index, TigArtBlitInfo* blit_info);
 static int art_blit(int cache_entry_index, TigArtBlitInfo* blit_info);
 static int sub_51AA90(tig_art_id_t art_id);
-static void tig_art_cache_check_fullness();
+static void tig_art_cache_check_fullness(void);
 static int tig_art_cache_entry_compare_time(const void* a1, const void* a2);
 static int tig_art_cache_entry_compare_name(const void* a1, const void* a2);
 static int tig_art_build_path(unsigned int art_id, char* path);
@@ -409,7 +409,7 @@ int tig_art_init(TigInitInfo* init_info)
 }
 
 // 0x500690
-void tig_art_exit()
+void tig_art_exit(void)
 {
     if (tig_art_initialized) {
         tig_art_flush();
@@ -426,7 +426,7 @@ void tig_art_exit()
 }
 
 // 0x5006D0
-void tig_art_ping()
+void tig_art_ping(void)
 {
 }
 
@@ -446,7 +446,7 @@ int tig_art_misc_id_create(unsigned int num, unsigned int palette, tig_art_id_t*
 }
 
 // 0x5021E0
-void tig_art_flush()
+void tig_art_flush(void)
 {
     int index;
 
@@ -496,13 +496,13 @@ void sub_5022B0(TigArtBlitPaletteAdjustCallback* callback)
 }
 
 // 0x5022C0
-TigArtBlitPaletteAdjustCallback* sub_5022C0()
+TigArtBlitPaletteAdjustCallback* sub_5022C0(void)
 {
     return dword_604744;
 }
 
 // 0x5022D0
-void sub_5022D0()
+void sub_5022D0(void)
 {
     int index;
     unsigned int palette;
@@ -5405,7 +5405,7 @@ void tig_art_cache_set_video_memory_fullness(int fullness)
 }
 
 // 0x51AC20
-void tig_art_cache_check_fullness()
+void tig_art_cache_check_fullness(void)
 {
     // Flag that denotes if we should check video memory (true) or system memory
     // (false). This flag alternates on every call.

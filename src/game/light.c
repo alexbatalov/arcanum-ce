@@ -55,22 +55,22 @@ static void light_set_aid(Light* light, tig_art_id_t art_id);
 static tig_art_id_t light_get_aid(Light* light);
 static void light_set_custom_color(Light* light, uint8_t r, uint8_t g, uint8_t b);
 static bool sub_4DDD90(Sector* sector);
-static void shadows_changed();
-static bool sub_4DDF50();
-static void sub_4DE060();
+static void shadows_changed(void);
+static bool sub_4DDF50(void);
+static void sub_4DE060(void);
 static bool sub_4DE0B0(tig_art_id_t art_id, TigPaletteModifyInfo* modify_info);
-static void sub_4DE200();
-static void sub_4DE250();
+static void sub_4DE200(void);
+static void sub_4DE250(void);
 static void light_get_rect_internal(Light* light, TigRect* rect);
 static void sub_4DE390(Light* light);
 static void sub_4DE4D0(Light* light);
 static void sub_4DE4F0(Light* light, int offset_x, int offset_y);
-static bool sub_4DE5D0();
-static void sub_4DE730();
-static Shadow* shadow_node_allocate();
+static bool sub_4DE5D0(void);
+static void sub_4DE730(void);
+static Shadow* shadow_node_allocate(void);
 static void shadow_node_deallocate(Shadow* node);
-static void shadow_node_reserve();
-static void shadow_node_clear();
+static void shadow_node_reserve(void);
+static void shadow_node_clear(void);
 static bool sub_4DE820(TimeEvent* timeevent);
 static void sub_4DE870(LightCreateInfo* create_info, Light** light_ptr);
 static void light_render_internal(GameDrawInfo* draw_info);
@@ -237,7 +237,7 @@ bool light_init(GameInitInfo* init_info)
 }
 
 // 0x4D8120
-void light_exit()
+void light_exit(void)
 {
     sub_4DE730();
     sub_4DE250();
@@ -267,7 +267,7 @@ void light_update_view(ViewOptions* view_options)
 }
 
 // 0x4D81F0
-void sub_4D81F0()
+void sub_4D81F0(void)
 {
     dword_602ECC = !dword_602ECC;
 
@@ -280,7 +280,7 @@ void sub_4D81F0()
 }
 
 // 0x4D8210
-void light_buffers_lock()
+void light_buffers_lock(void)
 {
     light_buffers_lock_cnt++;
     if (light_buffers_lock_cnt == 1) {
@@ -298,7 +298,7 @@ void light_buffers_lock()
 }
 
 // 0x4D8320
-void light_buffers_unlock()
+void light_buffers_unlock(void)
 {
     light_buffers_lock_cnt--;
     if (light_buffers_lock_cnt == 0) {
@@ -347,13 +347,13 @@ void light_get_color_components(unsigned int color, uint8_t* red, uint8_t* green
 }
 
 // 0x4D8500
-tig_color_t light_get_outdoor_color()
+tig_color_t light_get_outdoor_color(void)
 {
     return light_outdoor_color;
 }
 
 // 0x4D8530
-tig_color_t light_get_indoor_color()
+tig_color_t light_get_indoor_color(void)
 {
     return light_indoor_color;
 }
@@ -1964,7 +1964,7 @@ bool sub_4DDD90(Sector* sector)
 }
 
 // 0x4DDF20
-void shadows_changed()
+void shadows_changed(void)
 {
     light_shadows_enabled = settings_get_value(&settings, SHADOWS_KEY);
 
@@ -1974,7 +1974,7 @@ void shadows_changed()
 }
 
 // 0x4DDF50
-bool sub_4DDF50()
+bool sub_4DDF50(void)
 {
     sub_4DE060();
 
@@ -2003,7 +2003,7 @@ bool sub_4DDF50()
 }
 
 // 0x4DE060
-void sub_4DE060()
+void sub_4DE060(void)
 {
     if (lighter_vb != NULL) {
         tig_video_buffer_destroy(lighter_vb);
@@ -2085,7 +2085,7 @@ bool sub_4DE0B0(tig_art_id_t art_id, TigPaletteModifyInfo* modify_info)
 }
 
 // 0x4DE200
-void sub_4DE200()
+void sub_4DE200(void)
 {
     if (!dword_60340C) {
         if (light_indoor_palette == NULL) {
@@ -2101,7 +2101,7 @@ void sub_4DE200()
 }
 
 // 0x4DE250
-void sub_4DE250()
+void sub_4DE250(void)
 {
     if (!dword_60340C) {
         tig_palette_destroy(light_indoor_palette);
@@ -2216,7 +2216,7 @@ void sub_4DE4F0(Light* light, int offset_x, int offset_y)
 }
 
 // 0x4DE5D0
-bool sub_4DE5D0()
+bool sub_4DE5D0(void)
 {
     int index;
     tig_art_id_t art_id;
@@ -2264,7 +2264,7 @@ bool sub_4DE5D0()
 }
 
 // 0x4DE730
-void sub_4DE730()
+void sub_4DE730(void)
 {
     int index;
 
@@ -2278,7 +2278,7 @@ void sub_4DE730()
 }
 
 // 0x4DE770
-Shadow* shadow_node_allocate()
+Shadow* shadow_node_allocate(void)
 {
     Shadow* node;
 
@@ -2302,7 +2302,7 @@ void shadow_node_deallocate(Shadow* node)
 }
 
 // 0x4DE7C0
-void shadow_node_reserve()
+void shadow_node_reserve(void)
 {
     int index;
     Shadow* node;
@@ -2315,7 +2315,7 @@ void shadow_node_reserve()
 }
 
 // 0x4DE7F0
-void shadow_node_clear()
+void shadow_node_clear(void)
 {
     Shadow* curr;
     Shadow* next;

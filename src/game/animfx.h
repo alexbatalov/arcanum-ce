@@ -81,7 +81,7 @@ extern const char* animfx_play_flags_lookup_tbl_keys[ANIMFX_PLAY_COUNT];
 extern unsigned int animfx_play_flags_lookup_tbl_values[ANIMFX_PLAY_COUNT];
 
 bool animfx_init(GameInitInfo* init_info);
-void animfx_exit();
+void animfx_exit(void);
 void sub_4CCD20(AnimFxList* list, AnimFxNode* node, int64_t obj, int mt_id, int fx_id);
 void animfx_preload_art(AnimFxNode* node);
 bool animfx_has(AnimFxNode* node);

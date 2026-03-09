@@ -81,7 +81,7 @@ bool portrait_init(GameInitInfo* init_info)
  *
  * 0x4CE390
  */
-void portrait_exit()
+void portrait_exit(void)
 {
     mes_unload(portrait_mes_file);
 

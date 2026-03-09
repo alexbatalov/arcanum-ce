@@ -4,8 +4,8 @@
 #include "game/context.h"
 
 bool party_init(GameInitInfo* init_info);
-void party_exit();
-void party_reset();
+void party_exit(void);
+void party_reset(void);
 bool party_save(TigFile* stream);
 bool party_load(GameLoadInfo* load_info);
 int64_t party_find_first(int64_t obj, int* index_ptr);

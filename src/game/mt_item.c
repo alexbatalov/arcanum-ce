@@ -104,7 +104,7 @@ bool mt_item_init(GameInitInfo* init_info)
  *
  * 0x4CB730
  */
-void mt_item_exit()
+void mt_item_exit(void)
 {
     if (mt_item_initialized) {
         mt_item_initialized = false;

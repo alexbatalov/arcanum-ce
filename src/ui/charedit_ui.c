@@ -124,41 +124,41 @@ typedef struct S5C8CA8 {
     tig_button_handle_t button_handle;
 } S5C8CA8;
 
-static void charedit_refresh_basic_info();
+static void charedit_refresh_basic_info(void);
 static bool charedit_window_message_filter(TigMessage* msg);
 static void charedit_show_hint(int hint);
 static void charedit_cycle_obj(bool next);
-static void charedit_refresh_internal();
-static void charedit_refresh_secondary_stats();
-static void charedit_refresh_stats();
+static void charedit_refresh_internal(void);
+static void charedit_refresh_secondary_stats(void);
+static void charedit_refresh_stats(void);
 static void charedit_refresh_stat(int stat);
 static int charedit_stat_map_to_critter_stat(int stat);
 static int charedit_stat_value_get(int64_t obj, int stat);
 static void charedit_stat_value_set(int64_t obj, int stat, int value);
 static void sub_55B880(tig_window_handle_t window_handle, tig_font_handle_t font, S5C8150* a3, const char** list, int a5, int a6);
-static bool charedit_create_skills_win();
+static bool charedit_create_skills_win(void);
 static void sub_55BD10(int group);
-static void charedit_refresh_skills_win();
-static bool charedit_create_tech_win();
+static void charedit_refresh_skills_win(void);
+static bool charedit_create_tech_win(void);
 static void charedit_draw_tech_degree_icon(int index);
-static void charedit_refresh_tech_win();
-static bool charedit_create_spells_win();
+static void charedit_refresh_tech_win(void);
+static bool charedit_create_spells_win(void);
 static void sub_55CA70(int a1, int a2);
-static void charedit_refresh_spells_win();
-static bool charedit_scheme_win_create();
-static void charedit_scheme_win_refresh();
+static void charedit_refresh_spells_win(void);
+static bool charedit_scheme_win_create(void);
+static void charedit_scheme_win_refresh(void);
 static bool charedit_skills_win_message_filter(TigMessage* msg);
 static bool sub_55D6F0(TigMessage* msg);
 static bool charedit_tech_win_message_filter(TigMessage* msg);
 static bool charedit_spells_win_message_filter(TigMessage* msg);
 static bool charedit_scheme_win_message_filter(TigMessage* msg);
-static bool charedit_labels_init();
-static void charedit_labels_exit();
-static void charedit_refresh_alignment_aptitude_bars();
-static void sub_55EFB0();
-static void sub_55EFE0();
-static void sub_55EFF0();
-static void sub_55F0D0();
+static bool charedit_labels_init(void);
+static void charedit_labels_exit(void);
+static void charedit_refresh_alignment_aptitude_bars(void);
+static void sub_55EFB0(void);
+static void sub_55EFE0(void);
+static void sub_55EFF0(void);
+static void sub_55F0D0(void);
 static void charedit_scheme_scrollbar_value_changed(int value);
 static void charedit_scheme_scrollbar_refresh_rect(TigRect* rect);
 
@@ -875,7 +875,7 @@ bool charedit_init(GameInitInfo* init_info)
 }
 
 // 0x559770
-void charedit_exit()
+void charedit_exit(void)
 {
     charedit_labels_exit();
     tig_window_destroy(charedit_skills_win);
@@ -885,7 +885,7 @@ void charedit_exit()
 }
 
 // 0x5597B0
-void charedit_reset()
+void charedit_reset(void)
 {
     if (charedit_is_created()) {
         charedit_close();
@@ -1207,7 +1207,7 @@ bool charedit_open(int64_t obj, ChareditMode mode)
 }
 
 // 0x55A150
-void charedit_close()
+void charedit_close(void)
 {
     if (charedit_created) {
         charedit_created = false;
@@ -1235,13 +1235,13 @@ void charedit_close()
 }
 
 // 0x55A220
-bool charedit_is_created()
+bool charedit_is_created(void)
 {
     return charedit_created;
 }
 
 // 0x55A230
-void charedit_refresh()
+void charedit_refresh(void)
 {
     if (charedit_created) {
         charedit_refresh_internal();
@@ -1249,7 +1249,7 @@ void charedit_refresh()
 }
 
 // 0x55A240
-void charedit_refresh_basic_info()
+void charedit_refresh_basic_info(void)
 {
     TigFont font_desc;
     char* pch;
@@ -1712,7 +1712,7 @@ void charedit_cycle_obj(bool next)
 }
 
 // 0x55B150
-void charedit_refresh_internal()
+void charedit_refresh_internal(void)
 {
     charedit_refresh_stats();
     charedit_refresh_secondary_stats();
@@ -1738,7 +1738,7 @@ void charedit_refresh_internal()
 }
 
 // 0x55B1B0
-void charedit_refresh_secondary_stats()
+void charedit_refresh_secondary_stats(void)
 {
     char buffers[13][10];
     const char* labels[13];
@@ -1764,7 +1764,7 @@ void charedit_refresh_secondary_stats()
 }
 
 // 0x55B280
-void charedit_refresh_stats()
+void charedit_refresh_stats(void)
 {
     int stat;
 
@@ -2050,7 +2050,7 @@ void sub_55B880(tig_window_handle_t window_handle, tig_font_handle_t font, S5C81
 }
 
 // 0x55BAB0
-bool charedit_create_skills_win()
+bool charedit_create_skills_win(void)
 {
     tig_art_id_t art_id;
     TigWindowData window_data;
@@ -2210,7 +2210,7 @@ void sub_55BD10(int group)
 }
 
 // 0x55BF20
-void charedit_refresh_skills_win()
+void charedit_refresh_skills_win(void)
 {
     tig_art_id_t skills_win_art_id;
     TigArtFrameData skills_win_art_frame_data;
@@ -2287,7 +2287,7 @@ void charedit_refresh_skills_win()
 }
 
 // 0x55C110
-bool charedit_create_tech_win()
+bool charedit_create_tech_win(void)
 {
     tig_art_id_t art_id;
     TigWindowData window_data;
@@ -2384,7 +2384,7 @@ void charedit_draw_tech_degree_icon(int index)
 }
 
 // 0x55C3A0
-void charedit_refresh_tech_win()
+void charedit_refresh_tech_win(void)
 {
     TigButtonData button_data;
     TigArtFrameData art_frame_data;
@@ -2523,7 +2523,7 @@ void charedit_refresh_tech_win()
 }
 
 // 0x55C890
-bool charedit_create_spells_win()
+bool charedit_create_spells_win(void)
 {
     tig_art_id_t art_id;
     TigWindowData window_data;
@@ -2651,7 +2651,7 @@ void sub_55CA70(int a1, int a2)
 }
 
 // 0x55CBC0
-void charedit_refresh_spells_win()
+void charedit_refresh_spells_win(void)
 {
     tig_art_id_t art_id;
     TigButtonData button_data;
@@ -2812,7 +2812,7 @@ void charedit_refresh_spells_win()
 }
 
 // 0x55D060
-bool charedit_scheme_win_create()
+bool charedit_scheme_win_create(void)
 {
     tig_art_id_t art_id;
     TigWindowData window_data;
@@ -2882,7 +2882,7 @@ bool charedit_scheme_win_create()
 }
 
 // 0x55D210
-void charedit_scheme_win_refresh()
+void charedit_scheme_win_refresh(void)
 {
     TigArtFrameData art_frame_data;
     TigArtBlitInfo art_blit_info;
@@ -3502,7 +3502,7 @@ bool charedit_scheme_win_message_filter(TigMessage* msg)
 }
 
 // 0x55E110
-bool charedit_labels_init()
+bool charedit_labels_init(void)
 {
     int num;
     int index;
@@ -3700,7 +3700,7 @@ bool charedit_labels_init()
 }
 
 // 0x55EBA0
-void charedit_labels_exit()
+void charedit_labels_exit(void)
 {
     mes_unload(charedit_mes_file);
     tig_font_destroy(charedit_arial10_white_font);
@@ -3725,7 +3725,7 @@ void charedit_labels_exit()
 }
 
 // 0x55EC90
-void charedit_refresh_alignment_aptitude_bars()
+void charedit_refresh_alignment_aptitude_bars(void)
 {
     int index;
     char buffer[3][10];
@@ -3826,7 +3826,7 @@ void charedit_refresh_alignment_aptitude_bars()
 }
 
 // 0x55EFB0
-void sub_55EFB0()
+void sub_55EFB0(void)
 {
     if (charedit_scheme_scrollbar_initialized) {
         scrollbar_ui_control_destroy(charedit_scheme_scrollbar);
@@ -3835,13 +3835,13 @@ void sub_55EFB0()
 }
 
 // 0x55EFE0
-void sub_55EFE0()
+void sub_55EFE0(void)
 {
     sub_55EFF0();
 }
 
 // 0x55EFF0
-void sub_55EFF0()
+void sub_55EFF0(void)
 {
     ScrollbarUiControlInfo sb;
 
@@ -3876,7 +3876,7 @@ void sub_55EFF0()
 }
 
 // 0x55F0D0
-void sub_55F0D0()
+void sub_55F0D0(void)
 {
     sub_55EFB0();
 }
@@ -3907,7 +3907,7 @@ void charedit_scheme_scrollbar_refresh_rect(TigRect* rect)
 }
 
 // 0x55F160
-void charedit_error_not_enough_character_points()
+void charedit_error_not_enough_character_points(void)
 {
     if (!charedit_created) {
         return;
@@ -3918,7 +3918,7 @@ void charedit_error_not_enough_character_points()
 }
 
 // 0x55F180
-void charedit_error_not_enough_level()
+void charedit_error_not_enough_level(void)
 {
     if (!charedit_created) {
         return;
@@ -3929,7 +3929,7 @@ void charedit_error_not_enough_level()
 }
 
 // 0x55F1A0
-void charedit_error_not_enough_intelligence()
+void charedit_error_not_enough_intelligence(void)
 {
     if (!charedit_created) {
         return;
@@ -3940,7 +3940,7 @@ void charedit_error_not_enough_intelligence()
 }
 
 // 0x55F1C0
-void charedit_error_not_enough_willpower()
+void charedit_error_not_enough_willpower(void)
 {
     if (!charedit_created) {
         return;
@@ -3951,7 +3951,7 @@ void charedit_error_not_enough_willpower()
 }
 
 // 0x55F1E0
-void charedit_error_skill_at_max()
+void charedit_error_skill_at_max(void)
 {
     if (!charedit_created) {
         return;
@@ -4009,7 +4009,7 @@ void charedit_error_not_enough_stat(int stat)
 }
 
 // 0x55F320
-void charedit_error_skill_is_zero()
+void charedit_error_skill_is_zero(void)
 {
     if (!charedit_created) {
         return;
@@ -4020,7 +4020,7 @@ void charedit_error_skill_is_zero()
 }
 
 // 0x55F340
-void charedit_error_skill_at_min()
+void charedit_error_skill_at_min(void)
 {
     if (charedit_created) {
         return;

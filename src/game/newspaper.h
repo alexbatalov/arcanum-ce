@@ -7,8 +7,8 @@
 #define NEWSPAPER_CURRENT 4
 
 bool newspaper_init(GameInitInfo* init_info);
-void newspaper_reset();
-void newspaper_exit();
+void newspaper_reset(void);
+void newspaper_exit(void);
 bool newspaper_load(GameLoadInfo* load_info);
 bool newspaper_save(TigFile* stream);
 void newspaper_enqueue(int num, bool priority);

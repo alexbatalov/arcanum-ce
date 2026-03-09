@@ -24,7 +24,7 @@ typedef struct S5CB3A8 {
     int field_4;
 } S5CB3A8;
 
-static void sub_57C470();
+static void sub_57C470(void);
 
 // 0x5CB3A0
 static int dword_5CB3A0 = 10000;
@@ -62,13 +62,13 @@ bool spell_ui_init(GameInitInfo* init_info)
 }
 
 // 0x57BB40
-void spell_ui_reset()
+void spell_ui_reset(void)
 {
     sub_57C470();
 }
 
 // 0x57BB50
-void spell_ui_exit()
+void spell_ui_exit(void)
 {
 }
 
@@ -103,7 +103,7 @@ bool spell_ui_load(GameLoadInfo* load_info)
 }
 
 // 0x57BC30
-void spell_ui_error_target_not_damaged()
+void spell_ui_error_target_not_damaged(void)
 {
     MesFileEntry mes_file_entry;
     UiMessage ui_message;
@@ -244,7 +244,7 @@ SpellUiActivate spell_ui_activate(int64_t obj, int spl)
 }
 
 // 0x57BFF0
-void spell_ui_cancel()
+void spell_ui_cancel(void)
 {
     if (!dword_68350C) {
         sub_500570();
@@ -279,7 +279,7 @@ void sub_57C080(int64_t obj, int spl)
 }
 
 // 0x57C0B0
-void spell_ui_aggressive_mode_off()
+void spell_ui_aggressive_mode_off(void)
 {
     uint64_t tgt;
 
@@ -291,7 +291,7 @@ void spell_ui_aggressive_mode_off()
 }
 
 // 0x57C0E0
-void spell_ui_aggressive_mode_on()
+void spell_ui_aggressive_mode_on(void)
 {
     uint64_t tgt;
 
@@ -468,7 +468,7 @@ void spell_ui_maintain_hover(int slot)
 }
 
 // 0x57C470
-void sub_57C470()
+void sub_57C470(void)
 {
     int index;
 
@@ -482,7 +482,7 @@ void sub_57C470()
 }
 
 // 0x57C4B0
-void spell_ui_maintain_refresh()
+void spell_ui_maintain_refresh(void)
 {
     int64_t obj;
     int num_slots;

@@ -126,7 +126,7 @@ bool area_init(GameInitInfo* init_info)
  *
  * 0x4CA950
  */
-void area_reset()
+void area_reset(void)
 {
     int area;
     int player;
@@ -149,7 +149,7 @@ void area_reset()
  *
  * 0x4CA9A0
  */
-void area_exit()
+void area_exit(void)
 {
 }
 
@@ -158,7 +158,7 @@ void area_exit()
  *
  * 0x4CA9B0
  */
-bool area_mod_load()
+bool area_mod_load(void)
 {
     MesFileEntry mes_file_entry;
     int index;
@@ -270,7 +270,7 @@ bool area_mod_load()
  *
  * 0x4CACB0
  */
-void area_mod_unload()
+void area_mod_unload(void)
 {
     int player;
 
@@ -338,7 +338,7 @@ bool area_save(TigFile* stream)
  *
  * 0x4CAE80
  */
-int area_count()
+int area_count(void)
 {
     return num_areas;
 }

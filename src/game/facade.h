@@ -5,7 +5,7 @@
 #include "game/location.h"
 
 bool facade_init(GameInitInfo* init_info);
-void facade_exit();
+void facade_exit(void);
 void facade_resize(GameResizeInfo* resize_info);
 void facade_update_view(ViewOptions* view_options);
 void facade_draw(GameDrawInfo* draw_info);

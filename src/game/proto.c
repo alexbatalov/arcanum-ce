@@ -64,7 +64,7 @@ static ObjectType sub_4685D0(int description);
 static int sub_468600(ObjectType object_type);
 static void sub_468660(bool* rescan_ptr);
 static int sub_468720(ObjectType object_type);
-static void sub_468800();
+static void sub_468800(void);
 static bool proto_save(int64_t obj);
 static ObjectID sub_468860(int a1);
 static void sub_468890(int description);
@@ -275,7 +275,7 @@ bool proto_init(GameInitInfo* init_info)
 }
 
 // 0x468310
-void proto_exit()
+void proto_exit(void)
 {
     sub_468800();
     FREE(dword_5E882C);
@@ -465,7 +465,7 @@ int sub_468720(ObjectType object_type)
 }
 
 // 0x468800
-void sub_468800()
+void sub_468800(void)
 {
     ObjectType object_type;
     int description;

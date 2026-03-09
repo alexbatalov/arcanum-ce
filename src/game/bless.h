@@ -10,8 +10,8 @@ typedef struct BlessLogbookEntry {
     /* 0008 */ DateTime datetime;
 } BlessLogbookEntry;
 
-bool bless_mod_load();
-void bless_mod_unload();
+bool bless_mod_load(void);
+void bless_mod_unload(void);
 void bless_copy_name(int bless, char* buffer);
 void bless_copy_description(int bless, char* buffer);
 int bless_get_logbook_data(int64_t obj, BlessLogbookEntry* logbook_entries);

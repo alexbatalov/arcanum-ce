@@ -4,7 +4,7 @@
 #include "game/walkmask.h"
 
 static void sub_4CA0F0(int a1, int a2, int a3);
-static void sub_4CA240();
+static void sub_4CA240(void);
 static void sub_4CA7C0(TigRect* rect);
 
 // 0x5FF570
@@ -53,7 +53,7 @@ bool facade_init(GameInitInfo* init_info)
 }
 
 // 0x4C9DE0
-void facade_exit()
+void facade_exit(void)
 {
     sub_4CA240();
     facade_initialized = false;
@@ -198,7 +198,7 @@ void sub_4CA0F0(int a1, int a2, int a3)
 }
 
 // 0x4CA240
-void sub_4CA240()
+void sub_4CA240(void)
 {
     int index;
 
@@ -219,7 +219,7 @@ void sub_4CA240()
 }
 
 // 0x4CA2C0
-void sub_4CA2C0()
+void sub_4CA2C0(void)
 {
     // TODO: Incomplete.
 }

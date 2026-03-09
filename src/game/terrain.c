@@ -31,9 +31,9 @@ static void terrain_color(int terrain_type, int* red, int* green, int* blue);
 static void sub_4E8CE0(int a1, int a2, int a3, int a4, uint16_t* value);
 static int sub_4E8D60(int a1, int a2, int a3);
 static int64_t sub_4E8E60(int a1);
-static bool terrain_init_types();
-static bool sub_4E8F40();
-static bool terrain_init_transitions();
+static bool terrain_init_types(void);
+static bool sub_4E8F40(void);
+static bool terrain_init_transitions(void);
 static bool terrain_parse_transition(char* str, int* from_terrain_type, int* to_terrain_type);
 static bool sub_4E92B0(int from, int to, bool* transitions, int* a4);
 static bool sub_4E9310(int* a1, int a2, int a3, bool* transitions);
@@ -148,12 +148,12 @@ bool terrain_init(GameInitInfo* init_info)
 }
 
 // 0x4E7B50
-void terrain_reset()
+void terrain_reset(void)
 {
 }
 
 // 0x4E7B60
-void terrain_exit()
+void terrain_exit(void)
 {
     if (dword_6039E8 != NULL) {
         FREE(dword_6039E8);
@@ -271,7 +271,7 @@ bool terrain_open(const char* base_path, const char* save_path)
 }
 
 // 0x4E7E80
-void terrain_map_close()
+void terrain_map_close(void)
 {
     int index;
 
@@ -293,7 +293,7 @@ void terrain_map_close()
 }
 
 // 0x4E7EF0
-void sub_4E7EF0()
+void sub_4E7EF0(void)
 {
     char drive[COMPAT_MAX_DRIVE];
     char dir[COMPAT_MAX_DIR];
@@ -309,7 +309,7 @@ void sub_4E7EF0()
 }
 
 // 0x4E7F90
-bool sub_4E7F90()
+bool sub_4E7F90(void)
 {
     TigVideoBufferCreateInfo vb_create_info;
     TigVideoBuffer* vb;
@@ -431,7 +431,7 @@ void terrain_fill(Sector* sector)
 }
 
 // 0x4E8740
-bool terrain_flush()
+bool terrain_flush(void)
 {
     TigFile* stream;
     TerrainHeader hdr;
@@ -655,7 +655,7 @@ int64_t sub_4E8E60(int a1)
 }
 
 // 0x4E8EA0
-bool terrain_init_types()
+bool terrain_init_types(void)
 {
     MesFileEntry mes_file_entry;
     int index;
@@ -683,7 +683,7 @@ bool terrain_init_types()
 }
 
 // 0x4E8F40
-bool sub_4E8F40()
+bool sub_4E8F40(void)
 {
     MesFileEntry msg;
     char path[TIG_MAX_PATH];
@@ -725,7 +725,7 @@ bool sub_4E8F40()
 }
 
 // 0x4E90B0
-bool terrain_init_transitions()
+bool terrain_init_transitions(void)
 {
     MesFileEntry mes_file_entry;
     int transition_count;

@@ -51,19 +51,19 @@ bool broadcast_ui_init(GameInitInfo* init_info)
 }
 
 // 0x571880
-void broadcast_ui_exit()
+void broadcast_ui_exit(void)
 {
     tig_font_destroy(broadcast_ui_font);
 }
 
 // 0x571890
-void broadcast_ui_reset()
+void broadcast_ui_reset(void)
 {
     broadcast_ui_bcast.str[0] = '\0';
 }
 
 // 0x5718A0
-void broadcast_ui_open()
+void broadcast_ui_open(void)
 {
     if (broadcast_ui_opened || iso_interface_window_get_2() == ROTWIN_TYPE_BROADCAST) {
         broadcast_ui_close();
@@ -79,7 +79,7 @@ void broadcast_ui_open()
 }
 
 // 0x571910
-void broadcast_ui_close()
+void broadcast_ui_close(void)
 {
     if (broadcast_ui_opened) {
         broadcast_ui_opened = false;

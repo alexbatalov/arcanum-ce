@@ -191,7 +191,7 @@ bool script_init(GameInitInfo* init_info)
 }
 
 // 0x4447D0
-void script_reset()
+void script_reset(void)
 {
     int index;
 
@@ -211,7 +211,7 @@ void script_reset()
 }
 
 // 0x444830
-void script_exit()
+void script_exit(void)
 {
     int index;
 
@@ -230,7 +230,7 @@ void script_exit()
 }
 
 // 0x444890
-bool script_mod_load()
+bool script_mod_load(void)
 {
     mes_load("mes\\storystate.mes", &script_story_state_mes_file);
 
@@ -238,7 +238,7 @@ bool script_mod_load()
 }
 
 // 0x4448B0
-void script_mod_unload()
+void script_mod_unload(void)
 {
     if (script_story_state_mes_file != MES_FILE_HANDLE_INVALID) {
         mes_unload(script_story_state_mes_file);
@@ -550,7 +550,7 @@ void script_local_counter_set(int64_t obj, int index, int counter, int value)
 }
 
 // 0x445090
-int script_story_state_get()
+int script_story_state_get(void)
 {
     return script_story_state;
 }

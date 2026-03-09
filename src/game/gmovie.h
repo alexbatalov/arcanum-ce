@@ -11,8 +11,8 @@ typedef unsigned int GameMovieFlags;
 #define GAME_MOVIE_IGNORE_KEYBOARD 0x4u
 #define GAME_MOVIE_NO_FINAL_FLIP 0x8u
 
-bool gmovie_mod_load();
-void gmovie_mod_unload();
+bool gmovie_mod_load(void);
+void gmovie_mod_unload(void);
 void gmovie_play(int movie, GameMovieFlags flags, int sound_track);
 void gmovie_play_path(const char* path, GameMovieFlags flags, int sound_track);
 

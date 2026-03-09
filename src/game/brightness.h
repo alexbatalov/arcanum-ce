@@ -4,6 +4,6 @@
 #include "game/context.h"
 
 bool brightness_init(GameInitInfo* init_info);
-void brightness_exit();
+void brightness_exit(void);
 
 #endif /* ARCANUM_GAME_BRIGHTNESS_H_ */

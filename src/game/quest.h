@@ -32,10 +32,10 @@ typedef struct PcQuestState {
 static_assert(sizeof(PcQuestState) == 0x10, "wrong size");
 
 bool quest_init(GameInitInfo* init_info);
-void quest_reset();
-void quest_exit();
-bool quest_mod_load();
-void quest_mod_unload();
+void quest_reset(void);
+void quest_exit(void);
+bool quest_mod_load(void);
+void quest_mod_unload(void);
 bool quest_load(GameLoadInfo* load_info);
 bool quest_save(TigFile* stream);
 int quest_dialog_line(int64_t pc_obj, int64_t npc_obj, int num);

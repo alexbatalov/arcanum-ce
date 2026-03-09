@@ -57,7 +57,7 @@ bool gameinit_init(GameInitInfo* init_info)
 }
 
 // 0x4B9BE0
-void gameinit_reset()
+void gameinit_reset(void)
 {
     int map;
 
@@ -72,13 +72,13 @@ void gameinit_reset()
 }
 
 // 0x4B9C20
-void gameinit_exit()
+void gameinit_exit(void)
 {
     gameinit_initialized = false;
 }
 
 // 0x4B9C30
-bool gameinit_mod_load()
+bool gameinit_mod_load(void)
 {
     MesFileEntry mes_file_entry;
 
@@ -123,7 +123,7 @@ bool gameinit_mod_load()
 }
 
 // 0x4B9DB0
-void gameinit_mod_unload()
+void gameinit_mod_unload(void)
 {
     if (!gameinit_editor) {
         gameinit_adventure_name = NULL;

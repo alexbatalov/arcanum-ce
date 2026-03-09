@@ -722,7 +722,7 @@ void check_duplicates(MesFile* mes_file)
  *
  * 0x4D4DD0
  */
-void mes_stats()
+void mes_stats(void)
 {
     int index;
 

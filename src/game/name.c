@@ -5,16 +5,16 @@
 #include "game/a_name.h"
 #include "game/mes.h"
 
-static void name_missing_art_init();
-static bool name_missing_art_load();
-static bool name_missing_art_save();
-static int sub_41D390();
+static void name_missing_art_init(void);
+static bool name_missing_art_load(void);
+static bool name_missing_art_save(void);
+static int sub_41D390(void);
 static void fix_missing_art(int num, int cnt, unsigned int* missing, int* anim_ptr, int* weapon_ptr);
 static tig_art_id_t sub_41DFC0(int type, int* extra);
 static tig_art_id_t sub_41E200(tig_art_id_t art_id);
 static int sub_41E960(int a1);
 static bool sub_41F190(TigMessage* msg);
-static void sub_41F240();
+static void sub_41F240(void);
 
 // 0x5A1064
 static const char* off_5A1064 = "art";
@@ -380,7 +380,7 @@ bool name_init(GameInitInfo* init_info)
 }
 
 // 0x41CDA0
-void name_exit()
+void name_exit(void)
 {
     if (name_initialized) {
         FREE(missing_critter_art);
@@ -408,7 +408,7 @@ void name_exit()
 }
 
 // 0x41CE60
-void name_missing_art_init()
+void name_missing_art_init(void)
 {
     int idx;
     int num;
@@ -511,7 +511,7 @@ void name_missing_art_init()
 }
 
 // 0x41D1F0
-bool name_missing_art_load()
+bool name_missing_art_load(void)
 {
     TigFile* stream;
     int expected_cnt;
@@ -555,7 +555,7 @@ bool name_missing_art_load()
 }
 
 // 0x41D2C0
-bool name_missing_art_save()
+bool name_missing_art_save(void)
 {
     int cnt;
     TigFile* stream;
@@ -594,7 +594,7 @@ bool name_missing_art_save()
 }
 
 // 0x41D390
-int sub_41D390()
+int sub_41D390(void)
 {
     int cnt = 0;
     TigFileList dir_list;
@@ -1497,7 +1497,7 @@ bool sub_41F190(TigMessage* msg)
 }
 
 // 0x41F240
-void sub_41F240()
+void sub_41F240(void)
 {
     TigRect dst_rect;
     TigRect src_rect;

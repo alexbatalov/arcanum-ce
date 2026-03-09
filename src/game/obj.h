@@ -392,8 +392,8 @@ typedef struct Object {
 typedef bool(ObjEnumerateCallback)(Object* object, int fld);
 
 bool obj_init(GameInitInfo* init_info);
-void obj_exit();
-void sub_405250();
+void obj_exit(void);
+void sub_405250(void);
 bool obj_validate_system(unsigned int flags);
 void sub_405790(int64_t obj);
 void obj_create_proto(int type, int64_t* obj_ptr);

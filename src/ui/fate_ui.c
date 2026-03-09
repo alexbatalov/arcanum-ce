@@ -8,8 +8,8 @@
 #include "ui/intgame.h"
 #include "ui/types.h"
 
-static void fate_ui_create();
-static void fate_ui_destroy();
+static void fate_ui_create(void);
+static void fate_ui_destroy(void);
 static bool fate_ui_message_filter(TigMessage* msg);
 static void fate_ui_handle_fate_resolved(int64_t obj, int fate);
 
@@ -109,7 +109,7 @@ bool fate_ui_init(GameInitInfo* init_info)
  *
  * 0x56FBB0
  */
-void fate_ui_reset()
+void fate_ui_reset(void)
 {
     if (fate_ui_created) {
         fate_ui_close();
@@ -121,7 +121,7 @@ void fate_ui_reset()
  *
  * 0x56FBC0
  */
-void fate_ui_exit()
+void fate_ui_exit(void)
 {
     mes_unload(fate_ui_mes);
     tig_font_destroy(fate_ui_font);
@@ -163,7 +163,7 @@ void fate_ui_toggle(int64_t obj)
  *
  * 0x56FC40
  */
-void fate_ui_close()
+void fate_ui_close(void)
 {
     if (fate_ui_created) {
         fate_ui_destroy();
@@ -176,7 +176,7 @@ void fate_ui_close()
  *
  * 0x56FC70
  */
-void fate_ui_create()
+void fate_ui_create(void)
 {
     tig_art_id_t art_id;
     TigArtFrameData art_frame_data;
@@ -262,7 +262,7 @@ void fate_ui_create()
  *
  * 0x56FE40
  */
-void fate_ui_destroy()
+void fate_ui_destroy(void)
 {
     if (fate_ui_created) {
         if (tig_window_destroy(fate_ui_window) == TIG_OK) {

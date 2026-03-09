@@ -27,7 +27,7 @@ typedef struct CyclicUiControlInfo {
 } CyclicUiControlInfo;
 
 bool cyclic_ui_init(GameInitInfo* init_info);
-void cyclic_ui_exit();
+void cyclic_ui_exit(void);
 bool cyclic_ui_handle_button_pressed(tig_button_handle_t button_handle);
 void cyclic_ui_control_init(CyclicUiControlInfo* info);
 bool cyclic_ui_control_create(CyclicUiControlInfo* info, int* id_ptr);

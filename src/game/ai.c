@@ -120,7 +120,7 @@ static void ai_action_perform_combat(Ai* ai);
 static void ai_action_perform_baking_off(Ai* ai);
 static bool ai_use_grenade(Ai* ai, int64_t a2);
 static bool ai_waypoints_process(int64_t obj, bool a2);
-static bool ai_is_day();
+static bool ai_is_day(void);
 static bool ai_standpoints_process(int64_t obj, bool a2);
 static bool ai_get_standpoint(int64_t obj, int64_t* standpoint_ptr);
 static void ai_wake_up(int64_t npc_obj);
@@ -234,12 +234,12 @@ bool ai_init(GameInitInfo* init_info)
 }
 
 // 0x4A83F0
-void ai_exit()
+void ai_exit(void)
 {
 }
 
 // 0x4A8400
-bool ai_mod_load()
+bool ai_mod_load(void)
 {
     mes_file_handle_t mes_file;
     MesFileEntry mes_file_entry;
@@ -275,7 +275,7 @@ bool ai_mod_load()
 }
 
 // 0x4A84C0
-void ai_mod_unload()
+void ai_mod_unload(void)
 {
 }
 
@@ -2700,7 +2700,7 @@ bool ai_waypoints_process(int64_t obj, bool a2)
 }
 
 // 0x4ACD90
-bool ai_is_day()
+bool ai_is_day(void)
 {
     int hour;
 
@@ -4282,7 +4282,7 @@ bool ai_check_decoy(int64_t source_obj, int64_t target_obj)
 }
 
 // 0x4AF860
-void ai_npc_fighting_toggle()
+void ai_npc_fighting_toggle(void)
 {
     UiMessage ui_message;
 

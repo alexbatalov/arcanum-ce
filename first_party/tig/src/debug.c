@@ -21,7 +21,7 @@ int tig_debug_init(TigInitInfo* init_info)
 }
 
 // 0x4FEB60
-void tig_debug_exit()
+void tig_debug_exit(void)
 {
 }
 

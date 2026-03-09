@@ -14,7 +14,7 @@ typedef struct FadeData {
 } FadeData;
 
 bool gfade_init(GameInitInfo* init_info);
-void gfade_exit();
+void gfade_exit(void);
 void gfade_resize(GameResizeInfo* resize_info);
 void gfade_run(FadeData* fade_data);
 bool gfade_timeevent_process(TimeEvent* timeevent);

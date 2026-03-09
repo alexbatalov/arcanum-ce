@@ -15,7 +15,7 @@ typedef enum Reaction {
 } Reaction;
 
 bool reaction_init(GameInitInfo* init_info);
-void reaction_exit();
+void reaction_exit(void);
 bool reaction_met_before(int64_t npc_obj, int64_t pc_obj);
 int reaction_get(int64_t npc_obj, int64_t pc_obj);
 int sub_4C0CE0(int64_t npc_obj, int64_t pc_obj);

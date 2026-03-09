@@ -16,7 +16,7 @@ bool hrp_init(GameInitInfo* init_info);
 void hrp_resize(GameResizeInfo* resize_info);
 void hrp_apply(TigRect* rect, Gravity gravity);
 void hrp_center(int* x, int* y);
-int hrp_iso_window_width_get();
-int hrp_iso_window_height_get();
+int hrp_iso_window_width_get(void);
+int hrp_iso_window_height_get(void);
 
 #endif /* ARCANUM_GAME_HRP_H_ */

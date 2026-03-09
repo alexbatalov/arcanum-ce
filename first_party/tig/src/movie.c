@@ -11,7 +11,7 @@
 #include "tig/video.h"
 #include "tig/window.h"
 
-static bool tig_movie_do_frame();
+static bool tig_movie_do_frame(void);
 
 // 0x62B2BC
 static HBINK tig_movie_bink;
@@ -41,8 +41,8 @@ static s32 BINKCALL SdlMixerPause(struct BINKSND* snd, s32 status);
 static s32 BINKCALL SdlMixerSetOnOff(struct BINKSND* snd, s32 status);
 static void BINKCALL SdlMixerClose(struct BINKSND* snd);
 static void setup_track(struct BINKSND* snd);
-static int ref_mixer();
-static void unref_mixer();
+static int ref_mixer(void);
+static void unref_mixer(void);
 
 static MIX_Mixer* mixer;
 static int mixer_refcount;
@@ -62,7 +62,7 @@ int tig_movie_init(TigInitInfo* init_info)
 }
 
 // 0x531520
-void tig_movie_exit()
+void tig_movie_exit(void)
 {
     // COMPAT: Free binkw32.dll
     bink_compat_exit();
@@ -169,13 +169,13 @@ int tig_movie_play(const char* path, TigMovieFlags movie_flags, int sound_track)
 // during message handling, so there is no point to expose it.
 //
 // 0x5317C0
-bool tig_movie_is_playing()
+bool tig_movie_is_playing(void)
 {
     return tig_movie_bink != NULL;
 }
 
 // 0x5317D0
-bool tig_movie_do_frame()
+bool tig_movie_do_frame(void)
 {
     TigVideoBufferData video_buffer_data;
     TigRect src_rect;
@@ -423,7 +423,7 @@ void setup_track(struct BINKSND* snd)
     MIX_SetTrackStereo(snddata->track, &(snddata->pan));
 }
 
-int ref_mixer()
+int ref_mixer(void)
 {
     if (++mixer_refcount == 1) {
         mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, NULL);
@@ -436,7 +436,7 @@ int ref_mixer()
     return 1;
 }
 
-void unref_mixer()
+void unref_mixer(void)
 {
     if (--mixer_refcount == 0) {
         MIX_DestroyMixer(mixer);

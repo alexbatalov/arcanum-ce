@@ -38,7 +38,7 @@ typedef struct TigFileCache {
 int tig_file_cache_init(TigInitInfo* init_info);
 
 // Shutdowns file cache system.
-void tig_file_cache_exit();
+void tig_file_cache_exit(void);
 
 // Evicts ununsed entries from cache.
 void tig_file_cache_flush(TigFileCache* cache);

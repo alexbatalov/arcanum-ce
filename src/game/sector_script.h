@@ -5,8 +5,8 @@
 #include "game/script.h"
 
 bool sector_script_init(GameInitInfo* init_info);
-void sector_script_reset();
-void sector_script_exit();
+void sector_script_reset(void);
+void sector_script_exit(void);
 bool sector_script_get(int64_t sector_id, Script* scr);
 bool sector_script_set(int64_t sector_id, Script* scr);
 

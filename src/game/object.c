@@ -96,21 +96,21 @@ static void sub_442D90(int64_t obj, ObjectRenderColors* colors);
 static TigPalette object_render_palette_get(int64_t obj);
 static void object_render_colors_set(int64_t obj, ObjectRenderColors* colors);
 static void object_render_colors_clear(int64_t obj);
-static ObjectRenderColors* render_color_array_alloc();
+static ObjectRenderColors* render_color_array_alloc(void);
 static void render_color_array_free(ObjectRenderColors* colors);
-static void render_color_array_reserve();
-static void render_color_array_clear();
+static void render_color_array_reserve(void);
+static void render_color_array_clear(void);
 static void object_toggle_flat(int64_t obj, bool a2);
 static void object_setup_blit(int64_t obj, TigArtBlitInfo* blit_info);
 static void object_enqueue_blit(TigArtBlitInfo* blit_info, int order);
-static void object_flush_pending_blits();
+static void object_flush_pending_blits(void);
 static int object_compare_blits(const void* va, const void* vb);
 static void sub_443620(unsigned int flags, int scale, int x, int y, tig_art_id_t art_id, TigRect* rect);
 static void sub_4437C0(int64_t obj);
 static bool sub_443880(TigRect* rect, tig_art_id_t art_id);
-static bool load_reaction_colors();
+static bool load_reaction_colors(void);
 static void sub_444270(int64_t obj, int a2);
-static void object_lighting_changed();
+static void object_lighting_changed(void);
 
 // 0x5A548C
 static int dword_5A548C[8] = {
@@ -306,7 +306,7 @@ void object_resize(GameResizeInfo* resize_info)
 }
 
 // 0x43A650
-void object_reset()
+void object_reset(void)
 {
     TigRectListNode* next;
     int index;
@@ -323,7 +323,7 @@ void object_reset()
 }
 
 // 0x43A690
-void object_exit()
+void object_exit(void)
 {
     if (object_pending_blits != NULL) {
         FREE(object_pending_blits);
@@ -454,7 +454,7 @@ void object_update_view(ViewOptions* view_options)
 }
 
 // 0x43AA60
-void object_map_close()
+void object_map_close(void)
 {
     object_reset();
 }
@@ -472,13 +472,13 @@ void object_type_toggle(int obj_type)
 }
 
 // 0x43AAA0
-bool sub_43AAA0()
+bool sub_43AAA0(void)
 {
     return dword_5E2F28;
 }
 
 // 0x43AAB0
-void sub_43AAB0()
+void sub_43AAB0(void)
 {
     dword_5E2F28 = !dword_5E2F28;
     if (dword_5E2F28) {
@@ -967,7 +967,7 @@ void object_hover_obj_set(int64_t obj)
 }
 
 // 0x43C570
-int64_t object_hover_obj_get()
+int64_t object_hover_obj_get(void)
 {
     if (object_hover_obj == OBJ_HANDLE_NULL) {
         return OBJ_HANDLE_NULL;
@@ -1179,7 +1179,7 @@ void object_invalidate_rect(TigRect* rect)
 }
 
 // 0x43CB70
-void object_flush()
+void object_flush(void)
 {
     TigRectListNode* next;
 
@@ -4263,7 +4263,7 @@ void object_blit_flags_set(unsigned int flags)
 }
 
 // 0x442040
-int object_blit_flags_get()
+int object_blit_flags_get(void)
 {
     return object_blit_flags;
 }
@@ -4668,7 +4668,7 @@ void object_render_colors_clear(int64_t obj)
 }
 
 // 0x442FE0
-ObjectRenderColors* render_color_array_alloc()
+ObjectRenderColors* render_color_array_alloc(void)
 {
     ObjectRenderColorsNode* node;
 
@@ -4695,7 +4695,7 @@ void render_color_array_free(ObjectRenderColors* colors)
 }
 
 // 0x443030
-void render_color_array_reserve()
+void render_color_array_reserve(void)
 {
     int index;
     ObjectRenderColorsNode* node;
@@ -4711,7 +4711,7 @@ void render_color_array_reserve()
 }
 
 // 0x443070
-void render_color_array_clear()
+void render_color_array_clear(void)
 {
     ObjectRenderColorsNode* node;
     ObjectRenderColorsNode* next;
@@ -4868,7 +4868,7 @@ void object_enqueue_blit(TigArtBlitInfo* blit_info, int order)
 }
 
 // 0x443560
-void object_flush_pending_blits()
+void object_flush_pending_blits(void)
 {
     int index;
 
@@ -5251,7 +5251,7 @@ bool sub_444130(FollowerInfo* a1)
 }
 
 // 0x444150
-bool load_reaction_colors()
+bool load_reaction_colors(void)
 {
     mes_file_handle_t mes_file;
     MesFileEntry mes_file_entry;
@@ -5417,7 +5417,7 @@ void sub_4445A0(int64_t a1, int64_t a2)
 }
 
 // 0x444690
-void object_lighting_changed()
+void object_lighting_changed(void)
 {
     int value;
 

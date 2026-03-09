@@ -40,8 +40,8 @@ typedef struct TigFadeState {
 } TigFadeState;
 
 static bool tig_video_window_create(TigInitInfo* init_info);
-static void tig_video_window_destroy();
-static bool sub_524830();
+static void tig_video_window_destroy(void);
+static bool sub_524830(void);
 static int tig_video_screenshot_make_internal(int key);
 static int tig_video_buffer_data_to_bmp(SDL_Surface* surface, TigRect* rect, const char* file_name);
 
@@ -116,7 +116,7 @@ int tig_video_init(TigInitInfo* init_info)
 }
 
 // 0x51F3F0
-void tig_video_exit()
+void tig_video_exit(void)
 {
     tig_video_window_destroy();
     tig_video_initialized = false;
@@ -145,7 +145,7 @@ int tig_video_renderer_get(SDL_Renderer** renderer_ptr)
 }
 
 // 0x51F4A0
-void tig_video_display_fps()
+void tig_video_display_fps(void)
 {
     // 0x60F248
     static tig_timestamp_t curr;
@@ -236,7 +236,7 @@ int tig_video_fill(const TigRect* rect, tig_color_t color)
 }
 
 // 0x51F8F0
-int tig_video_flip()
+int tig_video_flip(void)
 {
     SDL_UpdateTexture(tig_video_state.texture, NULL, tig_video_state.surface->pixels, tig_video_state.surface->pitch);
 
@@ -292,7 +292,7 @@ int tig_video_screenshot_set_settings(TigVideoScreenshotSettings* settings)
 }
 
 // 0x51FA30
-int tig_video_screenshot_make()
+int tig_video_screenshot_make(void)
 {
     return tig_video_screenshot_make_internal(tig_video_screenshot_key);
 }
@@ -310,7 +310,7 @@ int tig_video_get_palette(unsigned int* colors)
 }
 
 // 0x51FB10
-int tig_video_3d_check_initialized()
+int tig_video_3d_check_initialized(void)
 {
     if (!tig_video_initialized) {
         return TIG_ERR_NOT_INITIALIZED;
@@ -324,7 +324,7 @@ int tig_video_3d_check_initialized()
 }
 
 // 0x51FB30
-int tig_video_3d_check_hardware()
+int tig_video_3d_check_hardware(void)
 {
     if (!tig_video_initialized) {
         return TIG_ERR_NOT_INITIALIZED;
@@ -338,7 +338,7 @@ int tig_video_3d_check_hardware()
 }
 
 // 0x51FB50
-int tig_video_3d_begin_scene()
+int tig_video_3d_begin_scene(void)
 {
     if (tig_video_3d_initialized) {
         return TIG_ERR_GENERIC;
@@ -349,7 +349,7 @@ int tig_video_3d_begin_scene()
 }
 
 // 0x51FBA0
-int tig_video_3d_end_scene()
+int tig_video_3d_end_scene(void)
 {
     if (!tig_video_3d_scene_started) {
         return TIG_ERR_GENERIC;
@@ -364,7 +364,7 @@ int tig_video_3d_end_scene()
 }
 
 // 0x51FC90
-int tig_video_check_gamma_control()
+int tig_video_check_gamma_control(void)
 {
     return TIG_OK;
 }
@@ -1213,7 +1213,7 @@ bool tig_video_window_create(TigInitInfo* init_info)
 }
 
 // 0x5242F0
-void tig_video_window_destroy()
+void tig_video_window_destroy(void)
 {
     if (tig_video_state.surface != NULL) {
         SDL_DestroySurface(tig_video_state.surface);
@@ -1237,7 +1237,7 @@ void tig_video_window_destroy()
 }
 
 // 0x524830
-bool sub_524830()
+bool sub_524830(void)
 {
     int bpp;
     Uint32 r;

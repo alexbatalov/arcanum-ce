@@ -276,7 +276,7 @@ void options_ui_start(OptionsUiTab tab, tig_window_handle_t window_handle, bool 
  *
  * 0x589430
  */
-bool options_ui_load_module()
+bool options_ui_load_module(void)
 {
     unsigned int selected;
 
@@ -305,7 +305,7 @@ bool options_ui_load_module()
  *
  * 0x5894C0
  */
-void options_ui_close()
+void options_ui_close(void)
 {
     int index;
 

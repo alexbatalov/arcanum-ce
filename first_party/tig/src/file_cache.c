@@ -63,7 +63,7 @@ int tig_file_cache_init(TigInitInfo* init_info)
 }
 
 // 0x538A90
-void tig_file_cache_exit()
+void tig_file_cache_exit(void)
 {
 }
 

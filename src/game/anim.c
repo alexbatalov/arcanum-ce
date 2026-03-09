@@ -34,7 +34,7 @@
 #include "game/ui.h"
 
 static bool sub_421CE0(AnimID* anim_id, AnimRunInfo* run_info);
-static void violence_filter_changed();
+static void violence_filter_changed(void);
 static bool anim_run_info_save(AnimRunInfo* run_info, TigFile* stream);
 static bool anim_goal_data_save(AnimGoalData* goal_data, TigFile* stream);
 static bool sub_422430(AnimRunInfoParam* param, Ryan* a2, int type, TigFile* stream);
@@ -44,7 +44,7 @@ static bool anim_goal_data_load(AnimGoalData* goal_data, TigFile* stream);
 static bool sub_422A50(AnimRunInfoParam* param, Ryan* a2, int type, TigFile* stream);
 static bool sub_423C80(AnimRunInfo* run_info, DateTime* a2, int delay);
 static void sub_423D10(AnimRunInfo* run_info, unsigned int* flags_ptr, AnimGoalNode** goal_node_ptr, AnimGoalData** goal_data_ptr, bool* a5);
-static int anim_goal_pending_active_goals_count();
+static int anim_goal_pending_active_goals_count(void);
 static bool sub_436220(int64_t obj, int64_t target_obj, int64_t item_obj);
 static bool sub_436720(int64_t* source_obj_ptr, int64_t* block_obj_ptr);
 static void sub_436CB0(AnimID anim_id);
@@ -2758,7 +2758,7 @@ bool anim_init(GameInitInfo* init_info)
 }
 
 // 0x421BF0
-void anim_exit()
+void anim_exit(void)
 {
     if (!anim_editor) {
         animfx_list_exit(&weapon_eye_candies);
@@ -2767,7 +2767,7 @@ void anim_exit()
 }
 
 // 0x421C20
-void anim_reset()
+void anim_reset(void)
 {
     dword_5E3500 = 0;
 }
@@ -2929,7 +2929,7 @@ bool anim_save(TigFile* stream)
 }
 
 // 0x4221A0
-void violence_filter_changed()
+void violence_filter_changed(void)
 {
     violence_filter = settings_get_value(&settings, VIOLENCE_FILTER_KEY);
 }
@@ -3452,7 +3452,7 @@ void anim_load_nodes_from_map(const char* map)
 }
 
 // 0x4232F0
-void anim_debug_enable()
+void anim_debug_enable(void)
 {
 }
 
@@ -3908,7 +3908,7 @@ void sub_423E60(const char* msg)
 }
 
 // 0x423EB0
-int anim_goal_pending_active_goals_count()
+int anim_goal_pending_active_goals_count(void)
 {
     int index;
     AnimRunInfo* run_info;
@@ -3942,25 +3942,25 @@ int anim_goal_pending_active_goals_count()
 }
 
 // 0x423FB0
-void sub_423FB0()
+void sub_423FB0(void)
 {
     animNumActiveGoals = anim_goal_pending_active_goals_count();
 }
 
 // 0x423FC0
-void anim_catch_up_enable()
+void anim_catch_up_enable(void)
 {
     anim_catch_up = true;
 }
 
 // 0x423FD0
-void anim_catch_up_disable()
+void anim_catch_up_disable(void)
 {
     anim_catch_up = false;
 }
 
 // 0x423FE0
-void sub_423FE0(void (*func)())
+void sub_423FE0(void (*func)(void))
 {
     dword_5E34F8 = func;
 }
@@ -4043,7 +4043,7 @@ bool sub_424070(int64_t obj, int priority_level, bool a3, bool a4)
 }
 
 // 0x424250
-bool anim_goal_interrupt_all_goals()
+bool anim_goal_interrupt_all_goals(void)
 {
     int index;
 
@@ -4077,7 +4077,7 @@ bool anim_goal_interrupt_all_goals_of_priority(int priority_level)
 }
 
 // 0x424310
-bool anim_goal_interrupt_all_for_tb_combat()
+bool anim_goal_interrupt_all_for_tb_combat(void)
 {
     int index = 0;
     AnimRunInfo* run_info;
@@ -11362,7 +11362,7 @@ bool sub_4303D0(int64_t obj)
 }
 
 // 0x430460
-void sub_430460()
+void sub_430460(void)
 {
     DateTime datetime;
     TimeEvent timeevent;
@@ -15127,7 +15127,7 @@ void turn_on_running(AnimID anim_id)
 }
 
 // 0x436C20
-void sub_436C20()
+void sub_436C20(void)
 {
     turn_on_running(stru_5A1908);
 }
@@ -15141,7 +15141,7 @@ void sub_436C50(AnimID anim_id)
 }
 
 // 0x436C80
-void sub_436C80()
+void sub_436C80(void)
 {
     sub_436C50(stru_5A1908);
 }
@@ -15157,7 +15157,7 @@ void sub_436CB0(AnimID anim_id)
 }
 
 // 0x436CF0
-void sub_436CF0()
+void sub_436CF0(void)
 {
     sub_436CB0(stru_5A1908);
 }
@@ -15328,7 +15328,7 @@ void sub_437460(AGModifyData* modify_data)
 }
 
 // 0x4374C0
-void mp_anim_modify()
+void mp_anim_modify(void)
 {
     // TODO: Incomplete.
 }
@@ -15396,7 +15396,7 @@ bool anim_play_weapon_fx(CombatContext* combat, int64_t source_obj, int64_t targ
 }
 
 // 0x437980
-void sub_437980()
+void sub_437980(void)
 {
 }
 

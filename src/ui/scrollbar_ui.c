@@ -46,9 +46,9 @@ static int scrollbar_ui_get_thumb_height(int index);
 static int scrollbar_ui_get_thumb_top(int index);
 static int scrollbar_ui_get_thumb_bottom(int index);
 static bool scrollbar_ui_is_value_in_range(int index, int value);
-static void scrollbar_ui_redraw_lock_acquire();
-static void scrollbar_ui_redraw_lock_release();
-static int scrollbar_ui_redraw_lock_get();
+static void scrollbar_ui_redraw_lock_acquire(void);
+static void scrollbar_ui_redraw_lock_release(void);
+static int scrollbar_ui_redraw_lock_get(void);
 
 /**
  * Source rect for the top cap of the scrollbar thumb graphic.
@@ -227,7 +227,7 @@ bool scrollbar_ui_init(GameInitInfo* init_info)
  *
  * 0x580480
  */
-void scrollbar_ui_exit()
+void scrollbar_ui_exit(void)
 {
     scrollbar_ui_initialized = false;
 }
@@ -237,7 +237,7 @@ void scrollbar_ui_exit()
  *
  * 0x580490
  */
-void scrollbar_ui_reset()
+void scrollbar_ui_reset(void)
 {
     int index;
 
@@ -830,7 +830,7 @@ void scrollbar_ui_control_set(ScrollbarId id, int type, int value)
  *
  * 0x5811A0
  */
-void scrollbar_ui_begin_ignore_events()
+void scrollbar_ui_begin_ignore_events(void)
 {
     scrollbar_ui_ignore_events_counter = true;
 }
@@ -839,7 +839,7 @@ void scrollbar_ui_begin_ignore_events()
  * Tells scrollbar UI module to resume the handling of events.
  */
 // 0x5811B0
-void scrollbar_ui_end_ignore_events()
+void scrollbar_ui_end_ignore_events(void)
 {
     scrollbar_ui_ignore_events_counter = false;
 }
@@ -1130,7 +1130,7 @@ bool scrollbar_ui_is_value_in_range(int index, int value)
  *
  * 0x5816D0
  */
-void scrollbar_ui_redraw_lock_acquire()
+void scrollbar_ui_redraw_lock_acquire(void)
 {
     scrollbar_ui_redraw_lock++;
 }
@@ -1140,7 +1140,7 @@ void scrollbar_ui_redraw_lock_acquire()
  *
  * 0x5816E0
  */
-void scrollbar_ui_redraw_lock_release()
+void scrollbar_ui_redraw_lock_release(void)
 {
     scrollbar_ui_redraw_lock--;
 }
@@ -1150,7 +1150,7 @@ void scrollbar_ui_redraw_lock_release()
  *
  * 0x5816F0
  */
-int scrollbar_ui_redraw_lock_get()
+int scrollbar_ui_redraw_lock_get(void)
 {
     return scrollbar_ui_redraw_lock;
 }

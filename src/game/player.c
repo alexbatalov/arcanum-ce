@@ -35,7 +35,7 @@ bool player_init(GameInitInfo* init_info)
 }
 
 // 0x40D6E0
-void player_reset()
+void player_reset(void)
 {
     if (player_pc_obj != OBJ_HANDLE_NULL) {
         player_pc_obj = OBJ_HANDLE_NULL;
@@ -46,7 +46,7 @@ void player_reset()
 }
 
 // 0x40D720
-void player_exit()
+void player_exit(void)
 {
     if (player_pc_obj != OBJ_HANDLE_NULL) {
         player_pc_obj = OBJ_HANDLE_NULL;
@@ -105,7 +105,7 @@ bool player_load(GameLoadInfo* load_info)
 }
 
 // 0x40D860
-void sub_40D860()
+void sub_40D860(void)
 {
     if (player_pc_oid.type != OID_TYPE_NULL) {
         player_pc_obj = objp_perm_lookup(player_pc_oid);
@@ -113,7 +113,7 @@ void sub_40D860()
 }
 
 // 0x40D8A0
-void player_create()
+void player_create(void)
 {
     tig_art_id_t art_id;
     int map;
@@ -165,7 +165,7 @@ bool player_is_pc_obj(int64_t obj)
 }
 
 // 0x40DA50
-int64_t player_get_local_pc_obj()
+int64_t player_get_local_pc_obj(void)
 {
     int64_t obj = player_pc_obj;
 
@@ -182,7 +182,7 @@ int64_t player_get_local_pc_obj()
 }
 
 // 0x40DAB0
-bool sub_40DAB0()
+bool sub_40DAB0(void)
 {
     if (player_pc_obj == OBJ_HANDLE_NULL) {
         return false;

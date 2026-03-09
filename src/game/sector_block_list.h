@@ -20,9 +20,9 @@ bool sector_block_list_load(SectorBlockList* list, TigFile* stream);
 bool sector_block_list_save(SectorBlockList* list, TigFile* stream);
 bool sector_block_list_load_with_dif(SectorBlockList* list, TigFile* stream);
 bool sector_block_list_save_with_dif(SectorBlockList* list, TigFile* stream);
-void sub_4F8330();
-void sub_4F8340();
-SectorBlockListNode* sector_block_list_node_create();
+void sub_4F8330(void);
+void sub_4F8340(void);
+SectorBlockListNode* sector_block_list_node_create(void);
 void sector_block_list_node_destroy(SectorBlockListNode* node);
 
 #endif /* ARCANUM_GAME_SECTOR_BLOCK_LIST_H_ */

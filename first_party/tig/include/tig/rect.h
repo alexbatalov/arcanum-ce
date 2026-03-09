@@ -33,10 +33,10 @@ typedef struct TigLine {
 int tig_rect_init(TigInitInfo* init_info);
 
 // Shutdowns RECT subsystem.
-void tig_rect_exit();
+void tig_rect_exit(void);
 
 // Allocates a new `TigRectNode`.
-TigRectListNode* tig_rect_node_create();
+TigRectListNode* tig_rect_node_create(void);
 
 // Destroyes the `TigRectNode` node.
 void tig_rect_node_destroy(TigRectListNode* node);

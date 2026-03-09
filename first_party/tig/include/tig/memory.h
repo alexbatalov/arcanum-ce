@@ -63,8 +63,8 @@ typedef struct TigMemoryStats {
 } TigMemoryStats;
 
 void tig_memory_stats(TigMemoryStats* stats);
-void tig_memory_reset_stats();
-bool tig_memory_validate_memory_leaks();
+void tig_memory_reset_stats(void);
+bool tig_memory_validate_memory_leaks(void);
 
 #endif
 

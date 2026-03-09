@@ -156,12 +156,12 @@ typedef enum FollowerUiButton {
 static void follower_ui_create(int index);
 static bool follower_ui_message_filter(TigMessage* msg);
 static void follower_ui_drop_down_menu_create(int index);
-static void follower_ui_drop_down_menu_destroy();
+static void follower_ui_drop_down_menu_destroy(void);
 static void follower_ui_begin_order_mode(int cmd);
 static void follower_ui_draw(tig_window_handle_t window_handle, int num, int x, int y, int src_scale, int dst_scale);
-static void follower_ui_toggle();
-static void update_toggle_button_visibility();
-static void update_scroll_buttons_visibility();
+static void follower_ui_toggle(void);
+static void update_toggle_button_visibility(void);
+static void update_scroll_buttons_visibility(void);
 static void follower_ui_drop_down_menu_refresh(int highlighted_cmd);
 
 /**
@@ -506,7 +506,7 @@ void follower_ui_create(int index)
  *
  * 0x56A820
  */
-void follower_ui_exit()
+void follower_ui_exit(void)
 {
     int index;
 
@@ -537,7 +537,7 @@ void follower_ui_exit()
  *
  * 0x56A880
  */
-void follower_ui_reset()
+void follower_ui_reset(void)
 {
     int index;
 
@@ -876,7 +876,7 @@ void follower_ui_drop_down_menu_create(int index)
  *
  * 0x56B0F0
  */
-void follower_ui_drop_down_menu_destroy()
+void follower_ui_drop_down_menu_destroy(void)
 {
     if (follower_ui_drop_down_menu_window != TIG_WINDOW_HANDLE_INVALID) {
         tig_window_destroy(follower_ui_drop_down_menu_window);
@@ -962,7 +962,7 @@ void follower_ui_execute_order(S4F2810* a1)
  *
  * 0x56B280
  */
-void follower_ui_end_order_mode()
+void follower_ui_end_order_mode(void)
 {
     intgame_mode_set(INTGAME_MODE_MAIN);
 }
@@ -972,7 +972,7 @@ void follower_ui_end_order_mode()
  *
  * 0x56B290
  */
-void follower_ui_update()
+void follower_ui_update(void)
 {
     int64_t pc_obj;
     int64_t follower_obj;
@@ -1120,7 +1120,7 @@ void follower_ui_draw(tig_window_handle_t window_handle, int num, int x, int y, 
  *
  * 0x56B620
  */
-void follower_ui_toggle()
+void follower_ui_toggle(void)
 {
     int index;
     tig_art_id_t art_id;
@@ -1156,7 +1156,7 @@ void follower_ui_toggle()
  *
  * 0x56B6F0
  */
-void follower_ui_refresh()
+void follower_ui_refresh(void)
 {
     int index;
     int64_t pc_obj;
@@ -1230,7 +1230,7 @@ void follower_ui_refresh()
  *
  * 0x56B850
  */
-void update_toggle_button_visibility()
+void update_toggle_button_visibility(void)
 {
     if (follower_ui_followers_count > 0) {
         tig_window_show(follower_ui_windows[FOLLOWER_UI_BUTTON_TOGGLE]);
@@ -1249,7 +1249,7 @@ void update_toggle_button_visibility()
  *
  * 0x56B880
  */
-void update_scroll_buttons_visibility()
+void update_scroll_buttons_visibility(void)
 {
     tig_art_id_t art_id;
 

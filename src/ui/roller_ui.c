@@ -147,7 +147,7 @@ bool roller_ui_init(GameInitInfo* init_info)
  *
  * 0x56A2B0
  */
-void roller_ui_exit()
+void roller_ui_exit(void)
 {
     if (!roller_ui_initialized) {
         return;

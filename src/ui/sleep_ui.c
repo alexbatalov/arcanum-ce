@@ -50,12 +50,12 @@ typedef enum SleepUiOption {
  */
 #define UNTIL_HEALED_VAL (-3)
 
-static bool sleep_ui_create();
-static void sleep_ui_destroy();
+static bool sleep_ui_create(void);
+static void sleep_ui_destroy(void);
 static bool sleep_ui_message_filter(TigMessage* msg);
-static void sleep_ui_fall_asleep();
-static void sleep_ui_wake_up();
-static void sleep_ui_notify_leader_sleeping();
+static void sleep_ui_fall_asleep(void);
+static void sleep_ui_wake_up(void);
+static void sleep_ui_notify_leader_sleeping(void);
 
 /**
  * Handle to the parent window.
@@ -199,7 +199,7 @@ bool sleep_ui_init(GameInitInfo* init_info)
  *
  * 0x57B140
  */
-void sleep_ui_exit()
+void sleep_ui_exit(void)
 {
     mes_unload(sleep_ui_mes_file);
     tig_font_destroy(sleep_ui_font);
@@ -213,7 +213,7 @@ void sleep_ui_exit()
  *
  * 0x57B170
  */
-void sleep_ui_reset()
+void sleep_ui_reset(void)
 {
     if (sleep_ui_active) {
         sleep_ui_close();
@@ -385,7 +385,7 @@ void sleep_ui_toggle(int64_t bed_obj)
  *
  * 0x57B450
  */
-void sleep_ui_close()
+void sleep_ui_close(void)
 {
     int64_t bed_obj;
 
@@ -417,7 +417,7 @@ void sleep_ui_close()
  *
  * 0x57B4E0
  */
-bool sleep_ui_is_active()
+bool sleep_ui_is_active(void)
 {
     return sleep_ui_active;
 }
@@ -427,7 +427,7 @@ bool sleep_ui_is_active()
  *
  * 0x57B4F0
  */
-bool sleep_ui_create()
+bool sleep_ui_create(void)
 {
     tig_art_id_t art_id;
     TigArtFrameData art_frame_data;
@@ -515,7 +515,7 @@ bool sleep_ui_create()
  *
  * 0x57B6E0
  */
-void sleep_ui_destroy()
+void sleep_ui_destroy(void)
 {
     if (!sleep_ui_active) {
         return;
@@ -672,7 +672,7 @@ bool sleep_ui_process_callback(TimeEvent* timeevent)
  *
  * 0x57B9E0
  */
-void sleep_ui_fall_asleep()
+void sleep_ui_fall_asleep(void)
 {
     FadeData fade_data;
 
@@ -698,7 +698,7 @@ void sleep_ui_fall_asleep()
  *
  * 0x57BA70
  */
-void sleep_ui_wake_up()
+void sleep_ui_wake_up(void)
 {
     FadeData fade_data;
 
@@ -731,7 +731,7 @@ void sleep_ui_wake_up()
  *
  * 0x57BAC0
  */
-void sleep_ui_notify_leader_sleeping()
+void sleep_ui_notify_leader_sleeping(void)
 {
     ObjectList objects;
     ObjectNode* node;

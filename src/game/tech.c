@@ -156,7 +156,7 @@ bool tech_init(GameInitInfo* init_info)
  *
  * 0x4AFDD0
  */
-void tech_exit()
+void tech_exit(void)
 {
     mes_unload(tech_mes_file);
 }

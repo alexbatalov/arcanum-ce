@@ -37,7 +37,7 @@ typedef struct TigDrawLineStyleInfo {
 } TigDrawLineStyleInfo;
 
 int tig_draw_init(TigInitInfo* init_info);
-void tig_draw_exit();
+void tig_draw_exit(void);
 void tig_draw_set_line_mode(TigDrawLineModeInfo* line_info);
 void tig_draw_get_line_mode(TigDrawLineModeInfo* line_info);
 void tig_draw_set_line_style(TigDrawLineStyleInfo* style_info);

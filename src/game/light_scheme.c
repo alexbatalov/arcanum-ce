@@ -97,7 +97,7 @@ bool light_scheme_init(GameInitInfo* init_info)
  *
  * 0x4A7C80
  */
-void light_scheme_reset()
+void light_scheme_reset(void)
 {
     // Reset to default light scheme at noon.
     light_scheme_set(LIGHT_SCHEME_MAP_DEFAULT, 12);
@@ -108,7 +108,7 @@ void light_scheme_reset()
  *
  * 0x4A7C90
  */
-bool light_scheme_mod_load()
+bool light_scheme_mod_load(void)
 {
     // Load light schemes configuration (required).
     if (!mes_load("Rules\\Lighting Schemes.mes", &light_schemes_msg_file)) {
@@ -126,7 +126,7 @@ bool light_scheme_mod_load()
  *
  * 0x4A7CC0
  */
-void light_scheme_mod_unload()
+void light_scheme_mod_unload(void)
 {
     if (light_schemes_msg_file != MES_FILE_HANDLE_INVALID) {
         mes_unload(light_schemes_msg_file);
@@ -141,7 +141,7 @@ void light_scheme_mod_unload()
  *
  * 0x4A7CF0
  */
-void light_scheme_exit()
+void light_scheme_exit(void)
 {
     FREE(light_scheme_colors);
 }
@@ -200,7 +200,7 @@ bool light_scheme_set_map_default(int light_scheme)
  *
  * 0x4A7DC0
  */
-int light_scheme_get_map_default()
+int light_scheme_get_map_default(void)
 {
     return light_scheme_map_default;
 }
@@ -258,7 +258,7 @@ bool light_scheme_set(int light_scheme, int hour)
  *
  * 0x4A7EA0
  */
-int light_scheme_get()
+int light_scheme_get(void)
 {
     return light_scheme_current_light_scheme_id;
 }
@@ -308,7 +308,7 @@ bool light_scheme_set_hour(int hour)
  *
  * 0x4A7FA0
  */
-int light_scheme_get_hour()
+int light_scheme_get_hour(void)
 {
     return light_scheme_hour;
 }
@@ -318,7 +318,7 @@ int light_scheme_get_hour()
  *
  * 0x4A7FB0
  */
-int light_scheme_is_changing()
+int light_scheme_is_changing(void)
 {
     return light_scheme_changing;
 }

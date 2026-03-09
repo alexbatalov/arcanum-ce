@@ -9,8 +9,8 @@
 
 #define PARTY_TABLE_SIZE 8
 
-static int sub_4BA260();
-static bool party_update();
+static int sub_4BA260(void);
+static bool party_update(void);
 static void sub_4BA320(int64_t a1, int64_t a2, int a3);
 
 // 0x5FC32C
@@ -30,13 +30,13 @@ bool party_init(GameInitInfo* init_info)
 }
 
 // 0x4B9E20
-void party_exit()
+void party_exit(void)
 {
     party_reset();
 }
 
 // 0x4B9E30
-void party_reset()
+void party_reset(void)
 {
     int index;
 
@@ -247,7 +247,7 @@ bool party_remove(int64_t obj)
 }
 
 // 0x4BA260
-int sub_4BA260()
+int sub_4BA260(void)
 {
     int index;
 
@@ -262,7 +262,7 @@ int sub_4BA260()
 }
 
 // 0x4BA290
-bool party_update()
+bool party_update(void)
 {
     if (tig_net_is_active()
         && tig_net_is_host()) {

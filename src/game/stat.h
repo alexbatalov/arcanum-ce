@@ -62,7 +62,7 @@ typedef enum Race {
 extern const char* stat_lookup_keys_tbl[STAT_COUNT];
 
 bool stat_init(GameInitInfo* init_info);
-void stat_exit();
+void stat_exit(void);
 void stat_set_defaults(int64_t obj);
 int stat_level_get(int64_t obj, int stat);
 int stat_base_get(int64_t obj, int stat);

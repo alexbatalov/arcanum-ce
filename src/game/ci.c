@@ -1,6 +1,6 @@
 #include "game/ci.h"
 
-static void ci_blit();
+static void ci_blit(void);
 
 // 0x5FC398
 static tig_art_id_t ci_indicator_art_id;
@@ -72,7 +72,7 @@ bool ci_init(GameInitInfo* init_info)
 }
 
 // 0x4BB8C0
-void ci_exit()
+void ci_exit(void)
 {
     if (ci_indicator_vb != NULL) {
         tig_video_buffer_destroy(ci_indicator_vb);
@@ -81,37 +81,37 @@ void ci_exit()
 }
 
 // 0x4BB8E0
-void sub_4BB8E0()
+void sub_4BB8E0(void)
 {
     dword_5FC3DC++;
 }
 
 // 0x4BB8F0
-void sub_4BB8F0()
+void sub_4BB8F0(void)
 {
     dword_5FC3DC--;
 }
 
 // 0x4BB900
-int sub_4BB900()
+int sub_4BB900(void)
 {
     return dword_5FC3DC;
 }
 
 // 0x4BB910
-void sub_4BB910()
+void sub_4BB910(void)
 {
 }
 
 // 0x4BB920
-void ci_redraw()
+void ci_redraw(void)
 {
     tig_video_buffer_fill(ci_indicator_vb, &ci_indicator_bounds, tig_color_make(0, 0, 255));
     ci_blit();
 }
 
 // 0x4BB980
-void ci_blit()
+void ci_blit(void)
 {
     ci_indicator_blit_info.art_id = ci_indicator_art_id;
     tig_art_blit(&ci_indicator_blit_info);

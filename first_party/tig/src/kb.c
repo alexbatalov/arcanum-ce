@@ -21,7 +21,7 @@ int tig_kb_init(TigInitInfo* init_info)
 }
 
 // 0x52B320
-void tig_kb_exit()
+void tig_kb_exit(void)
 {
     if (tig_kb_initialized) {
         tig_kb_initialized = false;

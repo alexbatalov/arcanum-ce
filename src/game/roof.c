@@ -188,7 +188,7 @@ bool roof_init(GameInitInfo* init_info)
 }
 
 // 0x4390D0
-void roof_exit()
+void roof_exit(void)
 {
     roof_iso_window_handle = TIG_WINDOW_HANDLE_INVALID;
     roof_iso_window_invalidate_rect = NULL;
@@ -207,7 +207,7 @@ void roof_update_view(ViewOptions* view_options)
 }
 
 // 0x439120
-void roof_toggle()
+void roof_toggle(void)
 {
     roof_enabled = !roof_enabled;
 }
@@ -718,7 +718,7 @@ void roof_blit_flags_set(unsigned int flags)
 }
 
 // 0x43A130
-unsigned int roof_blit_flags_get()
+unsigned int roof_blit_flags_get(void)
 {
     return roof_blit_flags;
 }

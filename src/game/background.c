@@ -20,7 +20,7 @@
 
 #define BACKGROUND_NAME_LENGTH 32
 
-static int background_get_base_money();
+static int background_get_base_money(void);
 static bool background_is_legal(int64_t obj, char* str);
 
 /**
@@ -95,7 +95,7 @@ bool background_init(GameInitInfo* init_info)
  *
  * 0x4C22D0
  */
-void background_exit()
+void background_exit(void)
 {
     FREE(background_description_name);
     mes_unload(background_mes_file);
@@ -444,7 +444,7 @@ void background_educate_followers(int64_t obj)
  *
  * 0x4C2A70
  */
-static int background_get_base_money()
+static int background_get_base_money(void)
 {
     MesFileEntry mes_file_entry;
 

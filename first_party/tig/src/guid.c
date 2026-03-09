@@ -12,7 +12,7 @@ int tig_guid_init(TigInitInfo* init_info)
     return TIG_OK;
 }
 
-void tig_guid_exit()
+void tig_guid_exit(void)
 {
 }
 

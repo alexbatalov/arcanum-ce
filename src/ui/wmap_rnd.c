@@ -104,8 +104,8 @@ static bool wmap_rnd_terrain_clear(uint16_t tid);
 static bool wmap_rnd_mes_count_entries(MesFileEntry* mes_file_entry, int cnt, int* value_ptr);
 static void wmap_rnd_encounter_table_init(WmapRndEncounterTable* table);
 static void wmap_rnd_encounter_table_entry_init(WmapRndEncounterTableEntry* entry);
-static void wmap_rnd_encounter_table_clear();
-static void wmap_rnd_encounter_chart_clear();
+static void wmap_rnd_encounter_table_clear(void);
+static void wmap_rnd_encounter_chart_clear(void);
 static bool wmap_rnd_encounter_chart_parse(WmapRndEncounterChart* chart, int num, const char** value_list);
 static void wmap_rnd_encounter_chart_entry_parse(char** str, WmapRndEncounterChartEntry* entry);
 static void wmap_rnd_encounter_chart_exit(WmapRndEncounterChart* chart);
@@ -115,7 +115,7 @@ static bool wmap_rnd_parse_critters(char** str, WmapRndEncounterTableEntry* entr
 static bool wmap_rnd_check(int64_t location);
 static bool wmap_rnd_encounter_chart_lookup(WmapRndEncounterChart* chart, int64_t loc, int* value_ptr);
 static int wmap_rnd_determine_terrain(int64_t loc);
-static bool wmap_rnd_encounter_check();
+static bool wmap_rnd_encounter_check(void);
 static bool wmap_rnd_encounter_entry_check(WmapRndEncounterTableEntry* entry);
 static int wmap_rnd_encounter_total_frequency(WmapRndEncounterTable* table);
 static int wmap_rnd_encounter_entry_total_monsters(WmapRndEncounterTableEntry* entry);
@@ -350,7 +350,7 @@ bool wmap_rnd_init(GameInitInfo* init_info)
  *
  * 0x5581C0
  */
-void wmap_rnd_exit()
+void wmap_rnd_exit(void)
 {
 }
 
@@ -359,7 +359,7 @@ void wmap_rnd_exit()
  *
  * 0x5581D0
  */
-void wmap_rnd_reset()
+void wmap_rnd_reset(void)
 {
 }
 
@@ -368,7 +368,7 @@ void wmap_rnd_reset()
  *
  * 0x5581E0
  */
-bool wmap_rnd_mod_load()
+bool wmap_rnd_mod_load(void)
 {
     MesFileEntry mes_file_entry;
     int num_tables;
@@ -551,7 +551,7 @@ bool wmap_rnd_mod_load()
  *
  * 0x558700
  */
-void wmap_rnd_mod_unload()
+void wmap_rnd_mod_unload(void)
 {
     if (wmap_rnd_disabled) {
         return;
@@ -694,7 +694,7 @@ bool wmap_rnd_load(GameLoadInfo* load_info)
  *
  * 0x5589D0
  */
-void wmap_rnd_disable()
+void wmap_rnd_disable(void)
 {
     wmap_rnd_disabled = true;
 }
@@ -789,7 +789,7 @@ void wmap_rnd_encounter_table_entry_init(WmapRndEncounterTableEntry* entry)
  *
  * 0x558AF0
  */
-void wmap_rnd_encounter_table_clear()
+void wmap_rnd_encounter_table_clear(void)
 {
     int index;
 
@@ -809,7 +809,7 @@ void wmap_rnd_encounter_table_clear()
  *
  * 0x558B50
  */
-void wmap_rnd_encounter_chart_clear()
+void wmap_rnd_encounter_chart_clear(void)
 {
     wmap_rnd_encounter_chart_exit(&wmap_rnd_frequency_chart);
     wmap_rnd_encounter_chart_exit(&wmap_rnd_power_chart);
@@ -1111,7 +1111,7 @@ int wmap_rnd_determine_terrain(int64_t loc)
  *
  * 0x559010
  */
-bool wmap_rnd_encounter_check()
+bool wmap_rnd_encounter_check(void)
 {
     int total_frequency;
     WmapRndEncounterTable* table;
@@ -1441,7 +1441,7 @@ bool wmap_rnd_timeevent_process(TimeEvent* timeevent)
  *
  * 0x559640
  */
-void wmap_rnd_schedule()
+void wmap_rnd_schedule(void)
 {
     TimeEvent timeevent;
     DateTime datetime;

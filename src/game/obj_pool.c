@@ -27,9 +27,9 @@ typedef struct PermOidLookupEntry {
     /* 0018 */ int64_t obj;
 } PermOidLookupEntry;
 
-static int acquire_index();
+static int acquire_index(void);
 static void release_index(int index);
-static bool grow_pool();
+static bool grow_pool(void);
 static void recycle_index(int index);
 static bool sub_4E57E0(ObjectID oid, int* index_ptr);
 static int64_t make_handle(int index, int seq);
@@ -117,7 +117,7 @@ void obj_pool_init(int size, bool editor)
 }
 
 // 0x4E4DB0
-void obj_pool_exit()
+void obj_pool_exit(void)
 {
     int index;
     ObjPoolEntryHeader* hdr;
@@ -317,7 +317,7 @@ void sub_4E52F0(ObjectID oid)
 }
 
 // 0x4E5300
-void sub_4E5300()
+void sub_4E5300(void)
 {
     PermOidLookupEntry* v1;
     int cnt;
@@ -476,7 +476,7 @@ bool obj_handle_request(int64_t obj)
 }
 
 // 0x4E5640
-int acquire_index()
+int acquire_index(void)
 {
     int index;
     ObjPoolEntryHeader* hdr;
@@ -514,7 +514,7 @@ void release_index(int index)
 }
 
 // 0x4E56E0
-bool grow_pool()
+bool grow_pool(void)
 {
     if (obj_pool_capacity < OBJ_POOL_CAP) {
         obj_pool_capacity += OBJ_POOL_BUCKET_SIZE;

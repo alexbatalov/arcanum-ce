@@ -163,7 +163,7 @@ bool reaction_init(GameInitInfo* init_info)
 }
 
 // 0x4C0C30
-void reaction_exit()
+void reaction_exit(void)
 {
     mes_unload(reaction_mes_file);
 }

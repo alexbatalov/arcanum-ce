@@ -65,13 +65,13 @@ bool target_init(GameInitInfo* init_info)
 }
 
 // 0x4F2560
-void target_exit()
+void target_exit(void)
 {
     target_initialized = false;
 }
 
 // 0x4F2570
-void target_reset()
+void target_reset(void)
 {
     qword_603D40 = OBJ_HANDLE_NULL;
 }
@@ -89,7 +89,7 @@ void sub_4F25B0(uint64_t flags)
 }
 
 // 0x4F25D0
-uint64_t sub_4F25D0()
+uint64_t sub_4F25D0(void)
 {
     return stru_603D20.aoe_flags;
 }
@@ -378,7 +378,7 @@ bool sub_4F2CB0(int x, int y, S4F2810* a3, uint64_t tgt, bool fullscreen)
 }
 
 // 0x4F2D10
-int64_t sub_4F2D10()
+int64_t sub_4F2D10(void)
 {
     return qword_603D40;
 }

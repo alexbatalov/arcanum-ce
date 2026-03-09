@@ -11,8 +11,8 @@ typedef struct TigPaletteListNode {
     struct TigPaletteListNode* next;
 } TigPaletteListNode;
 
-static void tig_palette_node_reserve();
-static void tig_palette_node_clear();
+static void tig_palette_node_reserve(void);
+static void tig_palette_node_clear(void);
 
 // 0x6301F8
 static bool tig_palette_initialized;
@@ -62,7 +62,7 @@ int tig_palette_init(TigInitInfo* init_info)
 }
 
 // 0x533DD0
-void tig_palette_exit()
+void tig_palette_exit(void)
 {
     if (tig_palette_initialized) {
         tig_palette_node_clear();
@@ -71,7 +71,7 @@ void tig_palette_exit()
 }
 
 // 0x533DF0
-TigPalette tig_palette_create()
+TigPalette tig_palette_create(void)
 {
     TigPaletteListNode* node;
 
@@ -195,13 +195,13 @@ void tig_palette_modify(const TigPaletteModifyInfo* modify_info)
 }
 
 // 0x534290
-size_t tig_palette_system_memory_size()
+size_t tig_palette_system_memory_size(void)
 {
     return tig_palette_size + sizeof(TigPaletteListNode*);
 }
 
 // 0x5342A0
-void tig_palette_node_reserve()
+void tig_palette_node_reserve(void)
 {
     int index;
     TigPaletteListNode* node;
@@ -217,7 +217,7 @@ void tig_palette_node_reserve()
 }
 
 // 0x5342E0
-void tig_palette_node_clear()
+void tig_palette_node_clear(void)
 {
     TigPaletteListNode* curr;
     TigPaletteListNode* next;

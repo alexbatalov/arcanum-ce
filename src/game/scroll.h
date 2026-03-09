@@ -25,17 +25,17 @@ typedef enum ScrollDirection {
 typedef void(ScrollFunc)(int direction);
 
 bool scroll_init(GameInitInfo* init_info);
-void scroll_exit();
-void scroll_reset();
+void scroll_exit(void);
+void scroll_reset(void);
 void scroll_resize(GameResizeInfo* resize_info);
 void scroll_update_view(ViewOptions* view_options);
 void scroll_speed_set(ScrollSpeed value);
-ScrollSpeed scroll_speed_get();
+ScrollSpeed scroll_speed_get(void);
 void scroll_start(int direction);
-void scroll_stop();
+void scroll_stop(void);
 void scroll_fps_set(int fps);
 void scroll_distance_set(int distance);
-int scroll_distance_get();
+int scroll_distance_get(void);
 void scroll_set_center(int64_t location);
 void scroll_set_scroll_func(ScrollFunc* func);
 

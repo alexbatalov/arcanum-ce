@@ -9,9 +9,9 @@ typedef enum SlideUiType {
     SLIDE_UI_TYPE_CREDITS,
 } SlideUiType;
 
-bool slide_ui_mod_load();
-void slide_ui_mod_unload();
-bool slide_ui_is_active();
+bool slide_ui_mod_load(void);
+void slide_ui_mod_unload(void);
+bool slide_ui_is_active(void);
 void slide_ui_start(int type);
 void slide_ui_enqueue(int slide);
 

@@ -35,7 +35,7 @@ typedef struct BroadcastCommand {
 
 static int broadcast_match_str_to_base_type(const char* str);
 static int sub_4C3B40(const char* str);
-static void sub_4C3B90();
+static void sub_4C3B90(void);
 
 // 0x5FDC4C
 static char* broadcast_cmd_type_lookup[BROADCAST_CMD_TYPE_COUNT];
@@ -131,7 +131,7 @@ bool broadcast_init(GameInitInfo* init_info)
 }
 
 // 0x4C2E20
-void broadcast_exit()
+void broadcast_exit(void)
 {
     if (broadcast_commands != NULL) {
         FREE(broadcast_commands);
@@ -192,13 +192,13 @@ void broadcast_msg(int64_t obj, Broadcast* bcast)
 }
 
 // 0x4C2FA0
-void sub_4C2FA0()
+void sub_4C2FA0(void)
 {
     // TODO: Incomplete.
 }
 
 // 0x4C3040
-void sub_4C3040()
+void sub_4C3040(void)
 {
     // TODO: Incomplete.
 }
@@ -228,7 +228,7 @@ int sub_4C3B40(const char* str)
 }
 
 // 0x4C3B90
-void sub_4C3B90()
+void sub_4C3B90(void)
 {
     int index;
     MesFileEntry mes_file_entry;

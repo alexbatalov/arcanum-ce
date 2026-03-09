@@ -5,10 +5,10 @@
 #include "game/schematic.h"
 
 bool schematic_ui_init(GameInitInfo* init_info);
-void schematic_ui_exit();
-void schematic_ui_reset();
+void schematic_ui_exit(void);
+void schematic_ui_reset(void);
 void schematic_ui_toggle(int64_t primary_obj, int64_t secondary_obj);
-void schematic_ui_close();
+void schematic_ui_close(void);
 void schematic_ui_info_get(int schematic, SchematicInfo* schematic_info);
 bool schematic_ui_process(int schematic, int64_t primary_obj, int64_t secondary_obj);
 bool schematic_ui_feedback(bool success, int64_t primary_obj, int64_t secondary_obj);

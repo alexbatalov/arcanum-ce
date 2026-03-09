@@ -34,7 +34,7 @@ bool gfade_init(GameInitInfo* init_info)
  *
  * 0x4BDF60
  */
-void gfade_exit()
+void gfade_exit(void)
 {
 }
 

@@ -3,7 +3,7 @@
 #include "game/gamelib.h"
 #include "ui/intgame.h"
 
-static void sub_557F30();
+static void sub_557F30(void);
 
 // 0x64C6F8
 static TigRect stru_64C6F8;
@@ -51,7 +51,7 @@ bool iso_init(GameInitInfo* init_info)
 }
 
 // 0x557EA0
-void iso_exit()
+void iso_exit(void)
 {
     if (iso_interface_created) {
         iso_interface_destroy();
@@ -60,7 +60,7 @@ void iso_exit()
 }
 
 // 0x557EC0
-void iso_reset()
+void iso_reset(void)
 {
     sub_54AA30();
     sub_557FD0(NULL);
@@ -75,7 +75,7 @@ void iso_resize(GameResizeInfo* resize_info)
 }
 
 // 0x557F30
-void sub_557F30()
+void sub_557F30(void)
 {
     TigFont font;
 
@@ -118,7 +118,7 @@ void sub_557FD0(const char* str)
 }
 
 // 0x558110
-bool iso_redraw()
+bool iso_redraw(void)
 {
     bool ret = gamelib_draw();
     intgame_pc_lens_redraw();

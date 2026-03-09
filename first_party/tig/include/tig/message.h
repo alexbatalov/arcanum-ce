@@ -76,8 +76,8 @@ typedef struct TigMessage {
 } TigMessage;
 
 int tig_message_init(TigInitInfo* init_info);
-void tig_message_exit();
-void tig_message_ping();
+void tig_message_exit(void);
+void tig_message_ping(void);
 int tig_message_enqueue(TigMessage* message);
 int tig_message_set_key_handler(TigMessageKeyboardCallback* callback, int key);
 

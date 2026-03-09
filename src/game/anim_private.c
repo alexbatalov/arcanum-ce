@@ -176,7 +176,7 @@ static AnimPath stru_5E33F8;
 bool dword_5E34F4;
 
 // 0x5E34F8
-void (*dword_5E34F8)();
+void (*dword_5E34F8)(void);
 
 // 0x5E34FC
 bool in_anim_load;
@@ -278,7 +278,7 @@ bool anim_private_init(GameInitInfo* init_info)
 }
 
 // 0x44CAF0
-void anim_private_exit()
+void anim_private_exit(void)
 {
     int index;
 
@@ -292,7 +292,7 @@ void anim_private_exit()
 }
 
 // 0x44CB30
-void anim_private_reset()
+void anim_private_reset(void)
 {
     int index;
 
@@ -306,7 +306,7 @@ void anim_private_reset()
 }
 
 // 0x44CB60
-bool sub_44CB60()
+bool sub_44CB60(void)
 {
     return dword_5A5978 != -1;
 }
@@ -1719,7 +1719,7 @@ void anim_run_index_debug(int index)
 }
 
 // 0x44EEE0
-void anim_stats()
+void anim_stats(void)
 {
     int index;
 

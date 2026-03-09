@@ -311,7 +311,7 @@ bool stat_init(GameInitInfo* init_info)
  *
  * 0x4B0440
  */
-void stat_exit()
+void stat_exit(void)
 {
     mes_unload(stat_msg_file);
 }

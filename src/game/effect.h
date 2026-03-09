@@ -28,9 +28,9 @@ typedef enum EffectCause {
 extern const char* effect_cause_lookup_tbl[EFFECT_CAUSE_COUNT];
 
 bool effect_init(GameInitInfo* init_info);
-void effect_exit();
-bool effect_mod_load();
-void effect_mod_unload();
+void effect_exit(void);
+bool effect_mod_load(void);
+void effect_mod_unload(void);
 void effect_add(int64_t obj, int effect, int cause);
 void effect_remove_one_typed(int64_t obj, int effect);
 void effect_remove_all_typed(int64_t obj, int effect);

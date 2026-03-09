@@ -88,7 +88,7 @@ bool script_name_init(GameInitInfo* init_info)
  *
  * 0x4CECC0
  */
-void script_name_exit()
+void script_name_exit(void)
 {
     tig_idxtable_exit(&script_name_system_idxtable);
     script_name_system_loaded = false;
@@ -99,7 +99,7 @@ void script_name_exit()
  *
  * 0x4CECE0
  */
-bool script_name_mod_load()
+bool script_name_mod_load(void)
 {
     TigFileList file_list;
     unsigned int index;
@@ -143,7 +143,7 @@ bool script_name_mod_load()
  *
  * 0x4CEDA0
  */
-void script_name_mod_unload()
+void script_name_mod_unload(void)
 {
     tig_idxtable_exit(&script_name_mod_idxtable);
     script_name_mod_loaded = false;

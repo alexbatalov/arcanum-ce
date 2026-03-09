@@ -29,8 +29,8 @@
 #define OBJECT_LIGHTING_KEY "object lighting"
 #define SHADOWS_KEY "shadows"
 
-typedef bool(GameExtraSaveFunc)();
-typedef bool(GameExtraLoadFunc)();
+typedef bool(GameExtraSaveFunc)(void);
+typedef bool(GameExtraLoadFunc)(void);
 
 typedef enum GameDifficulty {
     GAME_DIFFICULTY_EASY,
@@ -83,33 +83,33 @@ extern Settings settings;
 extern TigVideoBuffer* gamelib_scratch_video_buffer;
 
 bool gamelib_init(GameInitInfo* init_info);
-void gamelib_reset();
-void gamelib_exit();
-void gamelib_ping();
+void gamelib_reset(void);
+void gamelib_exit(void);
+void gamelib_ping(void);
 void gamelib_resize(GameResizeInfo* resize_info);
 void gamelib_default_module_name_set(const char* name);
-const char* gamelib_default_module_name_get();
+const char* gamelib_default_module_name_get(void);
 void gamelib_modlist_create(GameModuleList* module_list, int type);
 void gamelib_modlist_destroy(GameModuleList* module_list);
 bool gamelib_mod_load(const char* path);
 bool gamelib_mod_guid_get(TigGuid* guid_ptr);
-void gamelib_mod_unload();
-bool gamelib_in_reset();
-int gamelib_cheat_level_get();
+void gamelib_mod_unload(void);
+bool gamelib_in_reset(void);
+int gamelib_cheat_level_get(void);
 void gamelib_cheat_level_set(int level);
 void gamelib_invalidate_rect(TigRect* rect);
-bool gamelib_draw();
-void gamelib_renderlock_acquire();
-void gamelib_renderlock_release();
-void gamelib_clear_screen();
-const char* gamelib_current_module_name_get();
+bool gamelib_draw(void);
+void gamelib_renderlock_acquire(void);
+void gamelib_renderlock_release(void);
+void gamelib_clear_screen(void);
+const char* gamelib_current_module_name_get(void);
 void gamelib_current_mode_name_set(const char* name);
 bool gamelib_save(const char* name, const char* description);
 bool gamelib_load(const char* name);
 bool gamelib_delete(const char* name);
-const char* gamelib_last_save_name();
-bool gamelib_in_save();
-bool gamelib_in_load();
+const char* gamelib_last_save_name(void);
+bool gamelib_in_save(void);
+bool gamelib_in_load(void);
 void gamelib_set_extra_save_func(GameExtraSaveFunc* func);
 void gamelib_set_extra_load_func(GameExtraLoadFunc* func);
 void gamelib_savelist_create(GameSaveList* save_list);
@@ -121,10 +121,10 @@ void gamelib_saveinfo_exit(GameSaveInfo* save_info);
 bool gamelib_saveinfo_save(GameSaveInfo* save_info);
 bool gamelib_saveinfo_load(const char* name, GameSaveInfo* save_info);
 void gamelib_thumbnail_size_set(int width, int height);
-int gamelib_game_difficulty_get();
-void gamelib_redraw();
+int gamelib_game_difficulty_get(void);
+void gamelib_redraw(void);
 bool gamelib_copy_version(char* long_version, char* short_version, char* locale);
 void gamelib_patch_lvl_set(const char* patch_lvl);
-const char* gamelib_get_locale();
+const char* gamelib_get_locale(void);
 
 #endif /* ARCANUM_GAME_GAMELIB_H_ */

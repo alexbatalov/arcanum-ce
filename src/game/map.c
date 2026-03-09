@@ -43,15 +43,15 @@
 #define SENTINEL 0xBADDBEEF
 
 typedef bool(MapInitFunc)(GameInitInfo* init_info);
-typedef void(MapResetFunc)();
-typedef bool(MapModuleLoadFunc)();
-typedef void(MapModuleUnloadFunc)();
-typedef void(MapExitFunc)();
+typedef void(MapResetFunc)(void);
+typedef bool(MapModuleLoadFunc)(void);
+typedef void(MapModuleUnloadFunc)(void);
+typedef void(MapExitFunc)(void);
 typedef void(MapPingFunc)(unsigned int time);
 typedef void(MapUpdateViewFunc)(ViewOptions* view_options);
 typedef bool(MapSaveFunc)(TigFile* stream);
 typedef bool(MapLoadFunc)(GameLoadInfo* load_info);
-typedef void(MapCloseFunc)();
+typedef void(MapCloseFunc)(void);
 typedef bool(MapNewFunc)(MapNewInfo* new_map_info);
 typedef void(MapResizeFunc)(GameResizeInfo* resize_info);
 
@@ -89,16 +89,16 @@ typedef struct MapProperties {
 // Serializeable.
 static_assert(sizeof(MapProperties) == 0x18, "wrong size");
 
-static void map_close();
-static bool map_save_preprocess();
-static bool map_save_objects();
-static bool map_save_difs();
-static bool map_save_dynamic();
-static void map_load_postprocess();
+static void map_close(void);
+static bool map_save_preprocess(void);
+static bool map_save_objects(void);
+static bool map_save_difs(void);
+static bool map_save_dynamic(void);
+static void map_load_postprocess(void);
 static bool map_load_mobile(const char* base_path, const char* save_path);
 static bool map_load_dynamic(const char* name);
 static void map_load_extension(const char* base_path);
-static void map_disable_objects();
+static void map_disable_objects(void);
 static void map_obfuscate_name(char* str);
 static bool sub_411880(char** str, char* token);
 static void map_apply_obj_patch(int64_t obj, char* str);
@@ -224,7 +224,7 @@ bool map_init(GameInitInfo* init_info)
 }
 
 // 0x40EBA0
-void map_reset()
+void map_reset(void)
 {
     tig_timestamp_t reset_start;
     tig_timestamp_t start;
@@ -275,7 +275,7 @@ void map_resize(GameResizeInfo* resize_info)
 }
 
 // 0x40ED10
-bool map_mod_load()
+bool map_mod_load(void)
 {
     if (!map_list_info_load()) {
         return false;
@@ -301,7 +301,7 @@ bool map_mod_load()
 }
 
 // 0x40ED80
-void map_mod_unload()
+void map_mod_unload(void)
 {
     for (int index = MAP_MODULE_COUNT - 1; index >= 0; index--) {
         if (map_modules[index].mod_unload_func != NULL) {
@@ -315,7 +315,7 @@ void map_mod_unload()
 }
 
 // 0x40EDC0
-void map_exit()
+void map_exit(void)
 {
     if (dword_5D11F0) {
         map_close();
@@ -867,7 +867,7 @@ void map_precache_sectors(int64_t loc)
 }
 
 // 0x40FED0
-void sub_40FED0()
+void sub_40FED0(void)
 {
 }
 
@@ -884,7 +884,7 @@ bool map_get_name(int map, char** name)
 }
 
 // 0x40FF40
-int map_current_map()
+int map_current_map(void)
 {
     return dword_5D1210;
 }
@@ -938,7 +938,7 @@ bool map_get_worldmap(int map, int* worldmap)
 }
 
 // 0x410060
-bool map_is_clearing_objects()
+bool map_is_clearing_objects(void)
 {
     return map_in_map_clear_objects;
 }
@@ -1015,7 +1015,7 @@ void map_process_jumppoint(int64_t loc, int64_t obj)
 }
 
 // 0x410270
-bool map_is_valid()
+bool map_is_valid(void)
 {
     return map_valid;
 }
@@ -1136,7 +1136,7 @@ bool map_preprocess_mobile(const char* name)
 }
 
 // 0x4106D0
-void map_close()
+void map_close(void)
 {
     int index;
 
@@ -1159,7 +1159,7 @@ void map_close()
 }
 
 // 0x410720
-bool map_save_preprocess()
+bool map_save_preprocess(void)
 {
     int64_t obj;
     int iter;
@@ -1176,7 +1176,7 @@ bool map_save_preprocess()
 }
 
 // 0x410780
-bool map_save_objects()
+bool map_save_objects(void)
 {
     int64_t obj;
     int iter;
@@ -1197,7 +1197,7 @@ bool map_save_objects()
 }
 
 // 0x410830
-bool map_save_difs()
+bool map_save_difs(void)
 {
     int cnt = 0;
     char path1[TIG_MAX_PATH];
@@ -1282,7 +1282,7 @@ bool map_save_difs()
 }
 
 // 0x410B20
-bool map_save_dynamic()
+bool map_save_dynamic(void)
 {
     int cnt = 0;
     char path[TIG_MAX_PATH];
@@ -1325,7 +1325,7 @@ bool map_save_dynamic()
 }
 
 // 0x410C50
-void map_load_postprocess()
+void map_load_postprocess(void)
 {
     int64_t obj;
     int iter;
@@ -1553,7 +1553,7 @@ bool map_load_dynamic(const char* name)
 }
 
 // 0x411520
-void map_clear_objects()
+void map_clear_objects(void)
 {
     int64_t obj;
     int iter;
@@ -1625,7 +1625,7 @@ void map_load_extension(const char* base_path)
 }
 
 // 0x411750
-void map_disable_objects()
+void map_disable_objects(void)
 {
     int64_t obj;
     int iter;
@@ -1917,13 +1917,13 @@ void map_apply_obj_patch(int64_t obj, char* str)
 }
 
 // 0x412380
-void map_enable_gender_check()
+void map_enable_gender_check(void)
 {
     map_gender_check_enabled = true;
 }
 
 // 0x412390
-void map_gender_check()
+void map_gender_check(void)
 {
     char name[1000];
     int64_t location;
@@ -1986,7 +1986,7 @@ void map_gender_check()
 }
 
 // 0x4125C0
-bool map_list_info_load()
+bool map_list_info_load(void)
 {
     MesFileEntry mes_file_entry;
 

@@ -51,7 +51,7 @@ static void sub_5684C0(DialogUiEntry* entry);
 static void sub_568540(int64_t npc_obj, int64_t pc_obj, int type, int expires_in, const char* str, int speech_id);
 static void sub_5686C0(int64_t pc_obj, int64_t npc_obj, int type, int expires_in, const char* str);
 static void dialog_ui_speech_start(int64_t npc_obj, int64_t pc_obj, int speech_id);
-static void dialog_ui_speech_stop();
+static void dialog_ui_speech_stop(void);
 
 // 0x66DAB8
 static DialogUiEntry stru_66DAB8[8];
@@ -94,13 +94,13 @@ bool dialog_ui_init(GameInitInfo* init_info)
 }
 
 // 0x5673A0
-void dialog_ui_exit()
+void dialog_ui_exit(void)
 {
     dialog_ui_speech_stop();
 }
 
 // 0x5673B0
-void dialog_ui_reset()
+void dialog_ui_reset(void)
 {
     int index;
 
@@ -321,7 +321,7 @@ void sub_5679C0(DialogUiEntry* entry)
 }
 
 // 0x567A10
-int sub_567A10()
+int sub_567A10(void)
 {
     return dword_67B964;
 }
@@ -841,7 +841,7 @@ void dialog_ui_speech_start(int64_t npc_obj, int64_t pc_obj, int speech_id)
 }
 
 // 0x5689B0
-void dialog_ui_speech_stop()
+void dialog_ui_speech_stop(void)
 {
     if (dialog_ui_speech_handle != TIG_SOUND_HANDLE_INVALID) {
         tig_sound_destroy(dialog_ui_speech_handle);

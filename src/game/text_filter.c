@@ -6,8 +6,8 @@
 #define TEXT_FILTER_SLEEP_MES_FILE_NAME "mes\\text_filter_sleep.mes"
 
 typedef bool(TextFilterValidate)(int64_t obj);
-typedef bool(TextFilterInitFunc)();
-typedef void(TextFilterExitFunc)();
+typedef bool(TextFilterInitFunc)(void);
+typedef void(TextFilterExitFunc)(void);
 typedef void(TextFilterProcess)(const char* src, char** dst);
 
 typedef struct TextFilterInfo {
@@ -18,8 +18,8 @@ typedef struct TextFilterInfo {
     TextFilterProcess* process;
 } TextFilterInfo;
 
-static bool text_filter_sleeping_init();
-static void text_filter_sleeping_exit();
+static bool text_filter_sleeping_init(void);
+static void text_filter_sleeping_exit(void);
 static bool text_filter_sleeping_validate(int64_t obj);
 static void text_filter_sleeping_process(const char* src, char** dst);
 
@@ -45,7 +45,7 @@ static char* text_filter_sleeping_replacement_str;
 static size_t text_filter_sleeping_replacement_length;
 
 // 0x4F67D0
-bool text_filter_init()
+bool text_filter_init(void)
 {
     int index;
 
@@ -60,7 +60,7 @@ bool text_filter_init()
 }
 
 // 0x4F6820
-void text_filter_exit()
+void text_filter_exit(void)
 {
     int index;
 
@@ -86,19 +86,19 @@ bool text_filter_process(int64_t obj, const char* src, char** dst)
 }
 
 // 0x4F6920
-void sub_4F6920()
+void sub_4F6920(void)
 {
     // TODO: Incomplete.
 }
 
 // 0x4F69B0
-void sub_4F69B0()
+void sub_4F69B0(void)
 {
     // TODO: Incomplete.
 }
 
 // 0x4F69D0
-bool text_filter_sleeping_init()
+bool text_filter_sleeping_init(void)
 {
     mes_file_handle_t mes_file;
     MesFileEntry mes_file_entry;
@@ -140,7 +140,7 @@ bool text_filter_sleeping_init()
 }
 
 // 0x4F6B20
-void text_filter_sleeping_exit()
+void text_filter_sleeping_exit(void)
 {
     int index;
 

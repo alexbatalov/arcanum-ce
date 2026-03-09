@@ -57,7 +57,7 @@ bool wall_init(GameInitInfo* init_info)
 }
 
 // 0x4DF460
-void wall_exit()
+void wall_exit(void)
 {
     wall_iso_window_handle = TIG_WINDOW_HANDLE_INVALID;
     wall_iso_window_invalidate_rect = NULL;
@@ -77,7 +77,7 @@ void wall_update_view(ViewOptions* view_options)
 }
 
 // 0x4DF4E0
-void wall_toggle()
+void wall_toggle(void)
 {
     wall_enabled = !wall_enabled;
     wall_iso_window_invalidate_rect(NULL);

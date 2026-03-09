@@ -136,7 +136,7 @@ extern const char* training_lookup_keys_tbl[TRAINING_COUNT];
 
 bool skill_init(GameInitInfo* init_info);
 void skill_set_callbacks(SkillCallbacks* callbacks);
-void skill_exit();
+void skill_exit(void);
 bool skill_load(GameLoadInfo* load_info);
 bool skill_save(TigFile* stream);
 void skill_set_defaults(int64_t obj);

@@ -10,9 +10,9 @@ typedef struct ReputationLogbookEntry {
 } ReputationLogbookEntry;
 
 bool reputation_init(GameInitInfo* init_info);
-void reputation_exit();
-bool reputation_mod_load();
-void reputation_mod_unload();
+void reputation_exit(void);
+bool reputation_mod_load(void);
+void reputation_mod_unload(void);
 int reputation_reaction_adj(int64_t pc_obj, int64_t npc_obj);
 void reputation_name(int reputation, char* buffer);
 int reputation_get_logbook_data(int64_t pc_obj, ReputationLogbookEntry* logbook_entries);

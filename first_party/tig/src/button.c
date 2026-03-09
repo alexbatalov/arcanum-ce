@@ -29,13 +29,13 @@ typedef struct TigButton {
     /* 0034 */ int group;
 } TigButton;
 
-static int tig_button_free_index();
+static int tig_button_free_index(void);
 static int tig_button_handle_to_index(tig_button_handle_t button_handle);
 static tig_button_handle_t tig_button_index_to_handle(int index);
 static void tig_button_play_sound(tig_button_handle_t button_handle, int event);
 static tig_button_handle_t tig_button_radio_group_get_selected(int group);
 static void sub_5387B0(int group);
-static void sub_5387D0();
+static void sub_5387D0(void);
 
 // 0x5C26F8
 static tig_button_handle_t tig_button_pressed_button_handle = TIG_BUTTON_HANDLE_INVALID;
@@ -64,7 +64,7 @@ int tig_button_init(TigInitInfo* init_info)
 }
 
 // 0x537B20
-void tig_button_exit()
+void tig_button_exit(void)
 {
     int button_index;
     tig_button_handle_t button_handle;
@@ -287,7 +287,7 @@ int tig_button_refresh_rect(int window_handle, TigRect* rect)
 }
 
 // 0x537FA0
-int tig_button_free_index()
+int tig_button_free_index(void)
 {
     int button_index;
 
@@ -715,7 +715,7 @@ void sub_5387B0(int group)
 }
 
 // 0x5387D0
-void sub_5387D0()
+void sub_5387D0(void)
 {
     tig_button_pressed_button_handle = TIG_BUTTON_HANDLE_INVALID;
     tig_button_hovered_button_handle = TIG_BUTTON_HANDLE_INVALID;

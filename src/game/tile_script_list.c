@@ -15,8 +15,8 @@ typedef struct TileScriptListNodeSerializedData {
 // Serializeable.
 static_assert(sizeof(TileScriptListNodeSerializedData) == 0x18, "wrong size");
 
-static void tile_script_node_reserve();
-static void tile_script_node_clear();
+static void tile_script_node_reserve(void);
+static void tile_script_node_clear(void);
 
 /**
  * A pool of the free `TileScriptListNode` instances for reuse.
@@ -30,7 +30,7 @@ static TileScriptListNode* tile_script_node_head;
  *
  * 0x4F6310
  */
-void tile_script_node_init()
+void tile_script_node_init(void)
 {
 }
 
@@ -39,7 +39,7 @@ void tile_script_node_init()
  *
  * 0x4F6320
  */
-void tile_script_node_exit()
+void tile_script_node_exit(void)
 {
     tile_script_node_clear();
 }
@@ -49,7 +49,7 @@ void tile_script_node_exit()
  *
  * 0x4F6330
  */
-TileScriptListNode* tile_script_node_create()
+TileScriptListNode* tile_script_node_create(void)
 {
     TileScriptListNode* node;
 
@@ -83,7 +83,7 @@ void tile_script_node_destroy(TileScriptListNode* node)
  *
  * 0x4F6380
  */
-void tile_script_node_reserve()
+void tile_script_node_reserve(void)
 {
     int index;
     TileScriptListNode* node;
@@ -102,7 +102,7 @@ void tile_script_node_reserve()
  *
  * 0x4F63B0
  */
-void tile_script_node_clear()
+void tile_script_node_clear(void)
 {
     TileScriptListNode* next;
 

@@ -25,7 +25,7 @@ static int curse_mes_file;
  *
  * 0x4C3C60
  */
-bool curse_mod_load()
+bool curse_mod_load(void)
 {
     mes_load("mes\\gamecurse.mes", &curse_mes_file);
     return true;
@@ -36,7 +36,7 @@ bool curse_mod_load()
  *
  * 0x4C3C80
  */
-void curse_mod_unload()
+void curse_mod_unload(void)
 {
     mes_unload(curse_mes_file);
     curse_mes_file = MES_FILE_HANDLE_INVALID;

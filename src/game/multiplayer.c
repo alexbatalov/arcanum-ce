@@ -203,34 +203,34 @@ static bool sub_49D570(TimeEvent* timeevent);
 static void multiplayer_handle_message(void* msg);
 static void sub_4A1F30(int64_t obj, int64_t location, int dx, int dy);
 static bool sub_4A1F60(int player, int64_t* obj_ptr);
-static void multiplayer_send_player_list();
+static void multiplayer_send_player_list(void);
 static bool multiplayer_validate_message(void* msg);
 static void sub_4A2040(int a1);
 static bool multiplayer_handle_network_event(int type, int client_id, void* data, int size);
-static void sub_4A2A30();
+static void sub_4A2A30(void);
 static void multiplayer_notify_player_lagging(int64_t obj);
 static void multiplayer_notify_player_recovered(int64_t obj);
 static void sub_4A2AE0(int player);
 static void sub_4A2CD0(S5F0DFC* a1);
-static void sub_4A2E90();
+static void sub_4A2E90(void);
 static bool sub_4A2EC0(ObjectID a, ObjectID b, int player);
 static void sub_4A3030(ObjectID a1, ObjectID a2, int a3);
 static S5F0E1C* sub_4A3080(ObjectID oid);
 static void sub_4A30D0(ObjectID oid);
 static void sub_4A3170(ObjectID oid);
 static void sub_4A3660(int player);
-static void sub_4A3780();
+static void sub_4A3780(void);
 static bool save_char(const char* path, int64_t obj);
 static bool load_char(const char* path, int64_t* obj_ptr);
 static bool sub_4A40D0(int player);
 static void multiplayer_level_scheme_set(int64_t obj, const char* rule, const char* name);
 static int multiplayer_level_scheme_get(int64_t obj, char* rule, char* name);
-static void sub_4A5290();
+static void sub_4A5290(void);
 static bool sub_4A52C0(int client_id, int64_t item_obj);
 static bool sub_4A5320(int client_id);
-static void sub_4A5380();
-static void sub_4A54A0();
-static void sub_4A54E0();
+static void sub_4A5380(void);
+static void sub_4A54A0(void);
+static void sub_4A54E0(void);
 static void sub_4A5670(int64_t obj);
 static int sub_4A5710(int64_t obj, mes_file_handle_t mes_file);
 static int sub_4A57F0(int64_t obj);
@@ -254,7 +254,7 @@ static const struct {
     const char* name;
     bool (*save_func)(TigFile* stream);
     bool (*load_func)(GameLoadInfo* load_info);
-    void (*ping_func)();
+    void (*ping_func)(void);
 } stru_5B3FF0[8] = {
     { "Anim", anim_save, anim_load, sub_4A54A0 },
     { "MagicTech", magictech_post_save, magictech_post_load, sub_4A54E0 },
@@ -333,7 +333,7 @@ static S5F0DFC* dword_5F0DFC;
 static bool dword_5F0E00;
 
 // 0x5F0E04
-static void (*off_5F0E04)();
+static void (*off_5F0E04)(void);
 
 // 0x5F0E08
 static Func5F0E08* dword_5F0E08;
@@ -403,7 +403,7 @@ bool multiplayer_init(GameInitInfo* init_info)
 }
 
 // 0x49C780
-void multiplayer_exit()
+void multiplayer_exit(void)
 {
     S5F0DEC* node;
     int index;
@@ -434,7 +434,7 @@ void multiplayer_exit()
 }
 
 // 0x49C820
-void multiplayer_reset()
+void multiplayer_reset(void)
 {
     S5F0DEC* node;
     int index;
@@ -582,13 +582,13 @@ bool mutliplayer_load(GameLoadInfo* load_info)
 }
 
 // 0x49CB50
-bool multiplayer_mod_load()
+bool multiplayer_mod_load(void)
 {
     return true;
 }
 
 // 0x49CB60
-void multiplayer_mod_unload()
+void multiplayer_mod_unload(void)
 {
     multiplayer_lock();
     sub_4A3D00(true);
@@ -612,7 +612,7 @@ void sub_49CB80(S5E8AD0* a1)
 }
 
 // 0x49CBD0
-bool multiplayer_start()
+bool multiplayer_start(void)
 {
     multiplayer_lock_cnt = 0;
     if (tig_net_start_client() != TIG_OK) {
@@ -629,7 +629,7 @@ bool multiplayer_start()
 }
 
 // 0x49CC20
-bool multiplayer_end()
+bool multiplayer_end(void)
 {
     bool v1;
 
@@ -642,7 +642,7 @@ bool multiplayer_end()
 }
 
 // 0x49CC50
-void sub_49CC50()
+void sub_49CC50(void)
 {
     tig_net_start_server();
 }
@@ -994,7 +994,7 @@ bool sub_4A1F60(int player, int64_t* obj_ptr)
 }
 
 // 0x4A1FC0
-void multiplayer_send_player_list()
+void multiplayer_send_player_list(void)
 {
     PacketGamePlayerList pkt;
     int cnt;
@@ -1038,7 +1038,7 @@ bool multiplayer_handle_network_event(int type, int client_id, void* data, int s
 }
 
 // 0x4A2A30
-void sub_4A2A30()
+void sub_4A2A30(void)
 {
     if (off_5F0E04 != NULL) {
         off_5F0E04();
@@ -1126,19 +1126,19 @@ int64_t sub_4A2B60(int player)
 }
 
 // 0x4A2BA0
-bool multiplayer_is_locked()
+bool multiplayer_is_locked(void)
 {
     return tig_net_is_active() ? multiplayer_lock_cnt > 0 : true;
 }
 
 // 0x4A2BC0
-void multiplayer_lock()
+void multiplayer_lock(void)
 {
     multiplayer_lock_cnt++;
 }
 
 // 0x4A2BD0
-void multiplayer_unlock()
+void multiplayer_unlock(void)
 {
     if (multiplayer_lock_cnt > 0) {
         multiplayer_lock_cnt--;
@@ -1146,7 +1146,7 @@ void multiplayer_unlock()
 }
 
 // 0x4A2BE0
-int64_t multiplayer_player_find_first()
+int64_t multiplayer_player_find_first(void)
 {
     int64_t obj;
 
@@ -1168,7 +1168,7 @@ int64_t multiplayer_player_find_first()
 }
 
 // 0x4A2C60
-int64_t multiplayer_player_find_next()
+int64_t multiplayer_player_find_next(void)
 {
     int64_t obj;
 
@@ -1199,13 +1199,13 @@ void sub_4A2CD0(S5F0DFC* a1)
 }
 
 // 0x4A2D00
-void sub_4A2D00()
+void sub_4A2D00(void)
 {
     // TODO: Incomplete.
 }
 
 // 0x4A2E90
-void sub_4A2E90()
+void sub_4A2E90(void)
 {
     S5F0E1C* node;
 
@@ -1473,7 +1473,7 @@ void sub_4A3660(int player)
 }
 
 // 0x4A3780
-void sub_4A3780()
+void sub_4A3780(void)
 {
     char prefix[40];
     char name[TIG_MAX_PATH];
@@ -1504,12 +1504,12 @@ void sub_4A3780()
 }
 
 // 0x4A3890
-void sub_4A3890()
+void sub_4A3890(void)
 {
 }
 
 // 0x4A38A0
-int sub_4A38A0()
+int sub_4A38A0(void)
 {
     return dword_5F0DE0;
 }
@@ -1885,19 +1885,19 @@ int sub_4A4240(int player)
 }
 
 // 0x4A4270
-void sub_4A4270()
+void sub_4A4270(void)
 {
     dword_5F0E10++;
 }
 
 // 0x4A4280
-void sub_4A4280()
+void sub_4A4280(void)
 {
     dword_5F0E10--;
 }
 
 // 0x4A4320
-bool sub_4A4320()
+bool sub_4A4320(void)
 {
     char str[40];
     char path[TIG_MAX_PATH];
@@ -2317,7 +2317,7 @@ bool sub_4A51C0(int64_t pc_obj, int64_t item_obj)
 }
 
 // 0x4A5290
-void sub_4A5290()
+void sub_4A5290(void)
 {
     qword_5F0E20[0] = OBJ_HANDLE_NULL;
     memmove(&(qword_5F0E20[1]),
@@ -2362,7 +2362,7 @@ bool sub_4A5320(int client_id)
 }
 
 // 0x4A5380
-void sub_4A5380()
+void sub_4A5380(void)
 {
     qword_5E8D78[0] = OBJ_HANDLE_NULL;
     memmove(&(qword_5E8D78[1]),
@@ -2416,7 +2416,7 @@ void multiplayer_ping(tig_timestamp_t timestamp)
 }
 
 // 0x4A54A0
-void sub_4A54A0()
+void sub_4A54A0(void)
 {
     int index;
     char str[ANIM_ID_STR_SIZE];
@@ -2432,7 +2432,7 @@ void sub_4A54A0()
 }
 
 // 0x4A54E0
-void sub_4A54E0()
+void sub_4A54E0(void)
 {
     int index;
 
@@ -2476,7 +2476,7 @@ unsigned int multiplayer_flags_get(int client_id)
 }
 
 // 0x4A55F0
-int sub_4A55F0()
+int sub_4A55F0(void)
 {
     return dword_5B3FD8;
 }
@@ -2488,7 +2488,7 @@ void sub_4A5600(int a1)
 }
 
 // 0x4A5610
-void sub_4A5610()
+void sub_4A5610(void)
 {
     set_always_run(settings_get_value(&settings, ALWAYS_RUN_KEY));
     combat_auto_attack_set(settings_get_value(&settings, AUTO_ATTACK_KEY));

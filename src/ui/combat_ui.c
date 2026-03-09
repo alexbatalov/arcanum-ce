@@ -21,14 +21,14 @@ typedef enum ApColor {
 #define TWENTY 20
 
 static void sub_56ECE0(int a1);
-static void sub_56ED00();
-static void combat_ui_create();
-static void sub_56EF40();
-static void combat_ui_destroy();
+static void sub_56ED00(void);
+static void combat_ui_create(void);
+static void sub_56EF40(void);
+static void combat_ui_destroy(void);
 static void combat_ui_draw_compact_ap_bar(int available_ap);
 static void combat_ui_draw_ap_bar_segment(tig_window_handle_t window_handle, TigRect* rect, tig_color_t color);
 static void sub_56F430(int a1);
-static void combat_ui_draw_compact_npc_turn_indicator();
+static void combat_ui_draw_compact_npc_turn_indicator(void);
 static void sub_56F990(int64_t obj);
 static bool combat_ui_message_filter(TigMessage* msg);
 
@@ -146,13 +146,13 @@ bool combat_ui_init(GameInitInfo* init_info)
 }
 
 // 0x56EBE0
-void combat_ui_exit()
+void combat_ui_exit(void)
 {
     combat_ui_initialized = false;
 }
 
 // 0x56EBF0
-void combat_ui_reset()
+void combat_ui_reset(void)
 {
     sub_56EF40();
 }
@@ -200,7 +200,7 @@ void sub_56ECE0(int a1)
 }
 
 // 0x56ED00
-void sub_56ED00()
+void sub_56ED00(void)
 {
     if (combat_ui_created) {
         sub_56EF40();
@@ -210,7 +210,7 @@ void sub_56ED00()
 }
 
 // 0x56ED20
-void combat_ui_create()
+void combat_ui_create(void)
 {
     tig_art_id_t art_id;
     TigArtFrameData art_frame_data;
@@ -289,13 +289,13 @@ void combat_ui_create()
 }
 
 // 0x56EF40
-void sub_56EF40()
+void sub_56EF40(void)
 {
     combat_ui_destroy();
 }
 
 // 0x56EF50
-void combat_ui_destroy()
+void combat_ui_destroy(void)
 {
     if (!combat_ui_created) {
         return;
@@ -539,7 +539,7 @@ void sub_56F430(int a1)
 }
 
 // 0x56F660
-void combat_ui_refresh()
+void combat_ui_refresh(void)
 {
     int64_t obj;
     tig_art_id_t art_id;
@@ -610,7 +610,7 @@ void combat_ui_refresh()
 }
 
 // 0x56F840
-void combat_ui_draw_compact_npc_turn_indicator()
+void combat_ui_draw_compact_npc_turn_indicator(void)
 {
     int64_t obj;
     TigRect rect;

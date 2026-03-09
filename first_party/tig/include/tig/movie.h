@@ -18,13 +18,13 @@ typedef unsigned int TigMovieFlags;
 int tig_movie_init(TigInitInfo* init_info);
 
 // Shutdowns movie system.
-void tig_movie_exit();
+void tig_movie_exit(void);
 
 // Play given movie file.
 int tig_movie_play(const char* path, TigMovieFlags movie_flags, int sound_track);
 
 // Returns `true` if movie is currently being played.
-bool tig_movie_is_playing();
+bool tig_movie_is_playing(void);
 
 #ifdef __cplusplus
 }

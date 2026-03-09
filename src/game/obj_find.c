@@ -19,13 +19,13 @@ typedef struct FindSector {
     /* 0008 */ FindNode* head;
 } FindSector;
 
-static void obj_find_node_reserve();
-static void obj_find_node_clear();
+static void obj_find_node_reserve(void);
+static void obj_find_node_clear(void);
 static void obj_find_node_allocate(FindNode** obj_find_node);
 static void obj_find_node_deallocate(FindNode* obj_find_node);
 static void obj_find_node_attach(FindSector* find_sector, FindNode* find_node);
 static void obj_find_node_detach(FindNode* find_node);
-static void obj_find_sector_reserve();
+static void obj_find_sector_reserve(void);
 static bool obj_find_sector_find(int64_t sec, int* index_ptr);
 static void obj_find_sector_allocate(int64_t sec, FindSector** find_sector_ptr);
 static void obj_find_sector_deallocate(FindSector* find_sector);
@@ -80,7 +80,7 @@ static bool obj_find_initialized;
  *
  * 0x4E3900
  */
-void obj_find_init()
+void obj_find_init(void)
 {
     if (obj_find_initialized) {
         return;
@@ -104,7 +104,7 @@ void obj_find_init()
  *
  * 0x4E3950
  */
-void obj_find_exit()
+void obj_find_exit(void)
 {
     if (!obj_find_initialized) {
         return;
@@ -274,7 +274,7 @@ bool obj_find_walk_next(int64_t* obj_ptr, FindNode** iter_ptr)
  *
  * 0x4E3BE0
  */
-void obj_find_node_reserve()
+void obj_find_node_reserve(void)
 {
     int index;
 
@@ -301,7 +301,7 @@ void obj_find_node_reserve()
  *
  * 0x4E3C60
  */
-void obj_find_node_clear()
+void obj_find_node_clear(void)
 {
     while (find_node_buckets_cnt != 0) {
         FREE(find_node_buckets[--find_node_buckets_cnt]);
@@ -404,7 +404,7 @@ void obj_find_node_detach(FindNode* find_node)
  *
  * 0x4E3DD0
  */
-void obj_find_sector_reserve()
+void obj_find_sector_reserve(void)
 {
     find_sectors_capacity += OBJ_FIND_SECTOR_GROW;
 

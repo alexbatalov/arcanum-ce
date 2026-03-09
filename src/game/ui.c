@@ -20,7 +20,7 @@ void ui_init(UiCallbacks* callbacks)
 }
 
 // 0x460150
-void ui_exit()
+void ui_exit(void)
 {
     tig_idxtable_exit(&stru_5E87C8);
 }
@@ -43,7 +43,7 @@ bool ui_timeevent_process(TimeEvent* timeevent)
 }
 
 // 0x4601C0
-void sub_4601C0()
+void sub_4601C0(void)
 {
     if (ui_callbacks.field_0 != NULL) {
         ui_callbacks.field_0();
@@ -207,7 +207,7 @@ void ui_spell_maintain_end(int mt_id)
 }
 
 // 0x4604E0
-void ui_spell_maintain_refresh()
+void ui_spell_maintain_refresh(void)
 {
     if (ui_callbacks.spell_maintain_refresh != NULL) {
         ui_callbacks.spell_maintain_refresh();
@@ -223,7 +223,7 @@ void sub_4604F0(int64_t a1, int64_t a2)
 }
 
 // 0x460520
-void ui_end_death()
+void ui_end_death(void)
 {
     if (ui_callbacks.end_death != NULL) {
         ui_callbacks.end_death();
@@ -231,7 +231,7 @@ void ui_end_death()
 }
 
 // 0x460530
-void ui_end_game()
+void ui_end_game(void)
 {
     if (ui_callbacks.end_game != NULL) {
         ui_callbacks.end_game();
@@ -265,7 +265,7 @@ int sub_460590(int64_t a1, int a2)
 }
 
 // 0x4605C0
-void sub_4605C0()
+void sub_4605C0(void)
 {
     if (ui_callbacks.field_70 != NULL) {
         ui_callbacks.field_70();
@@ -273,7 +273,7 @@ void sub_4605C0()
 }
 
 // 0x4605D0
-void sub_4605D0()
+void sub_4605D0(void)
 {
     if (ui_callbacks.field_74 != NULL) {
         ui_callbacks.field_74();
@@ -331,7 +331,7 @@ void sub_4606C0(int a1)
 }
 
 // 0x4606E0
-void sub_4606E0()
+void sub_4606E0(void)
 {
     if (ui_callbacks.field_88 != NULL) {
         ui_callbacks.field_88();
@@ -363,7 +363,7 @@ void ui_item_activate(int64_t owner_obj, int64_t item_obj)
 }
 
 // 0x460770
-void ui_follower_refresh()
+void ui_follower_refresh(void)
 {
     if (ui_callbacks.follower_refresh != NULL) {
         ui_callbacks.follower_refresh();
@@ -371,7 +371,7 @@ void ui_follower_refresh()
 }
 
 // 0x460780
-void ui_follower_update()
+void ui_follower_update(void)
 {
     if (ui_callbacks.follower_update != NULL) {
         ui_callbacks.follower_update();
@@ -427,7 +427,7 @@ void ui_charedit_error_msg(int type, int param)
 }
 
 // 0x460860
-void ui_charedit_refresh()
+void ui_charedit_refresh(void)
 {
     if (ui_callbacks.charedit_refresh != NULL) {
         ui_callbacks.charedit_refresh();
@@ -499,7 +499,7 @@ void sub_460980(int64_t a1)
 }
 
 // 0x4609D0
-void ui_gameuilib_reset()
+void ui_gameuilib_reset(void)
 {
     if (ui_callbacks.gameuilib_reset != NULL) {
         ui_callbacks.gameuilib_reset();
@@ -555,7 +555,7 @@ void sub_460AD0(int a1)
 }
 
 // 0x460AF0
-void ui_refresh_cursor()
+void ui_refresh_cursor(void)
 {
     if (ui_callbacks.refresh_cursor != NULL) {
         ui_callbacks.refresh_cursor();
@@ -573,7 +573,7 @@ int sub_460B00(int a1, S4F2810* a2)
 }
 
 // 0x460B20
-void sub_460B20()
+void sub_460B20(void)
 {
     if (ui_callbacks.field_108 != NULL) {
         ui_callbacks.field_108();
@@ -607,7 +607,7 @@ void ui_queue_slide(int slide)
 }
 
 // 0x460BA0
-bool ui_gameuilib_mod_load()
+bool ui_gameuilib_mod_load(void)
 {
     if (ui_callbacks.gameuilib_mod_load != NULL) {
         return ui_callbacks.gameuilib_mod_load();
@@ -617,7 +617,7 @@ bool ui_gameuilib_mod_load()
 }
 
 // 0x460BB0
-int sub_460BB0()
+int sub_460BB0(void)
 {
     if (ui_callbacks.field_11C != NULL) {
         return ui_callbacks.field_11C();
@@ -627,7 +627,7 @@ int sub_460BB0()
 }
 
 // 0x460BC0
-int sub_460BC0()
+int sub_460BC0(void)
 {
     // FIXME: Checks the wrong callback for NULL.
     if (ui_callbacks.field_11C != NULL) {
@@ -656,7 +656,7 @@ void ui_schematic_info_get(int schematic, SchematicInfo* schematic_info)
 }
 
 // 0x460C20
-int64_t sub_460C20()
+int64_t sub_460C20(void)
 {
     if (ui_callbacks.field_12C != NULL) {
         return ui_callbacks.field_12C();
@@ -760,7 +760,7 @@ void sub_460DB0(const char* a1, const char* a2)
 }
 
 // 0x460DD0
-void sub_460DD0()
+void sub_460DD0(void)
 {
     if (ui_callbacks.field_15C != NULL) {
         ui_callbacks.field_15C();

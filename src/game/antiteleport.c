@@ -27,7 +27,7 @@ typedef struct AntiteleportRegionList {
     int cnt;
 } AntiteleportRegionList;
 
-static void antiteleport_clear();
+static void antiteleport_clear(void);
 static void antiteleport_region_list_init(AntiteleportRegionList* region_list);
 static bool antiteleport_region_list_load(mes_file_handle_t mes_file, AntiteleportRegionList* region_list, int num);
 static void antiteleport_map_list_init(AntiTeleportMapList* map_list);
@@ -100,7 +100,7 @@ bool antiteleport_init(GameInitInfo* init_info)
  *
  * 0x4BD9C0
  */
-void antiteleport_exit()
+void antiteleport_exit(void)
 {
     if (antiteleport_disabled) {
         return;
@@ -116,7 +116,7 @@ void antiteleport_exit()
  *
  * 0x4BD9E0
  */
-bool antiteleport_mod_load()
+bool antiteleport_mod_load(void)
 {
     mes_file_handle_t antiteleport_mes_file;
 
@@ -160,7 +160,7 @@ bool antiteleport_mod_load()
  *
  * 0x4BDAB0
  */
-void antiteleport_mod_unload()
+void antiteleport_mod_unload(void)
 {
     antiteleport_clear();
     antiteleport_mod_loaded = false;
@@ -171,7 +171,7 @@ void antiteleport_mod_unload()
  *
  * 0x4BDAC0
  */
-void antiteleport_clear()
+void antiteleport_clear(void)
 {
     if (antiteleport_region_list.entries != NULL) {
         FREE(antiteleport_region_list.entries);

@@ -47,11 +47,11 @@ typedef struct SectorHistoryEntry {
 static_assert(sizeof(SectorHistoryEntry) == 0x10, "wrong size");
 
 static bool sector_cache_init(unsigned int capacity);
-static void sector_block_clear();
-static void sector_history_clear();
+static void sector_block_clear(void);
+static void sector_history_clear(void);
 static int sub_4D1310(int64_t a1, int64_t a2, int a3, int64_t* a4);
-static SectorListNode* sector_list_node_create();
-static void sector_list_node_reserve();
+static SectorListNode* sector_list_node_create(void);
+static void sector_list_node_reserve(void);
 static void sub_4D1400(Sector* sector);
 static bool sector_load_editor(int64_t id, Sector* sector);
 static bool sector_load_game(int64_t id, Sector* sector);
@@ -62,16 +62,16 @@ static void sector_validate_game(const char* section);
 static void sector_validate_editor(const char* section);
 static bool sector_cache_find_by_id(int64_t id, int* index_ptr);
 static bool sector_cache_find_unused(unsigned int* index_ptr);
-static void sector_load_demo_limits();
-static void sector_art_cache_clear();
+static void sector_load_demo_limits(void);
+static void sector_art_cache_clear(void);
 static void sector_precache_art(Sector* sector);
-static void sector_art_cache_reset();
-static void sector_art_cache_sort();
+static void sector_art_cache_reset(void);
+static void sector_art_cache_sort(void);
 static int sector_art_cache_compare(const void* va, const void* vb);
 static int sector_block_find(int64_t sec);
 static void sector_block_add(int64_t sec);
 static void sector_block_remove(int idx);
-static bool sector_block_save_internal();
+static bool sector_block_save_internal(void);
 static bool sector_block_load_internal(const char* base_map_name, const char* current_map_name);
 
 // 0x5B7CD0
@@ -233,14 +233,14 @@ bool sector_init(GameInitInfo* init_info)
 }
 
 // 0x4CF0D0
-void sector_reset()
+void sector_reset(void)
 {
     sub_4D0B40();
     sector_history_size = 0;
 }
 
 // 0x4CF0E0
-void sector_exit()
+void sector_exit(void)
 {
     SectorListNode* node;
     unsigned int index;
@@ -306,7 +306,7 @@ void sector_resize(GameResizeInfo* resize_info)
 }
 
 // 0x4CF320
-void sector_map_close()
+void sector_map_close(void)
 {
     sub_4D0B40();
     if (!gamelib_in_load()) {
@@ -327,7 +327,7 @@ void sub_4CF360(SectorLockFunc* func)
 }
 
 // 0x4CF370
-void sector_grid_toggle()
+void sector_grid_toggle(void)
 {
     sector_grid_enabled = !sector_grid_enabled;
     sector_iso_window_invalidate_rect(NULL);
@@ -990,7 +990,7 @@ bool sector_unlock(int64_t id)
 }
 
 // 0x4D0B40
-void sub_4D0B40()
+void sub_4D0B40(void)
 {
     unsigned int index;
 
@@ -1079,7 +1079,7 @@ void sector_block_set(int64_t sec, bool blocked)
 }
 
 // 0x4D0F40
-void sector_block_init()
+void sector_block_init(void)
 {
     sector_block_clear();
 }
@@ -1097,7 +1097,7 @@ bool sector_block_load(const char* base_map_name, const char* current_map_name)
 }
 
 // 0x4D0F70
-void sector_block_clear()
+void sector_block_clear(void)
 {
     if (sector_blocked_sectors != NULL) {
         FREE(sector_blocked_sectors);
@@ -1109,13 +1109,13 @@ void sector_block_clear()
 }
 
 // 0x4D1040
-void sector_art_cache_enable()
+void sector_art_cache_enable(void)
 {
     sector_art_cache_state++;
 }
 
 // 0x4D1050
-void sector_art_cache_disable()
+void sector_art_cache_disable(void)
 {
     sector_art_cache_state--;
 }
@@ -1147,20 +1147,20 @@ bool sector_history_init(GameInitInfo* init_info)
 }
 
 // 0x4D10D0
-void sector_history_reset()
+void sector_history_reset(void)
 {
     sector_history_size = 0;
 }
 
 // 0x4D10E0
-void sector_history_exit()
+void sector_history_exit(void)
 {
     FREE(sector_history_entries);
     sector_history_size = 0;
 }
 
 // 0x4D1100
-void sector_history_clear()
+void sector_history_clear(void)
 {
     sector_history_entries = (SectorHistoryEntry*)REALLOC(sector_history_entries, sizeof(*sector_history_entries) * sector_cache_capacity * 2);
     memset(sector_history_entries, 0, sizeof(*sector_history_entries) * sector_cache_capacity * 2);
@@ -1247,7 +1247,7 @@ int sub_4D1310(int64_t a1, int64_t a2, int a3, int64_t* a4)
 }
 
 // 0x4D13A0
-SectorListNode* sector_list_node_create()
+SectorListNode* sector_list_node_create(void)
 {
     SectorListNode* node;
 
@@ -1264,7 +1264,7 @@ SectorListNode* sector_list_node_create()
 }
 
 // 0x4D13D0
-void sector_list_node_reserve()
+void sector_list_node_reserve(void)
 {
     int index;
     SectorListNode* node;
@@ -2155,7 +2155,7 @@ bool sector_cache_find_unused(unsigned int* index_ptr)
 }
 
 // 0x4D2D70
-void sector_load_demo_limits()
+void sector_load_demo_limits(void)
 {
     char buffer[TIG_MAX_PATH];
     TigFile* stream;
@@ -2194,7 +2194,7 @@ void sector_load_demo_limits()
 }
 
 // 0x4D2EA0
-void sector_art_cache_clear()
+void sector_art_cache_clear(void)
 {
     if (sector_art_cache != NULL) {
         FREE(sector_art_cache);
@@ -2233,13 +2233,13 @@ void sector_precache_art(Sector* sector)
 }
 
 // 0x4D2F80
-void sector_art_cache_reset()
+void sector_art_cache_reset(void)
 {
     sector_art_cache_size = 0;
 }
 
 // 0x4D2F90
-void sector_art_cache_sort()
+void sector_art_cache_sort(void)
 {
     qsort(sector_art_cache, sector_art_cache_size, sizeof(*sector_art_cache), sector_art_cache_compare);
 }
@@ -2286,7 +2286,7 @@ void sector_block_remove(int idx)
 }
 
 // 0x4D30A0
-bool sector_block_save_internal()
+bool sector_block_save_internal(void)
 {
     char path[TIG_MAX_PATH];
     TigFile* stream;

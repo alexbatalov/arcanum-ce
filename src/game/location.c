@@ -81,7 +81,7 @@ bool location_init(GameInitInfo* init_info)
 }
 
 // 0x4B8530
-void location_exit()
+void location_exit(void)
 {
 }
 
@@ -579,7 +579,7 @@ void location_limits_get(int64_t* x, int64_t* y)
 }
 
 // 0x4B9810
-int64_t location_center_get()
+int64_t location_center_get(void)
 {
     return location_make(location_limit_x / 2, location_limit_y / 2);
 }

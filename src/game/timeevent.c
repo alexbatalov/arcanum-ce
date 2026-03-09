@@ -66,11 +66,11 @@ static bool timeevent_save_node(TimeEventTypeInfo* timeevent_type_info, TimeEven
 static bool timeevent_load_node(TimeEvent* timeevent, TigFile* stream);
 static bool timeevent_add_delay_base(TimeEvent* timeevent, DateTime* delay, DateTime* base);
 static bool timeevent_add_base_at_func(TimeEvent* timeevent, DateTime* base, DateTime* at);
-static TimeEventNode* timeevent_node_create();
+static TimeEventNode* timeevent_node_create(void);
 static void timeevent_node_destroy(TimeEventNode* node);
 static bool timeevent_recover_handles(TimeEventNode* timeevent);
 static bool timeevent_recover_handles_internal(TimeEventNode* node, bool force);
-static void sub_45B750();
+static void sub_45B750(void);
 static bool sub_45B7A0(TimeEventNode* node);
 static bool sub_45BAF0(TimeEvent* timeevent);
 static bool sub_45BB40(TimeEventNode* node);
@@ -202,7 +202,7 @@ static int dword_5E8628;
 static bool dword_5DE6E0;
 
 // 0x45A7C0
-DateTime sub_45A7C0()
+DateTime sub_45A7C0(void)
 {
     return timeevent_game_time;
 }
@@ -219,7 +219,7 @@ DateTime sub_45A7D0(DateTime* other)
 }
 
 // 0x45A7F0
-int sub_45A7F0()
+int sub_45A7F0(void)
 {
     // NOTE: Uninline.
     return datetime_seconds_since_reference_date(&timeevent_game_time);
@@ -256,7 +256,7 @@ int datetime_get_minute(DateTime* datetime)
 }
 
 // 0x45A8D0
-int datetime_get_day_since_reference_date()
+int datetime_get_day_since_reference_date(void)
 {
     return timeevent_game_time.days + 1;
 }
@@ -340,37 +340,37 @@ void datetime_add_datetime(DateTime* datetime, DateTime* other)
 }
 
 // 0x45AAA0
-int datetime_current_hour()
+int datetime_current_hour(void)
 {
     return timeevent_game_time.milliseconds / 3600000 % 24;
 }
 
 // 0x45AAC0
-int datetime_current_minute()
+int datetime_current_minute(void)
 {
     return timeevent_game_time.milliseconds / 60000 % 60;
 }
 
 // 0x45AAE0
-int datetime_current_second()
+int datetime_current_second(void)
 {
     return timeevent_game_time.milliseconds / 1000 % 60;
 }
 
 // 0x45AB00
-int datetime_current_day()
+int datetime_current_day(void)
 {
     return timeevent_game_time.days / 30 % 12 + 1;
 }
 
 // 0x45AB20
-int datetime_current_month()
+int datetime_current_month(void)
 {
     return timeevent_game_time.days % 30 + 1;
 }
 
 // 0x45AB40
-int datetime_current_year()
+int datetime_current_year(void)
 {
     return datetime_start_year + timeevent_game_time.days / 360;
 }
@@ -465,7 +465,7 @@ void datetime_format_date(DateTime* time, char* dest)
 }
 
 // 0x45ACF0
-bool game_time_is_day()
+bool game_time_is_day(void)
 {
     int hour = datetime_current_hour();
     return hour >= 6 && hour < 18;
@@ -490,7 +490,7 @@ void datetime_set_start_hour(int hour)
 }
 
 // 0x5B2790
-int sub_45AD70()
+int sub_45AD70(void)
 {
     return datetime_start_time_in_milliseconds;
 }
@@ -550,7 +550,7 @@ bool timeevent_set_funcs(TimeEventFuncs* funcs)
 }
 
 // 0x45AE80
-void timeevent_reset()
+void timeevent_reset(void)
 {
     timeevent_clear();
     sub_45A950(&timeevent_real_time, 0);
@@ -560,7 +560,7 @@ void timeevent_reset()
 }
 
 // 0x45AEC0
-void timeevent_exit()
+void timeevent_exit(void)
 {
     timeevent_initialized = false;
     timeevent_clear();
@@ -761,7 +761,7 @@ bool timeevent_load_node(TimeEvent* timeevent, TigFile* stream)
 }
 
 // 0x45B300
-bool sub_45B300()
+bool sub_45B300(void)
 {
     if (dword_5E8618 == 0) {
         return sub_52A900();
@@ -771,7 +771,7 @@ bool sub_45B300()
 }
 
 // 0x45B320
-void sub_45B320()
+void sub_45B320(void)
 {
     if (dword_5E8618 < 30) {
         dword_5E8618++;
@@ -780,7 +780,7 @@ void sub_45B320()
 }
 
 // 0x45B340
-void sub_45B340()
+void sub_45B340(void)
 {
     if (dword_5E8618 > 0) {
         dword_5E8618--;
@@ -791,7 +791,7 @@ void sub_45B340()
 }
 
 // 0x45B360
-void sub_45B360()
+void sub_45B360(void)
 {
     dword_5E8618 = 0;
     dword_5DE6E0 = false;
@@ -969,7 +969,7 @@ bool timeevent_recover_handles_internal(TimeEventNode* node, bool force)
 }
 
 // 0x45B750
-void sub_45B750()
+void sub_45B750(void)
 {
     int index;
     TimeEventNode** node_ptr;
@@ -1111,7 +1111,7 @@ bool timeevent_add_base_at_func(TimeEvent* timeevent, DateTime* base, DateTime* 
 }
 
 // 0x45BA20
-TimeEventNode* timeevent_node_create()
+TimeEventNode* timeevent_node_create(void)
 {
     return (TimeEventNode*)MALLOC(sizeof(TimeEventNode));
 }
@@ -1215,7 +1215,7 @@ bool sub_45BB40(TimeEventNode* node)
 }
 
 // 0x45BC20
-void timeevent_clear()
+void timeevent_clear(void)
 {
     int index;
     TimeEventNode* node;
@@ -1246,7 +1246,7 @@ void timeevent_clear()
 }
 
 // 0x45BCE0
-void timeevent_clear_for_map_close()
+void timeevent_clear_for_map_close(void)
 {
     char* name;
 
@@ -1677,7 +1677,7 @@ int sub_45C500(TimeEventNode* node)
 }
 
 // 0x45C580
-void sub_45C580()
+void sub_45C580(void)
 {
     int time_type;
     TimeEventNode* node;
@@ -1890,7 +1890,7 @@ bool debug_timeevent_process(TimeEvent* timeevent)
 }
 
 // 0x45CA60
-void timeevent_debug_lists()
+void timeevent_debug_lists(void)
 {
     TimeEventNode* node;
     int time_type_counts[TIME_TYPE_COUNT];

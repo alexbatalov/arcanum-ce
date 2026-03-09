@@ -50,8 +50,8 @@ typedef struct ObjSa {
     } storage;
 } ObjSa;
 
-void sub_4E3F80();
-void sub_4E3F90();
+void sub_4E3F80(void);
+void sub_4E3F90(void);
 void sub_4E3FA0(ObjSa* a1);
 void sub_4E4000(ObjSa* a1);
 void sub_4E4180(ObjSa* a1);
@@ -66,9 +66,9 @@ int sub_4E4BA0(ObjSa* a1);
 void write_buffer_init(WriteBuffer* wb);
 void write_buffer_append(const void* data, int size, WriteBuffer* wb);
 void sub_4E4C50(void* buffer, int size, uint8_t** data);
-void bitset_pool_init();
-void bitset_pool_exit();
-int bitset_alloc();
+void bitset_pool_init(void);
+void bitset_pool_exit(void);
+int bitset_alloc(void);
 void bitset_free(int id);
 int bitset_copy(int id);
 void bitset_set(int id, int pos, bool val);

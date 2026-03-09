@@ -27,7 +27,7 @@ int tig_draw_init(TigInitInfo* init_info)
 }
 
 // 0x538EF0
-void tig_draw_exit()
+void tig_draw_exit(void)
 {
 }
 

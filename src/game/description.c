@@ -66,7 +66,7 @@ bool description_init(GameInitInfo* init_info)
  *
  * 0x4D4150
  */
-void description_exit()
+void description_exit(void)
 {
     mes_unload(description_mes_file);
 }
@@ -76,7 +76,7 @@ void description_exit()
  *
  * 0x4D4160
  */
-bool description_mod_load()
+bool description_mod_load(void)
 {
     int cnt;
     MesFileEntry mes_file_entry;
@@ -106,7 +106,7 @@ bool description_mod_load()
  *
  * 0x4D41D0
  */
-void description_mod_unload()
+void description_mod_unload(void)
 {
     mes_unload(gamedesc_mes_file);
     gamedesc_mes_file = MES_FILE_HANDLE_INVALID;

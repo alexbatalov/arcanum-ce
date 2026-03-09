@@ -145,7 +145,7 @@ bool invensource_init(GameInitInfo* init_info)
  *
  * 0x4BF510
  */
-void invensource_exit()
+void invensource_exit(void)
 {
     if (invensource_initialized) {
         FREE(invensource_sets);

@@ -66,8 +66,8 @@ static void bitset_shrink(int id, int cnt);
 static void bitset_shift_offsets(int start, int end, int delta);
 static int bitset_index_of(int bit);
 static int bitset_mask_of(int bit);
-static void popcount_table_init();
-static void popcount_masks_init();
+static void popcount_table_init(void);
+static void popcount_masks_init(void);
 
 // 0x6036A8
 static bool dword_6036A8;
@@ -175,13 +175,13 @@ static int bitset_count;
 static bool bitset_pool_initialized;
 
 // 0x4E3F80
-void sub_4E3F80()
+void sub_4E3F80(void)
 {
     dword_6036A8 = true;
 }
 
 // 0x4E3F90
-void sub_4E3F90()
+void sub_4E3F90(void)
 {
     dword_6036A8 = false;
 }
@@ -898,7 +898,7 @@ void write_buffer_ensure_size(WriteBuffer* wb, int size)
  *
  * 0x4E59B0
  */
-void bitset_pool_init()
+void bitset_pool_init(void)
 {
     bitset_count = 0;
     bitset_descriptors_capacity = BITSET_DESCRIPTORS_INITIAL_CAPACITY;
@@ -926,7 +926,7 @@ void bitset_pool_init()
  *
  * 0x4E5A50
  */
-void bitset_pool_exit()
+void bitset_pool_exit(void)
 {
     FREE(popcount_masks);
     FREE(popcount_tbl);
@@ -942,7 +942,7 @@ void bitset_pool_exit()
  *
  * 0x4E5AA0
  */
-int bitset_alloc()
+int bitset_alloc(void)
 {
     int index;
 
@@ -1377,7 +1377,7 @@ int bitset_mask_of(int pos)
  *
  * 0x4E6210
  */
-void popcount_table_init()
+void popcount_table_init(void)
 {
     int idx;
     uint8_t cnt;
@@ -1403,7 +1403,7 @@ void popcount_table_init()
  *
  * 0x4E6240
  */
-void popcount_masks_init()
+void popcount_masks_init(void)
 {
     int idx;
     uint16_t step = 1;

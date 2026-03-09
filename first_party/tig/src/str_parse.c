@@ -22,7 +22,7 @@ int tig_str_parse_init(TigInitInfo* init_info)
 }
 
 // 0x5318D0
-void tig_str_parse_exit()
+void tig_str_parse_exit(void)
 {
 }
 

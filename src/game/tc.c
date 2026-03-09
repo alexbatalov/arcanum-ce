@@ -222,7 +222,7 @@ bool tc_init(GameInitInfo* init_info)
  *
  * 0x4C9540
  */
-void tc_exit()
+void tc_exit(void)
 {
     // Make sure we're not in the editor.
     if (tc_editor) {
@@ -337,7 +337,7 @@ void tc_scroll(int dx, int dy)
  *
  * 0x4C96C0
  */
-void tc_show()
+void tc_show(void)
 {
     // Make sure we're not in the editor.
     if (tc_editor) {
@@ -361,7 +361,7 @@ void tc_show()
  *
  * 0x4C96F0
  */
-void tc_hide()
+void tc_hide(void)
 {
     // Make sure we're not in the editor.
     if (tc_editor) {

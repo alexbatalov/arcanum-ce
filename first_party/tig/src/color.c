@@ -20,14 +20,14 @@ typedef enum ColorSettings {
 
 static void tig_color_set_mask(int color_component, unsigned int mask);
 static int sub_52C760(tig_color_t color, int color_component, int color_setting);
-static void tig_color_mult_tables_init();
-static void tig_color_mult_tables_exit();
-static void tig_color_grayscale_table_init();
-static void tig_color_grayscale_table_exit();
-static void tig_color_rgb_conversion_tables_init();
-static void tig_color_rgb_conversion_tables_exit();
-static void tig_color_table_4_init();
-static void tig_color_table_4_exit();
+static void tig_color_mult_tables_init(void);
+static void tig_color_mult_tables_exit(void);
+static void tig_color_grayscale_table_init(void);
+static void tig_color_grayscale_table_exit(void);
+static void tig_color_rgb_conversion_tables_init(void);
+static void tig_color_rgb_conversion_tables_exit(void);
+static void tig_color_table_4_init(void);
+static void tig_color_table_4_exit(void);
 
 // This table contains masks which should be applied to `tig_color_t` value in order
 // to extract appropriate color component (see `tig_color_shifts_table`).
@@ -236,7 +236,7 @@ int tig_color_init(TigInitInfo* init_info)
 }
 
 // 0x52C040
-void tig_color_exit()
+void tig_color_exit(void)
 {
     if (tig_color_initialized) {
         tig_color_table_4_exit();
@@ -611,7 +611,7 @@ int sub_52C760(tig_color_t color, int color_component, int color_setting)
 }
 
 // 0x52C7C0
-void tig_color_mult_tables_init()
+void tig_color_mult_tables_init(void)
 {
     unsigned int x;
     unsigned int y;
@@ -658,7 +658,7 @@ void tig_color_mult_tables_init()
 }
 
 // 0x52C940
-void tig_color_mult_tables_exit()
+void tig_color_mult_tables_exit(void)
 {
     if (tig_color_blue_mult_table != NULL) {
         if (tig_color_blue_mult_table != tig_color_green_mult_table && tig_color_blue_mult_table != tig_color_red_mult_table) {
@@ -687,7 +687,7 @@ void tig_color_mult_tables_exit()
 // often when googling for grayscale conversion.
 //
 // 0x52C9B0
-void tig_color_grayscale_table_init()
+void tig_color_grayscale_table_init(void)
 {
     unsigned int index;
 
@@ -710,7 +710,7 @@ void tig_color_grayscale_table_init()
 }
 
 // 0x52CAC0
-void tig_color_grayscale_table_exit()
+void tig_color_grayscale_table_exit(void)
 {
     if (tig_color_blue_grayscale_table != NULL) {
         FREE(tig_color_blue_grayscale_table);
@@ -742,7 +742,7 @@ void tig_color_grayscale_table_exit()
 // on number of bits available for each color channel.
 //
 // 0x52CB20
-void tig_color_rgb_conversion_tables_init()
+void tig_color_rgb_conversion_tables_init(void)
 {
     unsigned int index;
 
@@ -800,7 +800,7 @@ void tig_color_rgb_conversion_tables_init()
 }
 
 // 0x52CDE0
-void tig_color_rgb_conversion_tables_exit()
+void tig_color_rgb_conversion_tables_exit(void)
 {
     if (tig_color_blue_platform_to_rgb_table != NULL) {
         if (tig_color_blue_platform_to_rgb_table != tig_color_green_platform_to_rgb_table && tig_color_blue_platform_to_rgb_table != tig_color_red_platform_to_rgb_table) {
@@ -842,7 +842,7 @@ void tig_color_rgb_conversion_tables_exit()
 }
 
 // 0x52CEB0
-void tig_color_table_4_init()
+void tig_color_table_4_init(void)
 {
     unsigned int index;
 
@@ -875,7 +875,7 @@ void tig_color_table_4_init()
 }
 
 // 0x52D070
-void tig_color_table_4_exit()
+void tig_color_table_4_exit(void)
 {
     if (tig_color_rgba_blue_table != NULL) {
         if (tig_color_rgba_blue_table != tig_color_rgba_green_table && tig_color_rgba_blue_table != tig_color_rgba_red_table) {

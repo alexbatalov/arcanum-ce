@@ -73,7 +73,7 @@ static int tig_file_remove_native(const char* file_name);
 static int tig_file_rename_native(const char* old_file_name, const char* new_file_name);
 static TigFile* tig_file_fopen_native(const char* path, const char* mode);
 static TigFile* tig_file_reopen_native(const char* path, const char* mode, TigFile* stream);
-static TigFile* tig_file_create();
+static TigFile* tig_file_create(void);
 static void tig_file_destroy(TigFile* stream);
 static bool tig_file_close_internal(TigFile* stream);
 static int tig_file_open_internal_native(const char* path, const char* mode, TigFile* stream);
@@ -553,7 +553,7 @@ int tig_file_init(TigInitInfo* init_info)
 }
 
 // 0x52ED00
-void tig_file_exit()
+void tig_file_exit(void)
 {
     TigFileIgnore* next;
 
@@ -700,7 +700,7 @@ bool tig_file_repository_remove_native(const char* file_name)
 }
 
 // 0x52F000
-bool tig_file_repository_remove_all()
+bool tig_file_repository_remove_all(void)
 {
     TigFileRepository* curr;
     TigFileRepository* next;
@@ -1365,7 +1365,7 @@ int tig_file_fprintf(TigFile* stream, const char* format, ...)
 }
 
 // 0x5304B0
-int sub_5304B0()
+int sub_5304B0(void)
 {
     return -1;
 }
@@ -1717,7 +1717,7 @@ bool sub_530B90(const char* pattern)
 }
 
 // 0x530BD0
-TigFile* tig_file_create()
+TigFile* tig_file_create(void)
 {
     TigFile* stream;
 

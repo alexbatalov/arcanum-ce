@@ -37,8 +37,8 @@ typedef struct GeneratorInfo {
 } GeneratorInfo;
 
 bool monstergen_init(GameInitInfo* init_info);
-void monstergen_reset();
-void monstergen_exit();
+void monstergen_reset(void);
+void monstergen_exit(void);
 void monstergen_resize(GameResizeInfo* resize_info);
 bool monstergen_load(GameLoadInfo* load_info);
 bool monstergen_save(TigFile* stream);

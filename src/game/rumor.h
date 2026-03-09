@@ -16,10 +16,10 @@ typedef struct RumorLogbookEntry {
 } RumorLogbookEntry;
 
 bool rumor_init(GameInitInfo* init_info);
-void rumor_reset();
-void rumor_exit();
-bool rumor_mod_load();
-void rumor_mod_unload();
+void rumor_reset(void);
+void rumor_exit(void);
+bool rumor_mod_load(void);
+void rumor_mod_unload(void);
 bool rumor_load(GameLoadInfo* load_info);
 bool rumor_save(TigFile* stream);
 bool rumor_qstate_get(int rumor);

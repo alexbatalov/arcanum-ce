@@ -160,7 +160,7 @@ bool critter_init(GameInitInfo* init_info)
  *
  * 0x45CFE0
  */
-void critter_exit()
+void critter_exit(void)
 {
     FREE(social_class_names);
     mes_unload(critter_mes_file);
@@ -2361,7 +2361,7 @@ void critter_encumbrance_level_recalc(int64_t obj, int prev_encumbrance_level)
  *
  * 0x45F910
  */
-void critter_encumbrance_recalc_feedback_enable()
+void critter_encumbrance_recalc_feedback_enable(void)
 {
     critter_encumbrance_recalc_feedback_cnt++;
 }
@@ -2371,7 +2371,7 @@ void critter_encumbrance_recalc_feedback_enable()
  *
  * 0x45F920
  */
-void critter_encumbrance_recalc_feedback_disable()
+void critter_encumbrance_recalc_feedback_disable(void)
 {
     critter_encumbrance_recalc_feedback_cnt--;
 }

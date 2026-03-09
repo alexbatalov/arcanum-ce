@@ -22,14 +22,14 @@ typedef struct TextEdit {
 } TextEdit;
 
 bool textedit_ui_init(GameInitInfo* init_info);
-void textedit_ui_reset();
-void textedit_ui_exit();
+void textedit_ui_reset(void);
+void textedit_ui_exit(void);
 void textedit_ui_focus(TextEdit* textedit);
 void textedit_ui_unfocus(TextEdit* textedit);
-bool textedit_ui_is_focused();
+bool textedit_ui_is_focused(void);
 bool textedit_ui_process_message(TigMessage* msg);
-void textedit_ui_clear();
-void textedit_ui_restore();
-void textedit_ui_submit();
+void textedit_ui_clear(void);
+void textedit_ui_restore(void);
+void textedit_ui_submit(void);
 
 #endif /* ARCANUM_UI_TEXTEDIT_UI_H_ */

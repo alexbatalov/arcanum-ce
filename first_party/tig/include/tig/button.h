@@ -40,7 +40,7 @@ typedef struct TigButtonData {
 } TigButtonData;
 
 int tig_button_init(TigInitInfo* init_info);
-void tig_button_exit();
+void tig_button_exit(void);
 int tig_button_create(TigButtonData* button_data, tig_button_handle_t* button_handle);
 int tig_button_destroy(tig_button_handle_t button_handle);
 int tig_button_data(tig_button_handle_t button_handle, TigButtonData* button_data);

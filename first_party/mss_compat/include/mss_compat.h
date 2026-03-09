@@ -41,7 +41,7 @@ void AILCALL AIL_set_stream_volume(HSTREAM stream, int volume);
 void AILCALL AIL_start_stream(HSTREAM stream);
 int AILCALL AIL_stream_status(HSTREAM stream);
 
-bool mss_compat_init();
+bool mss_compat_init(void);
 void mss_compat_exit(void);
 
 #ifdef __cplusplus

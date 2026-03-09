@@ -28,7 +28,7 @@ typedef enum Degree {
 } Degree;
 
 bool tech_init(GameInitInfo* init_info);
-void tech_exit();
+void tech_exit(void);
 void tech_set_defaults(int64_t obj);
 char* tech_discipline_name_get(int tech);
 char* tech_discipline_description_get(int tech);

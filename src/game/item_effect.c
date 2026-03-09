@@ -59,7 +59,7 @@ bool item_effect_init(GameInitInfo* init_info)
  *
  * 0x4D3FE0
  */
-void item_effect_exit()
+void item_effect_exit(void)
 {
     mes_unload(item_effect_mes_file);
 }
@@ -69,7 +69,7 @@ void item_effect_exit()
  *
  * 0x4D3FF0
  */
-bool item_effect_mod_load()
+bool item_effect_mod_load(void)
 {
     int cnt;
     MesFileEntry mes_file_entry;
@@ -92,7 +92,7 @@ bool item_effect_mod_load()
  *
  * 0x4D4050
  */
-void item_effect_mod_unload()
+void item_effect_mod_unload(void)
 {
     mes_unload(game_item_effect_mes_file);
     game_item_effect_mes_file = MES_FILE_HANDLE_INVALID;

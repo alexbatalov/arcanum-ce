@@ -20,7 +20,7 @@ int tig_timer_init(TigInitInfo* init_info)
 }
 
 // 0x52DF90
-void tig_timer_exit()
+void tig_timer_exit(void)
 {
 }
 

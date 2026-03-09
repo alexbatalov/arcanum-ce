@@ -52,7 +52,7 @@ bool o_name_init(GameInitInfo* init_info)
  *
  * 0x4E72F0
  */
-void o_name_exit()
+void o_name_exit(void)
 {
     if (o_name_initialized) {
         mes_unload(o_name_oname_mes_file);
@@ -66,7 +66,7 @@ void o_name_exit()
  *
  * 0x4E7320
  */
-bool o_name_mod_load()
+bool o_name_mod_load(void)
 {
     mes_file_handle_t msg_file;
 
@@ -90,7 +90,7 @@ bool o_name_mod_load()
  *
  * 0x4E7390
  */
-void o_name_mod_unload()
+void o_name_mod_unload(void)
 {
     mes_unload(o_name_oname_mes_file);
     if (!mes_load("oemes\\oname.mes", &o_name_oname_mes_file)) {
@@ -108,7 +108,7 @@ void o_name_mod_unload()
  *
  * 0x4E73F0
  */
-int o_name_count()
+int o_name_count(void)
 {
     return mes_entries_count(o_name_oname_mes_file);
 }

@@ -65,7 +65,7 @@ typedef struct S5754C0 {
 // Serializeable.
 static_assert(sizeof(S5754C0) == 0x30, "wrong size");
 
-static bool sub_572340();
+static bool sub_572340(void);
 static bool inven_ui_message_filter(TigMessage* msg);
 static void sub_574FD0(bool next);
 static bool sub_575100(bool* a1);
@@ -75,13 +75,13 @@ static void sub_575360(int a1);
 static void sub_5754C0(int x, int y);
 static bool sub_575580(void* userinfo);
 static bool sub_5755A0(void* userinfo);
-static void sub_575BE0();
+static void sub_575BE0(void);
 static int sub_575CB0(int x, int y, int64_t* a3);
 static int64_t sub_575FA0(int x, int y, int64_t* a3);
 static void redraw_inven_fix_bad_inven_obj(int64_t a1);
 static bool redraw_inven_fix_bad_inven(int64_t a1, int64_t a2);
 static void redraw_inven(bool a1);
-static tig_art_id_t sub_5782D0();
+static tig_art_id_t sub_5782D0(void);
 static void sub_578330(int64_t a1, int64_t a2);
 static void sub_5786C0(int64_t obj);
 static void sub_578760(int64_t obj);
@@ -89,10 +89,10 @@ static void sub_5788C0(int64_t a1, int64_t a2, int a3, int a4);
 static void sub_579770(int64_t from_obj, int64_t to_obj);
 static bool sub_579840(int64_t obj, bool a2);
 static void sub_579B60(int64_t obj);
-static void inven_ui_target_inventory_scrollbar_create();
-static void inven_ui_target_inventory_scrollbar_destroy();
-static void inven_ui_target_inventory_scrollbar_show();
-static void inven_ui_target_inventory_scrollbar_hide();
+static void inven_ui_target_inventory_scrollbar_create(void);
+static void inven_ui_target_inventory_scrollbar_destroy(void);
+static void inven_ui_target_inventory_scrollbar_show(void);
+static void inven_ui_target_inventory_scrollbar_hide(void);
 static void sub_579E00(int a1);
 static void sub_579E30(TigRect* rect);
 
@@ -446,7 +446,7 @@ bool inven_ui_init(GameInitInfo* init_info)
 }
 
 // 0x572190
-void inven_ui_exit()
+void inven_ui_exit(void)
 {
     tig_font_destroy(dword_682418);
     tig_font_destroy(dword_682C74);
@@ -456,7 +456,7 @@ void inven_ui_exit()
 }
 
 // 0x5721D0
-void inven_ui_reset()
+void inven_ui_reset(void)
 {
     if (inven_ui_created) {
         inven_ui_destroy();
@@ -505,7 +505,7 @@ bool inven_ui_open(int64_t pc_obj, int64_t target_obj, int mode)
 }
 
 // 0x572340
-bool sub_572340()
+bool sub_572340(void)
 {
     if (!inven_ui_created) {
         return false;
@@ -1103,7 +1103,7 @@ bool inven_ui_create(int64_t pc_obj, int64_t target_obj, int mode)
 }
 
 // 0x573440
-void inven_ui_destroy()
+void inven_ui_destroy(void)
 {
     tig_art_id_t art_id;
     int sound_id;
@@ -1164,19 +1164,19 @@ void sub_573590(int64_t obj)
 }
 
 // 0x5735F0
-int inven_ui_is_created()
+int inven_ui_is_created(void)
 {
     return inven_ui_created;
 }
 
 // 0x573600
-int64_t sub_573600()
+int64_t sub_573600(void)
 {
     return inven_ui_created ? qword_682C78 : OBJ_HANDLE_NULL;
 }
 
 // 0x573620
-int64_t inven_ui_drag_item_obj_get()
+int64_t inven_ui_drag_item_obj_get(void)
 {
     return inven_ui_drag_item_obj;
 }
@@ -1206,7 +1206,7 @@ void sub_573630(int64_t obj)
 }
 
 // 0x5736E0
-void sub_5736E0()
+void sub_5736E0(void)
 {
     tig_art_id_t inv_art_id;
     tig_art_id_t mouse_art_id;
@@ -1225,7 +1225,7 @@ void sub_5736E0()
 }
 
 // 0x573730
-void sub_573730()
+void sub_573730(void)
 {
     dword_68346C = false;
 }
@@ -1261,7 +1261,7 @@ void sub_573740(int64_t a1, bool a2)
 }
 
 // 0x573840
-void sub_573840()
+void sub_573840(void)
 {
     inven_ui_drag_item_obj = OBJ_HANDLE_NULL;
 }
@@ -2501,7 +2501,7 @@ bool sub_5755A0(void* userinfo)
 }
 
 // 0x575770
-void sub_575770()
+void sub_575770(void)
 {
     int64_t parent_obj;
     int sound_id;
@@ -2551,7 +2551,7 @@ void sub_575770()
 }
 
 // 0x575930
-void sub_575930()
+void sub_575930(void)
 {
     int sound_id;
     int inventory_location;
@@ -2595,7 +2595,7 @@ void sub_575930()
 }
 
 // 0x575BE0
-void sub_575BE0()
+void sub_575BE0(void)
 {
     int64_t location;
     tig_sound_handle_t sound_id;
@@ -3770,7 +3770,7 @@ void redraw_inven(bool a1)
 }
 
 // 0x5782D0
-tig_art_id_t sub_5782D0()
+tig_art_id_t sub_5782D0(void)
 {
     tig_art_id_t art_id;
     int num;
@@ -4349,7 +4349,7 @@ bool sub_578EA0(Packet81* pkt)
 }
 
 // 0x579760
-int64_t sub_579760()
+int64_t sub_579760(void)
 {
     return qword_739F68;
 }
@@ -4474,7 +4474,7 @@ void sub_579B60(int64_t obj)
 }
 
 // 0x579C40
-void inven_ui_target_inventory_scrollbar_create()
+void inven_ui_target_inventory_scrollbar_create(void)
 {
     ScrollbarUiControlInfo info;
 
@@ -4520,7 +4520,7 @@ void inven_ui_target_inventory_scrollbar_create()
 }
 
 // 0x579D70
-void inven_ui_target_inventory_scrollbar_destroy()
+void inven_ui_target_inventory_scrollbar_destroy(void)
 {
     if (inven_ui_mode == INVEN_UI_MODE_INVENTORY
         || inven_ui_mode == INVEN_UI_MODE_NPC_IDENTIFY
@@ -4533,7 +4533,7 @@ void inven_ui_target_inventory_scrollbar_destroy()
 }
 
 // 0x579DA0
-void inven_ui_target_inventory_scrollbar_show()
+void inven_ui_target_inventory_scrollbar_show(void)
 {
     if (inven_ui_mode == INVEN_UI_MODE_INVENTORY
         || inven_ui_mode == INVEN_UI_MODE_NPC_IDENTIFY
@@ -4545,7 +4545,7 @@ void inven_ui_target_inventory_scrollbar_show()
 }
 
 // 0x579DD0
-void inven_ui_target_inventory_scrollbar_hide()
+void inven_ui_target_inventory_scrollbar_hide(void)
 {
     if (inven_ui_mode == INVEN_UI_MODE_INVENTORY
         || inven_ui_mode == INVEN_UI_MODE_NPC_IDENTIFY

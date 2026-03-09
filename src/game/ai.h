@@ -121,9 +121,9 @@ typedef enum AiActionType {
 } AiActionType;
 
 bool ai_init(GameInitInfo* init_info);
-void ai_exit();
-bool ai_mod_load();
-void ai_mod_unload();
+void ai_exit(void);
+bool ai_mod_load(void);
+void ai_mod_unload(void);
 void ai_set_callbacks(Func5F848C* a1, AiFloatLineFunc* float_line_func);
 void ai_process(int64_t obj);
 void ai_redirect_init(AiRedirect* ai_redirect, int64_t source_obj, int64_t target_obj);
@@ -166,7 +166,7 @@ void ai_set_no_flee(int64_t obj);
 bool ai_surrendered(int64_t obj, int64_t* danger_source_ptr);
 int ai_can_see(int64_t source_obj, int64_t target_obj);
 int ai_can_hear(int64_t a1, int64_t a2, int loudness);
-void ai_npc_fighting_toggle();
+void ai_npc_fighting_toggle(void);
 bool ai_shitlist_has(int64_t npc_obj, int64_t shit_obj);
 int ai_max_dialog_distance(int64_t obj);
 void ai_target_lock(int64_t obj, int64_t tgt);

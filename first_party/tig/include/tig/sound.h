@@ -34,16 +34,16 @@ typedef void(TigSoundEnumerateFunc)(tig_sound_handle_t sound_handle);
 int tig_sound_init(TigInitInfo* init_info);
 
 // Shuts down the sound subsystem.
-void tig_sound_exit();
+void tig_sound_exit(void);
 
 // Handle sound events.
-void tig_sound_ping();
+void tig_sound_ping(void);
 
 // Sets a callback function to resolve sound ID to a file path.
 void tig_sound_set_file_path_resolver(TigSoundFilePathResolver* func);
 
 // Returns `true` if SOUND subsystem is initialized.
-bool tig_sound_is_initialized();
+bool tig_sound_is_initialized(void);
 
 // Stops a specified sound.
 //

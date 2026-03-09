@@ -4,9 +4,9 @@
 #include "game/context.h"
 
 bool script_name_init(GameInitInfo* ctx);
-void script_name_exit();
-bool script_name_mod_load();
-void script_name_mod_unload();
+void script_name_exit(void);
+bool script_name_mod_load(void);
+void script_name_mod_unload(void);
 bool script_name_build_scr_name(int num, char* buffer);
 bool script_name_build_dlg_name(int num, char* buffer);
 

@@ -25,7 +25,7 @@
 
 static int basic_skill_vs(int64_t obj, int skill, int64_t other_obj);
 static int max_skill_for_stat_level(int stat_level);
-static int skill_gambling_random_roll();
+static int skill_gambling_random_roll(void);
 static bool skill_invocation_check_crit_hit(int roll, int effectiveness, SkillInvocation* skill_invocation);
 static bool skill_invocation_check_crit_miss(int roll, int effectiveness, SkillInvocation* skill_invocation);
 static bool is_controlled_by_local_pc(int64_t obj);
@@ -424,7 +424,7 @@ void skill_set_callbacks(SkillCallbacks* callbacks)
  *
  * 0x4C5DB0
  */
-void skill_exit()
+void skill_exit(void)
 {
     mes_unload(skill_mes_file);
 }
@@ -1011,7 +1011,7 @@ int skill_gambling_max_item_cost(int64_t obj)
  *
  * 0x4C6560
  */
-int skill_gambling_random_roll()
+int skill_gambling_random_roll(void)
 {
     int value;
 

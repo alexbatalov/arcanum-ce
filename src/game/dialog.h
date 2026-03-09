@@ -54,7 +54,7 @@ typedef struct DialogSerializedData {
 static_assert(sizeof(DialogSerializedData) == 0xC8, "wrong size");
 
 bool dialog_init(GameInitInfo* init_info);
-void dialog_exit();
+void dialog_exit(void);
 bool dialog_load(const char* path, int* dlg_ptr);
 void dialog_unload(int dlg);
 void sub_412F60(int dlg);
@@ -92,8 +92,8 @@ void dialog_copy_npc_identify_msg(int64_t npc_obj, int64_t pc_obj, char* buffer)
 void dialog_copy_npc_wont_repair_broken_msg(int64_t npc_obj, int64_t pc_obj, char* buffer);
 void dialog_copy_npc_wont_repair_undamaged_msg(int64_t npc_obj, int64_t pc_obj, char* buffer);
 void dialog_copy_npc_repair_msg(int64_t npc_obj, int64_t pc_obj, char* buffer);
-void dialog_check();
-void dialog_enable_numbers();
+void dialog_check(void);
+void dialog_enable_numbers(void);
 void sub_418A00(int a1, int* a2, int* a3);
 
 #endif /* ARCANUM_GAME_DIALOG_H_ */

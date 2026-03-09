@@ -28,7 +28,7 @@ bool random_init(GameInitInfo* init_info)
  *
  * 0x4CEEC0
  */
-void random_exit()
+void random_exit(void)
 {
 }
 
@@ -47,7 +47,7 @@ void random_seed(int value)
  *
  * 0x4CEEE0
  */
-int random_seed_generate()
+int random_seed_generate(void)
 {
     int seed = (int)time(NULL);
 
@@ -101,7 +101,7 @@ void random_set_prev_value(int value)
  *
  * 0x4CEF50
  */
-int random_rand()
+int random_rand(void)
 {
     random_prev_value = 1664525 * random_prev_value + 1013904223;
     return (random_prev_value >> 8) & 0x7FFF;

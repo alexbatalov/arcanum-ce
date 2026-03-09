@@ -110,7 +110,7 @@ typedef enum Spell {
 } Spell;
 
 bool spell_init(GameInitInfo* init_info);
-void spell_exit();
+void spell_exit(void);
 void spell_set_defaults(int64_t obj);
 int spell_icon(int spell);
 size_t spell_name_length(int spell);

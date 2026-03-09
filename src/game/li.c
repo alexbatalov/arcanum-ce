@@ -1,6 +1,6 @@
 #include "game/li.h"
 
-static void li_blit();
+static void li_blit(void);
 
 // 0x5FC3F8
 static tig_art_id_t li_indicator_art_id;
@@ -67,7 +67,7 @@ bool li_init(GameInitInfo* init_info)
 }
 
 // 0x4BBB00
-void li_exit()
+void li_exit(void)
 {
     if (li_indicator_vb != NULL) {
         tig_video_buffer_destroy(li_indicator_vb);
@@ -107,25 +107,25 @@ void li_resize(GameResizeInfo* resize_info)
 }
 
 // 0x4BBC00
-void sub_4BBC00()
+void sub_4BBC00(void)
 {
     dword_5FC43C++;
 }
 
 // 0x4BBC10
-void sub_4BBC10()
+void sub_4BBC10(void)
 {
     dword_5FC43C--;
 }
 
 // 0x4BBC20
-int sub_4BBC20()
+int sub_4BBC20(void)
 {
     return dword_5FC43C;
 }
 
 // 0x4BBC30
-void li_update()
+void li_update(void)
 {
     if (dword_5FC43C <= 0) {
         tig_video_blit(li_indicator_vb, &li_indicator_bounds, &li_indicator_frame);
@@ -136,14 +136,14 @@ void li_update()
 }
 
 // 0x4BBC80
-void li_redraw()
+void li_redraw(void)
 {
     tig_video_buffer_fill(li_indicator_vb, &li_indicator_bounds, tig_color_make(0, 0, 255));
     li_blit();
 }
 
 // 0x4BBCE0
-void li_blit()
+void li_blit(void)
 {
     li_indicator_blit_info.art_id = li_indicator_art_id;
     tig_art_blit(&li_indicator_blit_info);

@@ -48,7 +48,7 @@ int tig_font_init(TigInitInfo* init_info)
 }
 
 // 0x5352C0
-void tig_font_exit()
+void tig_font_exit(void)
 {
     tig_font_pop();
     tig_font_destroy(tig_font_default_font);
@@ -95,7 +95,7 @@ int tig_font_push(tig_font_handle_t font_handle)
 }
 
 // 0x535380
-void tig_font_pop()
+void tig_font_pop(void)
 {
     if (tig_font_stack_index > 0) {
         tig_font_stack_index--;

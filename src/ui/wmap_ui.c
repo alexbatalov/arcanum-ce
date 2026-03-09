@@ -131,7 +131,7 @@ typedef struct WmapInfo {
     /* 0038 */ int field_38;
     /* 003C */ WmapCoords field_3C;
     /* 0044 */ bool navigatable;
-    /* 0048 */ void (*refresh)();
+    /* 0048 */ void (*refresh)(void);
     /* 004C */ void (*refresh_rect)(TigRect* rect);
     /* 0050 */ void (*field_50)(int direction, int, int, int);
     /* 0054 */ int field_54;
@@ -189,22 +189,22 @@ static WmapNoteTypeInfo wmap_note_type_info[WMAP_NOTE_TYPE_COUNT] = {
     /*  WMAP_NOTE_TYPE_NEW_LOC */ { 814, 0, 0, 0, 0, true },
 };
 
-static void sub_560010();
-static void wmap_ui_town_notes_save();
-static void wmap_ui_destroy();
+static void sub_560010(void);
+static void wmap_ui_town_notes_save(void);
+static void wmap_ui_destroy(void);
 static bool wmap_ui_town_note_save(WmapNote* note, TigFile* stream);
 static bool wmap_ui_rect_write(TigRect* rect, TigFile* stream);
 static bool wmap_ui_town_note_load(WmapNote* note, TigFile* stream);
 static bool wmap_ui_rect_read(TigRect* rect, TigFile* stream);
-static void wmap_ui_open_internal();
-static bool wmap_load_worldmap_info();
-static void sub_560EE0();
-static void sub_560EF0();
-static bool wmap_ui_create();
+static void wmap_ui_open_internal(void);
+static bool wmap_load_worldmap_info(void);
+static void sub_560EE0(void);
+static void sub_560EF0(void);
+static bool wmap_ui_create(void);
 static void sub_561430(int64_t location);
 static void sub_561490(int64_t location, WmapCoords* coords);
 static void sub_5614C0(int x, int y);
-static bool is_default_wmap();
+static bool is_default_wmap(void);
 static bool wmap_ui_state_set(WmapUiState state);
 static void sub_561800(WmapCoords* coords, int64_t* loc_ptr);
 static bool wmap_ui_teleport(int64_t loc);
@@ -216,7 +216,7 @@ static void wmap_ui_draw_coords(WmapCoords* coords);
 static void wmap_ui_navigate(int x, int y);
 static void sub_562AF0(int x, int y);
 static void wmap_ui_mode_set(WmapUiMode mode);
-static bool wmap_load_townmap_info();
+static bool wmap_load_townmap_info(void);
 static void sub_562F90(WmapTile* a1);
 static bool wmTileArtLock(int tile);
 static void wmTileArtUnlock(int tile);
@@ -225,11 +225,11 @@ static bool wmTileArtLockMode(WmapUiMode mode, int tile);
 static bool wmTileArtLoad(const char* path, TigVideoBuffer** video_buffer_ptr, TigRect* rect);
 static bool wmTileArtUnlockMode(WmapUiMode mode, int tile);
 static void wmTileArtUnloadMode(WmapUiMode mode, int tile);
-static void sub_563270();
+static void sub_563270(void);
 static void sub_5632A0(int direction, int a2, int a3, int a4);
 static void sub_563300(int direction, int a2, int a3, int a4);
 static void sub_563590(WmapCoords* a1, bool a2);
-static void wmap_ui_handle_scroll();
+static void wmap_ui_handle_scroll(void);
 static void wmap_ui_scroll_with_kb(int direction);
 static void wmap_ui_scroll_internal(int direction, int scale);
 static void sub_563AC0(int x, int y, WmapCoords* coords);
@@ -259,22 +259,22 @@ static bool sub_564780(WmapCoords* coords, int* idx_ptr);
 static void sub_564830(int a1, WmapCoords* coords);
 static void sub_564840(int a1);
 static void sub_5648E0(int a1, int a2, bool a3);
-static void sub_564940();
+static void sub_564940(void);
 static void sub_564970(WmapRouteWaypoint* wp);
-static void sub_5649C0();
+static void sub_5649C0(void);
 static void sub_5649D0(int a1);
 static bool sub_5649F0(int64_t loc);
 static void sub_564A70(int64_t pc_obj, int64_t loc);
 static void sub_564E30(WmapCoords* coords, int64_t* loc_ptr);
 static int64_t sub_564EE0(WmapCoords* a1, WmapCoords* a2, DateTime* datetime);
-static void wmap_ui_town_notes_load();
-static void sub_5650C0();
+static void wmap_ui_town_notes_load(void);
+static void sub_5650C0(void);
 static int wmap_ui_compass_arrow_frame_calc(WmapCoords* a, WmapCoords* b);
 static void wmap_ui_compass_arrow_frame_set(int frame);
-static int wmap_ui_compass_arrow_frame_get();
-static bool sub_565140();
+static int wmap_ui_compass_arrow_frame_get(void);
+static bool sub_565140(void);
 static void sub_565170(WmapCoords* coords);
-static void sub_565230();
+static void sub_565230(void);
 static void sub_5656B0(int x, int y, WmapCoords* coords);
 static void wmap_world_refresh_rect(TigRect* rect);
 static bool sub_565CF0(WmapNote* note);
@@ -788,7 +788,7 @@ bool wmap_ui_init(GameInitInfo* init_info)
 }
 
 // 0x55FF80
-void wmap_ui_exit()
+void wmap_ui_exit(void)
 {
     int mode;
     int tile;
@@ -818,7 +818,7 @@ void wmap_ui_exit()
 }
 
 // 0x560010
-void sub_560010()
+void sub_560010(void)
 {
     wmap_ui_town_notes_save();
     wmap_ui_mode_info[WMAP_UI_MODE_TOWN].num_tiles = 0;
@@ -829,7 +829,7 @@ void sub_560010()
 }
 
 // 0x560040
-void wmap_ui_town_notes_save()
+void wmap_ui_town_notes_save(void)
 {
     int index;
     bool success = true;
@@ -876,7 +876,7 @@ void wmap_ui_town_notes_save()
 }
 
 // 0x560150
-void wmap_ui_destroy()
+void wmap_ui_destroy(void)
 {
     int mode;
     int tile;
@@ -909,7 +909,7 @@ void wmap_ui_destroy()
 }
 
 // 0x560200
-void wmap_ui_reset()
+void wmap_ui_reset(void)
 {
     int index;
 
@@ -1094,26 +1094,26 @@ bool wmap_ui_rect_read(TigRect* rect, TigFile* stream)
 }
 
 // 0x560720
-void wmap_ui_encounter_start()
+void wmap_ui_encounter_start(void)
 {
     wmap_ui_encounter = true;
     anim_ui_event_add_delay(ANIM_UI_EVENT_TYPE_END_RANDOM_ENCOUNTER, 0, 4000);
 }
 
 // 0x560740
-bool wmap_ui_is_encounter()
+bool wmap_ui_is_encounter(void)
 {
     return wmap_ui_encounter;
 }
 
 // 0x560750
-void wmap_ui_encounter_end()
+void wmap_ui_encounter_end(void)
 {
     wmap_ui_encounter = false;
 }
 
 // 0x560760
-void wmap_ui_open()
+void wmap_ui_open(void)
 {
     wmap_ui_spell = -1;
     wmap_ui_selecting = false;
@@ -1134,7 +1134,7 @@ void wmap_ui_select(int64_t obj, int spell)
 }
 
 // 0x5607E0
-void wmap_ui_open_internal()
+void wmap_ui_open_internal(void)
 {
     int64_t pc_obj;
     int64_t loc;
@@ -1261,7 +1261,7 @@ void wmap_ui_open_internal()
 }
 
 // 0x560AA0
-bool wmap_load_worldmap_info()
+bool wmap_load_worldmap_info(void)
 {
     const char* name;
     char path[TIG_MAX_PATH];
@@ -1386,12 +1386,12 @@ bool wmap_load_worldmap_info()
 }
 
 // 0x560EE0
-void sub_560EE0()
+void sub_560EE0(void)
 {
 }
 
 // 0x560EF0
-void sub_560EF0()
+void sub_560EF0(void)
 {
     dword_66D880 = 0;
     wmap_ui_townmap = townmap_get(sector_id_from_loc(obj_field_int64_get(player_get_local_pc_obj(), OBJ_F_LOCATION)));
@@ -1403,7 +1403,7 @@ void sub_560EF0()
 }
 
 // 0x560F40
-void wmap_ui_close()
+void wmap_ui_close(void)
 {
     int64_t pc_obj;
     int index;
@@ -1441,13 +1441,13 @@ void wmap_ui_close()
 }
 
 // 0x560F90
-int wmap_ui_is_created()
+int wmap_ui_is_created(void)
 {
     return wmap_ui_created;
 }
 
 // 0x560FA0
-bool wmap_ui_create()
+bool wmap_ui_create(void)
 {
     TigVideoBufferCreateInfo vb_create_info;
     TigArtAnimData art_anim_data;
@@ -1652,7 +1652,7 @@ void sub_5614C0(int x, int y)
 }
 
 // 0x5614F0
-bool is_default_wmap()
+bool is_default_wmap(void)
 {
     if (wmap_ui_mode != WMAP_UI_MODE_WORLD) {
         return false;
@@ -2597,7 +2597,7 @@ void wmap_ui_mode_set(WmapUiMode mode)
 }
 
 // 0x562D80
-bool wmap_load_townmap_info()
+bool wmap_load_townmap_info(void)
 {
     WmapInfo* wmap_info;
     int x;
@@ -2771,7 +2771,7 @@ void wmTileArtUnloadMode(WmapUiMode mode, int tile)
 }
 
 // 0x563270
-void sub_563270()
+void sub_563270(void)
 {
     if (wmap_ui_mode_info[wmap_ui_mode].refresh_rect != NULL) {
         wmap_ui_mode_info[wmap_ui_mode].refresh_rect(&(wmap_ui_mode_info[wmap_ui_mode].rect));
@@ -2943,7 +2943,7 @@ void sub_563590(WmapCoords* coords, bool a2)
 }
 
 // 0x563610
-void wmap_ui_handle_scroll()
+void wmap_ui_handle_scroll(void)
 {
     // NOTE: Very odd initial values.
     int horizontal_direction = -69;
@@ -3753,7 +3753,7 @@ void sub_5648E0(int a1, int a2, bool a3)
 }
 
 // 0x564940
-void sub_564940()
+void sub_564940(void)
 {
     if (dword_5C9AD8 != -1 && wmap_ui_mode != WMAP_UI_MODE_TOWN) {
         sub_564970(&(wmap_ui_routes[WMAP_ROUTE_TYPE_WORLD].waypoints[dword_5C9AD8]));
@@ -3773,7 +3773,7 @@ void sub_564970(WmapRouteWaypoint* wp)
 }
 
 // 0x5649C0
-void sub_5649C0()
+void sub_5649C0(void)
 {
 }
 
@@ -4011,7 +4011,7 @@ void wmap_ui_notify_sector_changed(int64_t pc_obj, int64_t sec)
 }
 
 // 0x564FD0
-void wmap_ui_town_notes_load()
+void wmap_ui_town_notes_load(void)
 {
     char path[TIG_MAX_PATH];
     TigFile* stream;
@@ -4055,7 +4055,7 @@ void wmap_ui_town_notes_load()
 }
 
 // 0x5650C0
-void sub_5650C0()
+void sub_5650C0(void)
 {
     if (dword_66D878 != 0) {
         wmap_ui_town_notes_save();
@@ -4091,13 +4091,13 @@ void wmap_ui_compass_arrow_frame_set(int frame)
 // NOTE: It's just a guess, never used.
 //
 // 0x5649E0
-int wmap_ui_compass_arrow_frame_get()
+int wmap_ui_compass_arrow_frame_get(void)
 {
     return 0;
 }
 
 // 0x565140
-bool sub_565140()
+bool sub_565140(void)
 {
     if (!sub_424070(player_get_local_pc_obj(), 3, 0, 1)) {
         return false;
@@ -4126,7 +4126,7 @@ void sub_565170(WmapCoords* coords)
 }
 
 // 0x565230
-void sub_565230()
+void sub_565230(void)
 {
     TigVideoBufferBlitInfo vb_blit_info;
     TigArtFrameData art_frame_data;

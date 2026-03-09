@@ -22,14 +22,14 @@ typedef enum AnimUiEventType {
 } AnimUiEventType;
 
 bool anim_ui_init(GameInitInfo* init_info);
-void anim_ui_exit();
-void anim_ui_reset();
+void anim_ui_exit(void);
+void anim_ui_reset(void);
 bool anim_ui_save(TigFile* stream);
 bool anim_ui_load(GameLoadInfo* load_info);
 void anim_ui_event_add(int type, int param);
 void anim_ui_event_add_delay(int type, int param, int milliseconds);
 void anim_ui_event_remove(int type, int param);
-void ambient_lighting_enable();
-void ambient_lighting_disable();
+void ambient_lighting_enable(void);
+void ambient_lighting_disable(void);
 
 #endif /* ARCANUM_UI_ANIM_UI_H_ */

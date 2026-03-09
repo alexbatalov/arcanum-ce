@@ -96,7 +96,7 @@ bool rumor_init(GameInitInfo* init_info)
  *
  * 0x4C5530
  */
-void rumor_reset()
+void rumor_reset(void)
 {
     int index;
 
@@ -111,7 +111,7 @@ void rumor_reset()
  *
  * 0x4C5550
  */
-void rumor_exit()
+void rumor_exit(void)
 {
     FREE(rumor_qstate);
     FREE(rumor_mes_files);
@@ -122,7 +122,7 @@ void rumor_exit()
  *
  * 0x4C5570
  */
-bool rumor_mod_load()
+bool rumor_mod_load(void)
 {
     int index;
     char path[TIG_MAX_PATH];
@@ -144,7 +144,7 @@ bool rumor_mod_load()
  *
  * 0x4C55C0
  */
-void rumor_mod_unload()
+void rumor_mod_unload(void)
 {
     int index;
 

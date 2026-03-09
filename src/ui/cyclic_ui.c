@@ -126,7 +126,7 @@ bool cyclic_ui_init(GameInitInfo* init_info)
  *
  * 0x57F680
  */
-void cyclic_ui_exit()
+void cyclic_ui_exit(void)
 {
     int index;
 

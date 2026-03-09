@@ -20,7 +20,7 @@
 #define BACKGROUND_DARK_SIGHT 78
 
 bool background_init(GameInitInfo* init_info);
-void background_exit();
+void background_exit(void);
 bool background_find_first(int64_t obj, int* background_ptr);
 bool background_find_next(int64_t obj, int* background_ptr);
 bool background_find_prev(int64_t obj, int* background_ptr);

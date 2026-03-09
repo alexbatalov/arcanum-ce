@@ -154,11 +154,11 @@ typedef struct S4F2680 {
 #define Tgt_List 0x8000000000000000
 
 bool target_init(GameInitInfo* init_info);
-void target_exit();
-void target_reset();
+void target_exit(void);
+void target_reset(void);
 void target_resize(GameResizeInfo* resize_info);
 void sub_4F25B0(uint64_t flags);
-uint64_t sub_4F25D0();
+uint64_t sub_4F25D0(void);
 void sub_4F25E0(S603D20* a1);
 void sub_4F2600(S603CB8* a1, S603D20* a2, int64_t a3);
 bool sub_4F2680(S4F2680* a1);
@@ -167,7 +167,7 @@ void sub_4F27F0(S4F2810* a1, int64_t loc);
 void sub_4F2810(S4F2810* a1, int64_t obj);
 bool sub_4F2830(TigMouseMessageData* mouse, S4F2810* a2, bool fullscreen);
 bool sub_4F2CB0(int x, int y, S4F2810* a3, uint64_t tgt, bool fullscreen);
-int64_t sub_4F2D10();
+int64_t sub_4F2D10(void);
 bool sub_4F2D20(S603CB8* a1);
 void sub_4F40B0(S603CB8* a1);
 bool sub_4F4E40(int64_t obj, int distance, int64_t* loc_ptr);

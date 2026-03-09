@@ -124,7 +124,7 @@ bool trap_init(GameInitInfo* init_info)
 }
 
 // 0x4BBD90
-void trap_exit()
+void trap_exit(void)
 {
     TrapListNode* node;
 

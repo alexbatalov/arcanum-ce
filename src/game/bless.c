@@ -25,7 +25,7 @@ static mes_file_handle_t bless_mes_file;
  *
  * 0x4C4110
  */
-bool bless_mod_load()
+bool bless_mod_load(void)
 {
     mes_load("mes\\gamebless.mes", &bless_mes_file);
     return true;
@@ -36,7 +36,7 @@ bool bless_mod_load()
  *
  * 0x4C4130
  */
-void bless_mod_unload()
+void bless_mod_unload(void)
 {
     mes_unload(bless_mes_file);
     bless_mes_file = MES_FILE_HANDLE_INVALID;

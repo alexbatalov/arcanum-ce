@@ -20,9 +20,9 @@
 
 static bool sub_57D3B0(TimeEvent* timeevent);
 static bool anim_ui_bkg_process_callback(TimeEvent* timeevent);
-static bool ambient_lighting_is_enabled();
+static bool ambient_lighting_is_enabled(void);
 static bool ambient_lighting_process_callback(TimeEvent* timeevent);
-static void ambient_lighting_reschedule();
+static void ambient_lighting_reschedule(void);
 
 // 0x5CB408
 static bool ambient_lighting_enabled = true;
@@ -59,12 +59,12 @@ bool anim_ui_init(GameInitInfo* init_info)
 }
 
 // 0x57D2C0
-void anim_ui_exit()
+void anim_ui_exit(void)
 {
 }
 
 // 0x57D2D0
-void anim_ui_reset()
+void anim_ui_reset(void)
 {
     DateTime datetime;
     TimeEvent timeevent;
@@ -230,7 +230,7 @@ bool anim_ui_bkg_process_callback(TimeEvent* timeevent)
 }
 
 // 0x57D620
-void ambient_lighting_enable()
+void ambient_lighting_enable(void)
 {
     if (!ambient_lighting_enabled) {
         ambient_lighting_enabled = true;
@@ -239,13 +239,13 @@ void ambient_lighting_enable()
 }
 
 // 0x57D640
-void ambient_lighting_disable()
+void ambient_lighting_disable(void)
 {
     ambient_lighting_enabled = false;
 }
 
 // 0x57D650
-bool ambient_lighting_is_enabled()
+bool ambient_lighting_is_enabled(void)
 {
     return ambient_lighting_enabled;
 }
@@ -273,7 +273,7 @@ bool ambient_lighting_process_callback(TimeEvent* timeevent)
 }
 
 // 0x57D6C0
-void ambient_lighting_reschedule()
+void ambient_lighting_reschedule(void)
 {
     int hour;
     DateTime datetime;

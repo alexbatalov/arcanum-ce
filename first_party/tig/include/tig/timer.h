@@ -30,7 +30,7 @@ typedef int tig_duration_t;
 int tig_timer_init(TigInitInfo* init_info);
 
 // Shutdowns TIMER subsystem.
-void tig_timer_exit();
+void tig_timer_exit(void);
 
 // Creates a new time point representing current date/time.
 //

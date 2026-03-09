@@ -105,7 +105,7 @@ typedef struct SoundScheme {
 static const char* gsound_build_sound_path(const char* name);
 static void gsound_scheme_reset(SoundScheme* scheme);
 static tig_sound_handle_t gsound_play_sfx_func(const char* path, int loops, int volume, int extra_volume, int id);
-static void recalc_positional_sounds_volume();
+static void recalc_positional_sounds_volume(void);
 static void recalc_positional_sound_volume(tig_sound_handle_t sound_handle);
 static void gsound_calc_positional_params(int64_t x, int64_t y, int* volume_ptr, int* extra_volume_ptr, TigSoundPositionalSize size);
 static tig_sound_handle_t gsound_play_sfx_ex(int id, int loops, int volume, int extra_volume);
@@ -113,7 +113,7 @@ static tig_sound_handle_t gsound_play_sfx_at_xy_ex(int id, int loops, int64_t x,
 static tig_sound_handle_t gsound_play_sfx_at_loc_ex(int id, int loops, int64_t location, int size);
 static void gsound_scheme_stop(int fade_duration, int index);
 static void gsound_scheme_stop_all(int fade_duration);
-static void gsound_update();
+static void gsound_update(void);
 static void gsound_scheme_path(const char* name, char* buffer);
 static bool gsound_scheme_is_active(int scheme_idx, int* index_ptr);
 static void gsound_scheme_load(int scheme_idx);
@@ -122,12 +122,12 @@ static void gsound_normalize_path(char* str);
 static void gsound_scheme_parse_param(const char* str, const char* key, int* value1, int* value2);
 static void set_listener_xy(int64_t x, int64_t y);
 static void gsound_set_defaults(int min_radius, int max_radius, int min_pan_distance, int max_pan_distance);
-static int gsound_effects_volume_get();
-static void gsound_effects_volume_changed();
-static int gsound_voice_volume_get();
-static void gsound_voice_volume_changed();
-static int gsound_music_volume_get();
-static void gsound_music_volume_changed();
+static int gsound_effects_volume_get(void);
+static void gsound_effects_volume_changed(void);
+static int gsound_voice_volume_get(void);
+static void gsound_voice_volume_changed(void);
+static int gsound_music_volume_get(void);
+static void gsound_music_volume_changed(void);
 static int adjust_volume(tig_sound_handle_t sound_handle, int volume);
 
 /**
@@ -613,7 +613,7 @@ void gsound_scheme_reset(SoundScheme* scheme)
  *
  * 0x41AFF0
  */
-void gsound_exit()
+void gsound_exit(void)
 {
     int index;
 
@@ -637,7 +637,7 @@ void gsound_exit()
  *
  * 0x41B060
  */
-void gsound_reset()
+void gsound_reset(void)
 {
     gsound_origin_loc = 0;
     gsound_origin_x = 0;
@@ -652,7 +652,7 @@ void gsound_reset()
  *
  * 0x41B0A0
  */
-bool gsound_mod_load()
+bool gsound_mod_load(void)
 {
     mes_load(gsound_build_sound_path("snd_user.mes"), &gsound_snd_user_mes_file);
     return true;
@@ -663,7 +663,7 @@ bool gsound_mod_load()
  *
  * 0x41B0D0
  */
-void gsound_mod_unload()
+void gsound_mod_unload(void)
 {
     mes_unload(gsound_snd_user_mes_file);
     gsound_snd_user_mes_file = MES_FILE_HANDLE_INVALID;
@@ -776,7 +776,7 @@ void gsound_ping(tig_timestamp_t timestamp)
  *
  * 0x41B2D0
  */
-void gsound_flush()
+void gsound_flush(void)
 {
     gsound_reset();
 }
@@ -818,7 +818,7 @@ tig_sound_handle_t gsound_play_sfx_func(const char* path, int loops, int volume,
  *
  * 0x41B3A0
  */
-void recalc_positional_sounds_volume()
+void recalc_positional_sounds_volume(void)
 {
     tig_sound_enumerate_positional(recalc_positional_sound_volume);
 }
@@ -1176,7 +1176,7 @@ void gsound_scheme_stop_all(int fade_duration)
  *
  * 0x41BAF0
  */
-void gsound_update()
+void gsound_update(void)
 {
     int hour;
     int type;
@@ -1795,7 +1795,7 @@ void gsound_stop_combat_music(int64_t obj)
  *
  * 0x41C610
  */
-void gsound_lock()
+void gsound_lock(void)
 {
     int type;
 
@@ -1823,7 +1823,7 @@ void gsound_lock()
  *
  * 0x41C660
  */
-void gsound_unlock()
+void gsound_unlock(void)
 {
     if (gsound_lock_cnt > 0) {
         if (--gsound_lock_cnt == 0) {
@@ -1930,7 +1930,7 @@ void gsound_set_defaults(int min_radius, int max_radius, int min_pan_distance, i
  *
  * 0x41C8A0
  */
-int gsound_effects_volume_get()
+int gsound_effects_volume_get(void)
 {
     return gsound_effects_volume;
 }
@@ -1947,7 +1947,7 @@ int gsound_effects_volume_get()
  *
  * 0x41C8B0
  */
-void gsound_effects_volume_changed()
+void gsound_effects_volume_changed(void)
 {
     int64_t obj;
     int64_t location;
@@ -1969,7 +1969,7 @@ void gsound_effects_volume_changed()
  *
  * 0x41C920
  */
-int gsound_voice_volume_get()
+int gsound_voice_volume_get(void)
 {
     return gsound_voice_volume;
 }
@@ -1985,7 +1985,7 @@ int gsound_voice_volume_get()
  *
  * 0x41C930
  */
-void gsound_voice_volume_changed()
+void gsound_voice_volume_changed(void)
 {
     gsound_voice_volume = GSOUND_VOLUME_MAX * settings_get_value(&settings, VOICE_VOLUME_KEY) / 10;
     tig_sound_set_volume_by_type(TIG_SOUND_TYPE_VOICE, gsound_voice_volume);
@@ -1996,7 +1996,7 @@ void gsound_voice_volume_changed()
  *
  * 0x41C970
  */
-int gsound_music_volume_get()
+int gsound_music_volume_get(void)
 {
     return gsound_music_volume;
 }
@@ -2009,7 +2009,7 @@ int gsound_music_volume_get()
  *
  * 0x41C980
  */
-void gsound_music_volume_changed()
+void gsound_music_volume_changed(void)
 {
     gsound_music_volume = 80 * (GSOUND_VOLUME_MAX * settings_get_value(&settings, MUSIC_VOLUME_KEY) / 10) / 100;
     tig_sound_set_volume_by_type(TIG_SOUND_TYPE_MUSIC, gsound_music_volume);

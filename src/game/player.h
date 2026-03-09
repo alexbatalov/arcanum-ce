@@ -17,16 +17,16 @@ typedef struct PlayerCreateInfo {
 } PlayerCreateInfo;
 
 bool player_init(GameInitInfo* init_info);
-void player_reset();
-void player_exit();
+void player_reset(void);
+void player_exit(void);
 bool player_save(TigFile* stream);
 bool player_load(GameLoadInfo* load_info);
-void sub_40D860();
-void player_create();
+void sub_40D860(void);
+void player_create(void);
 bool player_is_local_pc_obj(int64_t obj);
 bool player_is_pc_obj(int64_t obj);
-int64_t player_get_local_pc_obj();
-bool sub_40DAB0();
+int64_t player_get_local_pc_obj(void);
+bool sub_40DAB0(void);
 bool sub_40DAF0(int64_t obj);
 void player_create_info_init(PlayerCreateInfo* player_create_info);
 bool player_obj_create_player(PlayerCreateInfo* player_create_info);

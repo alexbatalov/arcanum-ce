@@ -54,14 +54,14 @@ static bool object_field_read(Object* object, int idx, ObjectFieldInfo* info);
 static bool obj_inst_field_read_mem(Object* object, int idx, ObjectFieldInfo* info);
 static bool object_field_write_if_dif(Object* object, int idx, ObjectFieldInfo* info);
 static bool object_field_read_if_dif(Object* object, int idx, ObjectFieldInfo* info);
-static void sub_40A400();
+static void sub_40A400(void);
 static void sub_40A740(int fld, int* start_ptr, int* length_ptr);
 static int sub_40A790(int a1);
-static void sub_40A7B0();
-static void sub_40A8A0();
+static void sub_40A7B0(void);
+static void sub_40A8A0(void);
 static void sub_40B8E0(int fld);
-static void sub_40BAC0();
-static void sub_40BBB0();
+static void sub_40BAC0(void);
+static void sub_40BBB0(void);
 static void sub_40BBF0(Object* object);
 static void sub_40BD20(Object* object);
 static void sub_40BDB0(Object* object);
@@ -573,7 +573,7 @@ bool obj_init(GameInitInfo* init_info)
 }
 
 // 0x4051F0
-void obj_exit()
+void obj_exit(void)
 {
     sub_40BBB0();
     obj_find_exit();
@@ -590,7 +590,7 @@ void obj_exit()
 }
 
 // 0x405250
-void sub_405250()
+void sub_405250(void)
 {
     obj_pool_exit();
     sub_4E3F90();
@@ -3316,7 +3316,7 @@ bool object_field_read_if_dif(Object* object, int idx, ObjectFieldInfo* info)
 }
 
 // 0x40A400
-void sub_40A400()
+void sub_40A400(void)
 {
     int fld;
     ObjectFieldInfo* info;
@@ -3474,7 +3474,7 @@ int sub_40A790(int a1)
 }
 
 // 0x40A7B0
-void sub_40A7B0()
+void sub_40A7B0(void)
 {
     int fld;
 
@@ -3500,7 +3500,7 @@ void sub_40A7B0()
 }
 
 // 0x40A8A0
-void sub_40A8A0()
+void sub_40A8A0(void)
 {
     object_fields[OBJ_F_BEGIN].type = SA_TYPE_BEGIN;
     object_fields[OBJ_F_CURRENT_AID].type = SA_TYPE_INT32;
@@ -3887,7 +3887,7 @@ void sub_40B8E0(int fld)
 }
 
 // 0x40BAC0
-void sub_40BAC0()
+void sub_40BAC0(void)
 {
     int fld;
 
@@ -3923,7 +3923,7 @@ void sub_40BAC0()
 }
 
 // 0x40BBB0
-void sub_40BBB0()
+void sub_40BBB0(void)
 {
     if (dword_5D1128 != NULL) {
         FREE(dword_5D1128);

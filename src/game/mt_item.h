@@ -49,7 +49,7 @@ extern const char* mt_item_trig_keys[MT_ITEM_TRIG_COUNT];
 extern unsigned int mt_item_trig_values[MT_ITEM_TRIG_COUNT];
 
 bool mt_item_init(GameInitInfo* init_info);
-void mt_item_exit();
+void mt_item_exit(void);
 unsigned int mt_item_triggers(int spell);
 int mt_item_spell_to_magictech_spell(int spell);
 int mt_item_spell(int64_t item_obj, int slot);

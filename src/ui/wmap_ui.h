@@ -5,17 +5,17 @@
 #include "game/timeevent.h"
 
 bool wmap_ui_init(GameInitInfo* init_info);
-void wmap_ui_exit();
-void wmap_ui_reset();
+void wmap_ui_exit(void);
+void wmap_ui_reset(void);
 bool wmap_ui_save(TigFile* stream);
 bool wmap_ui_load(GameLoadInfo* load_info);
-void wmap_ui_encounter_start();
-bool wmap_ui_is_encounter();
-void wmap_ui_encounter_end();
-void wmap_ui_open();
+void wmap_ui_encounter_start(void);
+bool wmap_ui_is_encounter(void);
+void wmap_ui_encounter_end(void);
+void wmap_ui_open(void);
 void wmap_ui_select(int64_t obj, int spell);
-void wmap_ui_close();
-int wmap_ui_is_created();
+void wmap_ui_close(void);
+int wmap_ui_is_created(void);
 void wmap_ui_scroll(int direction);
 void sub_564000(int a1);
 void wmap_ui_mark_townmap(int64_t obj);

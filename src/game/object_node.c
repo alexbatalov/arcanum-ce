@@ -2,8 +2,8 @@
 
 #define OBJECT_NODE_LIST_GROW_SIZE 64
 
-static void object_node_reserve();
-static void object_node_remove_all();
+static void object_node_reserve(void);
+static void object_node_remove_all(void);
 
 /**
  * A pool of the free `ObjectNode` instances for reuse.
@@ -29,7 +29,7 @@ bool object_node_init(GameInitInfo* init_info)
  *
  * 0x4E9930
  */
-void object_node_exit()
+void object_node_exit(void)
 {
     object_node_remove_all();
 }
@@ -40,7 +40,7 @@ void object_node_exit()
  *
  * 0x4E9940
  */
-ObjectNode* object_node_create()
+ObjectNode* object_node_create(void)
 {
     ObjectNode* node;
 
@@ -72,7 +72,7 @@ void object_node_destroy(ObjectNode* node)
  *
  * 0x4E9990
  */
-void object_node_reserve()
+void object_node_reserve(void)
 {
     int index;
     ObjectNode* node;
@@ -93,7 +93,7 @@ void object_node_reserve()
  *
  * 0x4E99C0
  */
-void object_node_remove_all()
+void object_node_remove_all(void)
 {
     ObjectNode* next;
 

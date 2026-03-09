@@ -65,10 +65,10 @@ typedef struct WrittenUiElement {
     /* 0010 */ WrittenTextAlignment alignment;
 } WrittenUiElement;
 
-static void written_ui_create();
-static void written_ui_destroy();
+static void written_ui_create(void);
+static void written_ui_destroy(void);
 static bool written_ui_message_filter(TigMessage* msg);
-static void written_ui_refresh();
+static void written_ui_refresh(void);
 static void written_ui_draw_background(int num, int x, int y);
 static void written_ui_draw_element(const char* str, int font_num, int x, int y, WrittenTextAlignment alignment);
 static void written_ui_draw_string(const char* str, int font_num, TigRect* rect);
@@ -370,7 +370,7 @@ static bool written_ui_created;
  *
  * 0x56BAA0
  */
-bool written_ui_mod_load()
+bool written_ui_mod_load(void)
 {
     int index;
 
@@ -402,7 +402,7 @@ bool written_ui_mod_load()
  *
  * 0x56BB20
  */
-void written_ui_mod_unload()
+void written_ui_mod_unload(void)
 {
     int index;
 
@@ -519,7 +519,7 @@ void written_ui_start_type(WrittenType written_type, int num)
  *
  * 0x56BC90
  */
-void written_ui_close()
+void written_ui_close(void)
 {
     if (!written_ui_mod_loaded) {
         return;
@@ -538,7 +538,7 @@ void written_ui_close()
  *
  * 0x56BCC0
  */
-void written_ui_create()
+void written_ui_create(void)
 {
     TigWindowData window_data;
     MesFileEntry mes_file_entry;
@@ -640,7 +640,7 @@ void written_ui_create()
  *
  * 0x56BF60
  */
-void written_ui_destroy()
+void written_ui_destroy(void)
 {
     if (!written_ui_mod_loaded
         || !written_ui_created) {
@@ -706,7 +706,7 @@ bool written_ui_message_filter(TigMessage* msg)
  *
  * 0x56C050
  */
-void written_ui_refresh()
+void written_ui_refresh(void)
 {
     int art_num;
     int num;

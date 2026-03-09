@@ -64,8 +64,8 @@ typedef struct ScrollbarUiControlInfo {
 #define SCROLLBAR_CURRENT_VALUE 2
 
 bool scrollbar_ui_init(GameInitInfo* init_info);
-void scrollbar_ui_exit();
-void scrollbar_ui_reset();
+void scrollbar_ui_exit(void);
+void scrollbar_ui_reset(void);
 bool scrollbar_ui_control_create(ScrollbarId* id, ScrollbarUiControlInfo* info, tig_window_handle_t window_handle);
 void scrollbar_ui_control_destroy(ScrollbarId id);
 void scrollbar_ui_control_redraw(ScrollbarId id);
@@ -73,7 +73,7 @@ bool scrollbar_ui_control_show(ScrollbarId id);
 bool scrollbar_ui_control_hide(ScrollbarId id);
 bool scrollbar_ui_process_event(TigMessage* msg);
 void scrollbar_ui_control_set(ScrollbarId id, int type, int value);
-void scrollbar_ui_begin_ignore_events();
-void scrollbar_ui_end_ignore_events();
+void scrollbar_ui_begin_ignore_events(void);
+void scrollbar_ui_end_ignore_events(void);
 
 #endif /* ARCANUM_UI_SCROLLBAR_UI_H_ */

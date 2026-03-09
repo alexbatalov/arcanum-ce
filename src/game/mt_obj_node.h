@@ -17,8 +17,8 @@ typedef struct MagicTechObjectNode {
 } MagicTechObjectNode;
 
 bool mt_obj_node_init(GameInitInfo* init_info);
-void mt_obj_node_exit();
-MagicTechObjectNode* mt_obj_node_create();
+void mt_obj_node_exit(void);
+MagicTechObjectNode* mt_obj_node_create(void);
 void mt_obj_node_destroy(MagicTechObjectNode* node);
 bool mt_obj_node_save_list(MagicTechObjectNode** head_ptr, TigFile* stream);
 bool mt_obj_node_load_list(MagicTechObjectNode** head_ptr, TigFile* stream);

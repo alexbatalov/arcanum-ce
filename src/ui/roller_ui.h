@@ -11,7 +11,7 @@ typedef unsigned int RollerFlags;
 #define ROLLER_RED 0x08u
 
 bool roller_ui_init(GameInitInfo* init_info);
-void roller_ui_exit();
+void roller_ui_exit(void);
 void roller_ui_draw(int value, tig_window_handle_t window_handle, int x, int y, int num_digits, RollerFlags flags);
 
 #endif /* ARCANUM_UI_ROLLER_UI_H_ */

@@ -7,7 +7,7 @@ typedef unsigned int SettingsFlags;
 
 #define SETTINGS_CHANGED 0x1
 
-typedef void(SettingsValueChangedFunc)();
+typedef void(SettingsValueChangedFunc)(void);
 
 typedef struct SettingsEntry {
     /* 0000 */ char* key;

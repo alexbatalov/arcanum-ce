@@ -41,18 +41,18 @@ enum LogbookUiTab {
     LOGBOOK_UI_TAB_COUNT,
 };
 
-static void logbook_ui_create();
-static void logbook_ui_destroy();
+static void logbook_ui_create(void);
+static void logbook_ui_destroy(void);
 static bool logbook_ui_message_filter(TigMessage* msg);
 static void logbook_ui_draw_panel(int art_num, bool preserve_page);
 static void logbook_ui_switch_tab(int tab, bool preserve_page);
-static void logbook_ui_turn_page_right();
-static void logbook_ui_turn_page_left();
-static void logbook_ui_refresh();
+static void logbook_ui_turn_page_right(void);
+static void logbook_ui_turn_page_left(void);
+static void logbook_ui_refresh(void);
 static int logbook_ui_draw_page_spread(int start_entry, int max_entry);
 static int logbook_ui_draw_entry(int index, TigRect* rect, bool dry_run, bool can_truncate);
 static int logbook_ui_draw_text(char* buffer, tig_font_handle_t font, TigRect* rect, bool dry_run, bool can_truncate, bool a6);
-static void logbook_ui_load_data();
+static void logbook_ui_load_data(void);
 static void logbook_ui_format_rumor(char* buffer, int index);
 static void logbook_ui_format_timestamp(char* buffer, int index);
 static void logbook_ui_format_quest(char* buffer, int index);
@@ -277,7 +277,7 @@ bool logbook_ui_init(GameInitInfo* init_info)
 }
 
 // 0x53EF40
-void logbook_ui_exit()
+void logbook_ui_exit(void)
 {
     mes_unload(logbook_ui_mes_file);
     mes_unload(quotes_mes_file);
@@ -293,7 +293,7 @@ void logbook_ui_exit()
 }
 
 // 0x53EFD0
-void logbook_ui_reset()
+void logbook_ui_reset(void)
 {
     int index;
 
@@ -342,7 +342,7 @@ void logbook_ui_open(int64_t obj)
 }
 
 // 0x53F090
-void logbook_ui_close()
+void logbook_ui_close(void)
 {
     if (logbook_ui_created
         && intgame_mode_set(INTGAME_MODE_MAIN)) {
@@ -352,13 +352,13 @@ void logbook_ui_close()
 }
 
 // 0x53F0D0
-bool logbook_ui_is_created()
+bool logbook_ui_is_created(void)
 {
     return logbook_ui_created;
 }
 
 // 0x53F0E0
-void logbook_ui_create()
+void logbook_ui_create(void)
 {
     TigArtBlitInfo blit_info;
     TigRect src_rect;
@@ -429,7 +429,7 @@ void logbook_ui_create()
 }
 
 // 0x53F2F0
-void logbook_ui_destroy()
+void logbook_ui_destroy(void)
 {
     if (!logbook_ui_created) {
         return;
@@ -588,7 +588,7 @@ void logbook_ui_switch_tab(int tab, bool preserve_page)
 }
 
 // 0x53F640
-void logbook_ui_turn_page_right()
+void logbook_ui_turn_page_right(void)
 {
     if (logbook_ui_last_visible_entry < logbook_ui_entry_count - 1
         && (logbook_ui_current_page - 1) / 2 < 100) {
@@ -600,7 +600,7 @@ void logbook_ui_turn_page_right()
 }
 
 // 0x53F6A0
-void logbook_ui_turn_page_left()
+void logbook_ui_turn_page_left(void)
 {
     if (logbook_ui_page_spread_starts[(logbook_ui_current_page - 1) / 2] > 0) {
         logbook_ui_current_page -= 2;
@@ -610,7 +610,7 @@ void logbook_ui_turn_page_left()
 }
 
 // 0x53F6E0
-void logbook_ui_refresh()
+void logbook_ui_refresh(void)
 {
     TigArtBlitInfo blit_info;
     TigRect src_rect;
@@ -823,7 +823,7 @@ int logbook_ui_draw_text(char* buffer, tig_font_handle_t font, TigRect* rect, bo
 }
 
 // 0x53FBB0
-void logbook_ui_load_data()
+void logbook_ui_load_data(void)
 {
     int index;
 
@@ -1281,7 +1281,7 @@ void logbook_ui_format_key(char* buffer, int index)
 }
 
 // 0x5407F0
-void logbook_ui_check()
+void logbook_ui_check(void)
 {
     int index;
     char buffer[2000];

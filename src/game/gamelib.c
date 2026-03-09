@@ -84,10 +84,10 @@
 #define GAMELIB_MAX_PATCH_COUNT 10
 
 typedef bool(GameInitFunc)(GameInitInfo* init_info);
-typedef void(GameResetFunc)();
-typedef bool(GameModuleLoadFunc)();
-typedef void(GameModuleUnloadFunc)();
-typedef void(GameExitFunc)();
+typedef void(GameResetFunc)(void);
+typedef bool(GameModuleLoadFunc)(void);
+typedef void(GameModuleUnloadFunc)(void);
+typedef void(GameExitFunc)(void);
 typedef void(GamePingFunc)(unsigned int time);
 typedef void(GameUpdateViewFunc)(ViewOptions* view_options);
 typedef bool(GameSaveFunc)(TigFile* stream);
@@ -115,14 +115,14 @@ typedef struct GameSaveEntry {
 
 static int game_save_entry_compare_by_date(const void* va, const void* vb);
 static int game_save_entry_compare_by_name(const void* va, const void* vb);
-static void difficulty_changed();
+static void difficulty_changed(void);
 static void gamelib_draw_game(GameDrawInfo* draw_info);
 static void gamelib_draw_editor(GameDrawInfo* draw_info);
-static void gamelib_logo();
+static void gamelib_logo(void);
 static void gamelib_splash(tig_window_handle_t window_handle);
-static void gamelib_load_data();
+static void gamelib_load_data(void);
 static bool gamelib_load_module_data(const char* module_name);
-static void gamelib_unload_module_data();
+static void gamelib_unload_module_data(void);
 
 // 0x59A330
 static GameLibModule gamelib_modules[] = {
@@ -394,7 +394,7 @@ bool gamelib_init(GameInitInfo* init_info)
 }
 
 // 0x402380
-void gamelib_reset()
+void gamelib_reset(void)
 {
     tig_timestamp_t reset_started_at;
     tig_timestamp_t module_started_at;
@@ -450,7 +450,7 @@ void gamelib_reset()
 }
 
 // 0x4024D0
-void gamelib_exit()
+void gamelib_exit(void)
 {
     settings_save(&settings);
 
@@ -486,7 +486,7 @@ void gamelib_exit()
 }
 
 // 0x402580
-void gamelib_ping()
+void gamelib_ping(void)
 {
     int index;
 
@@ -556,7 +556,7 @@ void gamelib_default_module_name_set(const char* name)
 }
 
 // 0x4027B0
-const char* gamelib_default_module_name_get()
+const char* gamelib_default_module_name_get(void)
 {
     return gamelib_default_module_name;
 }
@@ -740,7 +740,7 @@ bool gamelib_mod_guid_get(TigGuid* guid_ptr)
 }
 
 // 0x402C60
-void gamelib_mod_unload()
+void gamelib_mod_unload(void)
 {
     int index;
 
@@ -755,13 +755,13 @@ void gamelib_mod_unload()
 }
 
 // 0x402CA0
-bool gamelib_in_reset()
+bool gamelib_in_reset(void)
 {
     return in_reset;
 }
 
 // 0x402CB0
-int gamelib_cheat_level_get()
+int gamelib_cheat_level_get(void)
 {
     return gamelib_cheat_level;
 }
@@ -827,7 +827,7 @@ void gamelib_invalidate_rect(TigRect* rect)
 }
 
 // 0x402E50
-bool gamelib_draw()
+bool gamelib_draw(void)
 {
     bool ret = false;
     TigRectListNode* node;
@@ -888,19 +888,19 @@ bool gamelib_draw()
 }
 
 // 0x402F90
-void gamelib_renderlock_acquire()
+void gamelib_renderlock_acquire(void)
 {
     gamelib_renderlock_cnt--;
 }
 
 // 0x402FA0
-void gamelib_renderlock_release()
+void gamelib_renderlock_release(void)
 {
     gamelib_renderlock_cnt++;
 }
 
 // 0x402FC0
-void gamelib_clear_screen()
+void gamelib_clear_screen(void)
 {
     tig_window_fill(gamelib_init_info.iso_window_handle, NULL, 0);
     tig_window_display();
@@ -908,7 +908,7 @@ void gamelib_clear_screen()
 }
 
 // 0x402FE0
-const char* gamelib_current_module_name_get()
+const char* gamelib_current_module_name_get(void)
 {
     return gamelib_current_module_name;
 }
@@ -1211,7 +1211,7 @@ bool gamelib_delete(const char* name)
 }
 
 // 0x403850
-const char* gamelib_last_save_name()
+const char* gamelib_last_save_name(void)
 {
     // 0x5D0D88
     static char byte_5D0D88[TIG_MAX_PATH];
@@ -1234,13 +1234,13 @@ const char* gamelib_last_save_name()
 }
 
 // 0x4038C0
-bool gamelib_in_save()
+bool gamelib_in_save(void)
 {
     return in_save;
 }
 
 // 0x4038D0
-bool gamelib_in_load()
+bool gamelib_in_load(void)
 {
     return in_load;
 }
@@ -1604,19 +1604,19 @@ void gamelib_thumbnail_size_set(int width, int height)
 }
 
 // 0x404570
-void difficulty_changed()
+void difficulty_changed(void)
 {
     gamelib_game_difficulty = settings_get_value(&settings, DIFFICULTY_KEY);
 }
 
 // 0x404590
-int gamelib_game_difficulty_get()
+int gamelib_game_difficulty_get(void)
 {
     return gamelib_game_difficulty;
 }
 
 // 0x4045A0
-void gamelib_redraw()
+void gamelib_redraw(void)
 {
     li_redraw();
     ci_redraw();
@@ -1663,7 +1663,7 @@ void gamelib_patch_lvl_set(const char* patch_lvl)
 }
 
 // 0x404650
-const char* gamelib_get_locale()
+const char* gamelib_get_locale(void)
 {
     // 0x5D0D84
     static char locale[GAMELIB_LOCALE_LENGTH];
@@ -1733,7 +1733,7 @@ void gamelib_draw_editor(GameDrawInfo* draw_info)
 }
 
 // 0x404810
-void gamelib_logo()
+void gamelib_logo(void)
 {
     gmovie_play_path("movies\\SierraLogo.bik", 0, 0);
     gmovie_play_path("movies\\TroikaLogo.bik", 0, 0);
@@ -1797,7 +1797,7 @@ void gamelib_splash(tig_window_handle_t window_handle)
 }
 
 // 0x404A20
-void gamelib_load_data()
+void gamelib_load_data(void)
 {
     TigFileList file_list;
     unsigned int index;
@@ -1883,7 +1883,7 @@ bool gamelib_load_module_data(const char* module_name)
 }
 
 // 0x405070
-void gamelib_unload_module_data()
+void gamelib_unload_module_data(void)
 {
     int index;
 

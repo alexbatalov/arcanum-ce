@@ -22,7 +22,7 @@
 #define MISS_RIGHT 0x2
 #define MISS_LEFT 0x1
 
-static void tig_rect_node_reserve();
+static void tig_rect_node_reserve(void);
 static void sub_52DC90(float x, float y, TigLine* line, unsigned int* flags);
 
 // 0x62B2A4
@@ -37,7 +37,7 @@ int tig_rect_init(TigInitInfo* init_info)
 }
 
 // 0x52D0F0
-void tig_rect_exit()
+void tig_rect_exit(void)
 {
     TigRectListNode* curr;
     TigRectListNode* next;
@@ -53,7 +53,7 @@ void tig_rect_exit()
 }
 
 // 0x52D120
-TigRectListNode* tig_rect_node_create()
+TigRectListNode* tig_rect_node_create(void)
 {
     TigRectListNode* node;
 
@@ -74,7 +74,7 @@ TigRectListNode* tig_rect_node_create()
 }
 
 // 0x52D150
-void tig_rect_node_reserve()
+void tig_rect_node_reserve(void)
 {
     int index;
     TigRectListNode* node;

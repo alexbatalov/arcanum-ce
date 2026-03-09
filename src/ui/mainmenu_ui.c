@@ -62,54 +62,54 @@ static void sub_5412E0(bool a1);
 static TigWindowModalDialogChoice mainmenu_ui_confirm(int num);
 static void sub_541830(char* dst, const char* src);
 static void sub_5418A0(char* str, TigRect* rect, tig_font_handle_t font, unsigned int flags);
-static void mainmenu_ui_create_mainmenu();
-static void mainmenu_ui_draw_version();
+static void mainmenu_ui_create_mainmenu(void);
+static void mainmenu_ui_draw_version(void);
 static bool mainmenu_ui_press_mainmenu_in_play(tig_button_handle_t button_handle);
 static bool mainmenu_ui_press_mainmenu_in_play_locked(tig_button_handle_t button_handle);
-static void mainmenu_ui_create_options();
-static void sub_541D40();
-static void mainmenu_ui_destroy_options();
+static void mainmenu_ui_create_options(void);
+static void sub_541D40(void);
+static void mainmenu_ui_destroy_options(void);
 static bool mainmenu_ui_press_options(tig_button_handle_t button_handle);
 static void sub_541E20(int a1);
-static void mainmenu_ui_load_game_create();
-static void sub_542200();
-static void mainmenu_ui_load_game_destroy();
+static void mainmenu_ui_load_game_create(void);
+static void sub_542200(void);
+static void mainmenu_ui_load_game_destroy(void);
 static void sub_542280(int a1);
 static void sub_5422A0(TigRect* rect);
 static bool mainmenu_ui_load_game_execute(int btn);
 static bool mainmenu_ui_load_game_button_pressed(tig_button_handle_t button_handle);
 static bool mainmenu_ui_load_game_button_released(tig_button_handle_t button_handle);
 static void mainmenu_ui_load_game_mouse_up(int a1, int a2);
-static void sub_542560();
+static void sub_542560(void);
 static void mainmenu_ui_load_game_refresh(TigRect* rect);
 static void sub_542D00(char* str, TigRect* rect, tig_font_handle_t font);
 static void sub_542DF0(char* str, TigRect* rect, tig_font_handle_t font);
 static void sub_542EA0(char* str, TigRect* rect, tig_font_handle_t font);
 static void mmUITextWriteCenteredToArray(const char* str, TigRect* rects, int cnt, tig_font_handle_t font);
 static char* sub_543040(int index);
-static void sub_543060();
-static void sub_5430D0();
-static bool mainmenu_ui_load_game_handle_delete();
+static void sub_543060(void);
+static void sub_5430D0(void);
+static bool mainmenu_ui_load_game_handle_delete(void);
 static bool sub_5432B0(const char* name);
-static void mainmenu_ui_save_game_create();
-static void mainmenu_ui_save_game_destroy();
+static void mainmenu_ui_save_game_create(void);
+static void mainmenu_ui_save_game_destroy(void);
 static bool mainmenu_ui_save_game_execute(int btn);
 static bool mainmenu_ui_save_game_button_pressed(tig_button_handle_t button_handle);
 static bool mainmenu_ui_save_game_button_released(tig_button_handle_t button_handle);
 static void mainmenu_ui_save_game_mouse_up(int x, int y);
 static void mainmenu_ui_save_game_refresh(TigRect* rect);
 static void sub_544100(const char* str, TigRect* rect, tig_font_handle_t font);
-static void sub_544210();
-static void sub_544250();
-static void sub_544290();
-static bool mainmenu_ui_save_game_handle_delete();
-static void mainmenu_ui_last_save_create();
-static void mainmenu_ui_intro_create();
-static void mainmenu_ui_credits_create();
+static void sub_544210(void);
+static void sub_544250(void);
+static void sub_544290(void);
+static bool mainmenu_ui_save_game_handle_delete(void);
+static void mainmenu_ui_last_save_create(void);
+static void mainmenu_ui_intro_create(void);
+static void mainmenu_ui_credits_create(void);
 static void mainmenu_ui_last_save_refresh(TigRect* rect);
-static void mainmenu_ui_create_single_player();
-static void mainmenu_ui_pick_new_or_pregen_create();
-static void mainmenu_ui_new_char_create();
+static void mainmenu_ui_create_single_player(void);
+static void mainmenu_ui_pick_new_or_pregen_create(void);
+static void mainmenu_ui_new_char_create(void);
 static void mainmenu_ui_new_char_refresh(TigRect* rect);
 static void mmUISharedCharRefreshFunc(int64_t obj, TigRect* rect);
 static bool mainmenu_ui_new_char_button_released(tig_button_handle_t button_handle);
@@ -125,36 +125,36 @@ static bool mainmenu_ui_new_char_button_hover(tig_button_handle_t button_handle)
 static bool mainmenu_ui_new_char_button_leave(tig_button_handle_t button_handle);
 static void mainmenu_ui_new_char_mouse_idle(int x, int y);
 static bool mainmenu_ui_new_char_execute(int btn);
-static void mainmenu_ui_pregen_char_create();
+static void mainmenu_ui_pregen_char_create(void);
 static void mainmenu_ui_pregen_char_refresh(TigRect* rect);
 static bool mainmenu_ui_pregen_char_button_released(tig_button_handle_t button_handle);
 static bool mainmenu_ui_pregen_char_execute(int btn);
-static void mainmenu_ui_charedit_create();
-static void mainmenu_ui_charedit_destroy();
+static void mainmenu_ui_charedit_create(void);
+static void mainmenu_ui_charedit_destroy(void);
 static bool mainmenu_ui_charedit_button_released(tig_button_handle_t button_handle);
 static void mainmenu_ui_charedit_refresh(TigRect* rect);
-static void mainmenu_ui_shop_create();
-static void mainmenu_ui_shop_destroy();
+static void mainmenu_ui_shop_create(void);
+static void mainmenu_ui_shop_destroy(void);
 static bool mainmenu_ui_shop_button_released(tig_button_handle_t button_handle);
 static void mainmenu_ui_shop_refresh(TigRect* rect);
 static bool main_menu_button_create(MainMenuButtonInfo* info, int width, int height);
 static bool main_menu_button_create_ex(MainMenuButtonInfo* info, int width, int height, unsigned int flags);
 static void mainmenu_ui_refresh_text(tig_window_handle_t window_handle, const char* str, TigRect* rect, unsigned int flags);
-static void sub_546DD0();
-static void mainmenu_ui_create_shared_radio_buttons();
+static void sub_546DD0(void);
+static void mainmenu_ui_create_shared_radio_buttons(void);
 static bool sub_546EE0(TigMessage* msg);
 static void mainmenu_ui_refresh_button_text(int btn, unsigned int flags);
-static void sub_547EF0();
+static void sub_547EF0(void);
 static void sub_5480C0(int a1);
-static void mmUIWinRefreshScrollBar();
+static void mmUIWinRefreshScrollBar(void);
 static void sub_548FF0(int a1);
-static void sub_549450();
+static void sub_549450(void);
 static void mainmenu_ui_textedit_on_enter(TextEdit* textedit);
 static void mainmenu_ui_textedit_on_change(TextEdit* textedit);
 static void mainmenu_ui_feedback(int num);
-static void mainmenu_fonts_init();
-static void mainmenu_fonts_exit();
-static void sub_549A80();
+static void mainmenu_fonts_init(void);
+static void mainmenu_fonts_exit(void);
+static void sub_549A80(void);
 
 // 0x5993D0
 static int mainmenu_font_nums[MM_FONT_COUNT] = {
@@ -1498,7 +1498,7 @@ bool mainmenu_ui_init(GameInitInfo* init_info)
 }
 
 // 0x541050
-void mainmenu_ui_exit()
+void mainmenu_ui_exit(void)
 {
     int index;
 
@@ -1531,7 +1531,7 @@ void mainmenu_ui_exit()
 }
 
 // 0x541150
-void sub_541150()
+void sub_541150(void)
 {
     mainmenu_ui_window_type = MM_WINDOW_MAINMENU;
     mainmenu_ui_start_new_game = false;
@@ -1539,7 +1539,7 @@ void sub_541150()
 }
 
 // 0x541170
-void sub_541170()
+void sub_541170(void)
 {
     dword_5C4000 = true;
 }
@@ -1606,7 +1606,7 @@ void mainmenu_ui_start(MainMenuType type)
 }
 
 // 0x5412D0
-void sub_5412D0()
+void sub_5412D0(void)
 {
     sub_5412E0(false);
 }
@@ -1709,7 +1709,7 @@ void sub_5412E0(bool a1)
 }
 
 // 0x541590
-bool mainmenu_ui_handle()
+bool mainmenu_ui_handle(void)
 {
     tig_timestamp_t timestamp;
     TigMessage msg;
@@ -1761,13 +1761,13 @@ bool mainmenu_ui_handle()
 }
 
 // 0x541680
-bool mainmenu_ui_is_active()
+bool mainmenu_ui_is_active(void)
 {
     return mainmenu_ui_active;
 }
 
 // 0x541690
-TigWindowModalDialogChoice mainmenu_ui_confirm_quit()
+TigWindowModalDialogChoice mainmenu_ui_confirm_quit(void)
 {
     return mainmenu_ui_confirm(5100); // "Are you sure you want to quit?"
 }
@@ -1797,7 +1797,7 @@ TigWindowModalDialogChoice mainmenu_ui_confirm(int num)
 }
 
 // 0x541710
-void mainmenu_ui_reset()
+void mainmenu_ui_reset(void)
 {
     inven_ui_destroy();
     charedit_close();
@@ -1811,7 +1811,7 @@ void mainmenu_ui_reset()
 }
 
 // 0x541740
-void mainmenu_ui_open()
+void mainmenu_ui_open(void)
 {
     if (!mainmenu_ui_active) {
         dword_5C3FB8 = -1;
@@ -1849,7 +1849,7 @@ void mainmenu_ui_close(bool back)
 }
 
 // 0x5417E0
-MainMenuWindowType mainmenu_ui_pop_window_stack()
+MainMenuWindowType mainmenu_ui_pop_window_stack(void)
 {
     if (mainmenu_ui_num_windows > 0) {
         if (--mainmenu_ui_num_windows > 0) {
@@ -1967,7 +1967,7 @@ void sub_5418A0(char* str, TigRect* rect, tig_font_handle_t font, unsigned int f
 }
 
 // 0x541AA0
-void mainmenu_ui_create_mainmenu()
+void mainmenu_ui_create_mainmenu(void)
 {
     mainmenu_ui_window_type = MM_WINDOW_MAINMENU;
     mainmenu_ui_create_window();
@@ -1976,7 +1976,7 @@ void mainmenu_ui_create_mainmenu()
 }
 
 // 0x541AC0
-void mainmenu_ui_draw_version()
+void mainmenu_ui_draw_version(void)
 {
     TigRect rect;
     char version[40];
@@ -2072,7 +2072,7 @@ bool mainmenu_ui_press_mainmenu_in_play_locked(tig_button_handle_t button_handle
 }
 
 // 0x541C70
-void mainmenu_ui_create_options()
+void mainmenu_ui_create_options(void)
 {
     PcLens pc_lens;
     int64_t pc_obj;
@@ -2101,7 +2101,7 @@ void mainmenu_ui_create_options()
 }
 
 // 0x541D40
-void sub_541D40()
+void sub_541D40(void)
 {
     inven_ui_destroy();
     charedit_close();
@@ -2113,7 +2113,7 @@ void sub_541D40()
 }
 
 // 0x541D70
-void mainmenu_ui_destroy_options()
+void mainmenu_ui_destroy_options(void)
 {
     options_ui_close();
     intgame_pc_lens_do(PC_LENS_MODE_NONE, NULL);
@@ -2179,7 +2179,7 @@ void sub_541E20(int a1)
 }
 
 // 0x541F20
-void mainmenu_ui_load_game_create()
+void mainmenu_ui_load_game_create(void)
 {
     MainMenuWindowInfo* window;
     int64_t pc_obj;
@@ -2280,7 +2280,7 @@ void mainmenu_ui_load_game_create()
 }
 
 // 0x542200
-void sub_542200()
+void sub_542200(void)
 {
     inven_ui_destroy();
     charedit_close();
@@ -2292,7 +2292,7 @@ void sub_542200()
 }
 
 // 0x542230
-void mainmenu_ui_load_game_destroy()
+void mainmenu_ui_load_game_destroy(void)
 {
     scrollbar_ui_control_destroy(stru_64C220);
 
@@ -2403,7 +2403,7 @@ void mainmenu_ui_load_game_mouse_up(int x, int y)
 }
 
 // 0x542560
-void sub_542560()
+void sub_542560(void)
 {
     MainMenuWindowInfo* window;
 
@@ -2723,7 +2723,7 @@ char* sub_543040(int index)
 }
 
 // 0x543060
-void sub_543060()
+void sub_543060(void)
 {
     MainMenuWindowInfo* window;
 
@@ -2741,7 +2741,7 @@ void sub_543060()
 }
 
 // 0x5430D0
-void sub_5430D0()
+void sub_5430D0(void)
 {
     MainMenuWindowInfo* window;
 
@@ -2759,7 +2759,7 @@ void sub_5430D0()
 }
 
 // 0x543160
-bool mainmenu_ui_load_game_handle_delete()
+bool mainmenu_ui_load_game_handle_delete(void)
 {
     MainMenuWindowInfo* window;
 
@@ -2794,7 +2794,7 @@ bool mainmenu_ui_load_game_handle_delete()
 }
 
 // 0x543220
-bool sub_543220()
+bool sub_543220(void)
 {
     const char* path;
     char name[256];
@@ -2864,7 +2864,7 @@ bool sub_5432B0(const char* name)
 }
 
 // 0x543380
-void mainmenu_ui_save_game_create()
+void mainmenu_ui_save_game_create(void)
 {
     MainMenuWindowInfo* window;
     int64_t pc_obj;
@@ -2938,7 +2938,7 @@ void mainmenu_ui_save_game_create()
 }
 
 // 0x543580
-void mainmenu_ui_save_game_destroy()
+void mainmenu_ui_save_game_destroy(void)
 {
     scrollbar_ui_control_destroy(stru_64C220);
 
@@ -3357,7 +3357,7 @@ void sub_544100(const char* str, TigRect* rect, tig_font_handle_t font)
 }
 
 // 0x544210
-void sub_544210()
+void sub_544210(void)
 {
     MainMenuWindowInfo* window;
 
@@ -3371,7 +3371,7 @@ void sub_544210()
 }
 
 // 0x544250
-void sub_544250()
+void sub_544250(void)
 {
     MainMenuWindowInfo* window;
 
@@ -3385,7 +3385,7 @@ void sub_544250()
 }
 
 // 0x544290
-void sub_544290()
+void sub_544290(void)
 {
     MainMenuWindowInfo* window;
 
@@ -3414,7 +3414,7 @@ void sub_544290()
 }
 
 // 0x544320
-bool mainmenu_ui_save_game_handle_delete()
+bool mainmenu_ui_save_game_handle_delete(void)
 {
     MainMenuWindowInfo* window;
 
@@ -3449,7 +3449,7 @@ bool mainmenu_ui_save_game_handle_delete()
 }
 
 // 0x544440
-void mainmenu_ui_last_save_create()
+void mainmenu_ui_last_save_create(void)
 {
     const char* path;
     TigRect rect;
@@ -3507,7 +3507,7 @@ void mainmenu_ui_last_save_create()
 }
 
 // 0x5445F0
-void mainmenu_ui_intro_create()
+void mainmenu_ui_intro_create(void)
 {
     mainmenu_ui_window_type = MM_WINDOW_INTRO;
     gmovie_play(1, 0, 0);
@@ -3520,7 +3520,7 @@ void mainmenu_ui_intro_create()
 }
 
 // 0x544640
-void mainmenu_ui_credits_create()
+void mainmenu_ui_credits_create(void)
 {
     mainmenu_ui_window_type = MM_WINDOW_CREDITS;
     mainmenu_ui_num_windows++;
@@ -3544,7 +3544,7 @@ void mainmenu_ui_last_save_refresh(TigRect* rect)
 }
 
 // 0x5446A0
-void mainmenu_ui_create_single_player()
+void mainmenu_ui_create_single_player(void)
 {
     mainmenu_ui_window_type = MM_WINDOW_SINGLE_PLAYER;
     mainmenu_ui_create_window();
@@ -3553,7 +3553,7 @@ void mainmenu_ui_create_single_player()
 }
 
 // 0x5446D0
-void mainmenu_ui_pick_new_or_pregen_create()
+void mainmenu_ui_pick_new_or_pregen_create(void)
 {
     dword_64C454 = CHAREDIT_MODE_CREATE;
     mainmenu_ui_window_type = MM_WINDOW_PICK_NEW_OR_PREGEN;
@@ -3562,7 +3562,7 @@ void mainmenu_ui_pick_new_or_pregen_create()
 }
 
 // 0x5446F0
-void mainmenu_ui_new_char_create()
+void mainmenu_ui_new_char_create(void)
 {
     PlayerCreateInfo player_create_info;
 
@@ -4140,7 +4140,7 @@ bool mainmenu_ui_new_char_execute(int btn)
 }
 
 // 0x545870
-void mainmenu_ui_pregen_char_create()
+void mainmenu_ui_pregen_char_create(void)
 {
     mainmenu_ui_window_type = MM_WINDOW_PREGEN_CHAR;
     mainmenu_ui_pregen_char_idx = 1;
@@ -4260,14 +4260,14 @@ bool mainmenu_ui_pregen_char_execute(int btn)
 }
 
 // 0x545C50
-void mainmenu_ui_charedit_create()
+void mainmenu_ui_charedit_create(void)
 {
     mainmenu_ui_window_type = MM_WINDOW_CHAREDIT;
     mainmenu_ui_create_window();
 }
 
 // 0x545C60
-void mainmenu_ui_charedit_destroy()
+void mainmenu_ui_charedit_destroy(void)
 {
     if (charedit_is_created()) {
         charedit_close();
@@ -4305,14 +4305,14 @@ void mainmenu_ui_charedit_refresh(TigRect* rect)
 }
 
 // 0x545E20
-void mainmenu_ui_shop_create()
+void mainmenu_ui_shop_create(void)
 {
     mainmenu_ui_window_type = MM_WINDOW_SHOP;
     mainmenu_ui_create_window();
 }
 
 // 0x545E30
-void mainmenu_ui_shop_destroy()
+void mainmenu_ui_shop_destroy(void)
 {
     if (inven_ui_is_created()) {
         inven_ui_destroy();
@@ -4451,7 +4451,7 @@ bool main_menu_button_create_ex(MainMenuButtonInfo* info, int width, int height,
 }
 
 // 0x546330
-void mainmenu_ui_create_window()
+void mainmenu_ui_create_window(void)
 {
     mainmenu_ui_create_window_func(true);
 }
@@ -4844,7 +4844,7 @@ void mainmenu_ui_refresh_text(tig_window_handle_t window_handle, const char* str
 }
 
 // 0x546DD0
-void sub_546DD0()
+void sub_546DD0(void)
 {
     int index;
 
@@ -4878,7 +4878,7 @@ void sub_546DD0()
 }
 
 // 0x546E80
-void mainmenu_ui_create_shared_radio_buttons()
+void mainmenu_ui_create_shared_radio_buttons(void)
 {
     MainMenuWindowInfo* info;
     tig_button_handle_t group[2];
@@ -5421,7 +5421,7 @@ void mainmenu_ui_refresh_button_text(int btn, unsigned int flags)
 }
 
 // 0x547EF0
-void sub_547EF0()
+void sub_547EF0(void)
 {
     TigArtAnimData art_anim_data;
     DateTime datetime;
@@ -5561,7 +5561,7 @@ void sub_5480C0(int a1)
 }
 
 // 0x548F10
-void mmUIWinRefreshScrollBar()
+void mmUIWinRefreshScrollBar(void)
 {
     TigRect src_rect;
     TigRect dst_rect;
@@ -5673,7 +5673,7 @@ void sub_5493C0(char* buffer, int size)
 }
 
 // 0x549450
-void sub_549450()
+void sub_549450(void)
 {
     MainMenuWindowInfo* curr_window_info;
 
@@ -5710,7 +5710,7 @@ void mainmenu_ui_textedit_on_enter(TextEdit* textedit)
 }
 
 // 0x549520
-char* sub_549520()
+char* sub_549520(void)
 {
     return dword_64C428 != 0 ? mainmenu_ui_textedit.buffer : NULL;
 }
@@ -5731,7 +5731,7 @@ void mainmenu_ui_textedit_on_change(TextEdit* textedit)
 }
 
 // 0x549580
-void mainmenu_ui_exit_game()
+void mainmenu_ui_exit_game(void)
 {
     tig_debug_printf("mainmenu_ui_exit_game: Exiting Game!\n");
     gameuilib_mod_unload();
@@ -5774,13 +5774,13 @@ MainMenuWindowInfo* sub_5496C0(int index)
 }
 
 // 0x5496D0
-MainMenuWindowType mainmenu_ui_window_type_get()
+MainMenuWindowType mainmenu_ui_window_type_get(void)
 {
     return mainmenu_ui_window_type;
 }
 
 // 0x5496E0
-void mainmenu_ui_feedback_saving()
+void mainmenu_ui_feedback_saving(void)
 {
     mainmenu_ui_feedback(5060); // "Saving..."
 }
@@ -5802,31 +5802,31 @@ void mainmenu_ui_feedback(int num)
 }
 
 // 0x549750
-void mainmenu_ui_feedback_saving_completed()
+void mainmenu_ui_feedback_saving_completed(void)
 {
     mainmenu_ui_feedback(5062); // "Save completed."
 }
 
 // 0x549760
-void mainmenu_ui_feedback_cannot_save_in_tb()
+void mainmenu_ui_feedback_cannot_save_in_tb(void)
 {
     mainmenu_ui_feedback(5065); // "Cannot save during turn-based combat when it isn't your turn."
 }
 
 // 0x549770
-void mainmenu_ui_feedback_loading()
+void mainmenu_ui_feedback_loading(void)
 {
     mainmenu_ui_feedback(5061); // "Loading..."
 }
 
 // 0x549780
-void mainmenu_ui_feedback_loading_completed()
+void mainmenu_ui_feedback_loading_completed(void)
 {
     mainmenu_ui_feedback(5063); // "Load completed."
 }
 
 // 0x549820
-tig_window_handle_t sub_549820()
+tig_window_handle_t sub_549820(void)
 {
     return dword_5C3624;
 }
@@ -5838,13 +5838,13 @@ void mainmenu_ui_window_type_set(MainMenuWindowType window_type)
 }
 
 // 0x549840
-mes_file_handle_t mainmenu_ui_mes_file()
+mes_file_handle_t mainmenu_ui_mes_file(void)
 {
     return mainmenu_ui_mainmenu_mes_file;
 }
 
 // 0x549850
-void mainmenu_fonts_init()
+void mainmenu_fonts_init(void)
 {
     int fnt;
     int clr;
@@ -5866,7 +5866,7 @@ void mainmenu_fonts_init()
 }
 
 // 0x549910
-void mainmenu_fonts_exit()
+void mainmenu_fonts_exit(void)
 {
     int fnt;
     int clr;
@@ -5885,7 +5885,7 @@ tig_font_handle_t mainmenu_ui_font(MainMenuFont font, MainMenuColor color)
 }
 
 // 0x549960
-void sub_549960()
+void sub_549960(void)
 {
     int index;
 
@@ -5902,31 +5902,31 @@ void sub_549990(int* a1, int num)
 }
 
 // 0x549A40
-void sub_549A40()
+void sub_549A40(void)
 {
     dword_64C468++;
 }
 
 // 0x549A50
-void sub_549A50()
+void sub_549A50(void)
 {
     dword_64C468--;
 }
 
 // 0x549A60
-int sub_549A60()
+int sub_549A60(void)
 {
     return dword_64C468;
 }
 
 // 0x549A70
-void sub_549A70()
+void sub_549A70(void)
 {
     dword_5C3620 = false;
 }
 
 // 0x549A80
-void sub_549A80()
+void sub_549A80(void)
 {
     int64_t obj;
 

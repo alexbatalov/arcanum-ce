@@ -51,9 +51,9 @@
 #include "ui/wmap_rnd.h"
 #include "ui/wmap_ui.h"
 
-static void main_loop();
-static void handle_mouse_scroll();
-static void handle_keyboard_scroll();
+static void main_loop(void);
+static void handle_mouse_scroll(void);
+static void handle_keyboard_scroll(void);
 static void build_cmd_line(char* dst, size_t size, int argc, char** argv);
 
 // 0x59A040
@@ -313,7 +313,7 @@ int main(int argc, char** argv)
 }
 
 // 0x401560
-void main_loop()
+void main_loop(void)
 {
     int64_t location;
     int64_t pc_obj;
@@ -679,7 +679,7 @@ void main_loop()
 }
 
 // 0x401F50
-void handle_mouse_scroll()
+void handle_mouse_scroll(void)
 {
     TigMouseState mouse_state;
     int width;
@@ -724,7 +724,7 @@ void handle_mouse_scroll()
 }
 
 // 0x402010
-void handle_keyboard_scroll()
+void handle_keyboard_scroll(void)
 {
     if (tig_kb_is_key_pressed(SDL_SCANCODE_UP)) {
         if (tig_kb_is_key_pressed(SDL_SCANCODE_LEFT)) {

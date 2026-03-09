@@ -4,8 +4,8 @@
 
 #define GROW 64
 
-static void mt_obj_node_reserve();
-static void mt_obj_node_clear();
+static void mt_obj_node_reserve(void);
+static void mt_obj_node_clear(void);
 static bool mt_obj_node_save_list_node(MagicTechObjectNode* node, TigFile* stream);
 static bool mt_obj_node_load_list_node(MagicTechObjectNode* node, TigFile* stream);
 
@@ -33,7 +33,7 @@ bool mt_obj_node_init(GameInitInfo* init_info)
  *
  * 0x4BAC20
  */
-void mt_obj_node_exit()
+void mt_obj_node_exit(void)
 {
     mt_obj_node_clear();
 }
@@ -43,7 +43,7 @@ void mt_obj_node_exit()
  *
  * 0x4BAC30
  */
-MagicTechObjectNode* mt_obj_node_create()
+MagicTechObjectNode* mt_obj_node_create(void)
 {
     MagicTechObjectNode* node;
 
@@ -81,7 +81,7 @@ void mt_obj_node_destroy(MagicTechObjectNode* node)
  *
  * 0x4BACA0
  */
-void mt_obj_node_reserve()
+void mt_obj_node_reserve(void)
 {
     int index;
     MagicTechObjectNode* node;
@@ -100,7 +100,7 @@ void mt_obj_node_reserve()
  *
  * 0x4BACD0
  */
-void mt_obj_node_clear()
+void mt_obj_node_clear(void)
 {
     MagicTechObjectNode* next;
 

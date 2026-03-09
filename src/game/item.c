@@ -70,7 +70,7 @@ static void item_equipped(int64_t item_obj, int64_t parent_obj, int inventory_lo
 static void item_unequipped(int64_t item_obj, int64_t parent_obj, int inventory_location);
 static bool item_force_remove_success(void* userinfo);
 static bool item_force_remove_failure(void* userinfo);
-static bool sub_467E70();
+static bool sub_467E70(void);
 static void item_recalc_light(int64_t item_obj, int64_t parent_obj);
 static bool item_cancel_decay(int64_t obj);
 static bool item_decay_timeevent_check(TimeEvent* timeevent);
@@ -205,7 +205,7 @@ bool item_init(GameInitInfo* init_info)
 }
 
 // 0x460F90
-void item_exit()
+void item_exit(void)
 {
     FREE(item_ammunition_type_names);
     FREE(item_armor_coverage_type_names);
@@ -3011,7 +3011,7 @@ void item_rewield(int64_t obj)
 }
 
 // 0x4655C0
-bool item_in_rewield()
+bool item_in_rewield(void)
 {
     return in_rewield;
 }
@@ -4590,7 +4590,7 @@ bool item_force_remove_failure(void* userinfo)
 }
 
 // 0x467E70
-bool sub_467E70()
+bool sub_467E70(void)
 {
     bool ret;
 
@@ -4739,19 +4739,19 @@ bool item_decay_timeevent_check(TimeEvent* timeevent)
 }
 
 // 0x468180
-void item_decay_process_enable()
+void item_decay_process_enable(void)
 {
     item_decay_process_cnt++;
 }
 
 // 0x468190
-void item_decay_process_disable()
+void item_decay_process_disable(void)
 {
     item_decay_process_cnt--;
 }
 
 // 0x4681A0
-int item_decay_process_is_enabled()
+int item_decay_process_is_enabled(void)
 {
     return item_decay_process_cnt;
 }

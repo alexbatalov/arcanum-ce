@@ -148,7 +148,7 @@ int AILCALL AIL_stream_status(HSTREAM stream)
     }
 }
 
-bool mss_compat_init()
+bool mss_compat_init(void)
 {
     if (!MIX_Init()) {
         return false;

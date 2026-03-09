@@ -39,7 +39,7 @@ bool item_ui_init(GameInitInfo* init_info)
 }
 
 // 0x5719E0
-void item_ui_exit()
+void item_ui_exit(void)
 {
 }
 
@@ -129,7 +129,7 @@ void item_ui_activate(int64_t owner_obj, int64_t item_obj)
 }
 
 // 0x571C80
-void item_ui_deactivate()
+void item_ui_deactivate(void)
 {
     intgame_mode_set(INTGAME_MODE_MAIN);
     qword_6810D8 = OBJ_HANDLE_NULL;

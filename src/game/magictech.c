@@ -41,7 +41,7 @@
 #include "game/timeevent.h"
 #include "game/ui.h"
 
-typedef void(MagicTechProc)();
+typedef void(MagicTechProc)(void);
 
 typedef struct MagicTechSummonTableEntry {
     /* 0000 */ int value;
@@ -60,51 +60,51 @@ static bool sub_44FE30(int a1, const char* path, int a3);
 static bool sub_44FFA0(int a1, const char* a2, int a3);
 static void sub_450090(mes_file_handle_t msg_file, MagicTechInfo* info, int num, int magictech);
 static void sub_4501D0(mes_file_handle_t msg_file, MagicTechInfo* info, int num, int magictech);
-static void sub_450240();
+static void sub_450240(void);
 static bool sub_4507D0(int64_t obj, int magictech);
 static int sub_450B90(int64_t obj);
 static void sub_450C10(int64_t obj, unsigned int flags);
-static void magictech_process();
-static void MTComponentAGoal_ProcFunc();
-static void MTComponentAGoalTerminate_ProcFunc();
-static void MTComponentAIRedirect_ProcFunc();
-static void MTComponentCast_ProcFunc();
-static void MTComponentChargeNBranch_ProcFunc();
-static void MTComponentDamage_ProcFunc();
-static void MTComponentDestroy_ProcFunc();
-static void MTComponentDispel_ProcFunc();
+static void magictech_process(void);
+static void MTComponentAGoal_ProcFunc(void);
+static void MTComponentAGoalTerminate_ProcFunc(void);
+static void MTComponentAIRedirect_ProcFunc(void);
+static void MTComponentCast_ProcFunc(void);
+static void MTComponentChargeNBranch_ProcFunc(void);
+static void MTComponentDamage_ProcFunc(void);
+static void MTComponentDestroy_ProcFunc(void);
+static void MTComponentDispel_ProcFunc(void);
 static void magictech_component_dispel_internal(int mt_id, int64_t obj);
-static void MTComponentEffect_ProcFunc();
-static void MTComponentEyeCandy_ProcFunc();
-static void MTComponentHeal_ProcFunc();
-static void MTComponentIdentify_ProcFunc();
-static void MTComponentInterrupt_ProcFunc();
-static void MTComponentObjFlag_ProcFunc();
-static void MTComponentMovement_ProcFunc();
-static void MTComponentRecharge_ProcFunc();
-static void MTComponentSummon_ProcFunc();
+static void MTComponentEffect_ProcFunc(void);
+static void MTComponentEyeCandy_ProcFunc(void);
+static void MTComponentHeal_ProcFunc(void);
+static void MTComponentIdentify_ProcFunc(void);
+static void MTComponentInterrupt_ProcFunc(void);
+static void MTComponentObjFlag_ProcFunc(void);
+static void MTComponentMovement_ProcFunc(void);
+static void MTComponentRecharge_ProcFunc(void);
+static void MTComponentSummon_ProcFunc(void);
 static void magictech_pick_proto_from_list(ObjectID* oid, int list);
-static void MTComponentTerminate_ProcFunc();
-static void MTComponentTestNBranch_ProcFunc();
-static void MTComponentTrait_ProcFunc();
+static void MTComponentTerminate_ProcFunc(void);
+static void MTComponentTestNBranch_ProcFunc(void);
+static void MTComponentTrait_ProcFunc(void);
 static void sub_452CD0(int64_t obj, tig_art_id_t art_id);
-static void MTComponentTraitIdx_ProcFunc();
-static void MTComponentTrait64_ProcFunc();
-static void MTComponentUse_ProcFunc();
-static void MTComponentNoop_ProcFunc();
-static void MTComponentEnvFlag_ProcFunc();
-static bool sub_452F20();
+static void MTComponentTraitIdx_ProcFunc(void);
+static void MTComponentTrait64_ProcFunc(void);
+static void MTComponentUse_ProcFunc(void);
+static void MTComponentNoop_ProcFunc(void);
+static void MTComponentEnvFlag_ProcFunc(void);
+static bool sub_452F20(void);
 static bool sub_4532F0(int64_t obj, int magictech);
 static bool sub_453370(int64_t obj, int magictech, int a3);
 static bool sub_453410(int mt_id, int spell, int64_t obj, int* other_mt_id_ptr);
 static void sub_4534E0(MagicTechRunInfo* run_info);
-static void sub_453630();
-static bool sub_453710();
-static bool sub_4537B0();
-static void sub_453D40();
-static void sub_453EE0();
+static void sub_453630(void);
+static bool sub_453710(void);
+static bool sub_4537B0(void);
+static void sub_453D40(void);
+static void sub_453EE0(void);
 static void sub_453F20(int64_t a1, int64_t a2);
-static void sub_453FA0();
+static void sub_453FA0(void);
 static bool sub_4545E0(MagicTechRunInfo* run_info);
 static bool sub_454700(int64_t source_loc, int64_t target_loc, int64_t target_obj, int spell);
 static void sub_454790(TimeEvent* timeevent, int a2, int a3, DateTime* datetime);
@@ -116,7 +116,7 @@ static void sub_455250(MagicTechRunInfo* run_info, DateTime* datetime);
 static void sub_455350(int64_t obj, int64_t target_loc);
 static void sub_4554B0(MagicTechRunInfo* run_info, int64_t obj);
 static bool sub_455550(S603CB8* a1, MagicTechRunInfo* run_info);
-static void sub_455710();
+static void sub_455710(void);
 static void magictech_id_new_lock(MagicTechRunInfo** lock_ptr);
 static bool sub_455820(MagicTechRunInfo* run_info);
 static void magictech_id_free_lock(int mt_id);
@@ -810,7 +810,7 @@ bool magictech_init(GameInitInfo* init_info)
 }
 
 // 0x44F150
-void magictech_reset()
+void magictech_reset(void)
 {
     magictech_cheat_mode = false;
 }
@@ -831,7 +831,7 @@ bool magictech_post_init(GameInitInfo* init_info)
 }
 
 // 0x44F1B0
-void magictech_exit()
+void magictech_exit(void)
 {
     if (magictech_initialized) {
         if (!magictech_editor) {
@@ -1292,7 +1292,7 @@ char* magictech_spell_name(int num)
 }
 
 // 0x44FE20
-void magictech_cheat_mode_on()
+void magictech_cheat_mode_on(void)
 {
     magictech_cheat_mode = true;
 }
@@ -1434,7 +1434,7 @@ void sub_4501D0(mes_file_handle_t msg_file, MagicTechInfo* info, int num, int ma
 }
 
 // 0x450240
-void sub_450240()
+void sub_450240(void)
 {
     int index;
     int action;
@@ -1983,7 +1983,7 @@ void sub_451070(MagicTechRunInfo* run_info)
 }
 
 // 0x4510F0
-void magictech_process()
+void magictech_process(void)
 {
     int idx;
     int comp;
@@ -2102,7 +2102,7 @@ void magictech_process()
 }
 
 // 0x4514E0
-void MTComponentAGoal_ProcFunc()
+void MTComponentAGoal_ProcFunc(void)
 {
     int64_t loc;
     int64_t new_loc;
@@ -2155,7 +2155,7 @@ void MTComponentAGoal_ProcFunc()
 }
 
 // 0x4516D0
-void MTComponentAGoalTerminate_ProcFunc()
+void MTComponentAGoalTerminate_ProcFunc(void)
 {
     if (stru_5E6D28.field_20 != OBJ_HANDLE_NULL) {
         sub_44E4D0(stru_5E6D28.field_20, magictech_cur_component->data.agoal_terminate.goal, -1);
@@ -2163,7 +2163,7 @@ void MTComponentAGoalTerminate_ProcFunc()
 }
 
 // 0x451700
-void MTComponentAIRedirect_ProcFunc()
+void MTComponentAIRedirect_ProcFunc(void)
 {
     AiRedirect ai_redirect;
 
@@ -2174,7 +2174,7 @@ void MTComponentAIRedirect_ProcFunc()
 }
 
 // 0x451740
-void MTComponentCast_ProcFunc()
+void MTComponentCast_ProcFunc(void)
 {
     MagicTechInvocation mt_invocation;
 
@@ -2202,7 +2202,7 @@ void MTComponentCast_ProcFunc()
 }
 
 // 0x451850
-void MTComponentChargeNBranch_ProcFunc()
+void MTComponentChargeNBranch_ProcFunc(void)
 {
     if (magictech_cur_run_info->source_obj.obj != OBJ_HANDLE_NULL
         && !sub_450420(magictech_cur_run_info->source_obj.obj, magictech_cur_component->data.charge_branch.cost, true, magictech_cur_run_info->spell)) {
@@ -2217,7 +2217,7 @@ void MTComponentChargeNBranch_ProcFunc()
 }
 
 // 0x4518D0
-void MTComponentDamage_ProcFunc()
+void MTComponentDamage_ProcFunc(void)
 {
     CombatContext combat;
     int dam_min;
@@ -2295,7 +2295,7 @@ void MTComponentDamage_ProcFunc()
 }
 
 // 0x451AF0
-void MTComponentDestroy_ProcFunc()
+void MTComponentDestroy_ProcFunc(void)
 {
     unsigned int spell_flags;
 
@@ -2319,7 +2319,7 @@ void MTComponentDestroy_ProcFunc()
 }
 
 // 0x451B90
-void MTComponentDispel_ProcFunc()
+void MTComponentDispel_ProcFunc(void)
 {
     magictech_component_dispel(stru_5E6D28.field_20, magictech_cur_run_info->id);
 }
@@ -2452,7 +2452,7 @@ void magictech_component_dispel_internal(int mt_id, int64_t obj)
 }
 
 // 0x451F20
-void MTComponentEffect_ProcFunc()
+void MTComponentEffect_ProcFunc(void)
 {
     int scale;
     int cnt;
@@ -2486,7 +2486,7 @@ void MTComponentEffect_ProcFunc()
 }
 
 // 0x451FE0
-void MTComponentEyeCandy_ProcFunc()
+void MTComponentEyeCandy_ProcFunc(void)
 {
     int mt_id;
 
@@ -2552,7 +2552,7 @@ void MTComponentEyeCandy_ProcFunc()
 }
 
 // 0x4521A0
-void MTComponentHeal_ProcFunc()
+void MTComponentHeal_ProcFunc(void)
 {
     CombatContext combat;
     int heal_min;
@@ -2589,7 +2589,7 @@ void MTComponentHeal_ProcFunc()
 }
 
 // 0x4522A0
-void MTComponentIdentify_ProcFunc()
+void MTComponentIdentify_ProcFunc(void)
 {
     if (stru_5E6D28.field_20 != OBJ_HANDLE_NULL) {
         if (obj_type_is_critter(magictech_cur_target_obj_type)) {
@@ -2603,7 +2603,7 @@ void MTComponentIdentify_ProcFunc()
 }
 
 // 0x452300
-void MTComponentInterrupt_ProcFunc()
+void MTComponentInterrupt_ProcFunc(void)
 {
     MagicTechInvocation mt_invocation;
 
@@ -2616,7 +2616,7 @@ void MTComponentInterrupt_ProcFunc()
 }
 
 // 0x452380
-void MTComponentObjFlag_ProcFunc()
+void MTComponentObjFlag_ProcFunc(void)
 {
     if (magictech_cur_component->data.obj_flag.state == 1) {
         magictech_cur_run_info->field_138 |= magictech_cur_component->data.obj_flag.value;
@@ -2649,7 +2649,7 @@ void MTComponentObjFlag_ProcFunc()
 }
 
 // 0x4524C0
-void MTComponentMovement_ProcFunc()
+void MTComponentMovement_ProcFunc(void)
 {
     int64_t loc = 0;
 
@@ -2749,7 +2749,7 @@ void sub_452650(int64_t obj)
 }
 
 // 0x452800
-void MTComponentRecharge_ProcFunc()
+void MTComponentRecharge_ProcFunc(void)
 {
     magictech_component_recharge(stru_5E6D28.field_20,
         magictech_cur_component->data.recharge.num,
@@ -2757,7 +2757,7 @@ void MTComponentRecharge_ProcFunc()
 }
 
 // 0x452830
-void MTComponentSummon_ProcFunc()
+void MTComponentSummon_ProcFunc(void)
 {
     MagicTechSummonInfo summon_info;
 
@@ -2814,14 +2814,14 @@ void magictech_pick_proto_from_list(ObjectID* oid, int list)
 }
 
 // 0x4529D0
-void MTComponentTerminate_ProcFunc()
+void MTComponentTerminate_ProcFunc(void)
 {
     dword_5E7624 = 1;
     dword_5E6D90 = magictech_cur_component_list->cnt;
 }
 
 // 0x4529F0
-void MTComponentTestNBranch_ProcFunc()
+void MTComponentTestNBranch_ProcFunc(void)
 {
     int value;
 
@@ -2871,7 +2871,7 @@ void MTComponentTestNBranch_ProcFunc()
 }
 
 // 0x452AD0
-void MTComponentTrait_ProcFunc()
+void MTComponentTrait_ProcFunc(void)
 {
     magictech_component_trait(stru_5E6D28.field_20, &(magictech_cur_component->data.trait), magictech_cur_target_obj_type);
 }
@@ -2973,7 +2973,7 @@ void sub_452CD0(int64_t obj, tig_art_id_t art_id)
 }
 
 // 0x452D80
-void MTComponentTraitIdx_ProcFunc()
+void MTComponentTraitIdx_ProcFunc(void)
 {
     int value;
 
@@ -3003,7 +3003,7 @@ void MTComponentTraitIdx_ProcFunc()
 }
 
 // 0x452E40
-void MTComponentTrait64_ProcFunc()
+void MTComponentTrait64_ProcFunc(void)
 {
     switch (magictech_cur_component->data.trait64.field_44) {
     case 0:
@@ -3019,7 +3019,7 @@ void MTComponentTrait64_ProcFunc()
 }
 
 // 0x452ED0
-void MTComponentUse_ProcFunc()
+void MTComponentUse_ProcFunc(void)
 {
     if (stru_5E6D28.field_20 != OBJ_HANDLE_NULL) {
         object_script_execute(stru_5E6D28.field_20,
@@ -3031,18 +3031,18 @@ void MTComponentUse_ProcFunc()
 }
 
 // 0x452F00
-void MTComponentNoop_ProcFunc()
+void MTComponentNoop_ProcFunc(void)
 {
 }
 
 // 0x452F10
-void MTComponentEnvFlag_ProcFunc()
+void MTComponentEnvFlag_ProcFunc(void)
 {
     tig_debug_printf("MagicTech: Process: Component: Error:  Invalid Component Type!\n");
 }
 
 // 0x452F20
-bool sub_452F20()
+bool sub_452F20(void)
 {
     bool v1;
     bool v2;
@@ -3287,7 +3287,7 @@ void sub_4534E0(MagicTechRunInfo* run_info)
 }
 
 // 0x453630
-void sub_453630()
+void sub_453630(void)
 {
     sub_4F2600(&stru_5E6D28, 0, magictech_cur_run_info->source_obj.obj);
     stru_5E6D28.field_50 = &stru_5E3518;
@@ -3306,7 +3306,7 @@ void sub_453630()
 }
 
 // 0x453710
-bool sub_453710()
+bool sub_453710(void)
 {
     MesFileEntry mes_file_entry;
 
@@ -3335,7 +3335,7 @@ bool sub_453710()
 }
 
 // 0x4537B0
-bool sub_4537B0()
+bool sub_4537B0(void)
 {
     int v1 = 0;
 
@@ -3566,7 +3566,7 @@ int magictech_use_item_fail_chance(int64_t attacker_obj, int64_t item_obj, int64
 }
 
 // 0x453D40
-void sub_453D40()
+void sub_453D40(void)
 {
     if (magictech_cur_component->apply_aoe.flags == 0) {
         return;
@@ -3609,7 +3609,7 @@ void sub_453D40()
 }
 
 // 0x453EE0
-void sub_453EE0()
+void sub_453EE0(void)
 {
     if ((magictech_cur_spell_info->flags & MAGICTECH_AGGRESSIVE) != 0
         && stru_5E6D28.field_20 != OBJ_HANDLE_NULL
@@ -3635,7 +3635,7 @@ void sub_453F20(int64_t a1, int64_t a2)
 // TODO: Lots of jumps, rewrite without goto.
 //
 // 0x453FA0
-void sub_453FA0()
+void sub_453FA0(void)
 {
     bool v0;
     bool v1;
@@ -4487,7 +4487,7 @@ bool sub_455550(S603CB8* a1, MagicTechRunInfo* run_info)
 }
 
 // 0x455710
-void sub_455710()
+void sub_455710(void)
 {
     int index;
     MagicTechRunInfo* run_info;
@@ -5348,7 +5348,7 @@ bool sub_4570E0(TimeEvent* timeevent)
 }
 
 // 0x457100
-void sub_457100()
+void sub_457100(void)
 {
     sub_455710();
 }
@@ -6933,7 +6933,7 @@ bool sub_459F20(int magictech, uint64_t** a2)
 }
 
 // 0x459F50
-void sub_459F50()
+void sub_459F50(void)
 {
     mt_ai_reset();
 }
@@ -7067,7 +7067,7 @@ bool sub_45A580(int64_t a1, int64_t a2)
 }
 
 // 0x45A620
-void magictech_debug_lists()
+void magictech_debug_lists(void)
 {
     int index;
     MagicTechRunInfo* run_info;

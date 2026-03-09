@@ -15,7 +15,7 @@
 
 static void scroll_by(int64_t dx, int64_t dy);
 static void scroll_origin_changed(int64_t loc);
-static void scroll_speed_changed();
+static void scroll_speed_changed(void);
 static bool scroll_cursor_art_set(tig_art_id_t art_id);
 
 /**
@@ -142,7 +142,7 @@ bool scroll_init(GameInitInfo* init_info)
  *
  * 0x40E000
  */
-void scroll_exit()
+void scroll_exit(void)
 {
 }
 
@@ -151,7 +151,7 @@ void scroll_exit()
  *
  * 0x40E010
  */
-void scroll_reset()
+void scroll_reset(void)
 {
     scroll_func = NULL;
 }
@@ -194,7 +194,7 @@ void scroll_speed_set(ScrollSpeed value)
  *
  * 0x40E090
  */
-ScrollSpeed scroll_speed_get()
+ScrollSpeed scroll_speed_get(void)
 {
     return scroll_speed;
 }
@@ -426,7 +426,7 @@ void scroll_start(int direction)
  *
  * 0x40E610
  */
-void scroll_stop()
+void scroll_stop(void)
 {
     if (is_scrolling) {
         ui_refresh_cursor();
@@ -552,7 +552,7 @@ void scroll_distance_set(int distance)
  *
  * 0x40E8B0
  */
-int scroll_distance_get()
+int scroll_distance_get(void)
 {
     int64_t pc_obj;
 
@@ -608,7 +608,7 @@ void scroll_origin_changed(int64_t loc)
  *
  * 0x40E940
  */
-void scroll_speed_changed()
+void scroll_speed_changed(void)
 {
     if (scroll_view_options.type == VIEW_TYPE_ISOMETRIC) {
         switch (scroll_speed) {

@@ -6,7 +6,7 @@
 #define OBJ_HANDLE_NULL 0LL
 
 void obj_pool_init(int size, bool editor);
-void obj_pool_exit();
+void obj_pool_exit(void);
 void* obj_pool_allocate(int64_t* obj_ptr);
 void* obj_pool_lock(int64_t obj);
 void obj_pool_unlock(int64_t obj);
@@ -15,7 +15,7 @@ void sub_4E4FD0(ObjectID oid, int64_t obj);
 int64_t objp_perm_lookup(ObjectID oid);
 ObjectID sub_4E5280(int64_t obj);
 void sub_4E52F0(ObjectID oid);
-void sub_4E5300();
+void sub_4E5300(void);
 bool obj_pool_walk_first(int64_t* obj_ptr, int* iter_ptr);
 bool obj_pool_walk_next(int64_t* obj_ptr, int* iter_ptr);
 bool obj_handle_is_valid(int64_t obj);

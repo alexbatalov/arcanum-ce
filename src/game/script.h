@@ -353,10 +353,10 @@ typedef struct ScriptInvocation {
 extern int dword_5A5700[3];
 
 bool script_init(GameInitInfo* init_info);
-void script_reset();
-void script_exit();
-bool script_mod_load();
-void script_mod_unload();
+void script_reset(void);
+void script_exit(void);
+bool script_mod_load(void);
+void script_mod_unload(void);
 bool script_load(GameLoadInfo* load_info);
 bool script_save(TigFile* stream);
 void script_set_callbacks(ScriptStartDialogFunc* start_dialog_func, ScriptFloatLineFunc* float_line_func);
@@ -373,7 +373,7 @@ bool script_local_flag_get(int64_t obj, int index, int flag);
 void script_local_flag_set(int64_t obj, int index, int flag, bool enabled);
 int script_local_counter_get(int64_t obj, int index, int counter);
 void script_local_counter_set(int64_t obj, int index, int counter, int value);
-int script_story_state_get();
+int script_story_state_get(void);
 void script_story_state_set(int value);
 char* script_story_state_info(int story_state_num);
 bool script_timeevent_process(TimeEvent* timeevent);

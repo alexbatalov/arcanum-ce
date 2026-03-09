@@ -39,7 +39,7 @@ static void sub_438570(int64_t obj, int64_t sector_id, int type);
 static bool sub_4386B0(int64_t obj, int* index_ptr);
 static void sub_438720(int64_t a1);
 static bool sub_4387C0(int64_t a1, int* index_ptr);
-static void sub_438830();
+static void sub_438830(void);
 static void wallcheck_roof_faded_clear(int64_t a1);
 
 // 0x5A3E90
@@ -671,7 +671,7 @@ bool wallcheck_init(GameInitInfo* init_info)
 }
 
 // 0x437DB0
-void wallcheck_reset()
+void wallcheck_reset(void)
 {
     int index;
 
@@ -690,7 +690,7 @@ void wallcheck_reset()
 }
 
 // 0x437E00
-void wallcheck_exit()
+void wallcheck_exit(void)
 {
     wallcheck_reset();
     dword_5E0A00 = 0;
@@ -910,7 +910,7 @@ void wallcheck_recalc(int64_t loc)
 }
 
 // 0x4384F0
-void wallcheck_flush()
+void wallcheck_flush(void)
 {
     wallcheck_reset();
 }
@@ -924,7 +924,7 @@ void wallcheck_set_enabled(bool enabled)
 }
 
 // 0x438520
-bool wallcheck_is_enabled()
+bool wallcheck_is_enabled(void)
 {
     return wallcheck_enabled;
 }
@@ -1043,7 +1043,7 @@ bool sub_4387C0(int64_t a1, int* index_ptr)
 }
 
 // 0x438830
-void sub_438830()
+void sub_438830(void)
 {
     int idx;
     unsigned int wall_flags;

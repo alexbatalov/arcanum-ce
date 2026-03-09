@@ -20,13 +20,13 @@ typedef struct TileCacheEntry {
 } TileCacheEntry;
 
 static void sub_4D7820(int64_t loc, tig_art_id_t art_id);
-static void sub_4D7980();
+static void sub_4D7980(void);
 static void sub_4D79C0(ViewOptions* view_options);
-static void sub_4D7A00();
+static void sub_4D7A00(void);
 static void sub_4D7A40(int zoom);
-static void sub_4D7A90();
+static void sub_4D7A90(void);
 static void sub_4D7AC0(int zoom);
-static void sub_4D7C70();
+static void sub_4D7C70(void);
 static TigVideoBuffer* sub_4D7E90(unsigned int art_id);
 static void tile_draw_topdown(GameDrawInfo* draw_info);
 static void tile_draw_iso(GameDrawInfo* draw_info);
@@ -81,7 +81,7 @@ bool tile_init(GameInitInfo* init_info)
 }
 
 // 0x4D68A0
-void tile_exit()
+void tile_exit(void)
 {
     sub_4D7980();
     tile_iso_window_handle = TIG_WINDOW_HANDLE_INVALID;
@@ -107,7 +107,7 @@ void tile_update_view(ViewOptions* view_options)
 }
 
 // 0x4D6930
-void tile_toggle_visibility()
+void tile_toggle_visibility(void)
 {
     tile_visible = !tile_visible;
 }
@@ -208,7 +208,7 @@ bool tile_is_slippery(int64_t loc)
 }
 
 // 0x4D71E0
-void sub_4D71E0()
+void sub_4D71E0(void)
 {
     // TODO: Incomplete.
 }
@@ -413,7 +413,7 @@ void sub_4D7820(int64_t loc, tig_art_id_t art_id)
 }
 
 // 0x4D7980
-void sub_4D7980()
+void sub_4D7980(void)
 {
     if (dword_602DE0 != NULL) {
         tig_video_buffer_destroy(dword_602DE0);
@@ -442,7 +442,7 @@ void sub_4D79C0(ViewOptions* view_options)
 }
 
 // 0x4D7A00
-void sub_4D7A00()
+void sub_4D7A00(void)
 {
     TigVideoBufferCreateInfo vb_create_info;
 
@@ -475,7 +475,7 @@ void sub_4D7A40(int zoom)
 }
 
 // 0x4D7A90
-void sub_4D7A90()
+void sub_4D7A90(void)
 {
     int index;
 
@@ -551,7 +551,7 @@ void sub_4D7AC0(int zoom)
 }
 
 // 0x4D7C70
-void sub_4D7C70()
+void sub_4D7C70(void)
 {
     if (dword_602DE8 != NULL) {
         FREE(dword_602DE8);

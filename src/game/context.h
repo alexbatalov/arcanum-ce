@@ -14,7 +14,7 @@ typedef enum ViewType {
 } ViewType;
 
 typedef void(IsoInvalidateRectFunc)(TigRect* rect);
-typedef bool(IsoRedrawFunc)();
+typedef bool(IsoRedrawFunc)(void);
 
 typedef struct GameInitInfo {
     bool editor;

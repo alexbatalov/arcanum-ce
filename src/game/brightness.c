@@ -2,7 +2,7 @@
 
 #include "game/gamelib.h"
 
-static void brightness_changed();
+static void brightness_changed(void);
 
 /**
  * Called when the game is initialized.
@@ -25,7 +25,7 @@ bool brightness_init(GameInitInfo* init_info)
  *
  * 0x4BE0E0
  */
-void brightness_exit()
+void brightness_exit(void)
 {
 }
 
@@ -34,7 +34,7 @@ void brightness_exit()
  *
  * 0x4BE0F0
  */
-void brightness_changed()
+void brightness_changed(void)
 {
     // 0x5FC4C4
     static bool changing;

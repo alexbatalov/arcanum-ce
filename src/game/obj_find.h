@@ -5,8 +5,8 @@
 
 typedef struct FindNode FindNode;
 
-void obj_find_init();
-void obj_find_exit();
+void obj_find_init(void);
+void obj_find_exit(void);
 void obj_find_add(int64_t obj);
 void obj_find_remove(int64_t obj);
 void obj_find_move(int64_t obj);

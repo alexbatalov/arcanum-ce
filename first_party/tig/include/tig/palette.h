@@ -23,7 +23,7 @@ typedef struct TigPaletteModifyInfo {
 int tig_palette_init(TigInitInfo* init_info);
 
 // Releases PALETTE subsystem.
-void tig_palette_exit();
+void tig_palette_exit(void);
 
 // Creates a new palette object.
 //
@@ -32,7 +32,7 @@ void tig_palette_exit();
 //
 // It can also be filled manually, be sure to cast to either `uint16_t` for 16
 // bpp video mode, or to `uint32_t` for 24 and 32 bpp video mode.
-TigPalette tig_palette_create();
+TigPalette tig_palette_create(void);
 
 // Releases specified palette object.
 void tig_palette_destroy(TigPalette palette);
@@ -60,7 +60,7 @@ void tig_palette_modify(const TigPaletteModifyInfo* modify_info);
 // Returns amount of system memory required for palette (including overhead).
 //
 // This value is used to calculate system memory usage in art cache.
-size_t tig_palette_system_memory_size();
+size_t tig_palette_system_memory_size(void);
 
 #ifdef __cplusplus
 }

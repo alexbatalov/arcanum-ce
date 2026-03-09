@@ -4,11 +4,11 @@
 #include "game/context.h"
 
 bool tileblock_init(GameInitInfo* init_info);
-void tileblock_exit();
+void tileblock_exit(void);
 void tileblock_update_view(ViewOptions* view_info);
 void tileblock_resize(GameResizeInfo* resize_info);
-bool tileblock_is_enabled();
-void tileblock_toggle();
+bool tileblock_is_enabled(void);
+void tileblock_toggle(void);
 void tileblock_draw(GameDrawInfo* draw_info);
 bool tileblock_is_tile_blocked(int64_t loc);
 void tileblock_set_tile_blocked(int64_t loc, bool blocked);

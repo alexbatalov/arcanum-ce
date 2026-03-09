@@ -6,8 +6,8 @@
 #include "game/timeevent.h"
 
 typedef void(CombatCallbackF0)(int a1);
-typedef void(CombatCallbackF4)();
-typedef void(CombatCallbackF8)();
+typedef void(CombatCallbackF4)(void);
+typedef void(CombatCallbackF8)(void);
 typedef void(CombatCallbackFC)(int a1);
 typedef void(CombatCallbackF10)(int64_t obj);
 
@@ -94,8 +94,8 @@ typedef struct CombatContext {
 static_assert(sizeof(CombatContext) == 0x68, "wrong size");
 
 bool combat_init(GameInitInfo* init_info);
-void combat_exit();
-void combat_reset();
+void combat_exit(void);
+void combat_reset(void);
 bool combat_save(TigFile* stream);
 bool combat_load(GameLoadInfo* load_info);
 void sub_4B2210(int64_t attacker_obj, int64_t target_obj, CombatContext* combat);
@@ -117,16 +117,16 @@ int combat_hit_loc_penalty(int hit_loc);
 int combat_projectile_rot(int64_t from_loc, int64_t to_loc);
 tig_art_id_t combat_projectile_art_id_rotation_set(tig_art_id_t aid, int projectile_rot);
 bool combat_set_callbacks(CombatCallbacks* callbacks);
-bool combat_is_turn_based();
+bool combat_is_turn_based(void);
 bool sub_4B6C90(bool turn_based);
-void combat_turn_based_toggle();
-bool combat_turn_based_is_active();
-int64_t combat_turn_based_whos_turn_get();
+void combat_turn_based_toggle(void);
+bool combat_turn_based_is_active(void);
+int64_t combat_turn_based_whos_turn_get(void);
 void combat_turn_based_whos_turn_set(int64_t obj);
 void sub_4B7010(int64_t obj);
 bool combat_tb_timeevent_process(TimeEvent* timeevent);
-void combat_turn_based_next_subturn();
-int combat_action_points_get();
+void combat_turn_based_next_subturn(void);
+int combat_action_points_get(void);
 bool combat_check_action_points(int64_t obj, int required_action_points);
 bool combat_check_move_to(int64_t source_obj, int64_t target_loc);
 bool combat_check_attack(int64_t source_obj, int64_t target_obj);
@@ -134,18 +134,18 @@ bool combat_check_use_obj(int64_t source_obj, int64_t target_obj);
 bool combat_check_pick_item(int64_t source_obj, int64_t target_obj);
 bool combat_check_cast_spell(int64_t source_obj);
 bool combat_check_use_skill(int64_t source_obj);
-int combat_required_action_points_get();
+int combat_required_action_points_get(void);
 int combat_attack_cost(int64_t obj);
 void combat_turn_based_end_critter_turn(int64_t obj);
 bool combat_consume_action_points(int64_t obj, int action_points);
 void combat_turn_based_add_critter(int64_t obj);
 bool sub_4B8040(int64_t obj);
-int combat_turn_based_turn_get();
+int combat_turn_based_turn_get(void);
 void combat_recalc_reaction(int64_t obj);
 bool combat_set_blinded(int64_t obj);
 bool combat_auto_attack_get(int64_t obj);
 void combat_auto_attack_set(bool value);
-bool combat_taunts_get();
+bool combat_taunts_get(void);
 void combat_taunts_set(bool value);
 bool combat_auto_switch_weapons_get(int64_t obj);
 void combat_auto_switch_weapons_set(bool value);

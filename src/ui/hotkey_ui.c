@@ -18,7 +18,7 @@
 
 static bool intgame_save_hotkey(Hotkey* hotkey, TigFile* stream);
 static bool intgame_load_hotkey(Hotkey* hotkey, TigFile* stream);
-static int sub_57E460();
+static int sub_57E460(void);
 static void intgame_hotkey_mouse_load(tig_art_id_t art_id, bool a2);
 static void sub_57ED60(Hotkey* hotkey, int a2);
 static void sub_57EE30(int64_t a1, int inventory_location);
@@ -126,7 +126,7 @@ bool hotkey_ui_init(GameInitInfo* init_info)
 }
 
 // 0x57D800
-void hotkey_ui_exit()
+void hotkey_ui_exit(void)
 {
 }
 
@@ -212,7 +212,7 @@ bool hotkey_ui_start(tig_window_handle_t primary_window_handle, TigRect* rect, t
 }
 
 // 0x57DA50
-void hotkey_ui_end()
+void hotkey_ui_end(void)
 {
     int index;
     tig_button_handle_t button_handle;
@@ -234,7 +234,7 @@ void hotkey_ui_end()
 }
 
 // 0x57DAB0
-void hotkey_ui_reset_recent_actions()
+void hotkey_ui_reset_recent_actions(void)
 {
     int index;
     tig_button_handle_t button_handle;
@@ -301,7 +301,7 @@ bool hotkey_ui_load(GameLoadInfo* load_info)
 }
 
 // 0x57DC20
-void sub_57DC20()
+void sub_57DC20(void)
 {
     stru_683950.slot = -1;
     stru_683950.type = HOTKEY_ITEM;
@@ -372,7 +372,7 @@ bool hotkey_ui_process_event(TigMessage* msg)
 }
 
 // 0x57DE00
-bool hotkey_ui_is_dragging()
+bool hotkey_ui_is_dragging(void)
 {
     return hotkey_ui_dragging;
 }
@@ -616,7 +616,7 @@ void intgame_hotkey_refresh(int index)
 }
 
 // 0x57E460
-int sub_57E460()
+int sub_57E460(void)
 {
     TigMouseState mouse_state;
     TigRect rect;
@@ -697,7 +697,7 @@ void sub_57E5A0(Hotkey* hotkey)
 }
 
 // 0x57E5D0
-bool hotkey_ui_begin_drag()
+bool hotkey_ui_begin_drag(void)
 {
     int index;
     Hotkey* hotkey;
@@ -800,7 +800,7 @@ bool hotkey_ui_begin_drag()
 }
 
 // 0x57E8B0
-void hotkey_ui_cancel_drag()
+void hotkey_ui_cancel_drag(void)
 {
     sub_575770();
     intgame_refresh_cursor();
@@ -1202,7 +1202,7 @@ Hotkey* sub_57F240(int index)
 }
 
 // 0x57F260
-bool sub_57F260()
+bool sub_57F260(void)
 {
     bool ret = false;
     int index;
@@ -1267,7 +1267,7 @@ void hotkey_ui_notify_spell_removed(int spell)
 }
 
 // 0x57F3C0
-void intgame_hotkeys_recover()
+void intgame_hotkeys_recover(void)
 {
     int index;
     tig_button_handle_t button_handle;

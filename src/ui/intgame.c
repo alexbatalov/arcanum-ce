@@ -139,44 +139,44 @@ static void intgame_ammo_icon_refresh(tig_art_id_t art_id);
 static bool iso_interface_message_filter(TigMessage* msg);
 static void sub_54DBF0(IntgameSecondaryButton btn, RotatingWindowType window_type);
 static bool handle_button_unhover(TigMessage* msg);
-static void sub_54EB60();
-static void intgame_combat_mode_toggle();
-static void sub_54ECD0();
+static void sub_54EB60(void);
+static void intgame_combat_mode_toggle(void);
+static void sub_54ECD0(void);
 static void sub_54ED30(S4F2810* a1);
 static void sub_550000(int64_t critter_obj, Hotkey* a2, int inventory_location);
-static bool sub_5501C0();
+static bool sub_5501C0(void);
 static bool sub_5503F0(RotatingWindowType window_type, int progress);
 static void iso_interface_window_disable(RotatingWindowType window_type);
 static void intgame_message_window_write_text_centered(char* str, TigRect* rect);
 static bool intgame_message_window_write_text(tig_window_handle_t window_handle, char* str, TigRect* rect, tig_font_handle_t font, unsigned int flags);
-static bool intgame_spells_init();
+static bool intgame_spells_init(void);
 static void intgame_spells_show_college_spells(int group);
 static void intgame_spells_hide_college_spells(int group);
-static bool intgame_mt_spells_init();
-static void intgame_mt_spells_disable();
+static bool intgame_mt_spells_init(void);
+static void intgame_mt_spells_disable(void);
 static void iso_interface_window_enable(RotatingWindowType window_type);
-static void intgame_mt_spells_enable();
+static void intgame_mt_spells_enable(void);
 static int find_interface_window_index(int x, int y);
-static void sub_5517F0();
+static void sub_5517F0(void);
 static bool sub_5518C0(int x, int y);
 static void sub_551910(TigMessage* msg);
 static void sub_551A10(int64_t obj);
-static void intgame_force_fullscreen();
-static void intgame_unforce_fullscreen();
-static void sub_551F80();
+static void intgame_force_fullscreen(void);
+static void intgame_unforce_fullscreen(void);
+static void sub_551F80(void);
 static bool sub_552050(TigMouseMessageData* a1, S4F2810* a2);
 static void sub_5520D0(RotatingWindowType window_type, int step);
 static void iso_interface_window_swap(RotatingWindowType window_type);
-static void intgame_clock_refresh();
+static void intgame_clock_refresh(void);
 static void sub_552740(int64_t obj, ChareditMode mode);
 static void sub_552770(UiMessage* ui_message);
-static void intgame_message_history_scroll_up();
-static void intgame_message_history_scroll_down();
+static void intgame_message_history_scroll_up(void);
+static void intgame_message_history_scroll_down(void);
 static void intgame_message_refresh(bool play_sound);
 static void intgame_message_draw(tig_window_handle_t window_handle, UiMessage* ui_message, bool play_sound);
 static void intgame_spell_maintain_art_set_func(UiButtonInfo* button, int slot, tig_art_id_t art_id, tig_window_handle_t window_handle);
 static void intgame_spell_maintain_refresh_func(tig_button_handle_t button_handle, UiButtonInfo* info, int slot, bool active, tig_window_handle_t window_handle);
-static void intgame_refresh_quantity();
+static void intgame_refresh_quantity(void);
 static void sub_553A70(TigMessage* msg);
 static void intgame_examine_critter(int64_t pc_obj, int64_t critter_obj, char* str);
 static void intgame_message_window_draw_image(tig_window_handle_t window_handle, int num);
@@ -195,10 +195,10 @@ static void intgame_draw_portrait(int64_t obj, int portrait, tig_window_handle_t
 static void intgame_refresh_primary_button(UiPrimaryButton btn);
 static void intgame_refresh_experience_gauges(int64_t obj);
 static void sub_556EA0(int64_t item_obj);
-static void intgame_mt_button_enable();
-static void intgame_mt_button_disable();
-static bool intgame_big_window_create();
-static void intgame_big_window_destroy();
+static void intgame_mt_button_enable(void);
+static void intgame_mt_button_disable(void);
+static bool intgame_big_window_create(void);
+static void intgame_big_window_destroy(void);
 static bool intgame_big_window_message_filter(TigMessage* msg);
 
 // 0x5C6378
@@ -1029,7 +1029,7 @@ bool intgame_init(GameInitInfo* init_info)
 }
 
 // 0x549F00
-void intgame_reset()
+void intgame_reset(void)
 {
     int index;
 
@@ -1106,7 +1106,7 @@ void intgame_resize(GameResizeInfo* resize_info)
 }
 
 // 0x54A130
-void intgame_exit()
+void intgame_exit(void)
 {
     tig_font_destroy(intgame_morph15_white_font);
     tig_font_destroy(intgame_morph15_blue_font);
@@ -1384,7 +1384,7 @@ void iso_interface_create(tig_window_handle_t window_handle)
 }
 
 // 0x54A9A0
-void iso_interface_destroy()
+void iso_interface_destroy(void)
 {
     int index;
 
@@ -1411,7 +1411,7 @@ void iso_interface_destroy()
 }
 
 // 0x54AA30
-void sub_54AA30()
+void sub_54AA30(void)
 {
     dword_64C6B8 = 0;
     dword_64C634[0] = INTGAME_MODE_MAIN;
@@ -1726,14 +1726,14 @@ void intgame_draw_bar_rect(TigRect* rect)
 }
 
 // 0x54B3A0
-void intgame_draw_bars()
+void intgame_draw_bars(void)
 {
     intgame_draw_bar(INTGAME_BAR_HEALTH);
     intgame_draw_bar(INTGAME_BAR_FATIGUE);
 }
 
 // 0x54B3C0
-void sub_54B3C0()
+void sub_54B3C0(void)
 {
     int qty;
     int art_num;
@@ -3120,13 +3120,13 @@ void sub_54EA80(S4F2810* a1)
 }
 
 // 0x54EB50
-bool sub_54EB50()
+bool sub_54EB50(void)
 {
     return hotkey_ui_is_dragging();
 }
 
 // 0x54EB60
-void sub_54EB60()
+void sub_54EB60(void)
 {
     int64_t obj;
     int64_t loc;
@@ -3157,7 +3157,7 @@ void sub_54EB60()
 }
 
 // 0x54EBF0
-void intgame_combat_mode_toggle()
+void intgame_combat_mode_toggle(void)
 {
     int64_t pc_obj;
     MesFileEntry mes_file_entry;
@@ -3201,7 +3201,7 @@ void intgame_combat_mode_toggle()
 }
 
 // 0x54ECD0
-void sub_54ECD0()
+void sub_54ECD0(void)
 {
     if (qword_64C690 == OBJ_HANDLE_NULL) {
         return;
@@ -3851,7 +3851,7 @@ void sub_550150(Hotkey* hotkey)
 }
 
 // 0x5501C0
-bool sub_5501C0()
+bool sub_5501C0(void)
 {
     int index;
     tig_button_handle_t college_radio_group[COLLEGE_COUNT];
@@ -4039,7 +4039,7 @@ void iso_interface_window_set(RotatingWindowType window_type)
 }
 
 // 0x550720
-void sub_550720()
+void sub_550720(void)
 {
     if (!intgame_iso_interface_created) {
         return;
@@ -4135,7 +4135,7 @@ void intgame_message_window_display_skill(int value)
 }
 
 // 0x550930
-void intgame_message_window_clear()
+void intgame_message_window_clear(void)
 {
     if (!intgame_iso_interface_created) {
         return;
@@ -4259,7 +4259,7 @@ bool intgame_message_window_write_text(tig_window_handle_t window_handle, char* 
 }
 
 // 0x550BD0
-bool intgame_spells_init()
+bool intgame_spells_init(void)
 {
     int clg;
     int spl;
@@ -4320,7 +4320,7 @@ void intgame_spells_hide_college_spells(int clg)
 }
 
 // 0x550D20
-bool intgame_mt_spells_init()
+bool intgame_mt_spells_init(void)
 {
     int index;
 
@@ -4339,7 +4339,7 @@ bool intgame_mt_spells_init()
 }
 
 // 0x550D60
-void intgame_mt_spells_disable()
+void intgame_mt_spells_disable(void)
 {
     int index;
 
@@ -4481,7 +4481,7 @@ bool intgame_pc_lens_check_pt_unscale(int x, int y)
 }
 
 // 0x551080
-void intgame_pc_lens_redraw()
+void intgame_pc_lens_redraw(void)
 {
     TigArtBlitInfo blit_info;
     TigRect src_rect;
@@ -4513,7 +4513,7 @@ void intgame_pc_lens_redraw()
 }
 
 // 0x551160
-void iso_interface_refresh()
+void iso_interface_refresh(void)
 {
     int64_t pc_obj;
     int64_t obj;
@@ -4674,7 +4674,7 @@ void iso_interface_window_enable(RotatingWindowType window_type)
 }
 
 // 0x551660
-void intgame_mt_spells_enable()
+void intgame_mt_spells_enable(void)
 {
     int index;
     int spl;
@@ -4740,7 +4740,7 @@ bool sub_5517A0(TigMessage* msg)
 }
 
 // 0x5517F0
-void sub_5517F0()
+void sub_5517F0(void)
 {
     TigMouseState mouse_state;
     TigMessage msg;
@@ -4816,7 +4816,7 @@ void sub_551910(TigMessage* msg)
 }
 
 // 0x551A00
-IntgameMode intgame_mode_get()
+IntgameMode intgame_mode_get(void)
 {
     return dword_64C634[dword_64C6B8];
 }
@@ -5076,7 +5076,7 @@ bool intgame_mode_set(IntgameMode mode)
 }
 
 // 0x551F20
-void intgame_force_fullscreen()
+void intgame_force_fullscreen(void)
 {
     if (intgame_is_compact_interface()) {
         intgame_toggle_interface();
@@ -5085,7 +5085,7 @@ void intgame_force_fullscreen()
 }
 
 // 0x551F40
-void intgame_unforce_fullscreen()
+void intgame_unforce_fullscreen(void)
 {
     if (intgame_fullscreen_forced) {
         if (!intgame_is_compact_interface()) {
@@ -5102,7 +5102,7 @@ bool intgame_mode_supports_scrolling(IntgameMode mode)
 }
 
 // 0x551F80
-void sub_551F80()
+void sub_551F80(void)
 {
     int64_t pc_obj;
 
@@ -5137,7 +5137,7 @@ bool sub_552050(TigMouseMessageData* a1, S4F2810* a2)
 }
 
 // 0x552070
-RotatingWindowType iso_interface_window_get()
+RotatingWindowType iso_interface_window_get(void)
 {
     return intgame_iso_window_type;
 }
@@ -5242,7 +5242,7 @@ void intgame_text_edit_refresh_color(const char* str, tig_font_handle_t font, ti
 }
 
 // 0x5522F0
-void intgame_clock_refresh()
+void intgame_clock_refresh(void)
 {
     char str[32];
     TigRect rect;
@@ -5458,7 +5458,7 @@ void sub_552770(UiMessage* ui_message)
 }
 
 // 0x5528E0
-void intgame_message_history_scroll_up()
+void intgame_message_history_scroll_up(void)
 {
     int idx;
 
@@ -5474,7 +5474,7 @@ void intgame_message_history_scroll_up()
 }
 
 // 0x552930
-void intgame_message_history_scroll_down()
+void intgame_message_history_scroll_down(void)
 {
     if (intgame_iso_window_type == ROTWIN_TYPE_MSG) {
         if (intgame_message_history_curr != intgame_message_history_end) {
@@ -5873,7 +5873,7 @@ bool intgame_dialog_begin(bool (*func)(TigMessage* msg))
 }
 
 // 0x553350
-void intgame_dialog_end()
+void intgame_dialog_end(void)
 {
     intgame_dialog_process_event_func = NULL;
     tc_hide();
@@ -5881,7 +5881,7 @@ void intgame_dialog_end()
 }
 
 // 0x553370
-void intgame_dialog_clear()
+void intgame_dialog_clear(void)
 {
     tc_clear(intgame_compact_interface);
 }
@@ -5901,7 +5901,7 @@ int intgame_dialog_get_option(TigMessage* msg)
 // TODO: Reuse `iso_interface_window_get`.
 //
 // 0x5533B0
-RotatingWindowType iso_interface_window_get_2()
+RotatingWindowType iso_interface_window_get_2(void)
 {
     return intgame_iso_window_type;
 }
@@ -6117,13 +6117,13 @@ void intgame_spell_maintain_refresh(int slot, bool active)
 }
 
 // 0x553960
-void intgame_refresh_quantity()
+void intgame_refresh_quantity(void)
 {
     roller_ui_draw(intgame_quantity, dword_64C4F8[1], 404, 104, 6, 0);
 }
 
 // 0x553990
-void intgame_refresh_cursor()
+void intgame_refresh_cursor(void)
 {
     bool have_weapon = false;
     int64_t pc_obj;
@@ -7983,7 +7983,7 @@ void intgame_refresh_experience_gauges(int64_t obj)
 }
 
 // 0x556E60
-void sub_556E60()
+void sub_556E60(void)
 {
     int64_t parent_obj;
 
@@ -8007,7 +8007,7 @@ void sub_556EA0(int64_t item_obj)
 }
 
 // 0x556EF0
-void intgame_mt_button_enable()
+void intgame_mt_button_enable(void)
 {
     bool hidden;
     int64_t obj;
@@ -8030,7 +8030,7 @@ void intgame_mt_button_enable()
 }
 
 // 0x556F80
-void intgame_mt_button_disable()
+void intgame_mt_button_disable(void)
 {
     bool hidden;
     tig_art_id_t art_id;
@@ -8130,7 +8130,7 @@ void intgame_refresh_health_bar(int64_t obj)
 }
 
 // 0x557230
-bool intgame_big_window_create()
+bool intgame_big_window_create(void)
 {
     TigWindowData window_data;
 
@@ -8154,7 +8154,7 @@ bool intgame_big_window_create()
 }
 
 // 0x5572B0
-void intgame_big_window_destroy()
+void intgame_big_window_destroy(void)
 {
     tig_window_destroy(intgame_big_window_handle);
 }
@@ -8182,7 +8182,7 @@ bool intgame_big_window_lock(TigWindowMessageFilterFunc* func, tig_window_handle
 }
 
 // 0x557330
-void intgame_big_window_unlock()
+void intgame_big_window_unlock(void)
 {
     intgame_big_window_locked = false;
     tig_window_button_destroy(intgame_big_window_handle);
@@ -8289,7 +8289,7 @@ void sub_557370(int64_t source_obj, int64_t target_obj)
 }
 
 // 0x557670
-void intgame_there_is_nothing_to_loot()
+void intgame_there_is_nothing_to_loot(void)
 {
     MesFileEntry mes_file_entry;
     UiMessage ui_message;
@@ -8303,7 +8303,7 @@ void intgame_there_is_nothing_to_loot()
 }
 
 // 0x5576B0
-void sub_5576B0()
+void sub_5576B0(void)
 {
     TigRect rect;
     TigArtFrameData art_frame_data;
@@ -8349,7 +8349,7 @@ void sub_557790(int64_t obj)
 }
 
 // 0x5577D0
-unsigned int intgame_get_iso_window_flags()
+unsigned int intgame_get_iso_window_flags(void)
 {
     return intgame_iso_window_flags;
 }
@@ -8395,19 +8395,19 @@ bool intgame_create_iso_window(tig_window_handle_t* window_handle_ptr)
 }
 
 // 0x5578C0
-bool intgame_is_compact_interface()
+bool intgame_is_compact_interface(void)
 {
     return intgame_compact_interface;
 }
 
 // 0x5578D0
-void intgame_set_fullscreen()
+void intgame_set_fullscreen(void)
 {
     intgame_fullscreen = true;
 }
 
 // 0x5578E0
-void intgame_toggle_interface()
+void intgame_toggle_interface(void)
 {
     TigWindowData window_data;
     GameResizeInfo resize_info;
@@ -8468,13 +8468,13 @@ void intgame_toggle_interface()
 // TODO: Reuse `iso_interface_window_get`.
 //
 // 0x557AA0
-RotatingWindowType iso_interface_window_get_3()
+RotatingWindowType iso_interface_window_get_3(void)
 {
     return intgame_iso_window_type;
 }
 
 // 0x557AB0
-int sub_557AB0()
+int sub_557AB0(void)
 {
     return dword_64C530;
 }
@@ -8488,13 +8488,13 @@ void sub_557AC0(int clg, int lvl, UiButtonInfo* button_info)
 }
 
 // 0x557B00
-int64_t sub_557B00()
+int64_t sub_557B00(void)
 {
     return qword_64C688;
 }
 
 // 0x557B10
-mes_file_handle_t intgame_hotkey_mes_file()
+mes_file_handle_t intgame_hotkey_mes_file(void)
 {
     return intgame_mes_file;
 }
@@ -8519,7 +8519,7 @@ int sub_557B50(int index)
 }
 
 // 0x557B60
-int sub_557B60()
+int sub_557B60(void)
 {
     TigMouseState mouse_state;
     TigWindowData window_data;
@@ -8565,7 +8565,7 @@ int sub_557B60()
 }
 
 // 0x557C00
-int sub_557C00()
+int sub_557C00(void)
 {
     TigMouseState mouse_state;
     TigWindowData window_data;
@@ -8621,7 +8621,7 @@ int sub_557C00()
 }
 
 // 0x557CF0
-int sub_557CF0()
+int sub_557CF0(void)
 {
     TigMouseState mouse_state;
     TigWindowData window_data;

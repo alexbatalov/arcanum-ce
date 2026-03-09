@@ -22,13 +22,13 @@ typedef struct TownMapInfo {
 // Serializeable.
 static_assert(sizeof(TownMapInfo) == 0x30, "wrong size");
 
-void townmap_reset();
-bool townmap_mod_load();
-void townmap_mod_unload();
-void townmap_flush();
+void townmap_reset(void);
+bool townmap_mod_load(void);
+void townmap_mod_unload(void);
+void townmap_flush(void);
 int townmap_get(int64_t sec);
 void townmap_set(int64_t sec, int townmap);
-int townmap_count();
+int townmap_count(void);
 const char* townmap_name(int map);
 bool townmap_info(int map, TownMapInfo* tmi);
 void townmap_loc_to_coords(TownMapInfo* tmi, int64_t loc, int* x_ptr, int* y_ptr);

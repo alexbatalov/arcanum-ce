@@ -346,7 +346,7 @@ bool level_init(GameInitInfo* init_info)
  *
  * 0x4A6850
  */
-void level_exit()
+void level_exit(void)
 {
     mes_unload(game_level_mes_file);
     mes_unload(user_level_mes_file);

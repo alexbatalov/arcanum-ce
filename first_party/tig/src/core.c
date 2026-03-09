@@ -139,7 +139,7 @@ void tig_exit(void)
 }
 
 // 0x51F220
-void tig_ping()
+void tig_ping(void)
 {
     tig_timer_now(&tig_ping_timestamp);
 
@@ -158,7 +158,7 @@ void tig_set_active(bool is_active)
 }
 
 // 0x51F320
-bool tig_get_active()
+bool tig_get_active(void)
 {
     return tig_active;
 }

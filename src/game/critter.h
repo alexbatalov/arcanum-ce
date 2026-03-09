@@ -31,7 +31,7 @@ typedef enum EncumbranceLevel {
 } EncumbranceLevel;
 
 bool critter_init(GameInitInfo* init_info);
-void critter_exit();
+void critter_exit(void);
 int critter_social_class_get(int64_t obj);
 int critter_social_class_set(int64_t obj, int value);
 const char* critter_social_class_name(int social_class);
@@ -99,8 +99,8 @@ void sub_45F710(int64_t obj);
 bool critter_is_monstrous(int64_t critter_obj);
 int critter_encumbrance_level_get(int64_t obj);
 void critter_encumbrance_level_recalc(int64_t obj, int value);
-void critter_encumbrance_recalc_feedback_enable();
-void critter_encumbrance_recalc_feedback_disable();
+void critter_encumbrance_recalc_feedback_enable(void);
+void critter_encumbrance_recalc_feedback_disable(void);
 const char* critter_encumbrance_level_name(int level);
 int critter_encumbrance_level_ratio(int level);
 int critter_description_get(int64_t a, int64_t b);

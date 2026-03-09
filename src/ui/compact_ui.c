@@ -23,7 +23,7 @@ typedef struct CompactUiComponent {
     /* 0000 */ const char* name;
     /* 0004 */ tig_window_handle_t window_handle;
     /* 0008 */ CompactUiComponentInit* init;
-    /* 000C */ void (*field_C)();
+    /* 000C */ void (*field_C)(void);
     /* 0010 */ TigWindowMessageFilterFunc* message_filter;
     /* 0014 */ CompactUiComponentDraw* draw;
     /* 0018 */ TigRect rect;
@@ -35,12 +35,12 @@ typedef struct CompactUiComponent {
 } CompactUiComponent;
 
 static bool compact_ui_health_bar_init(CompactUiComponent* comp);
-static void sub_569050();
+static void sub_569050(void);
 static bool compact_ui_health_bar_message_filter(TigMessage* msg);
 static void compact_ui_health_bar_draw(int a1);
 static void sub_569550(tig_window_handle_t window_handle, TigRect* rect, int color);
 static bool compact_ui_hotkey_bar_init(CompactUiComponent* comp);
-static void sub_569580();
+static void sub_569580(void);
 static bool compact_ui_hotkey_bar_message_filter(TigMessage* msg);
 static void compact_ui_hotkey_bar_draw(int a1);
 
@@ -106,7 +106,7 @@ bool compact_ui_init(GameInitInfo* init_info)
 }
 
 // 0x568A00
-void compact_ui_exit()
+void compact_ui_exit(void)
 {
     int index;
 
@@ -120,12 +120,12 @@ void compact_ui_exit()
 }
 
 // 0x568A30
-void compact_ui_reset()
+void compact_ui_reset(void)
 {
 }
 
 // 0x568A40
-bool compact_ui_create()
+bool compact_ui_create(void)
 {
     int index;
     CompactUiComponent* comp;
@@ -181,7 +181,7 @@ bool compact_ui_create()
 }
 
 // 0x568C90
-bool compact_ui_destroy()
+bool compact_ui_destroy(void)
 {
     int index;
 
@@ -203,7 +203,7 @@ bool compact_ui_destroy()
 }
 
 // 0x568CF0
-void compact_ui_draw()
+void compact_ui_draw(void)
 {
     int index;
 
@@ -219,7 +219,7 @@ void compact_ui_draw()
 }
 
 // 0x568D20
-tig_window_handle_t compact_ui_message_window_acquire()
+tig_window_handle_t compact_ui_message_window_acquire(void)
 {
     TigRect rect;
 
@@ -250,7 +250,7 @@ tig_window_handle_t compact_ui_message_window_acquire()
 }
 
 // 0x568E70
-void compact_ui_message_window_box()
+void compact_ui_message_window_box(void)
 {
     TigRect rect;
 
@@ -270,7 +270,7 @@ void compact_ui_message_window_box()
 }
 
 // 0x568F20
-void compact_ui_message_window_hide()
+void compact_ui_message_window_hide(void)
 {
     if (compact_ui_message_window_handle != TIG_WINDOW_HANDLE_INVALID) {
         tig_window_hide(compact_ui_message_window_handle);
@@ -278,7 +278,7 @@ void compact_ui_message_window_hide()
 }
 
 // 0x568F40
-void compact_ui_message_window_release()
+void compact_ui_message_window_release(void)
 {
     TigRect rect;
 
@@ -305,7 +305,7 @@ bool compact_ui_health_bar_init(CompactUiComponent* comp)
 }
 
 // 0x569050
-void sub_569050()
+void sub_569050(void)
 {
 }
 
@@ -437,7 +437,7 @@ bool compact_ui_hotkey_bar_init(CompactUiComponent* comp)
 }
 
 // 0x569580
-void sub_569580()
+void sub_569580(void)
 {
 }
 

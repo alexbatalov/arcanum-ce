@@ -19,7 +19,7 @@ bool sector_script_init(GameInitInfo* init_info)
  *
  * 0x4C0420
  */
-void sector_script_reset()
+void sector_script_reset(void)
 {
 }
 
@@ -28,7 +28,7 @@ void sector_script_reset()
  *
  * 0x4C0430
  */
-void sector_script_exit()
+void sector_script_exit(void)
 {
 }
 

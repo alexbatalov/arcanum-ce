@@ -10,13 +10,13 @@ typedef struct TownMapIndexEntry {
     bool w;
 } TownMapIndexEntry;
 
-static void townmap_kstate_reset();
+static void townmap_kstate_reset(void);
 static void townmap_set_known_internal(int map, bool known);
 static void townmap_tile_known_set(int map, int index);
 static bool townmap_tile_known_get(int map, int index);
 static bool townmap_kstate_load(int map);
 static void townmap_kstate_init(int map);
-static bool townmap_kstate_flush();
+static bool townmap_kstate_flush(void);
 
 /**
  * "townmap.mes"
@@ -84,7 +84,7 @@ static int townmap_entries_cnt;
  *
  * 0x4BE1B0
  */
-void townmap_reset()
+void townmap_reset(void)
 {
     // Reset known tiles.
     townmap_kstate_reset();
@@ -95,7 +95,7 @@ void townmap_reset()
  *
  * 0x4BE1C0
  */
-bool townmap_mod_load()
+bool townmap_mod_load(void)
 {
     MesFileEntry mes_file_entry;
     int index;
@@ -155,7 +155,7 @@ bool townmap_mod_load()
  *
  * 0x4BE310
  */
-void townmap_mod_unload()
+void townmap_mod_unload(void)
 {
     // Reset known tiles array.
     townmap_kstate_reset();
@@ -183,7 +183,7 @@ void townmap_mod_unload()
  *
  * 0x4BE370
  */
-void townmap_flush()
+void townmap_flush(void)
 {
     townmap_kstate_flush();
     townmap_kstate_reset();
@@ -234,7 +234,7 @@ void townmap_set(int64_t sec, int townmap)
  *
  * 0x4BE400
  */
-int townmap_count()
+int townmap_count(void)
 {
     if (townmap_mes_file == MES_FILE_HANDLE_INVALID) {
         return 0;
@@ -583,7 +583,7 @@ bool townmap_is_waitable(int map)
  *
  * 0x4BED00
  */
-void townmap_kstate_reset()
+void townmap_kstate_reset(void)
 {
     if (townmap_kstate != NULL) {
         FREE(townmap_kstate);
@@ -734,7 +734,7 @@ void townmap_kstate_init(int map)
  *
  * 0x4BEFB0
  */
-bool townmap_kstate_flush()
+bool townmap_kstate_flush(void)
 {
     char path[TIG_MAX_PATH];
     TigFile* stream;

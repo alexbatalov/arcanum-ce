@@ -31,11 +31,11 @@ typedef struct TeleportData {
 } TeleportData;
 
 bool teleport_init(GameInitInfo* init_info);
-void teleport_reset();
-void teleport_exit();
+void teleport_reset(void);
+void teleport_exit(void);
 void teleport_ping(tig_timestamp_t timestamp);
 bool teleport_do(TeleportData* teleport_data);
-bool teleport_is_teleporting();
+bool teleport_is_teleporting(void);
 bool teleport_is_teleporting_obj(int64_t obj);
 
 #endif /* ARCANUM_GAME_TELEPORT_H_ */

@@ -52,10 +52,10 @@
 #define SENTINEL 0xBEEFCAFE
 
 typedef bool(GameUiInitFunc)(GameInitInfo* init_info);
-typedef void(GameUiResetFunc)();
-typedef bool(GameUiModuleLoadFunc)();
-typedef void(GameUiModuleUnloadFunc)();
-typedef void(GameUiExitFunc)();
+typedef void(GameUiResetFunc)(void);
+typedef bool(GameUiModuleLoadFunc)(void);
+typedef void(GameUiModuleUnloadFunc)(void);
+typedef void(GameUiExitFunc)(void);
 typedef bool(GameUiSaveFunc)(TigFile* stream);
 typedef bool(GameUiLoadFunc)(GameLoadInfo* load_info);
 typedef void(GameUiResizeFunc)(GameResizeInfo* resize_info);
@@ -172,7 +172,7 @@ bool gameuilib_init(GameInitInfo* init_info)
  *
  * 0x53E6A0
  */
-void gameuilib_exit()
+void gameuilib_exit(void)
 {
     int index;
 
@@ -193,7 +193,7 @@ void gameuilib_exit()
  *
  * 0x53E6E0
  */
-void gameuilib_reset()
+void gameuilib_reset(void)
 {
     int index;
 
@@ -225,7 +225,7 @@ void gameuilib_resize(GameResizeInfo* resize_info)
  *
  * 0x53E730
  */
-bool gameuilib_mod_load()
+bool gameuilib_mod_load(void)
 {
     int index;
 
@@ -256,7 +256,7 @@ bool gameuilib_mod_load()
  *
  * 0x53E790
  */
-void gameuilib_mod_unload()
+void gameuilib_mod_unload(void)
 {
     int index;
 
@@ -279,7 +279,7 @@ void gameuilib_mod_unload()
  *
  * 0x53E7C0
  */
-bool gameuilib_save()
+bool gameuilib_save(void)
 {
     int sentinel = SENTINEL;
     int start_pos = 0;
@@ -357,7 +357,7 @@ bool gameuilib_save()
  *
  * 0x53E950
  */
-bool gameuilib_load()
+bool gameuilib_load(void)
 {
     int start_pos = 0;
     TigFile* stream;
@@ -437,7 +437,7 @@ bool gameuilib_load()
 /**
  * 0x53EAD0
  */
-bool gameuilib_wants_mainmenu()
+bool gameuilib_wants_mainmenu(void)
 {
     if (!wants_mainmenu) {
         return false;
@@ -451,7 +451,7 @@ bool gameuilib_wants_mainmenu()
 /**
  * 0x53EAF0
  */
-void gameuilib_wants_mainmenu_set()
+void gameuilib_wants_mainmenu_set(void)
 {
     wants_mainmenu = true;
 }
@@ -459,7 +459,7 @@ void gameuilib_wants_mainmenu_set()
 /**
  * 0x53EB00
  */
-void gameuilib_wants_mainmenu_unset()
+void gameuilib_wants_mainmenu_unset(void)
 {
     wants_mainmenu = false;
 }

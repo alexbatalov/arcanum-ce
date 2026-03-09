@@ -63,7 +63,7 @@ bool textedit_ui_init(GameInitInfo* init_info)
  *
  * 0x566E30
  */
-void textedit_ui_reset()
+void textedit_ui_reset(void)
 {
 }
 
@@ -72,7 +72,7 @@ void textedit_ui_reset()
  *
  * 0x566E40
  */
-void textedit_ui_exit()
+void textedit_ui_exit(void)
 {
 }
 
@@ -130,7 +130,7 @@ void textedit_ui_unfocus(TextEdit* textedit)
  *
  * 0x566EF0
  */
-bool textedit_ui_is_focused()
+bool textedit_ui_is_focused(void)
 {
     return textedit_ui_focused;
 }
@@ -313,7 +313,7 @@ bool textedit_ui_validate(char ch)
  *
  * 0x5672A0
  */
-void textedit_ui_clear()
+void textedit_ui_clear(void)
 {
     textedit_ui_pos = 0;
     textedit_ui_len = 0;
@@ -331,7 +331,7 @@ void textedit_ui_clear()
  *
  * 0x5672D0
  */
-void textedit_ui_restore()
+void textedit_ui_restore(void)
 {
     if (textedit_ui_current_textedit != NULL) {
         strcpy(textedit_ui_current_textedit->buffer, textedit_ui_backup);
@@ -346,7 +346,7 @@ void textedit_ui_restore()
  *
  * 0x567320
  */
-void textedit_ui_submit()
+void textedit_ui_submit(void)
 {
     if (textedit_ui_current_textedit != NULL) {
         textedit_ui_current_textedit->on_enter(textedit_ui_current_textedit);

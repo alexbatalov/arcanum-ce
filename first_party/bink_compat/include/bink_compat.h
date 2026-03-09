@@ -70,7 +70,7 @@ int BINKCALL BinkSetSoundSystem(BINKSNDSYSOPEN open, void* param);
 void BINKCALL BinkSetSoundTrack(unsigned track);
 int BINKCALL BinkWait(HBINK bnk);
 
-bool bink_compat_init();
+bool bink_compat_init(void);
 void bink_compat_exit(void);
 
 #ifdef __cplusplus

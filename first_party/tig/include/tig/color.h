@@ -52,7 +52,7 @@ extern uint8_t* tig_color_red_rgb_to_platform_table;
 extern uint8_t* tig_color_green_grayscale_table;
 
 int tig_color_init(TigInitInfo* init_info);
-void tig_color_exit();
+void tig_color_exit(void);
 int tig_color_set_rgb_settings(unsigned int red_mask, unsigned int green_mask, unsigned int blue_mask);
 int tig_color_set_rgba_settings(unsigned int red_mask, unsigned int green_mask, unsigned int blue_mask, unsigned int alpha_mask);
 void tig_color_get_masks(unsigned int* red_mask, unsigned int* green_mask, unsigned int* blue_mask);

@@ -38,11 +38,11 @@ static bool schedule_teleport_obj_recursively(int64_t obj, int64_t loc);
 static bool sub_4D39A0(TeleportData* teleport_data);
 static void sub_4D3D60(int64_t obj);
 static void sub_4D3E20(int64_t obj);
-static void sub_4D3E80();
-static TeleportObjectNode* teleport_obj_node_create();
+static void sub_4D3E80(void);
+static TeleportObjectNode* teleport_obj_node_create(void);
 static void teleport_obj_node_destroy(TeleportObjectNode* node);
-static void teleport_obj_node_reserve();
-static void teleport_clear();
+static void teleport_obj_node_reserve(void);
+static void teleport_clear(void);
 
 // 0x601840
 static TeleportObjectNode* teleport_obj_node_head;
@@ -79,14 +79,14 @@ bool teleport_init(GameInitInfo* init_info)
 }
 
 // 0x4D3300
-void teleport_reset()
+void teleport_reset(void)
 {
     teleport_clear();
     teleport_pending = false;
 }
 
 // 0x4D3320
-void teleport_exit()
+void teleport_exit(void)
 {
     teleport_reset();
 }
@@ -139,7 +139,7 @@ bool teleport_do(TeleportData* teleport_data)
 }
 
 // 0x4D3410
-bool teleport_is_teleporting()
+bool teleport_is_teleporting(void)
 {
     return teleport_processing;
 }
@@ -539,7 +539,7 @@ void sub_4D3E20(int64_t obj)
 }
 
 // 0x4D3E80
-void sub_4D3E80()
+void sub_4D3E80(void)
 {
     TeleportObjectNode* next;
 
@@ -551,7 +551,7 @@ void sub_4D3E80()
 }
 
 // 0x4D3EB0
-TeleportObjectNode* teleport_obj_node_create()
+TeleportObjectNode* teleport_obj_node_create(void)
 {
     TeleportObjectNode* node;
 
@@ -575,7 +575,7 @@ void teleport_obj_node_destroy(TeleportObjectNode* node)
 }
 
 // 0x4D3F00
-void teleport_obj_node_reserve()
+void teleport_obj_node_reserve(void)
 {
     int index;
     TeleportObjectNode* node;
@@ -590,7 +590,7 @@ void teleport_obj_node_reserve()
 }
 
 // 0x4D3F30
-void teleport_clear()
+void teleport_clear(void)
 {
     TeleportObjectNode* curr;
     TeleportObjectNode* next;

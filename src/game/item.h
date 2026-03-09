@@ -44,7 +44,7 @@ typedef enum ItemCannot {
 } ItemCannot;
 
 bool item_init(GameInitInfo* init_info);
-void item_exit();
+void item_exit(void);
 void item_resize(GameResizeInfo* resize_info);
 void item_generate_inventory(int64_t critter_obj);
 bool item_parent(int64_t item_obj, int64_t* parent_obj_ptr);
@@ -114,7 +114,7 @@ tig_art_id_t sub_465020(int64_t obj);
 void item_wield_best(int64_t critter_obj, int inventory_location, int64_t target_obj);
 void item_wield_best_all(int64_t critter_obj, int64_t target_obj);
 void item_rewield(int64_t obj);
-bool item_in_rewield();
+bool item_in_rewield(void);
 int item_location_get(int64_t obj);
 int64_t sub_465690(int64_t obj, int inventory_location);
 void item_location_set(int64_t obj, int location);
@@ -150,8 +150,8 @@ bool item_decay_timeevent_process(TimeEvent* timeevent);
 bool item_can_decay(int64_t obj);
 void item_force_remove(int64_t item_obj, int64_t parent_obj);
 bool item_decay(int64_t obj, int ms);
-void item_decay_process_enable();
-void item_decay_process_disable();
-int item_decay_process_is_enabled();
+void item_decay_process_enable(void);
+void item_decay_process_disable(void);
+int item_decay_process_is_enabled(void);
 
 #endif /* ARCANUM_GAME_ITEM_H_ */
