@@ -398,7 +398,7 @@ void object_ping(tig_timestamp_t timestamp)
     while (object_dirty_rects_head != NULL) {
         next = object_dirty_rects_head->next;
         if (tig_rect_intersection(&(object_dirty_rects_head->rect), &bounds, &rect) == TIG_OK
-            && sub_4B9130(&rect, &loc_rect)
+            && location_screen_rect_to_loc_rect(&rect, &loc_rect)
             && sub_4D0090(&loc_rect, &v1)) {
             for (col = 0; col < v1.height; col++) {
                 v2 = &(v1.field_8[col]);
@@ -1808,7 +1808,7 @@ bool sub_43D9F0(int x, int y, int64_t* obj_ptr, unsigned int flags)
     rect.width = 512;
     rect.height = 512;
 
-    if (!sub_4B9130(&rect, &loc_rect)) {
+    if (!location_screen_rect_to_loc_rect(&rect, &loc_rect)) {
         return false;
     }
 
@@ -3533,7 +3533,7 @@ void object_list_vicinity_loc(int64_t loc, unsigned int flags, ObjectList* objec
     screen_rect.x = (int)(x - center_x);
     screen_rect.y = (int)(y - center_y);
 
-    if (sub_4B9130(&screen_rect, &loc_rect)) {
+    if (location_screen_rect_to_loc_rect(&screen_rect, &loc_rect)) {
         object_list_rect(&loc_rect, flags, objects);
     } else {
         objects->num_sectors = 0;

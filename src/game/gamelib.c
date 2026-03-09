@@ -848,7 +848,7 @@ bool gamelib_draw()
 
     in_draw = true;
 
-    if (sub_4B9130(&gamelib_iso_content_rect_ex, &loc_rect)) {
+    if (location_screen_rect_to_loc_rect(&gamelib_iso_content_rect_ex, &loc_rect)) {
         if (gamelib_view_options.type == VIEW_TYPE_ISOMETRIC) {
             sub_4D0090(&loc_rect, &v2);
         }

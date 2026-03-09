@@ -460,7 +460,7 @@ bool sub_4D89E0(int64_t loc, int offset_x, int offset_y, int a4, tig_color_t* co
     lx = (int)loc_x + offset_x + 40;
     ly = (int)loc_y + offset_y + 20;
 
-    if (!sub_4B9130(&tmp_rect, &loc_rect)) {
+    if (!location_screen_rect_to_loc_rect(&tmp_rect, &loc_rect)) {
         return false;
     }
 
@@ -860,7 +860,7 @@ bool shadow_apply(int64_t obj)
         stru_602ED8.x = (int)loc_x;
         stru_602ED8.y = (int)loc_y;
 
-        if (!sub_4B9130(&stru_602ED8, &loc_rect)) {
+        if (!location_screen_rect_to_loc_rect(&stru_602ED8, &loc_rect)) {
             return false;
         }
 
@@ -1147,7 +1147,7 @@ void sub_4DC210(int64_t obj, int* colors, int* cnt_ptr)
         rect.height = obj_rect.height + 1024;
 
         LocRect loc_rect;
-        if (sub_4B9130(&rect, &loc_rect)) {
+        if (location_screen_rect_to_loc_rect(&rect, &loc_rect)) {
             SectorListNode* v2 = sector_list_create(&loc_rect);
             SectorListNode* curr = v2;
             while (curr != NULL) {

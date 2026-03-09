@@ -432,7 +432,7 @@ bool location_in_range(int64_t loc, int dir, int range, int64_t* new_loc_ptr)
 }
 
 // 0x4B9130
-bool sub_4B9130(TigRect* rect, LocRect* loc_rect)
+bool location_screen_rect_to_loc_rect(TigRect* rect, LocRect* loc_rect)
 {
     TigRect frame;
     int64_t tmp;

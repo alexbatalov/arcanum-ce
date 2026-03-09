@@ -11260,7 +11260,7 @@ bool anim_fidget_timeevent_process(TimeEvent* timeevent)
     rect.width = 800;
     rect.height = 400;
 
-    if (sub_4B9130(&rect, &loc_rect)) {
+    if (location_screen_rect_to_loc_rect(&rect, &loc_rect)) {
         sub_45A950(&datetime, 4000);
 
         cnt = sub_4302D0(&loc_rect, &objects);

@@ -26,7 +26,7 @@ void location_origin_significant_change_callback_set(LocationOriginSignificantCh
 int location_rot(int64_t a, int64_t b);
 bool location_in_dir(int64_t loc, int dir, int64_t* new_loc_ptr);
 bool location_in_range(int64_t loc, int dir, int range, int64_t* new_loc_ptr);
-bool sub_4B9130(TigRect* rect, LocRect* loc_rect);
+bool location_screen_rect_to_loc_rect(TigRect* rect, LocRect* loc_rect);
 void sub_4B93F0(int a1, int a2, int* a3, int* a4);
 bool sub_4B9420(int64_t* loc_ptr, int* a2, int* a3);
 int64_t location_dist(int64_t a, int64_t b);
