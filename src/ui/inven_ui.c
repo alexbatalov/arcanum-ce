@@ -1643,10 +1643,10 @@ static inline bool inven_ui_message_filter_handle_mouse_lbutton_up_accept_drop(T
         && msg->data.mouse.y >= inven_ui_use_box_frame.y
         && msg->data.mouse.y < inven_ui_use_box_frame.y + inven_ui_use_box_frame.height) {
         if ((qword_681450 == qword_6813A8
-                    && (inven_ui_mode == INVEN_UI_MODE_BARTER
-                        || inven_ui_mode == INVEN_UI_MODE_LOOT
-                        || inven_ui_mode == INVEN_UI_MODE_STEAL)
-                || sub_462C30(inven_ui_pc_obj, inven_ui_drag_item_obj))) {
+                && (inven_ui_mode == INVEN_UI_MODE_BARTER
+                    || inven_ui_mode == INVEN_UI_MODE_LOOT
+                    || inven_ui_mode == INVEN_UI_MODE_STEAL))
+            || sub_462C30(inven_ui_pc_obj, inven_ui_drag_item_obj)) {
             sub_575770();
             inven_ui_drag_item_obj = OBJ_HANDLE_NULL;
             inven_ui_use_box_image = 342;
@@ -3983,9 +3983,9 @@ void sub_5788C0(int64_t item_obj, int64_t target_obj, int new_inventory_location
             sub_462410(item_obj, &qty_fld);
             qty = obj_field_int32_get(item_obj, qty_fld);
             if (qty != 1) {
-                if (inven_ui_mode == INVEN_UI_MODE_LOOT
+                if ((inven_ui_mode == INVEN_UI_MODE_LOOT
                         && (a4 & 0x01) != 0
-                        && target_obj == inven_ui_pc_obj
+                        && target_obj == inven_ui_pc_obj)
                     || (a4 & 0x20) != 0) {
                     sub_578B80(qty);
                 } else {
