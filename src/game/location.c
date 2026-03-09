@@ -498,7 +498,7 @@ void sub_4B93F0(int a1, int a2, int* a3, int* a4)
 }
 
 // 0x4B9420
-bool sub_4B9420(int64_t* loc_ptr, int* a2, int* a3)
+bool location_normalize(int64_t* loc, int* offset_x, int* offset_y)
 {
     int64_t x;
     int64_t y;
@@ -506,23 +506,23 @@ bool sub_4B9420(int64_t* loc_ptr, int* a2, int* a3)
     int64_t new_x;
     int64_t new_y;
 
-    location_xy(*loc_ptr, &x, &y);
-    x += *a2 + 40;
-    y += *a3 + 20;
+    location_xy(*loc, &x, &y);
+    x += *offset_x + 40;
+    y += *offset_y + 20;
 
     if (!location_at(x, y, &new_loc)) {
         return false;
     }
 
-    if (*loc_ptr == new_loc) {
+    if (*loc == new_loc) {
         return false;
     }
 
     location_xy(new_loc, &new_x, &new_y);
 
-    *a2 = (int)(x - (new_x + 40));
-    *a3 = (int)(y - (new_y + 20));
-    *loc_ptr = new_loc;
+    *offset_x = (int)(x - (new_x + 40));
+    *offset_y = (int)(y - (new_y + 20));
+    *loc = new_loc;
 
     return true;
 }

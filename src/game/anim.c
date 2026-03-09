@@ -11637,7 +11637,7 @@ bool sub_4305D0(AnimRunInfo* run_info)
             }
         }
     } else {
-        if (sub_4B9420(&new_loc, &offset_x, &offset_y)) {
+        if (location_normalize(&new_loc, &offset_x, &offset_y)) {
             if ((spell_flags & OSF_FLOATING) != 0) {
                 offset_y += 2 * v2 - 15;
             }
