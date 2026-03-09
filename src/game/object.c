@@ -567,7 +567,7 @@ void object_draw(GameDrawInfo* draw_info)
                         if (obj_node != NULL) {
                             loc = locations[row];
 
-                            if (!sub_43A030(loc, true)) {
+                            if (!roof_is_covered_loc(loc, true)) {
                                 while (obj_node != NULL) {
                                     obj_type = obj_field_int32_get(obj_node->obj, OBJ_F_TYPE);
                                     if (object_type_visibility[obj_type]) {

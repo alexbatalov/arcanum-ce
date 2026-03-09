@@ -731,7 +731,7 @@ void tile_draw_iso(GameDrawInfo* draw_info)
                         blit_info_initialized = false;
                         art_blit_info.art_id = sectors[v15]->tiles.art_ids[indexes[v15]];
                         tile_type = tig_art_tile_id_type_get(art_blit_info.art_id);
-                        if (!sub_439FF0(center_x + 40, center_y + 20, 0)) {
+                        if (!roof_is_covered_xy(center_x + 40, center_y + 20, false)) {
                             tile_rect.x = center_x + 1;
                             tile_rect.y = center_y;
 

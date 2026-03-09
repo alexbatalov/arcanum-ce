@@ -656,16 +656,16 @@ bool roof_is_faded(int64_t loc)
 }
 
 // 0x439FF0
-bool sub_439FF0(int64_t x, int64_t y, int a3)
+bool roof_is_covered_xy(int64_t x, int64_t y, bool check_faded)
 {
     int64_t loc;
 
     location_at(x, y, &loc);
-    return sub_43A030(loc, a3);
+    return roof_is_covered_loc(loc, check_faded);
 }
 
 // 0x43A030
-bool sub_43A030(int64_t loc, int a2)
+bool roof_is_covered_loc(int64_t loc, bool check_faded)
 {
     tig_art_id_t aid;
     int piece;
@@ -697,7 +697,7 @@ bool sub_43A030(int64_t loc, int a2)
         return false;
     }
 
-    if (a2) {
+    if (check_faded) {
         return true;
     }
 
