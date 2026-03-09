@@ -149,14 +149,6 @@ void tig_ping()
     tig_art_ping();
 }
 
-// NOTE: Purpose is unclear, both this function and `tig_ping` are public.
-//
-// 0x51F250
-void sub_51F250()
-{
-    tig_ping();
-}
-
 // 0x51F300
 void tig_set_active(bool is_active)
 {
