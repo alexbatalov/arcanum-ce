@@ -3638,7 +3638,7 @@ bool sub_5643E0(WmapCoords* coords)
         path_info.max_rotations = 5000 - start;
         path_info.rotations = &(byte_64E828[start]);
 
-        steps = sub_4207D0(&path_info);
+        steps = wmap_path_make(&path_info);
         if (steps == 0) {
             // "Your path is blocked.  You must locate either a bridge, pass or means of transporation in order to travel to this destination."
             mes_file_entry.num = 601;

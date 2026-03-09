@@ -780,7 +780,7 @@ int sub_420660(int64_t from, int64_t to, int8_t* rotations)
 }
 
 // 0x4207D0
-int sub_4207D0(WmapPathInfo* path_info)
+int wmap_path_make(WmapPathInfo* path_info)
 {
     int idx;
     int64_t sec = path_info->from;
