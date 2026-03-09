@@ -152,12 +152,12 @@ static int64_t ai_shitlist_get(int64_t obj);
 
 // 0x5B5088
 static DateTime stru_5B5088[6] = {
-    { 0, 0 },
-    { 0, 900000 },
-    { 0, 7200000 },
-    { 1, 0 },
-    { 7, 0 },
-    { 30, 0 },
+    { .days = 0, .milliseconds = 0 },
+    { .milliseconds = 900000 },
+    { .milliseconds = 7200000 },
+    { .days = 1 },
+    { .days = 7 },
+    { .days = 30 },
 };
 
 // 0x5B50C0

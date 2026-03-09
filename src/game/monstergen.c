@@ -21,14 +21,14 @@ static int monstergen_generate(GeneratorInfo* generator_info, int cnt);
  * 0x5B5EC0
  */
 static DateTime monstergen_time_intervals_tbl[GENERATOR_RATE_COUNT] = {
-    /*      GENERATOR_RATE_SECOND */ { 0, 1000 },
-    /* GENERATOR_RATE_HALF_MINUTE */ { 0, 30000 },
-    /*      GENERATOR_RATE_MINUTE */ { 0, 60000 },
-    /*        GENERATOR_RATE_HOUR */ { 0, 3600000 },
-    /*         GENERATOR_RATE_DAY */ { 1, 0 },
-    /*        GENERATOR_RATE_WEEK */ { 7, 0 },
-    /*       GENERATOR_RATE_MONTH */ { 30, 0 },
-    /*        GENERATOR_RATE_YEAR */ { 360, 0 },
+    /*      GENERATOR_RATE_SECOND */ { .milliseconds = 1000 },
+    /* GENERATOR_RATE_HALF_MINUTE */ { .milliseconds = 30000 },
+    /*      GENERATOR_RATE_MINUTE */ { .milliseconds = 60000 },
+    /*        GENERATOR_RATE_HOUR */ { .milliseconds = 3600000 },
+    /*         GENERATOR_RATE_DAY */ { .days = 1 },
+    /*        GENERATOR_RATE_WEEK */ { .days = 7 },
+    /*       GENERATOR_RATE_MONTH */ { .days = 30 },
+    /*        GENERATOR_RATE_YEAR */ { .days = 360 },
 };
 
 /**

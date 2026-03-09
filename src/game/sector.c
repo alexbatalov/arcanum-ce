@@ -75,7 +75,7 @@ static bool sector_block_save_internal(void);
 static bool sector_block_load_internal(const char* base_map_name, const char* current_map_name);
 
 // 0x5B7CD0
-static DateTime qword_5B7CD0 = { -1, -1 };
+static DateTime qword_5B7CD0 = { .days = -1, .milliseconds = -1 };
 
 // 0x5B7CD8
 static int sector_art_cache_state = 1;

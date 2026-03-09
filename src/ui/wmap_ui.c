@@ -92,7 +92,7 @@ typedef struct WmapNoteTypeInfo {
     union {
         int num;
         tig_art_id_t art_id;
-    } data;
+    };
     /* 0004 */ int width;
     /* 0008 */ int height;
     /* 000C */ tig_color_t color;
@@ -179,14 +179,14 @@ typedef struct WmapRoute {
 
 // 0x5C9160
 static WmapNoteTypeInfo wmap_note_type_info[WMAP_NOTE_TYPE_COUNT] = {
-    /*     WMAP_NOTE_TYPE_NOTE */ { 142, 0, 0, 0, 0, true },
-    /*    WMAP_NOTE_TYPE_SKULL */ { 144, 0, 0, 0, 0, true },
-    /*    WMAP_NOTE_TYPE_CHEST */ { 141, 0, 0, 0, 0, true },
-    /*    WMAP_NOTE_TYPE_QUEST */ { 143, 0, 0, 0, 0, true },
-    /*    WMAP_NOTE_TYPE_CROSS */ { 204, 0, 0, 0, 0, true },
-    /*      WMAP_NOTE_TYPE_LOC */ { 205, 0, 0, 0, 0, true },
-    /* WMAP_NOTE_TYPE_WAYPOINT */ { 206, 0, 0, 0, 0, true },
-    /*  WMAP_NOTE_TYPE_NEW_LOC */ { 814, 0, 0, 0, 0, true },
+    /*     WMAP_NOTE_TYPE_NOTE */ { .num = 142, .enabled = true },
+    /*    WMAP_NOTE_TYPE_SKULL */ { .num = 144, .enabled = true },
+    /*    WMAP_NOTE_TYPE_CHEST */ { .num = 141, .enabled = true },
+    /*    WMAP_NOTE_TYPE_QUEST */ { .num = 143, .enabled = true },
+    /*    WMAP_NOTE_TYPE_CROSS */ { .num = 204, .enabled = true },
+    /*      WMAP_NOTE_TYPE_LOC */ { .num = 205, .enabled = true },
+    /* WMAP_NOTE_TYPE_WAYPOINT */ { .num = 206, .enabled = true },
+    /*  WMAP_NOTE_TYPE_NEW_LOC */ { .num = 814, .enabled = true },
 };
 
 static void sub_560010(void);
@@ -532,8 +532,7 @@ static WmapInfo wmap_ui_mode_info[WMAP_UI_MODE_COUNT] = {
         0,
         0,
         0,
-        0,
-        0,
+        { 0, 0 },
         1,
         sub_563270,
         wmap_world_refresh_rect,
@@ -573,8 +572,7 @@ static WmapInfo wmap_ui_mode_info[WMAP_UI_MODE_COUNT] = {
         0,
         0,
         0,
-        0,
-        0,
+        { 0, 0 },
         0,
         sub_565230,
         NULL,
@@ -614,8 +612,7 @@ static WmapInfo wmap_ui_mode_info[WMAP_UI_MODE_COUNT] = {
         0,
         0,
         0,
-        0,
-        0,
+        { 0, 0 },
         1,
         sub_563270,
         wmap_town_refresh_rect,
@@ -700,8 +697,8 @@ bool wmap_ui_init(GameInitInfo* init_info)
 
     for (index = 0; index < WMAP_NOTE_TYPE_COUNT; index++) {
         wmap_note_type_info[index].enabled = true;
-        tig_art_interface_id_create(wmap_note_type_info[index].data.num, 0, 0, 0, &art_id);
-        wmap_note_type_info[index].data.art_id = art_id;
+        tig_art_interface_id_create(wmap_note_type_info[index].num, 0, 0, 0, &art_id);
+        wmap_note_type_info[index].art_id = art_id;
 
         if (tig_art_anim_data(art_id, &art_anim_data) != TIG_OK) {
             return false;
@@ -4412,7 +4409,7 @@ void wmap_world_refresh_rect(TigRect* rect)
         vb_dst_rect.y -= tmp_rect.y + offset_y;
 
         art_blit_info.flags = 0;
-        art_blit_info.art_id = wmap_note_type_info[WMAP_NOTE_TYPE_CROSS].data.art_id;
+        art_blit_info.art_id = wmap_note_type_info[WMAP_NOTE_TYPE_CROSS].art_id;
         art_blit_info.src_rect = &vb_dst_rect;
         art_blit_info.dst_rect = &dst_rect;
         art_blit_info.dst_video_buffer = dword_64E7F4;
@@ -4751,7 +4748,7 @@ void wmap_town_refresh_rect(TigRect* rect)
             vb_dst_rect.y -= bounds.y + offset_y;
 
             art_blit_info.flags = 0;
-            art_blit_info.art_id = wmap_note_type_info[WMAP_NOTE_TYPE_QUEST].data.art_id;
+            art_blit_info.art_id = wmap_note_type_info[WMAP_NOTE_TYPE_QUEST].art_id;
             art_blit_info.src_rect = &vb_dst_rect;
             art_blit_info.dst_video_buffer = dword_64E7F4;
             art_blit_info.dst_rect = &art_dst_rect;
@@ -4774,7 +4771,7 @@ void wmap_town_refresh_rect(TigRect* rect)
         vb_dst_rect.y -= bounds.y + offset_y;
 
         art_blit_info.flags = 0;
-        art_blit_info.art_id = wmap_note_type_info[WMAP_NOTE_TYPE_CROSS].data.art_id;
+        art_blit_info.art_id = wmap_note_type_info[WMAP_NOTE_TYPE_CROSS].art_id;
         art_blit_info.src_rect = &vb_dst_rect;
         art_blit_info.dst_video_buffer = dword_64E7F4;
         art_blit_info.dst_rect = &art_dst_rect;
@@ -4800,7 +4797,7 @@ void wmap_town_refresh_rect(TigRect* rect)
             vb_dst_rect.y -= bounds.y + offset_y;
 
             art_blit_info.flags = 0;
-            art_blit_info.art_id = wmap_note_type_info[WMAP_NOTE_TYPE_CROSS].data.art_id;
+            art_blit_info.art_id = wmap_note_type_info[WMAP_NOTE_TYPE_CROSS].art_id;
             art_blit_info.src_rect = &vb_dst_rect;
             art_blit_info.dst_video_buffer = dword_64E7F4;
             art_blit_info.dst_rect = &art_dst_rect;
@@ -4832,7 +4829,7 @@ void wmap_town_refresh_rect(TigRect* rect)
                     vb_dst_rect.y -= bounds.y + offset_y;
 
                     art_blit_info.flags = 0;
-                    art_blit_info.art_id = wmap_note_type_info[WMAP_NOTE_TYPE_CROSS].data.art_id;
+                    art_blit_info.art_id = wmap_note_type_info[WMAP_NOTE_TYPE_CROSS].art_id;
                     art_blit_info.src_rect = &vb_dst_rect;
                     art_blit_info.dst_video_buffer = dword_64E7F4;
                     art_blit_info.dst_rect = &art_dst_rect;
@@ -4897,7 +4894,7 @@ void sub_566A80(WmapInfo* a1, TigRect* a2, TigRect* a3)
     src_rect.height = wmap_note_type_info[WMAP_NOTE_TYPE_NOTE].height;
 
     art_blit_info.flags = 0;
-    art_blit_info.art_id = wmap_note_type_info[WMAP_NOTE_TYPE_NOTE].data.art_id;
+    art_blit_info.art_id = wmap_note_type_info[WMAP_NOTE_TYPE_NOTE].art_id;
     art_blit_info.src_rect = &src_rect;
     art_blit_info.dst_video_buffer = dword_64E7F4;
 
@@ -4920,7 +4917,7 @@ void sub_566A80(WmapInfo* a1, TigRect* a2, TigRect* a3)
         src_rect.y = y2 - wmap_note_type_info[WMAP_NOTE_TYPE_WAYPOINT].height / 2;
         src_rect.width = wmap_note_type_info[WMAP_NOTE_TYPE_WAYPOINT].width;
         src_rect.height = wmap_note_type_info[WMAP_NOTE_TYPE_WAYPOINT].height;
-        art_blit_info.art_id = wmap_note_type_info[WMAP_NOTE_TYPE_WAYPOINT].data.art_id;
+        art_blit_info.art_id = wmap_note_type_info[WMAP_NOTE_TYPE_WAYPOINT].art_id;
 
         if (tig_rect_intersection(&src_rect, a3, &src_rect) == TIG_OK) {
             dst_rect = src_rect;
@@ -4970,7 +4967,7 @@ void sub_566D10(int type, WmapCoords* coords, TigRect* a3, TigRect* a4, WmapInfo
         src_rect.y -= a3->y + dy;
 
         art_blit_info.flags = 0;
-        art_blit_info.art_id = wmap_note_type_info[type].data.art_id;
+        art_blit_info.art_id = wmap_note_type_info[type].art_id;
         art_blit_info.dst_video_buffer = dword_64E7F4;
         art_blit_info.src_rect = &src_rect;
         art_blit_info.dst_rect = &dst_rect;
