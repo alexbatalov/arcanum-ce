@@ -408,7 +408,7 @@ void sub_4E4280(ObjSa* a1, void* value)
     case SA_TYPE_QUEST:
     case SA_TYPE_HANDLE_ARRAY:
         if (*(SizeableArray**)a1->ptr != NULL) {
-            sub_4E74A0((SizeableArray**)value, (SizeableArray**)a1->ptr);
+            sa_copy((SizeableArray**)value, (SizeableArray**)a1->ptr);
         } else {
             *(SizeableArray**)value = NULL;
         }
@@ -478,7 +478,7 @@ bool sub_4E4360(ObjSa* a1, TigFile* stream)
             *(SizeableArray**)a1->ptr = NULL;
             return true;
         }
-        if (!sa_read((SizeableArray**)a1->ptr, stream)) {
+        if (!sa_read_file((SizeableArray**)a1->ptr, stream)) {
             return false;
         }
         return true;
@@ -646,7 +646,7 @@ void sub_4E4660(ObjSa* a1, uint8_t** data)
             }
             return;
         }
-        sub_4E7820((SizeableArray**)a1->ptr, data);
+        sa_read_mem((SizeableArray**)a1->ptr, data);
         return;
     case SA_TYPE_STRING:
         sub_4E4C50(&presence, sizeof(presence), data);
@@ -711,7 +711,7 @@ bool sub_4E47E0(ObjSa* a1, TigFile* stream)
         if (*(SizeableArray**)a1->ptr != NULL) {
             presence = 1;
             if (!objf_write(&presence, sizeof(presence), stream)) return false;
-            if (!sa_write((SizeableArray**)a1->ptr, stream)) return false;
+            if (!sa_write_file((SizeableArray**)a1->ptr, stream)) return false;
         } else {
             presence = 0;
             if (!objf_write(&presence, sizeof(presence), stream)) return false;
@@ -777,9 +777,9 @@ void sub_4E4990(ObjSa* a1, WriteBuffer* wb)
     //     if (*a1->d.a.sa_ptr != NULL) {
     //         presence = 1;
     //         write_buffer_append(&presence, sizeof(presence), wb);
-    //         size = sub_4E77B0(a1->d.a.sa_ptr);
+    //         size = sa_total_byte_size(a1->d.a.sa_ptr);
     //         write_buffer_ensure_size(wb, size);
-    //         sub_4E77E0(a1->d.a.sa_ptr, wb->field_4);
+    //         sa_write_mem(a1->d.a.sa_ptr, wb->field_4);
     //         wb->field_4 += size;
     //         wb->field_C -= size;
     //     } else {
@@ -825,7 +825,7 @@ void sub_4E4B70(ObjSa* a1)
     case SA_TYPE_HANDLE_ARRAY:
     case SA_TYPE_PTR_ARRAY:
         if (*(SizeableArray**)a1->ptr != NULL) {
-            sub_4E7760((SizeableArray**)a1->ptr, a1->idx);
+            sa_remove((SizeableArray**)a1->ptr, a1->idx);
         }
         break;
     }
