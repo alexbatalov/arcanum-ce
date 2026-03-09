@@ -2,8 +2,6 @@
 
 #include "game/effect.h"
 #include "game/mes.h"
-#include "game/mp_utils.h"
-#include "game/multiplayer.h"
 #include "game/object.h"
 #include "game/player.h"
 #include "game/timeevent.h"
@@ -164,21 +162,6 @@ void curse_add(int64_t obj, int curse)
         return;
     }
 
-    if (!multiplayer_is_locked()) {
-        ChangeCursePacket pkt;
-
-        // Only host can send curse changes.
-        if (!tig_net_is_host()) {
-            return;
-        }
-
-        pkt.type = 43;
-        sub_4440E0(obj, &(pkt.field_8));
-        pkt.curse = curse;
-        pkt.add = true;
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-    }
-
     // Append curse ID and current time to the curse field arrays.
     cnt = obj_arrayfield_length_get(obj, OBJ_F_PC_CURSE_IDX);
     obj_arrayfield_uint32_set(obj, OBJ_F_PC_CURSE_IDX, cnt, curse);
@@ -229,21 +212,6 @@ void curse_remove(int64_t obj, int curse)
     // Ensure the object is a player character.
     if (obj_field_int32_get(obj, OBJ_F_TYPE) != OBJ_TYPE_PC) {
         return;
-    }
-
-    if (!multiplayer_is_locked()) {
-        ChangeCursePacket pkt;
-
-        // Only host can send curse changes.
-        if (!tig_net_is_host()) {
-            return;
-        }
-
-        pkt.type = 43;
-        sub_4440E0(obj, &(pkt.field_8));
-        pkt.curse = curse;
-        pkt.add = false;
-        tig_net_send_app_all(&pkt, sizeof(pkt));
     }
 
     cnt = obj_arrayfield_length_get(obj, OBJ_F_PC_CURSE_IDX);

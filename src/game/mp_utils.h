@@ -405,28 +405,6 @@ typedef struct PacketQuestGlobalStateSet {
 // Serializeable.
 static_assert(sizeof(PacketQuestGlobalStateSet) == 0xC, "wrong size");
 
-typedef struct ChangeBlessPacket {
-    /* 0000 */ int type;
-    /* 0004 */ int field_4;
-    /* 0008 */ FollowerInfo field_8;
-    /* 0038 */ int bless;
-    /* 003C */ int add;
-} ChangeBlessPacket;
-
-// Serializeable.
-static_assert(sizeof(ChangeBlessPacket) == 0x40, "wrong size");
-
-typedef struct ChangeCursePacket {
-    /* 0000 */ int type;
-    /* 0004 */ int field_4;
-    /* 0008 */ FollowerInfo field_8;
-    /* 0038 */ int curse;
-    /* 003C */ int add;
-} ChangeCursePacket;
-
-// Serializeable.
-static_assert(sizeof(ChangeCursePacket) == 0x40, "wrong size");
-
 typedef struct PacketDialog {
     /* 0000 */ int type;
     /* 0004 */ int subtype;

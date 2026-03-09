@@ -2,8 +2,6 @@
 
 #include "game/effect.h"
 #include "game/mes.h"
-#include "game/mp_utils.h"
-#include "game/multiplayer.h"
 #include "game/object.h"
 #include "game/player.h"
 #include "game/timeevent.h"
@@ -165,21 +163,6 @@ void bless_add(int64_t obj, int bless)
         return;
     }
 
-    if (!multiplayer_is_locked()) {
-        ChangeBlessPacket pkt;
-
-        // Only host can send blessing changes.
-        if (!tig_net_is_host()) {
-            return;
-        }
-
-        pkt.type = 42;
-        sub_4440E0(obj, &(pkt.field_8));
-        pkt.bless = bless;
-        pkt.add = true;
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-    }
-
     // Append blessing ID and current time to the blessing field arrays.
     cnt = obj_arrayfield_length_get(obj, OBJ_F_PC_BLESSING_IDX);
     obj_arrayfield_uint32_set(obj, OBJ_F_PC_BLESSING_IDX, cnt, bless);
@@ -230,21 +213,6 @@ void bless_remove(int64_t obj, int bless)
     // Ensure the object is a player character.
     if (obj_field_int32_get(obj, OBJ_F_TYPE) != OBJ_TYPE_PC) {
         return;
-    }
-
-    if (!multiplayer_is_locked()) {
-        ChangeBlessPacket pkt;
-
-        // Only host can send blessing changes.
-        if (!tig_net_is_host()) {
-            return;
-        }
-
-        pkt.type = 42;
-        sub_4440E0(obj, &(pkt.field_8));
-        pkt.bless = bless;
-        pkt.add = false;
-        tig_net_send_app_all(&pkt, sizeof(pkt));
     }
 
     cnt = obj_arrayfield_length_get(obj, OBJ_F_PC_BLESSING_IDX);
