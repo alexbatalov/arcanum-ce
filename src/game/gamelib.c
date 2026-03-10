@@ -191,7 +191,7 @@ static GameLibModule gamelib_modules[] = {
     { "gameinit", gameinit_init, gameinit_reset, gameinit_mod_load, gameinit_mod_unload, gameinit_exit, NULL, NULL, NULL, NULL, NULL },
 };
 
-#define MODULE_COUNT SDL_arraysize(gamelib_modules)
+#define MODULE_COUNT ((int)SDL_arraysize(gamelib_modules))
 
 // 0x59ADD8
 static int gamelib_renderlock_cnt = 1;

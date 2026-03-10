@@ -107,7 +107,7 @@ static GameUiLibModule gameuilib_modules[] = {
     { "Compact-UI", compact_ui_init, compact_ui_reset, NULL, NULL, compact_ui_exit, NULL, NULL, NULL },
 };
 
-#define MODULE_COUNT SDL_arraysize(gameuilib_modules)
+#define MODULE_COUNT ((int)SDL_arraysize(gameuilib_modules))
 
 /**
  * Flag indicating if the game UI wants to present mainmenu.
