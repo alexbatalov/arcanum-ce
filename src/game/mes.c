@@ -670,9 +670,12 @@ int consume_next_char(TigFile* stream)
  */
 int compare_mes_file_entry(const void* a, const void* b)
 {
-    if (((MesFileEntry*)a)->num < ((MesFileEntry*)b)->num) {
+    const MesFileEntry* entry_a = (const MesFileEntry*)a;
+    const MesFileEntry* entry_b = (const MesFileEntry*)b;
+
+    if (entry_a->num < entry_b->num) {
         return -1;
-    } else if (((MesFileEntry*)a)->num > ((MesFileEntry*)b)->num) {
+    } else if (entry_a->num > entry_b->num) {
         return 1;
     } else {
         return 0;
