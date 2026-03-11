@@ -114,7 +114,7 @@ These ports are not currently intended for players. Touch controls are not yet i
 
 ## Building from source
 
-Check [`ci-build.yml`](.github/workflows/ci-build.yml) for details on how the project is compiled. Note that [`SDL3`](https://github.com/libsdl-org/SDL) and [`SDL3_mixer`](https://github.com/libsdl-org/SDL_mixer) used in the project point directly to the main branches through [`TIG`](https://github.com/alexbatalov/tig) and are updated frequently. The project relies on features that have not yet landed in a stable release.
+Check [`ci-build.yml`](.github/workflows/ci-build.yml) for details on how the project is compiled.
 
 ## Configuration
 
