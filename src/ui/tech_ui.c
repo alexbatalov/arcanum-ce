@@ -1,6 +1,5 @@
 #include "ui/tech_ui.h"
 
-#include "game/multiplayer.h"
 #include "game/player.h"
 #include "game/stat.h"
 #include "game/tech.h"
@@ -18,12 +17,6 @@ void tech_ui_inc_degree(int64_t obj, int tech)
     int cost;
     int points;
     bool is_pc;
-
-    if (tig_net_is_active()
-        && !tig_net_is_host()
-        && !multiplayer_is_locked()) {
-        return;
-    }
 
     // Retrieve current degree, cost for next degree, and available points.
     degree = tech_degree_get(obj, tech);
@@ -71,12 +64,6 @@ void tech_ui_dec_degree(int64_t obj, int tech)
     int cost;
     int points;
     bool is_pc;
-
-    if (tig_net_is_active()
-        && !tig_net_is_host()
-        && !multiplayer_is_locked()) {
-        return;
-    }
 
     // Retrieve current degree, cost of the current degree, and available
     // points.
