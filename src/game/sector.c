@@ -56,7 +56,7 @@ static void sector_cache_evict(Sector* sector);
 static bool sector_load_editor(int64_t id, Sector* sector);
 static bool sector_load_game(int64_t id, Sector* sector);
 static bool sector_save_editor(Sector* sector);
-static bool sub_4D2460(Sector* sector, const char* base_path);
+static bool sector_save_editor_internal(Sector* sector, const char* base_path);
 static bool sector_save_game(Sector* sector);
 static void sector_validate_game(const char* section);
 static void sector_validate_editor(const char* section);
@@ -1784,11 +1784,11 @@ bool sector_save_editor(Sector* sector)
     strcat(path, "\\");
     SDL_ulltoa(sector->id, &(path[strlen(path)]), 10);
 
-    return sub_4D2460(sector, path);
+    return sector_save_editor_internal(sector, path);
 }
 
 // 0x4D2460
-bool sub_4D2460(Sector* sector, const char* base_path)
+bool sector_save_editor_internal(Sector* sector, const char* base_path)
 {
     char fname[TIG_MAX_PATH];
     char path[TIG_MAX_PATH];
