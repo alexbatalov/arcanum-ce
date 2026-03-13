@@ -49,7 +49,7 @@ static_assert(sizeof(SectorHistoryEntry) == 0x10, "wrong size");
 static bool sector_cache_init(unsigned int capacity);
 static void sector_block_clear(void);
 static void sector_history_clear(void);
-static int sub_4D1310(int64_t a1, int64_t a2, int a3, int64_t* a4);
+static int sector_compute_boundaries(int64_t start, int64_t end, int size, int64_t* boundaries);
 static SectorListNode* sector_list_node_create(void);
 static void sector_list_node_reserve(void);
 static void sector_cache_evict(Sector* sector);
@@ -740,12 +740,12 @@ bool sub_4D0090(LocRect* rect, SomeSectorStuff* a2)
     int64_t horizontal[4];
     int64_t vertical[4];
 
-    width = sub_4D1310(rect->x1, rect->x2 + 1, 64, horizontal) - 1;
+    width = sector_compute_boundaries(rect->x1, rect->x2 + 1, 64, horizontal) - 1;
     if (width == 0) {
         return false;
     }
 
-    height = sub_4D1310(rect->y1, rect->y2 + 1, 64, vertical) - 1;
+    height = sector_compute_boundaries(rect->y1, rect->y2 + 1, 64, vertical) - 1;
     if (height == 0) {
         return false;
     }
@@ -779,12 +779,12 @@ SectorListNode* sector_list_create(LocRect* loc_rect)
     SectorListNode* prev;
     SectorListNode* node;
 
-    width = sub_4D1310(loc_rect->x1, loc_rect->x2 + 1, 64, dword_6017E8) - 1;
+    width = sector_compute_boundaries(loc_rect->x1, loc_rect->x2 + 1, 64, dword_6017E8) - 1;
     if (width == 0) {
         return NULL;
     }
 
-    height = sub_4D1310(loc_rect->y1, loc_rect->y2 + 1, 64, dword_6017EC) - 1;
+    height = sector_compute_boundaries(loc_rect->y1, loc_rect->y2 + 1, 64, dword_6017EC) - 1;
     if (height == 0) {
         return NULL;
     }
@@ -1228,20 +1228,20 @@ bool sector_history_load(GameLoadInfo* load_info)
 }
 
 // 0x4D1310
-int sub_4D1310(int64_t a1, int64_t a2, int a3, int64_t* a4)
+int sector_compute_boundaries(int64_t start, int64_t end, int size, int64_t* boundaries)
 {
-    int64_t v1;
+    int64_t cur;
     int cnt = 0;
 
-    a4[cnt++] = a1;
+    boundaries[cnt++] = start;
 
-    v1 = (a1 / a3 + 1) * a3;
-    while (v1 < a2) {
-        a4[cnt++] = v1;
-        v1 += a3;
+    cur = (start / size + 1) * size;
+    while (cur < end) {
+        boundaries[cnt++] = cur;
+        cur += size;
     }
 
-    a4[cnt++] = a2;
+    boundaries[cnt++] = end;
 
     return cnt;
 }
