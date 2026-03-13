@@ -52,7 +52,7 @@ static void sector_history_clear(void);
 static int sub_4D1310(int64_t a1, int64_t a2, int a3, int64_t* a4);
 static SectorListNode* sector_list_node_create(void);
 static void sector_list_node_reserve(void);
-static void sub_4D1400(Sector* sector);
+static void sector_cache_evict(Sector* sector);
 static bool sector_load_editor(int64_t id, Sector* sector);
 static bool sector_load_game(int64_t id, Sector* sector);
 static bool sector_save_editor(Sector* sector);
@@ -916,7 +916,7 @@ bool sector_lock(int64_t id, Sector** sector_ptr)
                 sector_cache_entries[sector_cache_indexes[oldest]].sector.id);
 
             sector_save_func(&(sector_cache_entries[sector_cache_indexes[oldest]].sector));
-            sub_4D1400(&(sector_cache_entries[sector_cache_indexes[oldest]].sector));
+            sector_cache_evict(&(sector_cache_entries[sector_cache_indexes[oldest]].sector));
             sector_cache_entries[sector_cache_indexes[oldest]].used = false;
 
             memmove(&(sector_cache_indexes[oldest]),
@@ -995,7 +995,7 @@ void sub_4D0B40(void)
     unsigned int index;
 
     for (index = 0; index < sector_cache_size; index++) {
-        sub_4D1400(&(sector_cache_entries[sector_cache_indexes[index]].sector));
+        sector_cache_evict(&(sector_cache_entries[sector_cache_indexes[index]].sector));
         sector_cache_entries[sector_cache_indexes[index]].used = false;
     }
 
@@ -1013,7 +1013,7 @@ void sector_flush(unsigned int flags)
         if (cache_entry->refcount == 0) {
             sector_save_func(&(cache_entry->sector));
             if ((flags & 0x1) == 0) {
-                sub_4D1400(&(cache_entry->sector));
+                sector_cache_evict(&(cache_entry->sector));
                 cache_entry->used = false;
                 memmove(&(sector_cache_indexes[index]),
                     &(sector_cache_indexes[index + 1]),
@@ -1277,7 +1277,7 @@ void sector_list_node_reserve(void)
 }
 
 // 0x4D1400
-void sub_4D1400(Sector* sector)
+void sector_cache_evict(Sector* sector)
 {
     if (sector->id != -1) {
         if (sector_history_size == 2 * sector_cache_capacity) {
