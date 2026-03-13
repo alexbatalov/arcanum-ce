@@ -235,7 +235,7 @@ bool sector_init(GameInitInfo* init_info)
 // 0x4CF0D0
 void sector_reset(void)
 {
-    sub_4D0B40();
+    sector_cache_reset();
     sector_history_size = 0;
 }
 
@@ -246,7 +246,7 @@ void sector_exit(void)
     unsigned int index;
     Sector* sector;
 
-    sub_4D0B40();
+    sector_cache_reset();
 
     while (sector_list_free_node_head != NULL) {
         node = sector_list_free_node_head->next;
@@ -308,7 +308,7 @@ void sector_resize(GameResizeInfo* resize_info)
 // 0x4CF320
 void sector_map_close(void)
 {
-    sub_4D0B40();
+    sector_cache_reset();
     if (!gamelib_in_load()) {
         sector_history_size = 0;
     }
@@ -990,7 +990,7 @@ bool sector_unlock(int64_t id)
 }
 
 // 0x4D0B40
-void sub_4D0B40(void)
+void sector_cache_reset(void)
 {
     unsigned int index;
 

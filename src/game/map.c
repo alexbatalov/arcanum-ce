@@ -1574,7 +1574,7 @@ void map_clear_objects(void)
             } while (obj_inst_next(&obj, &iter));
         }
 
-        sub_4D0B40();
+        sector_cache_reset();
         sub_4E5300();
 
         map_in_map_clear_objects = false;
