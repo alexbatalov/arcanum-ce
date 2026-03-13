@@ -4371,7 +4371,7 @@ void intgame_pc_lens_do(PcLensMode mode, PcLens* pc_lens)
         }
         break;
     case PC_LENS_MODE_BLACKOUT:
-        sub_4D81F0();
+        light_toggle();
         break;
     }
 
@@ -4411,7 +4411,7 @@ void intgame_pc_lens_do(PcLensMode mode, PcLens* pc_lens)
         }
         break;
     case PC_LENS_MODE_BLACKOUT:
-        sub_4D81F0();
+        light_toggle();
 
         intgame_pc_lens.window_handle = pc_lens->window_handle;
         intgame_pc_lens.art_id = pc_lens->art_id;

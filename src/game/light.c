@@ -155,7 +155,7 @@ static tig_window_handle_t light_iso_window_handle;
 static int lighter_pitch;
 
 // 0x602ECC
-static bool dword_602ECC;
+static bool light_enabled;
 
 // 0x602ED0
 static int dword_602ED0;
@@ -198,7 +198,7 @@ bool light_init(GameInitInfo* init_info)
     light_iso_window_invalidate_rect = init_info->invalidate_rect_func;
     light_editor = init_info->editor;
     light_view_options.type = VIEW_TYPE_ISOMETRIC;
-    dword_602ECC = true;
+    light_enabled = true;
     dword_602EB8 = true;
 
     if (tig_window_data(init_info->iso_window_handle, &window_data) != TIG_OK) {
@@ -267,9 +267,9 @@ void light_update_view(ViewOptions* view_options)
 }
 
 // 0x4D81F0
-void sub_4D81F0(void)
+void light_toggle(void)
 {
-    dword_602ECC = !dword_602ECC;
+    light_enabled = !light_enabled;
 
     if (!dword_60340C) {
         sub_5022D0();
@@ -365,7 +365,7 @@ void light_set_colors(tig_color_t indoor_color, tig_color_t outdoor_color)
     light_outdoor_color = outdoor_color;
     sub_4DE200();
 
-    if (dword_602ECC) {
+    if (light_enabled) {
         if (!dword_60340C) {
             sub_5022D0();
         }
@@ -2023,7 +2023,7 @@ void sub_4DE060(void)
 // 0x4DE0B0
 bool sub_4DE0B0(tig_art_id_t art_id, TigPaletteModifyInfo* modify_info)
 {
-    if (!dword_602ECC) {
+    if (!light_enabled) {
         return false;
     }
 

@@ -47,7 +47,7 @@ bool light_init(GameInitInfo* init_info);
 void light_exit(void);
 void light_resize(GameResizeInfo* resize_info);
 void light_update_view(ViewOptions* view_options);
-void sub_4D81F0(void);
+void light_toggle(void);
 void light_buffers_lock(void);
 void light_buffers_unlock(void);
 void light_draw(GameDrawInfo* draw_info);
