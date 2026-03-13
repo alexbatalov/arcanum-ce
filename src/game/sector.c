@@ -841,7 +841,7 @@ bool sector_exists(uint64_t id)
 }
 
 // 0x4D04E0
-bool sub_4D04E0(int64_t id)
+bool sector_loaded(int64_t id)
 {
     int index;
 

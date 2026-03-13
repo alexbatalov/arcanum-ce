@@ -61,7 +61,7 @@ SectorListNode* sector_list_create(LocRect* loc_rect);
 void sector_list_destroy(SectorListNode* node);
 bool sector_map_name_set(const char* base_path, const char* save_path);
 bool sector_exists(uint64_t id);
-bool sub_4D04E0(int64_t id);
+bool sector_loaded(int64_t id);
 bool sector_lock(int64_t id, Sector** sector_ptr);
 bool sector_unlock(int64_t id);
 void sub_4D0B40(void);

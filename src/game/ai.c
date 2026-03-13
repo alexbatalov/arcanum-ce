@@ -2949,7 +2949,7 @@ bool ai_timeevent_process(TimeEvent* timeevent)
 
         loc = obj_field_int64_get(obj, OBJ_F_LOCATION);
         sector_id = sector_id_from_loc(loc);
-        if (sub_4D04E0(sector_id)) {
+        if (sector_loaded(sector_id)) {
             v1 = true;
         }
 

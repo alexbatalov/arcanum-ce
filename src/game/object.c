@@ -406,7 +406,7 @@ void object_ping(tig_timestamp_t timestamp)
                 for (row = 0; row < v2->width; row++) {
                     indexes[row] = v2->field_38[row];
                     widths[row] = 64 - v2->field_44[row];
-                    if (sub_4D04E0(v2->field_20[row])) {
+                    if (sector_loaded(v2->field_20[row])) {
                         locks[row] = sector_lock(v2->field_20[row], &(sectors[row]));
                     } else {
                         locks[row] = false;
@@ -1344,7 +1344,7 @@ void sub_43CF70(int64_t obj)
     sub_443770(obj);
 
     sector_id = sector_id_from_loc(obj_field_int64_get(obj, OBJ_F_LOCATION));
-    if (object_is_static(obj) || sub_4D04E0(sector_id)) {
+    if (object_is_static(obj) || sector_loaded(sector_id)) {
         sector_lock(sector_id, &sector);
         objlist_remove(&(sector->objects), obj);
 
@@ -2236,7 +2236,7 @@ void sub_43E770(int64_t obj, int64_t loc, int offset_x, int offset_y)
     is_static = object_is_static(obj);
 
     if (cur_sector_id == sector_id) {
-        if (is_static || sub_4D04E0(sector_id)) {
+        if (is_static || sector_loaded(sector_id)) {
             sector_lock(sector_id, &sector);
             objlist_move(&(sector->objects), obj, loc, offset_x, offset_y);
             sector_unlock(sector_id);
@@ -2246,7 +2246,7 @@ void sub_43E770(int64_t obj, int64_t loc, int offset_x, int offset_y)
             obj_field_int32_set(obj, OBJ_F_OFFSET_Y, offset_y);
         }
     } else {
-        if (is_static || sub_4D04E0(cur_sector_id)) {
+        if (is_static || sector_loaded(cur_sector_id)) {
             sector_lock(cur_sector_id, &sector);
             objlist_remove(&(sector->objects), obj);
             sector_unlock(cur_sector_id);
@@ -2256,7 +2256,7 @@ void sub_43E770(int64_t obj, int64_t loc, int offset_x, int offset_y)
         obj_field_int32_set(obj, OBJ_F_OFFSET_X, offset_x);
         obj_field_int32_set(obj, OBJ_F_OFFSET_Y, offset_y);
 
-        if (is_static || sub_4D04E0(sector_id)) {
+        if (is_static || sector_loaded(sector_id)) {
             sector_lock(sector_id, &sector);
             objlist_insert(&(sector->objects), obj);
             sector_unlock(sector_id);
@@ -3338,7 +3338,7 @@ void object_list_location(int64_t loc, unsigned int flags, ObjectList* objects)
     }
 
     if ((flags & (OBJ_TM_TRAP | OBJ_TM_SCENERY | OBJ_TM_PORTAL | OBJ_TM_WALL)) != 0
-        || sub_4D04E0(sector_id)) {
+        || sector_loaded(sector_id)) {
         if (sector_lock(sector_id, &sector)) {
             ObjectNode* node;
 
@@ -3836,7 +3836,7 @@ void object_drop(int64_t obj, int64_t loc)
     obj_field_int32_set(obj, OBJ_F_OFFSET_Y, 0);
 
     sec = sector_id_from_loc(loc);
-    if (sub_4D04E0(sec)) {
+    if (sector_loaded(sec)) {
         sector_lock(sec, &sector);
         objlist_insert(&(sector->objects), obj);
         sector_unlock(sec);
@@ -3912,7 +3912,7 @@ void object_pickup(int64_t item_obj, int64_t parent_obj)
     object_get_rect(item_obj, 0x07, &rect);
     loc = obj_field_int64_get(item_obj, OBJ_F_LOCATION);
     sec = sector_id_from_loc(loc);
-    if (sub_4D04E0(sec)) {
+    if (sector_loaded(sec)) {
         sector_lock(sec, &sector);
         objlist_remove(&(sector->objects), item_obj);
         sector_unlock(sec);
@@ -4368,7 +4368,7 @@ bool sub_442260(int64_t obj, int64_t loc)
     }
 
     sector_id = sector_id_from_loc(loc);
-    if (object_is_static(obj) || sub_4D04E0(sector_id)) {
+    if (object_is_static(obj) || sector_loaded(sector_id)) {
         sector_lock(sector_id, &sector);
         objlist_insert(&(sector->objects), obj);
         sector_unlock(sector_id);
@@ -4413,7 +4413,7 @@ void sub_4423E0(int64_t obj, int offset_x, int offset_y)
     }
 
     sector_id = sector_id_from_loc(loc);
-    if (object_is_static(obj) || sub_4D04E0(sector_id)) {
+    if (object_is_static(obj) || sector_loaded(sector_id)) {
         sector_lock(sector_id, &sector);
         objlist_move(&(sector->objects), obj, loc, offset_x, offset_y);
         sector_unlock(sector_id);
@@ -4745,7 +4745,7 @@ void object_toggle_flat(int64_t obj, bool flat)
     }
     obj_field_int32_set(obj, OBJ_F_FLAGS, flags);
 
-    if (sub_4D04E0(sector_id)) {
+    if (sector_loaded(sector_id)) {
         sector_lock(sector_id, &sector);
         objlist_remove(&(sector->objects), obj);
         objlist_insert(&(sector->objects), obj);
