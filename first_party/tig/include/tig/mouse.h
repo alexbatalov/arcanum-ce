@@ -91,9 +91,6 @@ tig_art_id_t tig_mouse_cursor_get_art_id(void);
 // Adds overlay to the mouse cursor.
 int tig_mouse_cursor_overlay(tig_art_id_t art_id, int x, int y);
 
-int sub_500560(void);
-void sub_500570(void);
-
 void tig_mouse_wheel(int dx, int dy);
 
 #ifdef __cplusplus

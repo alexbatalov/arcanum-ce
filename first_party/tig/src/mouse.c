@@ -799,17 +799,6 @@ void tig_mouse_cursor_animate(void)
     tig_window_invalidate_rect(&(tig_mouse_state.frame));
 }
 
-// 0x500560
-int sub_500560(void)
-{
-    return 0;
-}
-
-// 0x500570
-void sub_500570(void)
-{
-}
-
 void tig_mouse_wheel(int dx, int dy)
 {
     TigMessage message;

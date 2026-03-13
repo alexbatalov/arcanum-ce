@@ -50,9 +50,6 @@ static int64_t qword_683500;
 // 0x683508
 static bool dword_683508;
 
-// 0x68350C
-static bool dword_68350C;
-
 // 0x57BB30
 bool spell_ui_init(GameInitInfo* init_info)
 {
@@ -216,10 +213,6 @@ SpellUiActivate spell_ui_activate(int64_t obj, int spl)
     sub_4F25B0(tgt);
     if (intgame_mode_set(INTGAME_MODE_SPELL)) {
         sub_4F25B0(tgt);
-        dword_68350C = sub_500560();
-        if (!dword_68350C) {
-            sub_500570();
-        }
 
         if ((*tgt_ptr & Tgt_Object) != 0
             && tig_kb_get_modifier(SDL_KMOD_SHIFT)) {
@@ -246,10 +239,6 @@ SpellUiActivate spell_ui_activate(int64_t obj, int spl)
 // 0x57BFF0
 void spell_ui_cancel(void)
 {
-    if (!dword_68350C) {
-        sub_500570();
-    }
-
     intgame_mode_set(INTGAME_MODE_MAIN);
 
     if (!dword_683508) {
