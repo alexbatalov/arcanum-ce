@@ -177,7 +177,7 @@ static int64_t sector_demo_limits_min_y;
 static int64_t sector_demo_limits_min_x;
 
 // 0x601820
-static SectorLockFunc* dword_601820;
+static SectorLockFunc* sector_write_lock_func;
 
 // 0x601824
 static bool sector_demo_limits_set;
@@ -200,7 +200,7 @@ static int sector_refcount;
 // 0x4CEF70
 bool sector_init(GameInitInfo* init_info)
 {
-    dword_601820 = NULL;
+    sector_write_lock_func = NULL;
     sector_iso_window_handle = init_info->iso_window_handle;
     sector_iso_window_invalidate_rect = init_info->invalidate_rect_func;
     sector_view_options.type = VIEW_TYPE_ISOMETRIC;
@@ -321,9 +321,9 @@ void sector_update_view(ViewOptions* view_options)
 }
 
 // 0x4CF360
-void sub_4CF360(SectorLockFunc* func)
+void sector_write_lock_func_set(SectorLockFunc* func)
 {
-    dword_601820 = func;
+    sector_write_lock_func = func;
 }
 
 // 0x4CF370
@@ -1799,10 +1799,10 @@ bool sector_save_editor_internal(Sector* sector, const char* base_path)
         return true;
     }
 
-    if (dword_601820 != NULL) {
+    if (sector_write_lock_func != NULL) {
         compat_splitpath(base_path, NULL, NULL, fname, NULL);
         sprintf(path, "%s_sec.loc", fname);
-        if (!dword_601820(path)) {
+        if (!sector_write_lock_func(path)) {
             tig_debug_println("Trying to save a sector that we don't have write locked.");
             return false;
         }

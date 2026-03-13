@@ -47,7 +47,7 @@ void sector_exit(void);
 void sector_resize(GameResizeInfo* resize_info);
 void sector_map_close(void);
 void sector_update_view(ViewOptions* view_options);
-void sub_4CF360(SectorLockFunc* func);
+void sector_write_lock_func_set(SectorLockFunc* func);
 void sector_grid_toggle(void);
 void sector_draw(GameDrawInfo* draw_info);
 bool sector_limits_set(int64_t x, int64_t y);
