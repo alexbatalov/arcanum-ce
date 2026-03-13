@@ -179,7 +179,7 @@ static int light_buffers_lock_cnt;
 static tig_color_t light_indoor_color;
 
 // 0x60340C
-static bool dword_60340C;
+static bool light_hardware_accelerated;
 
 // 0x603418
 static int dword_603418;
@@ -211,7 +211,7 @@ bool light_init(GameInitInfo* init_info)
     light_iso_content_rect.width = window_data.rect.width;
     light_iso_content_rect.height = window_data.rect.height;
 
-    dword_60340C = tig_video_3d_check_initialized() == TIG_OK;
+    light_hardware_accelerated = tig_video_3d_check_initialized() == TIG_OK;
 
     settings_register(&settings, SHADOWS_KEY, "0", shadows_changed);
     light_shadows_enabled = settings_get_value(&settings, SHADOWS_KEY);
@@ -271,7 +271,7 @@ void light_toggle(void)
 {
     light_enabled = !light_enabled;
 
-    if (!dword_60340C) {
+    if (!light_hardware_accelerated) {
         sub_5022D0();
     }
 
@@ -366,7 +366,7 @@ void light_set_colors(tig_color_t indoor_color, tig_color_t outdoor_color)
     sub_4DE200();
 
     if (light_enabled) {
-        if (!dword_60340C) {
+        if (!light_hardware_accelerated) {
             sub_5022D0();
         }
 
@@ -1220,7 +1220,7 @@ void sub_4DC210(int64_t obj, int* colors, int* cnt_ptr)
             sector_list_destroy(v2);
         }
 
-        if (dword_60340C) {
+        if (light_hardware_accelerated) {
             colors[1] = colors[obj_rect.width - 1];
             if (colors[0] != colors[1]) {
                 *cnt_ptr = 2;
@@ -2087,7 +2087,7 @@ bool sub_4DE0B0(tig_art_id_t art_id, TigPaletteModifyInfo* modify_info)
 // 0x4DE200
 void sub_4DE200(void)
 {
-    if (!dword_60340C) {
+    if (!light_hardware_accelerated) {
         if (light_indoor_palette == NULL) {
             light_indoor_palette = tig_palette_create();
         }
@@ -2103,7 +2103,7 @@ void sub_4DE200(void)
 // 0x4DE250
 void sub_4DE250(void)
 {
-    if (!dword_60340C) {
+    if (!light_hardware_accelerated) {
         tig_palette_destroy(light_indoor_palette);
         light_indoor_palette = NULL;
 

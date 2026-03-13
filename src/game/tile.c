@@ -56,7 +56,7 @@ static bool tile_visible;
 static ViewOptions tile_view_options;
 
 // 0x602E00
-static bool dword_602E00;
+static bool tile_hardware_accelerated;
 
 // 0x602E04
 static tig_window_handle_t tile_iso_window_handle;
@@ -71,7 +71,7 @@ bool tile_init(GameInitInfo* init_info)
         return false;
     }
 
-    dword_602E00 = tig_video_3d_check_initialized() == TIG_OK;
+    tile_hardware_accelerated = tig_video_3d_check_initialized() == TIG_OK;
     tile_iso_window_handle = init_info->iso_window_handle;
     tile_invalidate_rect = init_info->invalidate_rect_func;
     tile_view_options.type = VIEW_TYPE_ISOMETRIC;
@@ -753,13 +753,13 @@ void tile_draw_iso(GameDrawInfo* draw_info)
 
                                         if (sub_4DA360(center_x, center_y, color, v51)) {
                                             art_blit_info.flags = TIG_ART_BLT_BLEND_COLOR_LERP;
-                                            if (!dword_602E00) {
+                                            if (!tile_hardware_accelerated) {
                                                 art_blit_info.flags |= TIG_ART_BLT_PALETTE_ORIGINAL;
                                             }
-                                        } else if (v51[0] != color || dword_602E00) {
+                                        } else if (v51[0] != color || tile_hardware_accelerated) {
                                             art_blit_info.flags = TIG_ART_BLT_BLEND_COLOR_CONST;
                                             art_blit_info.color = v51[0];
-                                            if (!dword_602E00) {
+                                            if (!tile_hardware_accelerated) {
                                                 art_blit_info.flags |= TIG_ART_BLT_PALETTE_ORIGINAL;
                                             }
                                         } else {

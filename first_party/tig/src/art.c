@@ -327,7 +327,7 @@ static TigArtFilePathResolver* tig_art_file_path_resolver;
 static int dword_604714;
 
 // 0x604718
-static bool dword_604718;
+static bool tig_art_hardware_accelerated;
 
 // 0x60471C
 static int tig_art_cache_entries_length;
@@ -403,7 +403,7 @@ int tig_art_init(TigInitInfo* init_info)
 
     tig_art_initialized = true;
 
-    dword_604718 = tig_video_3d_check_initialized() == TIG_OK;
+    tig_art_hardware_accelerated = tig_video_3d_check_initialized() == TIG_OK;
 
     return TIG_OK;
 }
@@ -2701,7 +2701,7 @@ int art_get_video_buffer(int cache_entry_index, tig_art_id_t art_id, TigVideoBuf
     case TIG_ART_TYPE_MISC:
         return TIG_ERR_GENERIC;
     case TIG_ART_TYPE_LIGHT:
-        if (!dword_604718) {
+        if (!tig_art_hardware_accelerated) {
             return TIG_ERR_GENERIC;
         }
         if (sub_504790(art_id) == 0) {
@@ -2722,7 +2722,7 @@ int art_get_video_buffer(int cache_entry_index, tig_art_id_t art_id, TigVideoBuf
 
             vb_create_info.color_key = tig_color_make(0, 255, 0);
             vb_create_info.background_color = vb_create_info.color_key;
-            if (dword_604718) {
+            if (tig_art_hardware_accelerated) {
                 vb_create_info.flags = TIG_VIDEO_BUFFER_CREATE_TEXTURE;
                 vb_create_info.color_key = 0;
             } else {
@@ -2779,7 +2779,7 @@ int art_get_video_buffer(int cache_entry_index, tig_art_id_t art_id, TigVideoBuf
                 art_blit_info.art_id = tig_art_roof_id_piece_set(art_id, frame);
                 art_blit_info.dst_video_buffer = tig_art_cache_entries[cache_entry_index].video_buffers[palette][rotation][frame];
 
-                if (dword_604718) {
+                if (tig_art_hardware_accelerated) {
                     rc = sub_5059F0(cache_entry_index, &art_blit_info);
                 } else {
                     rc = art_blit(cache_entry_index, &art_blit_info);
@@ -2797,7 +2797,7 @@ int art_get_video_buffer(int cache_entry_index, tig_art_id_t art_id, TigVideoBuf
                 art_blit_info.art_id = tig_art_roof_id_piece_set(art_id, frame);
                 art_blit_info.dst_video_buffer = tig_art_cache_entries[cache_entry_index].video_buffers[palette][rotation][frame];
 
-                if (dword_604718) {
+                if (tig_art_hardware_accelerated) {
                     rc = sub_5059F0(cache_entry_index, &art_blit_info);
                 } else {
                     rc = art_blit(cache_entry_index, &art_blit_info);
@@ -2842,7 +2842,7 @@ int art_get_video_buffer(int cache_entry_index, tig_art_id_t art_id, TigVideoBuf
             vb_create_info.color_key = tig_color_make(0, 255, 0);
             vb_create_info.background_color = vb_create_info.color_key;
 
-            if (dword_604718) {
+            if (tig_art_hardware_accelerated) {
                 vb_create_info.flags = TIG_VIDEO_BUFFER_CREATE_TEXTURE;
                 vb_create_info.color_key = 0;
             } else {
@@ -2884,7 +2884,7 @@ int art_get_video_buffer(int cache_entry_index, tig_art_id_t art_id, TigVideoBuf
                 art_blit_info.art_id = tig_art_id_frame_set(art_id, frame);
                 art_blit_info.dst_video_buffer = tig_art_cache_entries[cache_entry_index].video_buffers[palette][rotation][frame];
 
-                if (dword_604718) {
+                if (tig_art_hardware_accelerated) {
                     rc = sub_5059F0(cache_entry_index, &art_blit_info);
                 } else {
                     rc = art_blit(cache_entry_index, &art_blit_info);

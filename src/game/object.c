@@ -203,7 +203,7 @@ static TigRect object_iso_content_rect_ex;
 static ObjectRenderColorsNode* object_render_color_array_node_head;
 
 // 0x5E2F48
-static bool dword_5E2F48;
+static bool object_hardware_accelerated;
 
 // 0x5E2F50
 static int64_t qword_5E2F50;
@@ -281,8 +281,8 @@ bool object_init(GameInitInfo* init_info)
         dword_5E2EC8 = OF_DONTDRAW;
     }
 
-    dword_5E2F48 = tig_video_3d_check_initialized() == TIG_OK;
-    if (!dword_5E2F48) {
+    object_hardware_accelerated = tig_video_3d_check_initialized() == TIG_OK;
+    if (!object_hardware_accelerated) {
         object_blit_flags = TIG_ART_BLT_BLEND_ALPHA_STIPPLE_D;
     }
 
@@ -1091,7 +1091,7 @@ void sub_43C690(GameDrawInfo* draw_info)
                         art_blit_info.src_rect = &src_rect;
                         art_blit_info.dst_rect = &dst_rect;
 
-                        if (!dword_5E2F48) {
+                        if (!object_hardware_accelerated) {
                             art_blit_info.flags |= TIG_ART_BLT_PALETTE_ORIGINAL;
                         }
 
@@ -1132,7 +1132,7 @@ void sub_43C690(GameDrawInfo* draw_info)
                     art_blit_info.src_rect = &src_rect;
                     art_blit_info.dst_rect = &dst_rect;
 
-                    if (!dword_5E2F48) {
+                    if (!object_hardware_accelerated) {
                         art_blit_info.flags |= TIG_ART_BLT_PALETTE_ORIGINAL;
                     }
 
@@ -4519,7 +4519,7 @@ void sub_442520(int64_t obj)
             color = colors.colors[obj_rect.width / 2];
         } else {
             color = colors.colors[0];
-            if (dword_5E2F48) {
+            if (object_hardware_accelerated) {
                 new_render_flags |= ORF_20000000;
             }
         }
@@ -4573,14 +4573,14 @@ void sub_442D90(int64_t obj, ObjectRenderColors* colors)
 
     if ((obj_flags & OF_DONTLIGHT) != 0
         || (blit_flags & (TIG_ART_BLT_BLEND_MUL | TIG_ART_BLT_BLEND_ADD)) != 0) {
-        if (!dword_5E2F48) {
+        if (!object_hardware_accelerated) {
             render_flags |= TIG_ART_BLT_PALETTE_ORIGINAL;
         }
         render_flags &= ~(ORF_40000000 | ORF_20000000);
     }
 
     if ((render_flags & ORF_20000000) != 0) {
-        if (dword_5E2F48) {
+        if (object_hardware_accelerated) {
             render_flags |= TIG_ART_BLT_BLEND_COLOR_CONST;
         } else {
             palette_modify_info.flags |= TIG_PALETTE_MODIFY_TINT;
@@ -4592,7 +4592,7 @@ void sub_442D90(int64_t obj, ObjectRenderColors* colors)
     if ((render_flags & ORF_40000000) != 0) {
         object_render_colors_set(obj, colors);
         render_flags |= TIG_ART_BLT_BLEND_COLOR_ARRAY;
-        if (!dword_5E2F48) {
+        if (!object_hardware_accelerated) {
             render_flags |= TIG_ART_BLT_PALETTE_ORIGINAL;
         }
     } else {
@@ -4769,17 +4769,17 @@ void object_setup_blit(int64_t obj, TigArtBlitInfo* blit_info)
 
     if ((obj_field_int32_get(obj, OBJ_F_FLAGS) & OF_FROZEN) != 0) {
         blit_info->flags = TIG_ART_BLT_BLEND_ADD | TIG_ART_BLT_BLEND_COLOR_CONST;
-        if (!dword_5E2F48) {
+        if (!object_hardware_accelerated) {
             blit_info->flags |= TIG_ART_BLT_PALETTE_ORIGINAL;
         }
     } else if ((obj_field_int32_get(obj, OBJ_F_BLIT_FLAGS) & TIG_ART_BLT_BLEND_ADD) != 0) {
         blit_info->flags = TIG_ART_BLT_BLEND_ADD;
-        if (!dword_5E2F48) {
+        if (!object_hardware_accelerated) {
             blit_info->flags |= TIG_ART_BLT_PALETTE_ORIGINAL;
         }
     } else if ((obj_field_int32_get(obj, OBJ_F_BLIT_FLAGS) & TIG_ART_BLT_BLEND_MUL) != 0) {
         blit_info->flags = TIG_ART_BLT_BLEND_MUL;
-        if (!dword_5E2F48) {
+        if (!object_hardware_accelerated) {
             blit_info->flags |= TIG_ART_BLT_PALETTE_ORIGINAL;
         }
     } else if ((obj_field_int32_get(obj, OBJ_F_BLIT_FLAGS) & TIG_ART_BLT_BLEND_ALPHA_CONST) != 0) {
@@ -4832,7 +4832,7 @@ void object_setup_blit(int64_t obj, TigArtBlitInfo* blit_info)
         obj_flags = obj_field_int32_get(obj, OBJ_F_FLAGS);
         if ((obj_flags & (OF_OFF | OF_DESTROYED)) != 0) {
             blit_info->flags = TIG_ART_BLT_BLEND_ADD | TIG_ART_BLT_BLEND_COLOR_CONST;
-            if (!dword_5E2F48) {
+            if (!object_hardware_accelerated) {
                 blit_info->flags |= TIG_ART_BLT_PALETTE_ORIGINAL;
             }
 

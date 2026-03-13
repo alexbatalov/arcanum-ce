@@ -123,7 +123,7 @@ static uint8_t roof_full_transparency;
 static IsoInvalidateRectFunc* roof_iso_window_invalidate_rect;
 
 // 0x5E2E38
-static bool dword_5E2E38;
+static bool roof_hardware_accelerated;
 
 // 0x5E2E3C
 static bool roof_editor;
@@ -179,8 +179,8 @@ bool roof_init(GameInitInfo* init_info)
 
     mes_unload(mes_file);
 
-    dword_5E2E38 = tig_video_3d_check_initialized() == TIG_OK;
-    if (!dword_5E2E38) {
+    roof_hardware_accelerated = tig_video_3d_check_initialized() == TIG_OK;
+    if (!roof_hardware_accelerated) {
         roof_blit_flags = TIG_ART_BLT_BLEND_ALPHA_STIPPLE_D;
     }
 
@@ -236,7 +236,7 @@ void roof_draw(GameDrawInfo* draw_info)
         return;
     }
 
-    if (dword_5E2E38) {
+    if (roof_hardware_accelerated) {
         art_blit_info.color = light_get_outdoor_color();
         flags = TIG_ART_BLT_BLEND_COLOR_CONST;
     } else {
