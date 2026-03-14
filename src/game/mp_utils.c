@@ -667,26 +667,6 @@ void sub_4EF8B0(Packet118* pkt)
     }
 }
 
-// 0x4EFA70
-void mp_stop_anim_id(AnimID anim_id)
-{
-    PacketStopAnimId pkt;
-
-    pkt.type = 120;
-    pkt.anim_id = anim_id;
-    tig_net_send_app_all(&pkt, sizeof(pkt));
-}
-
-// 0x4EFAB0
-void mp_handle_stop_anim_id(PacketStopAnimId* pkt)
-{
-    sub_44E2C0(&(pkt->anim_id), 6);
-
-    if (tig_net_is_host()) {
-        tig_net_send_app_all(pkt, sizeof(*pkt));
-    }
-}
-
 // 0x4EFAE0
 void sub_4EFAE0(int64_t obj, int a2)
 {
