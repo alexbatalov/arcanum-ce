@@ -519,7 +519,7 @@ bool sub_567E30(DialogUiEntry* entry, int a2)
     case 8:
         if (is_pc) {
             intgame_dialog_clear();
-            mp_ui_show_inven_npc_identify(entry->state.pc_obj, entry->state.npc_obj);
+            ui_show_inven_npc_identify(entry->state.pc_obj, entry->state.npc_obj);
         }
         if (tig_net_is_active()) {
             sub_5678D0(entry->state.pc_obj, 0);
@@ -657,7 +657,7 @@ bool sub_568280(DialogUiEntry* a1)
     case 8:
         if (is_pc) {
             intgame_dialog_clear();
-            mp_ui_show_inven_npc_identify(a1->state.pc_obj, a1->state.npc_obj);
+            ui_show_inven_npc_identify(a1->state.pc_obj, a1->state.npc_obj);
         }
         break;
     case 9:

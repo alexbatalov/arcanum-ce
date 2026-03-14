@@ -366,26 +366,6 @@ void sub_4EE4C0(int64_t obj, int64_t a2)
     }
 }
 
-// 0x4EE550
-void mp_ui_show_inven_npc_identify(int64_t pc_obj, int64_t target_obj)
-{
-    if (!player_is_local_pc_obj(pc_obj)) {
-        if (tig_net_is_active() && tig_net_is_host()) {
-            Packet100 pkt;
-
-            pkt.type = 100;
-            pkt.subtype = 9;
-            sub_4F0640(pc_obj, &(pkt.d.s.field_8));
-            sub_4F0640(pc_obj, &(pkt.d.s.field_20));
-            tig_net_send_app_all(&pkt, sizeof(pkt));
-        }
-
-        return;
-    }
-
-    ui_show_inven_npc_identify(pc_obj, target_obj);
-}
-
 // 0x4EE5E0
 void sub_4EE5E0(Packet100* pkt)
 {

@@ -973,7 +973,6 @@ void mp_ui_show_inven_loot(int64_t obj, int64_t a2);
 void sub_4EE3A0(int64_t obj, int64_t a2);
 void mp_ui_show_inven_identify(int64_t pc_obj, int64_t target_obj);
 void sub_4EE4C0(int64_t obj, int64_t a2);
-void mp_ui_show_inven_npc_identify(int64_t pc_obj, int64_t target_obj);
 void mp_container_close(int64_t obj);
 void mp_container_open(int64_t obj);
 void sub_4EF830(int64_t a1, int64_t a2);
