@@ -228,7 +228,7 @@ void roller_ui_draw(int value, tig_window_handle_t window_handle, int x, int y, 
     // sufficient to store both the sign and the digit. Due to the memory
     // layout, when a negative value is printed to `buffer`, its NULL terminator
     // replaces the first byte of `src_rect.x`, affecting the background
-    // positioning.  Although `buffer` remains a valid string, only the minus
+    // positioning. Although `buffer` remains a valid string, only the minus
     // sign is rendered in this case (as constrained by `dst_rect`).
     //
     // This bug does not manifest in practice because the roller UI is only used

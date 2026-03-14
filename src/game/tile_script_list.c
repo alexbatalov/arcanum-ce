@@ -174,7 +174,7 @@ bool tile_script_list_set(TileScriptList* list, unsigned int id, Script* scr)
     node = list->head;
     while (node != NULL) {
         if (node->id == id) {
-            // // Update existing node.
+            // Update existing node.
             node->flags |= TILE_SCRIPT_LIST_NODE_MODIFIED;
             node->scr = *scr;
 

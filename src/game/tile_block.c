@@ -154,7 +154,7 @@ void tileblock_draw(GameDrawInfo* draw_info)
     int obj_type;
     bool blocked;
 
-    // // Skip rendering if tile blocks are disabled.
+    // Skip rendering if tile blocks are disabled.
     if (!tileblock_enabled) {
         return;
     }

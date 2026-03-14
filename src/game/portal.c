@@ -276,7 +276,7 @@ bool portal_close(int64_t portal_obj)
                     object_flags_unset(portal_obj, OF_SHOOT_THROUGH | OF_NO_BLOCK | OF_SEE_THROUGH);
                     art_id = tig_art_id_frame_set(art_id, 0);
                 } else {
-                    // // Reverse to previous frame.
+                    // Reverse to previous frame.
                     art_id = tig_art_id_frame_set(art_id, frame - 1);
                 }
             } else {

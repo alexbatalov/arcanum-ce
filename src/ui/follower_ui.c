@@ -644,7 +644,7 @@ bool follower_ui_message_filter(TigMessage* msg)
     }
 
     if (follower_ui_drop_down_menu_window != TIG_WINDOW_HANDLE_INVALID) {
-        // A drop-down context menu is open — route events to it.
+        // A drop-down context menu is open - route events to it.
         switch (msg->type) {
         case TIG_MESSAGE_BUTTON:
             switch (msg->data.button.state) {
@@ -729,7 +729,7 @@ bool follower_ui_message_filter(TigMessage* msg)
         return false;
     }
 
-    // No drop-down open — handle normal panel interactions.
+    // No drop-down open - handle normal panel interactions.
     switch (msg->type) {
     case TIG_MESSAGE_BUTTON:
         switch (msg->data.button.state) {
@@ -1007,7 +1007,7 @@ void follower_ui_update(void)
 
         follower_obj = follower_ui_followers[follower_ui_top_index + index].obj;
         if (follower_obj == OBJ_HANDLE_NULL) {
-            // Follower is no longer valid — rebuild the list and stop.
+            // Follower is no longer valid - rebuild the list and stop.
             follower_ui_refresh();
             break;
         }

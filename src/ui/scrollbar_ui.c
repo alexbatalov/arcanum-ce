@@ -837,8 +837,9 @@ void scrollbar_ui_begin_ignore_events(void)
 
 /**
  * Tells scrollbar UI module to resume the handling of events.
+ *
+ * 0x5811B0
  */
-// 0x5811B0
 void scrollbar_ui_end_ignore_events(void)
 {
     scrollbar_ui_ignore_events = false;

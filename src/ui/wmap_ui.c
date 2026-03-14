@@ -3612,7 +3612,8 @@ bool sub_5643E0(WmapCoords* coords)
 
         steps = sub_44EB40(player_get_local_pc_obj(), from, to);
         if (steps == 0) {
-            // "Your path is blocked.  Try clicking closer to the previous waypoint."
+            // "Your path is blocked. Try clicking closer to the previous
+            // waypoint."
             mes_file_entry.num = 610;
             mes_get_msg(wmap_ui_worldmap_mes_file, &mes_file_entry);
             ui_message.type = UI_MSG_TYPE_FEEDBACK;
@@ -3637,7 +3638,8 @@ bool sub_5643E0(WmapCoords* coords)
 
         steps = wmap_path_make(&path_info);
         if (steps == 0) {
-            // "Your path is blocked.  You must locate either a bridge, pass or means of transporation in order to travel to this destination."
+            // "Your path is blocked. You must locate either a bridge, pass or
+            // means of transporation in order to travel to this destination."
             mes_file_entry.num = 601;
             mes_get_msg(wmap_ui_worldmap_mes_file, &mes_file_entry);
             ui_message.type = UI_MSG_TYPE_FEEDBACK;
