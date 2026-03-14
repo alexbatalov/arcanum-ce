@@ -2882,8 +2882,8 @@ void sub_4A6010(int64_t obj)
     sub_4F0500(obj, OBJ_F_SPELL_FLAGS);
 
     for (index = 0; index < 7; index++) {
-        mp_object_overlay_set(obj, OBJ_F_OVERLAY_FORE, index, TIG_ART_ID_INVALID);
-        mp_object_overlay_set(obj, OBJ_F_OVERLAY_BACK, index, TIG_ART_ID_INVALID);
+        object_overlay_set(obj, OBJ_F_OVERLAY_FORE, index, TIG_ART_ID_INVALID);
+        object_overlay_set(obj, OBJ_F_OVERLAY_BACK, index, TIG_ART_ID_INVALID);
     }
 }
 

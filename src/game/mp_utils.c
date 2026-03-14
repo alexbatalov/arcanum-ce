@@ -1103,24 +1103,6 @@ void mp_obj_arrayfield_uint32_set(int64_t obj, int fld, int index, int value)
     }
 }
 
-// 0x4F0360
-void mp_object_overlay_set(int64_t obj, int fld, int index, tig_art_id_t aid)
-{
-    Packet129 pkt;
-
-    object_overlay_set(obj, fld, index, aid);
-
-    if (tig_net_is_active()) {
-        pkt.type = 129;
-        pkt.subtype = 12;
-        sub_4F0640(obj, &(pkt.oid));
-        pkt.d.i.field_28 = fld;
-        pkt.d.i.field_2C = index;
-        pkt.d.i.field_30 = aid;
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-    }
-}
-
 // 0x4F0500
 void sub_4F0500(int64_t obj, int fld)
 {
