@@ -248,11 +248,6 @@ void sleep_ui_toggle(int64_t bed_obj)
         return;
     }
 
-    // Prevent sleep UI in network games.
-    if (tig_net_is_active()) {
-        return;
-    }
-
     // Close sleep UI if it's currently visible.
     if (sleep_ui_active) {
         sleep_ui_close();
