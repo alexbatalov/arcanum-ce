@@ -41,36 +41,6 @@ bool sub_4ED6C0(int64_t obj)
     return false;
 }
 
-// 0x4ED780
-bool sub_4ED780(int64_t obj, int quest, int state, int64_t a4)
-{
-    int player;
-    char str[256];
-    char v1[40];
-    PacketQuestStateSet pkt;
-
-    player = multiplayer_find_slot_from_obj(obj);
-
-    if (player == -1) {
-        return false;
-    }
-
-    object_examine(obj, obj, str);
-
-    // FIXME: Probably useless.
-    objid_id_to_str(v1, obj_get_id(obj));
-    objid_id_to_str(v1, obj_get_id(a4));
-
-    pkt.type = 39;
-    sub_4440E0(obj, &(pkt.field_8));
-    pkt.quest = quest;
-    pkt.state = state;
-    sub_4440E0(a4, &(pkt.field_40));
-    tig_net_send_app_except(&pkt, sizeof(pkt), player);
-
-    return true;
-}
-
 // 0x4ED8B0
 bool mp_object_create(int name, int64_t loc, int64_t* obj_ptr)
 {

@@ -2,8 +2,6 @@
 
 #include "game/critter.h"
 #include "game/mes.h"
-#include "game/mp_utils.h"
-#include "game/multiplayer.h"
 #include "game/object.h"
 #include "game/party.h"
 #include "game/player.h"
@@ -393,34 +391,6 @@ int quest_state_set(int64_t pc_obj, int num, int state, int64_t npc_obj)
         critter_give_xp(pc_obj, quest_get_xp(quests[quest_num_to_idx(num)].experience_level));
     }
 
-    if (tig_net_is_active()) {
-        // In multiplayer, the host manages quest state updates.
-        if (tig_net_is_host()) {
-            if (state == QUEST_STATE_ACCEPTED || state == QUEST_STATE_COMPLETED) {
-                // Iterate through party members and propagate
-                // accepted/completed states.
-                party_member_obj = party_find_first(pc_obj, &party_member_index);
-                do {
-                    quest_state_set_internal(party_member_obj, num, state, npc_obj);
-                } while ((party_member_obj = party_find_next(&party_member_index)) != OBJ_HANDLE_NULL);
-            } else if (state == QUEST_STATE_BOTCHED) {
-                // Iterate through all possible players, and mark quest as
-                // botched for everyone.
-                for (player = 0; player < 8; player++) {
-                    player_obj = sub_4A2B60(player);
-                    if (player_obj != OBJ_HANDLE_NULL) {
-                        quest_state_set_internal(player_obj, num, state, npc_obj);
-                    }
-                }
-            } else {
-                // Advance state only for the specified player.
-                quest_state_set_internal(pc_obj, num, state, npc_obj);
-            }
-        }
-
-        return quest_state_get(pc_obj, num);
-    }
-
     return quest_state_set_internal(pc_obj, num, state, npc_obj);
 }
 
@@ -441,20 +411,6 @@ int quest_state_set_internal(int64_t pc_obj, int num, int state, int64_t npc_obj
     }
 
     old_state = quest_state_get(pc_obj, num);
-    if (!multiplayer_is_locked()) {
-        PacketQuestStateSet pkt;
-
-        if (!tig_net_is_host()) {
-            return old_state;
-        }
-
-        pkt.type = 39;
-        sub_4440E0(pc_obj, &(pkt.field_8));
-        pkt.quest = num;
-        pkt.state = state;
-        sub_4440E0(npc_obj, &(pkt.field_40));
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-    }
 
     if (quest_gstate[quest_num_to_idx(num)] == QUEST_STATE_ACCEPTED) {
         // Update global quest state based on current state.
@@ -539,20 +495,6 @@ int quest_unbotch(int64_t obj, int num)
         return state;
     }
 
-    if (!multiplayer_is_locked()) {
-        PacketQuestUnbotch pkt;
-
-        if (!tig_net_is_host()) {
-            obj_arrayfield_pc_quest_get(obj, OBJ_F_PC_QUEST_IDX, num, &pc_quest_state);
-            return pc_quest_state.state;
-        }
-
-        pkt.type = 40;
-        sub_4440E0(obj, &(pkt.field_8));
-        pkt.quest = num;
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-    }
-
     // Reset the global quest state ("accepted" is the default state).
     quest_gstate[quest_num_to_idx(num)] = QUEST_STATE_ACCEPTED;
 
@@ -601,19 +543,6 @@ int quest_global_state_set(int num, int state)
     // Prevent changes if already completed or botched.
     if (old_state == QUEST_STATE_COMPLETED || old_state == QUEST_STATE_BOTCHED) {
         return old_state;
-    }
-
-    if (!multiplayer_is_locked()) {
-        PacketQuestGlobalStateSet pkt;
-
-        if (!tig_net_is_host()) {
-            return state;
-        }
-
-        pkt.type = 41;
-        pkt.quest = num;
-        pkt.state = state;
-        tig_net_send_app_all(&pkt, sizeof(pkt));
     }
 
     if (state == QUEST_STATE_COMPLETED || state == QUEST_STATE_BOTCHED) {

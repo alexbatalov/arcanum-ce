@@ -339,37 +339,6 @@ typedef struct PacketRumorKnownSet {
 // Serializeable.
 static_assert(sizeof(PacketRumorKnownSet) == 0x28, "wrong size");
 
-typedef struct PacketQuestStateSet {
-    /* 0000 */ int type;
-    /* 0004 */ int padding_4;
-    /* 0008 */ FollowerInfo field_8;
-    /* 0038 */ int quest;
-    /* 003C */ int state;
-    /* 0040 */ FollowerInfo field_40;
-} PacketQuestStateSet;
-
-static_assert(sizeof(PacketQuestStateSet) == 0x70, "wrong size");
-
-typedef struct PacketQuestUnbotch {
-    /* 0000 */ int type;
-    /* 0004 */ int padding_4;
-    /* 0008 */ FollowerInfo field_8;
-    /* 0038 */ int quest;
-    /* 003C */ int padding_3C;
-} PacketQuestUnbotch;
-
-// Serializeable.
-static_assert(sizeof(PacketQuestUnbotch) == 0x40, "wrong size");
-
-typedef struct PacketQuestGlobalStateSet {
-    /* 0000 */ int type;
-    /* 0004 */ int quest;
-    /* 0008 */ int state;
-} PacketQuestGlobalStateSet;
-
-// Serializeable.
-static_assert(sizeof(PacketQuestGlobalStateSet) == 0xC, "wrong size");
-
 typedef struct PacketDialog {
     /* 0000 */ int type;
     /* 0004 */ int subtype;
@@ -1343,7 +1312,6 @@ typedef struct Packet130 {
 static_assert(sizeof(Packet130) == 0x28, "wrong size");
 
 bool sub_4ED6C0(int64_t obj);
-bool sub_4ED780(int64_t obj, int quest, int state, int64_t a4);
 bool mp_object_create(int name, int64_t loc, int64_t* obj_ptr);
 void mp_object_destroy(int64_t obj);
 void sub_4EDA60(UiMessage* ui_message, int player, int a3);
