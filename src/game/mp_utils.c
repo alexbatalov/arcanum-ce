@@ -24,54 +24,6 @@
 #include "game/ui.h"
 #include "game/wall.h"
 
-// 0x4ED510
-void sub_4ED510(AnimID anim_id, int64_t loc, AnimRunInfo* run_info)
-{
-    int size;
-    Packet16* pkt;
-
-    // NOTE: The size of this packet is unclear. It consists of two chunks -
-    // fixed length header and rotations array. The rotations array appended
-    // at +0x58 offset implying header size (including padding) to be 0x58,
-    // but the original code allocates 0x60 bytes for it.
-    size = sizeof(*pkt) + 8 + run_info->path.max;
-    pkt = (Packet16*)MALLOC(size);
-    pkt->type = 16;
-    pkt->anim_id = anim_id;
-    pkt->loc = loc;
-    pkt->path_flags = run_info->path.flags;
-    pkt->path_base_rot = run_info->path.baseRot;
-    pkt->path_curr = run_info->path.curr;
-    pkt->path_max = run_info->path.max;
-    pkt->path_subsequence = run_info->path.subsequence;
-    pkt->path_max_path_length = run_info->path.maxPathLength;
-    pkt->path_abs_max_path_length = run_info->path.absMaxPathLength;
-    pkt->field_48 = run_info->path.field_E8;
-    pkt->field_50 = run_info->path.field_F0;
-    pkt->offset_x = obj_field_int32_get(run_info->anim_obj, OBJ_F_OFFSET_X);
-    pkt->offset_y = obj_field_int32_get(run_info->anim_obj, OBJ_F_OFFSET_Y);
-    pkt->art_id = obj_field_int32_get(run_info->anim_obj, OBJ_F_CURRENT_AID);
-    pkt->anim_flags = run_info->flags;
-    memcpy((uint8_t*)(pkt + 1), run_info->path.rotations, run_info->path.max);
-    tig_net_send_app_all(&pkt, size);
-    FREE(pkt);
-}
-
-// 0x4ED630
-void sub_4ED630(Packet16* pkt, AnimRunInfo* run_info)
-{
-    run_info->path.flags = pkt->path_flags;
-    run_info->path.baseRot = pkt->path_base_rot;
-    run_info->path.curr = pkt->path_curr;
-    run_info->path.max = pkt->path_max;
-    run_info->path.subsequence = pkt->path_subsequence;
-    run_info->path.maxPathLength = pkt->path_max_path_length;
-    run_info->path.absMaxPathLength = pkt->path_abs_max_path_length;
-    run_info->path.field_E8 = pkt->field_48;
-    run_info->path.field_F0 = pkt->field_50;
-    memcpy(run_info->path.rotations, (uint8_t*)(pkt + 1), run_info->path.max);
-}
-
 // 0x4ED6C0
 bool sub_4ED6C0(int64_t obj)
 {

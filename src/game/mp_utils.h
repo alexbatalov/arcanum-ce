@@ -132,30 +132,6 @@ typedef struct Packet10 {
 // Serializeable.
 static_assert(sizeof(Packet10) == 0x40, "wrong size");
 
-typedef struct Packet16 {
-    /* 0000 */ int type;
-    /* 0004 */ AnimID anim_id;
-    /* 0010 */ int64_t loc;
-    /* 0018 */ int offset_x;
-    /* 001C */ int offset_y;
-    /* 0020 */ int art_id;
-    /* 0024 */ int anim_flags;
-    /* 0028 */ int path_flags;
-    /* 002C */ int field_2C;
-    /* 0030 */ int path_base_rot;
-    /* 0034 */ int path_curr;
-    /* 0038 */ int path_max;
-    /* 003C */ int path_subsequence;
-    /* 0040 */ int path_max_path_length;
-    /* 0044 */ int path_abs_max_path_length;
-    /* 0048 */ int64_t field_48;
-    /* 0050 */ int64_t field_50;
-} Packet16;
-
-// NOTE: May be wrong, see 0x4ED510.
-// Serializeable.
-static_assert(sizeof(Packet16) == 0x58, "wrong size");
-
 typedef struct PacketBroadcastMsg {
     /* 0000 */ int type;
     /* 0004 */ int padding_4;
@@ -1377,7 +1353,6 @@ typedef struct Packet130 {
 // Serializeable.
 static_assert(sizeof(Packet130) == 0x28, "wrong size");
 
-void sub_4ED510(AnimID anim_id, int64_t loc, AnimRunInfo* run_info);
 bool sub_4ED6C0(int64_t obj);
 void mp_critter_fatigue_damage_set(int64_t obj, int damage);
 bool sub_4ED780(int64_t obj, int quest, int state, int64_t a4);

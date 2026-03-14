@@ -5033,9 +5033,6 @@ bool sub_426040(AnimRunInfo* run_info)
     }
 
     if (sub_426500(obj, run_info->params[1].loc, &(run_info->path), flags)) {
-        if (tig_net_is_host()) {
-            sub_4ED510(run_info->id, run_info->cur_stack_data->params[AGDATA_TARGET_TILE].loc, run_info);
-        }
         return true;
     }
 
@@ -5046,10 +5043,6 @@ bool sub_426040(AnimRunInfo* run_info)
     run_info->flags |= 0x400;
 
     rc = sub_426500(obj, run_info->params[1].loc, &(run_info->path), flags | PATH_FLAG_0x0040 | PATH_FLAG_0x0020 | PATH_FLAG_0x0010 | PATH_FLAG_0x0008);
-
-    if (tig_net_is_host()) {
-        sub_4ED510(run_info->id, run_info->cur_stack_data->params[AGDATA_TARGET_TILE].loc, run_info);
-    }
 
     return rc;
 }
@@ -5496,12 +5489,6 @@ bool sub_426A80(AnimRunInfo* run_info)
             object_set_current_aid(source_obj, art_id);
             run_info->path.rotations[0] = rot;
         }
-    }
-
-    if (tig_net_is_host()) {
-        sub_4ED510(run_info->id,
-            run_info->cur_stack_data->params[AGDATA_TARGET_TILE].loc,
-            run_info);
     }
 
     return true;
@@ -5954,12 +5941,6 @@ bool sub_427730(AnimRunInfo* run_info)
     run_info->path.curr = 0;
     run_info->path.flags &= ~0x03;
 
-    if (tig_net_is_host()) {
-        sub_4ED510(run_info->id,
-            run_info->cur_stack_data->params[AGDATA_TARGET_TILE].loc,
-            run_info);
-    }
-
     return true;
 }
 
@@ -6056,12 +6037,6 @@ bool sub_427990(AnimRunInfo* run_info)
             run_info->path.max--;
         }
 
-        if (tig_net_is_host()) {
-            sub_4ED510(run_info->id,
-                run_info->cur_stack_data->params[AGDATA_TARGET_TILE].loc,
-                run_info);
-        }
-
         return true;
     }
 
@@ -6100,12 +6075,6 @@ bool sub_427990(AnimRunInfo* run_info)
             run_info->path.max--;
         }
 
-        if (tig_net_is_host()) {
-            sub_4ED510(run_info->id,
-                run_info->cur_stack_data->params[AGDATA_TARGET_TILE].loc,
-                run_info);
-        }
-
         return true;
     }
 
@@ -6139,12 +6108,6 @@ bool sub_427990(AnimRunInfo* run_info)
     if (run_info->path.max > 0) {
         run_info->path.curr = 0;
         run_info->path.flags &= ~0x03;
-
-        if (tig_net_is_host()) {
-            sub_4ED510(run_info->id,
-                run_info->cur_stack_data->params[AGDATA_TARGET_TILE].loc,
-                run_info);
-        }
 
         return true;
     }
@@ -6184,12 +6147,6 @@ bool sub_427990(AnimRunInfo* run_info)
         if (run_info->path.max < 1) {
             return false;
         }
-    }
-
-    if (tig_net_is_host()) {
-        sub_4ED510(run_info->id,
-            run_info->cur_stack_data->params[AGDATA_TARGET_TILE].loc,
-            run_info);
     }
 
     return true;
@@ -6266,12 +6223,6 @@ bool sub_4280D0(AnimRunInfo* run_info)
         run_info->path.curr = 0;
         run_info->path.flags &= ~0x03;
 
-        if (tig_net_is_host()) {
-            sub_4ED510(run_info->id,
-                run_info->cur_stack_data->params[AGDATA_TARGET_TILE].loc,
-                run_info);
-        }
-
         return true;
     }
 
@@ -6313,12 +6264,6 @@ bool sub_4280D0(AnimRunInfo* run_info)
             }
             return false;
         }
-    }
-
-    if (tig_net_is_host()) {
-        sub_4ED510(run_info->id,
-            run_info->cur_stack_data->params[AGDATA_TARGET_TILE].loc,
-            run_info);
     }
 
     return true;
