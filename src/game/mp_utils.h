@@ -1160,7 +1160,6 @@ void sub_4EDDE0(int64_t obj);
 void sub_4EDF20(int64_t obj, int64_t location, int dx, int dy, bool a7);
 void mp_item_activate(int64_t owner_obj, int64_t item_obj);
 void mp_ui_schematic_feedback(bool success, int64_t primary_obj, int64_t secondary_obj);
-void sub_4EE1D0(int64_t obj);
 void mp_ui_toggle_primary_button(UiPrimaryButton btn, bool on, int client_id);
 void mp_ui_written_start_type(int64_t obj, WrittenType written_type, int num);
 void mp_ui_show_inven_loot(int64_t obj, int64_t a2);

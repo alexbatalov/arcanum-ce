@@ -265,21 +265,6 @@ void mp_ui_schematic_feedback(bool success, int64_t primary_obj, int64_t seconda
     }
 }
 
-// 0x4EE1D0
-void sub_4EE1D0(int64_t obj)
-{
-    Packet100 pkt;
-
-    ui_refresh_health_bar(obj);
-
-    if (tig_net_is_active()) {
-        pkt.type = 100;
-        pkt.subtype = 1;
-        pkt.d.b.field_8 = obj_get_id(obj);
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-    }
-}
-
 // 0x4EE230
 void mp_ui_toggle_primary_button(UiPrimaryButton btn, bool on, int client_id)
 {

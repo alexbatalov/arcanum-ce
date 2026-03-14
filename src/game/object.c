@@ -1601,7 +1601,7 @@ int object_hp_damage_set(int64_t obj, int value)
         }
     }
 
-    sub_4EE1D0(obj);
+    ui_refresh_health_bar(obj);
 
     return value;
 }
