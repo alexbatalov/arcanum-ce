@@ -500,27 +500,6 @@ void sub_4EE5E0(Packet100* pkt)
     }
 }
 
-// 0x4EEC10
-void mp_object_locked_set(int64_t obj, int locked)
-{
-    object_locked_set(obj, locked);
-
-    if (tig_net_is_active()) {
-        PacketObjectLock pkt;
-
-        pkt.type = 103;
-        pkt.oid = obj_get_id(obj);
-        pkt.locked = locked;
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-    }
-}
-
-// 0x4EEC80
-void sub_4EEC80(PacketObjectLock* pkt)
-{
-    object_locked_set(objp_perm_lookup(pkt->oid), pkt->locked);
-}
-
 // 0x4EECB0
 void mp_gsound_play_sfx(int sound_id)
 {

@@ -787,17 +787,6 @@ typedef struct Packet100 {
 // Serializeable.
 static_assert(sizeof(Packet100) == 0x40, "wrong size");
 
-typedef struct PacketObjectLock {
-    /* 0000 */ int type;
-    /* 0004 */ int padding_4;
-    /* 0008 */ ObjectID oid;
-    /* 0020 */ int locked;
-    /* 0024 */ int padding_24;
-} PacketObjectLock;
-
-// Serializeable.
-static_assert(sizeof(PacketObjectLock) == 0x28, "wrong size");
-
 typedef struct Packet104 {
     /* 0000 */ int type;
     /* 0004 */ int padding_4;
@@ -1164,7 +1153,6 @@ void mp_stop_anim_id(AnimID anim_id);
 void mp_handle_stop_anim_id(PacketStopAnimId* pkt);
 void sub_4EFAE0(int64_t obj, int a2);
 void sub_4EFBA0(int64_t obj);
-void mp_object_locked_set(int64_t obj, int a2);
 void sub_4EFC30(int64_t pc_obj, const char* name, const char* rule);
 void mp_gsound_play_sfx(int sound_id);
 void sub_4EED00(int64_t obj, int sound_id);

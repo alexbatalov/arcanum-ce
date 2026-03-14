@@ -2015,7 +2015,7 @@ int script_execute_action(ScriptAction* action, int line, ScriptState* state)
     case SAT_SET_LOCK_STATE: {
         int64_t obj = script_get_obj(action->op_type[0], action->op_value[0], state);
         int num = script_get_value(action->op_type[1], action->op_value[1], state);
-        mp_object_locked_set(obj, num);
+        object_locked_set(obj, num);
         return NEXT;
     }
     case SAT_CALL_SCRIPT_IN:
