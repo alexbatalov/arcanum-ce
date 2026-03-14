@@ -37,6 +37,7 @@
 #include "game/stat.h"
 #include "game/tb.h"
 #include "game/teleport.h"
+#include "game/townmap.h"
 #include "game/trap.h"
 #include "game/ui.h"
 
@@ -2608,7 +2609,7 @@ int script_execute_action(ScriptAction* action, int line, ScriptState* state)
     }
     case SAT_UNFOG_TOWNMAP: {
         int map = script_get_value(action->op_type[0], action->op_value[0], state);
-        mp_townmap_set_known(map, true);
+        townmap_set_known(map, true);
         return NEXT;
     }
     case SAT_START_WRITTEN_UI: {

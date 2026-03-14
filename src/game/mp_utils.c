@@ -640,27 +640,6 @@ void mp_handle_sector_block_set(PacketSectorBlockSet* pkt)
     sector_block_set(pkt->sec, pkt->blocked);
 }
 
-// 0x4EF120
-void mp_townmap_set_known(int map, bool known)
-{
-    PacketTownmapSetKnown pkt;
-
-    townmap_set_known(map, known);
-
-    if (tig_net_is_active()) {
-        pkt.type = 110;
-        pkt.map = map;
-        pkt.known = known;
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-    }
-}
-
-// 0x4EF170
-void mp_handle_townmap_set_known(PacketTownmapSetKnown* pkt)
-{
-    townmap_set_known(pkt->map, pkt->known);
-}
-
 // 0x4EF190
 void mp_art_touch(tig_art_id_t art_id)
 {
