@@ -171,26 +171,6 @@ typedef struct PacketCombatHeal {
 // Serializeable.
 static_assert(sizeof(PacketCombatHeal) == 0xE8, "wrong size");
 
-typedef struct Packet22 {
-    /* 0000 */ int type;
-    /* 0004 */ int padding_4;
-    /* 0008 */ ObjectID oid;
-    /* 0020 */ int64_t loc;
-} Packet22;
-
-// Serializeable.
-static_assert(sizeof(Packet22) == 0x28, "wrong size");
-
-typedef struct Packet23 {
-    /* 0000 */ int type;
-    /* 0004 */ int padding_4;
-    /* 0008 */ ObjectID item_oid;
-    /* 0020 */ ObjectID parent_oid;
-} Packet23;
-
-// Serializeable.
-static_assert(sizeof(Packet23) == 0x38, "wrong size");
-
 typedef struct Packet26 {
     /* 0000 */ int type;
     /* 0004 */ int padding_4;

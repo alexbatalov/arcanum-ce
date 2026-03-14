@@ -67,26 +67,12 @@ typedef struct ObjectRenderColorsNode {
     struct ObjectRenderColorsNode* next;
 } ObjectRenderColorsNode;
 
-typedef struct ObjectDropInfo {
-    /* 0000 */ int64_t obj;
-    /* 0008 */ int64_t loc;
-} ObjectDropInfo;
-
-typedef struct ObjectPickupInfo {
-    /* 0000 */ int64_t item_obj;
-    /* 0008 */ int64_t parent_obj;
-} ObjectPickupInfo;
-
 static void sub_43C5C0(GameDrawInfo* draw_info);
 static void sub_43CEA0(int64_t obj, unsigned int flags, const char* path);
 static int sub_43D690(int64_t obj);
 static int sub_43D630(int64_t obj);
 static int sub_43FE00(int64_t a1, int64_t a2, int a3, int a4, unsigned int flags, int64_t* a6, int* a7, int* a8);
 static void object_list_vicinity_loc(int64_t loc, unsigned int flags, ObjectList* objects);
-static bool object_drop_success(void* userinfo);
-static bool object_drop_failure(void* userinfo);
-static bool object_pickup_success(void* userinfo);
-static bool object_pickup_failure(void* userinfo);
 static bool object_create_func(int64_t proto_obj, int64_t loc, int64_t* obj_ptr, ObjectID oid);
 static bool object_duplicate_func(int64_t proto_obj, int64_t loc, ObjectID* oids, int64_t* obj_ptr);
 static bool sub_442260(int64_t obj, int64_t loc);
@@ -3813,17 +3799,6 @@ void object_drop(int64_t obj, int64_t loc)
     Sector* sector;
     TigRect rect;
 
-    if (tig_net_is_active() && !multiplayer_is_locked()) {
-        ObjectDropInfo* drop_info;
-
-        drop_info = (ObjectDropInfo*)MALLOC(sizeof(*drop_info));
-        drop_info->obj = obj;
-        drop_info->loc = loc;
-        sub_4A3230(obj_get_id(obj), object_drop_success, drop_info, object_drop_failure, drop_info);
-
-        return;
-    }
-
     flags = obj_field_int32_get(obj, OBJ_F_FLAGS);
     if ((flags & OF_DESTROYED) != 0) {
         return;
@@ -3849,39 +3824,6 @@ void object_drop(int64_t obj, int64_t loc)
     object_iso_invalidate_rect(&rect);
 }
 
-// 0x441710
-bool object_drop_success(void* userinfo)
-{
-    ObjectDropInfo* entry = (ObjectDropInfo*)userinfo;
-
-    if (entry != NULL) {
-        Packet22 pkt;
-
-        multiplayer_lock();
-
-        pkt.type = 22;
-        sub_4F0640(entry->obj, &(pkt.oid));
-        pkt.loc = entry->loc;
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-
-        object_drop(entry->obj, entry->loc);
-        multiplayer_unlock();
-        FREE(entry);
-    }
-
-    return true;
-}
-
-// 0x441780
-bool object_drop_failure(void* userinfo)
-{
-    ObjectDropInfo* drop_info = (ObjectDropInfo*)userinfo;
-
-    FREE(drop_info);
-
-    return true;
-}
-
 // 0x4417A0
 void object_pickup(int64_t item_obj, int64_t parent_obj)
 {
@@ -3890,17 +3832,6 @@ void object_pickup(int64_t item_obj, int64_t parent_obj)
     int64_t loc;
     int64_t sec;
     Sector* sector;
-
-    if (tig_net_is_active() && !multiplayer_is_locked()) {
-        ObjectPickupInfo* pickup_info;
-
-        pickup_info = (ObjectPickupInfo*)MALLOC(sizeof(*pickup_info));
-        pickup_info->item_obj = item_obj;
-        pickup_info->parent_obj = parent_obj;
-        sub_4A3230(obj_get_id(item_obj), object_pickup_success, pickup_info, object_pickup_failure, pickup_info);
-
-        return;
-    }
 
     flags = obj_field_int32_get(item_obj, OBJ_F_FLAGS);
     if ((flags & OF_DESTROYED) != 0) {
@@ -3922,38 +3853,6 @@ void object_pickup(int64_t item_obj, int64_t parent_obj)
     obj_field_int32_set(item_obj, OBJ_F_FLAGS, flags);
     obj_field_handle_set(item_obj, OBJ_F_ITEM_PARENT, parent_obj);
     object_iso_invalidate_rect(&rect);
-}
-
-// 0x4418E0
-bool object_pickup_success(void* userinfo)
-{
-    ObjectPickupInfo* pickup_info = (ObjectPickupInfo*)userinfo;
-
-    if (pickup_info != NULL) {
-        Packet23 pkt;
-
-        multiplayer_lock();
-
-        pkt.type = 23;
-        sub_4F0640(pickup_info->item_obj, &(pkt.item_oid));
-        sub_4F0640(pickup_info->parent_obj, &(pkt.parent_oid));
-
-        object_pickup(pickup_info->item_obj, pickup_info->parent_obj);
-        multiplayer_unlock();
-        FREE(pickup_info);
-    }
-
-    return true;
-}
-
-// 0x441960
-bool object_pickup_failure(void* userinfo)
-{
-    ObjectPickupInfo* pickup_info = (ObjectPickupInfo*)userinfo;
-
-    FREE(pickup_info);
-
-    return true;
 }
 
 // 0x441980
