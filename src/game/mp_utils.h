@@ -1123,8 +1123,6 @@ void mp_obj_arrayfield_int32_set(int64_t obj, int fld, int index, int value);
 void mp_obj_arrayfield_script_set(int64_t obj, int fld, int index, Script* value);
 void mp_obj_arrayfield_uint32_set(int64_t obj, int fld, int index, int value);
 void mp_object_overlay_set(int64_t obj, int fld, int index, tig_art_id_t aid);
-void mp_item_flags_set(int64_t obj, unsigned int flags_to_add);
-void mp_item_flags_unset(int64_t obj, unsigned int flags_to_remove);
 void sub_4F0500(int64_t obj, int fld);
 void sub_4F0570(int64_t obj, int fld, int length);
 void sub_4F0640(int64_t obj, ObjectID* oid_ptr);

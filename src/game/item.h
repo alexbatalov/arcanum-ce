@@ -154,4 +154,7 @@ void item_decay_process_enable(void);
 void item_decay_process_disable(void);
 int item_decay_process_is_enabled(void);
 
+void item_flags_set(int64_t item_obj, ObjectItemFlags flags_to_add);
+void item_flags_unset(int64_t item_obj, ObjectItemFlags flags_to_remove);
+
 #endif /* ARCANUM_GAME_ITEM_H_ */

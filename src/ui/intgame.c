@@ -4966,15 +4966,7 @@ bool intgame_mode_set(IntgameMode mode)
         case INTGAME_MODE_QUANTITY:
             iso_interface_window_set(ROTWIN_TYPE_MSG);
             obj = sub_579760();
-            if (tig_net_is_active()) {
-                mp_item_flags_unset(obj, OIF_NO_DISPLAY);
-            } else {
-                unsigned int flags;
-
-                flags = obj_field_int32_get(obj, OBJ_F_ITEM_FLAGS);
-                flags &= ~OIF_NO_DISPLAY;
-                obj_field_int32_set(obj, OBJ_F_ITEM_FLAGS, flags);
-            }
+            item_flags_unset(obj, OIF_NO_DISPLAY);
 
             inven_ui_update(OBJ_HANDLE_NULL);
             break;
@@ -5037,15 +5029,7 @@ bool intgame_mode_set(IntgameMode mode)
             break;
         case INTGAME_MODE_QUANTITY:
             obj = sub_579760();
-            if (tig_net_is_active()) {
-                mp_item_flags_set(obj, OIF_NO_DISPLAY);
-            } else {
-                unsigned int flags;
-
-                flags = obj_field_int32_get(obj, OBJ_F_ITEM_FLAGS);
-                flags |= OIF_NO_DISPLAY;
-                obj_field_int32_set(obj, OBJ_F_ITEM_FLAGS, flags);
-            }
+            item_flags_set(obj, OIF_NO_DISPLAY);
             inven_ui_update(OBJ_HANDLE_NULL);
             break;
         default:

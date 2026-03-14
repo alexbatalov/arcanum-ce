@@ -4750,3 +4750,17 @@ int item_decay_process_is_enabled(void)
 {
     return item_decay_process_cnt;
 }
+
+void item_flags_set(int64_t item_obj, ObjectItemFlags flags_to_add)
+{
+    ObjectItemFlags flags = obj_field_int32_get(item_obj, OBJ_F_ITEM_FLAGS);
+    flags |= OIF_NO_DISPLAY;
+    obj_field_int32_set(item_obj, OBJ_F_ITEM_FLAGS, flags);
+}
+
+void item_flags_unset(int64_t item_obj, ObjectItemFlags flags_to_remove)
+{
+    ObjectItemFlags flags = obj_field_int32_get(item_obj, OBJ_F_ITEM_FLAGS);
+    flags &= ~flags_to_remove;
+    obj_field_int32_set(item_obj, OBJ_F_ITEM_FLAGS, flags);
+}

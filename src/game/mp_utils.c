@@ -1121,52 +1121,6 @@ void mp_object_overlay_set(int64_t obj, int fld, int index, tig_art_id_t aid)
     }
 }
 
-// 0x4F03E0
-void mp_item_flags_set(int64_t obj, unsigned int flags_to_add)
-{
-    unsigned int flags;
-    Packet129 pkt;
-
-    flags = obj_field_int32_get(obj, OBJ_F_ITEM_FLAGS);
-    flags |= flags_to_add;
-    obj_field_int32_set(obj, OBJ_F_ITEM_FLAGS, flags);
-
-    if (tig_net_is_active()) {
-        if (tig_net_is_host()) {
-            mp_obj_field_int32_set(obj, OBJ_F_ITEM_FLAGS, obj_field_int32_get(obj, OBJ_F_ITEM_FLAGS));
-        } else {
-            pkt.type = 129;
-            pkt.subtype = 13;
-            sub_4F0640(obj, &(pkt.oid));
-            pkt.d.j.flags = flags_to_add;
-            tig_net_send_app_all(&pkt, sizeof(pkt));
-        }
-    }
-}
-
-// 0x4F0470
-void mp_item_flags_unset(int64_t obj, unsigned int flags_to_remove)
-{
-    unsigned int flags;
-    Packet129 pkt;
-
-    flags = obj_field_int32_get(obj, OBJ_F_ITEM_FLAGS);
-    flags &= ~flags_to_remove;
-    obj_field_int32_set(obj, OBJ_F_ITEM_FLAGS, flags);
-
-    if (tig_net_is_active()) {
-        if (tig_net_is_host()) {
-            mp_obj_field_int32_set(obj, OBJ_F_ITEM_FLAGS, obj_field_int32_get(obj, OBJ_F_ITEM_FLAGS));
-        } else {
-            pkt.type = 129;
-            pkt.subtype = 14;
-            sub_4F0640(obj, &(pkt.oid));
-            pkt.d.j.flags = flags_to_remove;
-            tig_net_send_app_all(&pkt, sizeof(pkt));
-        }
-    }
-}
-
 // 0x4F0500
 void sub_4F0500(int64_t obj, int fld)
 {
