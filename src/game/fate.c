@@ -1,9 +1,8 @@
 #include "game/fate.h"
 
 #include "game/critter.h"
-#include "game/mp_utils.h"
-#include "game/multiplayer.h"
 #include "game/obj.h"
+#include "game/object.h"
 #include "game/stat.h"
 
 static void fate_apply(int64_t obj, int index);
@@ -69,22 +68,6 @@ bool fate_activate(int64_t obj, int fate)
     unsigned int flags;
     int fate_points;
 
-    if (!multiplayer_is_locked()) {
-        PacketFateStateSet pkt;
-
-        // Set up and send a network packet.
-        pkt.type = 36;
-        sub_4440E0(obj, &(pkt.oid));
-        pkt.fate = fate;
-        pkt.action = FATE_STATE_ACTION_ACTIVATE;
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-
-        // Non-host clients defers actual processing to host.
-        if (!tig_net_is_host()) {
-            return false;
-        }
-    }
-
     flags = obj_field_int32_get(obj, OBJ_F_PC_FLAGS_FATE);
 
     // Check if the fate is already active.
@@ -123,20 +106,6 @@ bool fate_deactivate(int64_t obj, int fate)
 {
     unsigned int flags;
     int fate_points;
-
-    if (!multiplayer_is_locked()) {
-        PacketFateStateSet pkt;
-
-        pkt.type = 36;
-        sub_4440E0(obj, &(pkt.oid));
-        pkt.fate = fate;
-        pkt.action = FATE_STATE_ACTION_DEACTIVATE;
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-
-        if (!tig_net_is_host()) {
-            return false;
-        }
-    }
 
     flags = obj_field_int32_get(obj, OBJ_F_PC_FLAGS_FATE);
 

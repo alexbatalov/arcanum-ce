@@ -307,20 +307,6 @@ typedef struct PacketCritterRestingHeal {
 
 static_assert(sizeof(PacketCritterRestingHeal) == 0x28, "wrong size");
 
-#define FATE_STATE_ACTION_DEACTIVATE 0
-#define FATE_STATE_ACTION_ACTIVATE 1
-
-typedef struct PacketFateStateSet {
-    /* 0000 */ int type;
-    /* 0004 */ int padding_4;
-    /* 0008 */ FollowerInfo oid;
-    /* 0038 */ int fate;
-    /* 003C */ int action;
-} PacketFateStateSet;
-
-// Serializeable.
-static_assert(sizeof(PacketFateStateSet) == 0x40, "wrong size");
-
 typedef struct PacketDialog {
     /* 0000 */ int type;
     /* 0004 */ int subtype;
