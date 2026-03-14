@@ -655,31 +655,6 @@ typedef struct PacketTextFloater {
 // Serializeable.
 static_assert(sizeof(PacketTextFloater) == 0x28, "wrong size");
 
-#define PACKET_EFFECT_ADD 0
-#define PACKET_EFFECT_REMOVE_ONE_BY_TYPE 1
-#define PACKET_EFFECT_REMOVE_ALL_BY_TYPE 2
-#define PACKET_EFFECT_REMOVE_ONE_BY_CAUSE 3
-#define PACKET_EFFECT_REMOVE_ALL_BY_CAUSE 4
-
-typedef struct PacketEffect {
-    /* 0000 */ int type;
-    /* 0004 */ int subtype;
-    /* 0008 */ ObjectID oid;
-    union {
-        struct {
-            /* 0020 */ int effect;
-            /* 0024 */ int cause;
-        } add;
-        union {
-            /* 0020 */ int effect;
-            /* 0020 */ int cause;
-        } remove;
-    };
-} PacketEffect;
-
-// Serializeable.
-static_assert(sizeof(PacketEffect) == 0x28, "wrong size");
-
 typedef struct PacketReactionAdj {
     /* 0000 */ int type;
     /* 0004 */ int padding_4;

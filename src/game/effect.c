@@ -3,8 +3,6 @@
 #include "game/anim.h"
 #include "game/critter.h"
 #include "game/mes.h"
-#include "game/mp_utils.h"
-#include "game/multiplayer.h"
 #include "game/resistance.h"
 #include "game/skill.h"
 #include "game/stat.h"
@@ -495,23 +493,6 @@ void effect_add(int64_t obj, int effect, int cause)
     int fatigue_max;
     int diff;
 
-    if (tig_net_is_active()) {
-        if (tig_net_is_host()) {
-            PacketEffect pkt;
-
-            pkt.type = 86;
-            pkt.subtype = PACKET_EFFECT_ADD;
-            pkt.oid = obj_get_id(obj);
-            pkt.add.effect = effect;
-            pkt.add.cause = cause;
-            tig_net_send_app_all(&pkt, sizeof(pkt));
-        } else {
-            if (!multiplayer_is_locked()) {
-                return;
-            }
-        }
-    }
-
     // Ensure the object is a critter.
     if (!obj_type_is_critter(obj_field_int32_get(obj, OBJ_F_TYPE))) {
         return;
@@ -563,22 +544,6 @@ void effect_remove_one_typed(int64_t obj, int effect)
     int cnt;
     int index;
 
-    if (tig_net_is_active()) {
-        if (tig_net_is_host()) {
-            PacketEffect pkt;
-
-            pkt.type = 86;
-            pkt.subtype = PACKET_EFFECT_REMOVE_ONE_BY_TYPE;
-            pkt.oid = obj_get_id(obj);
-            pkt.remove.effect = effect;
-            tig_net_send_app_all(&pkt, sizeof(pkt));
-        } else {
-            if (!multiplayer_is_locked()) {
-                return;
-            }
-        }
-    }
-
     // Ensure the object is a critter.
     if (!obj_type_is_critter(obj_field_int32_get(obj, OBJ_F_TYPE))) {
         return;
@@ -606,22 +571,6 @@ void effect_remove_all_typed(int64_t obj, int effect)
     int cnt;
     int index;
 
-    if (tig_net_is_active()) {
-        if (tig_net_is_host()) {
-            PacketEffect pkt;
-
-            pkt.type = 86;
-            pkt.subtype = PACKET_EFFECT_REMOVE_ALL_BY_TYPE;
-            pkt.oid = obj_get_id(obj);
-            pkt.remove.effect = effect;
-            tig_net_send_app_all(&pkt, sizeof(pkt));
-        } else {
-            if (!multiplayer_is_locked()) {
-                return;
-            }
-        }
-    }
-
     // Ensure the object is a critter.
     if (!obj_type_is_critter(obj_field_int32_get(obj, OBJ_F_TYPE))) {
         return;
@@ -648,22 +597,6 @@ void effect_remove_one_caused_by(int64_t obj, int cause)
     int cnt;
     int index;
 
-    if (tig_net_is_active()) {
-        if (tig_net_is_host()) {
-            PacketEffect pkt;
-
-            pkt.type = 86;
-            pkt.subtype = PACKET_EFFECT_REMOVE_ONE_BY_CAUSE;
-            pkt.oid = obj_get_id(obj);
-            pkt.remove.cause = cause;
-            tig_net_send_app_all(&pkt, sizeof(pkt));
-        } else {
-            if (!multiplayer_is_locked()) {
-                return;
-            }
-        }
-    }
-
     // Ensure the object is a critter.
     if (!obj_type_is_critter(obj_field_int32_get(obj, OBJ_F_TYPE))) {
         return;
@@ -688,22 +621,6 @@ void effect_remove_all_caused_by(int64_t obj, int cause)
 {
     int cnt;
     int index;
-
-    if (tig_net_is_active()) {
-        if (tig_net_is_host()) {
-            PacketEffect pkt;
-
-            pkt.type = 86;
-            pkt.subtype = PACKET_EFFECT_REMOVE_ALL_BY_CAUSE;
-            pkt.oid = obj_get_id(obj);
-            pkt.remove.cause = cause;
-            tig_net_send_app_all(&pkt, sizeof(pkt));
-        } else {
-            if (!multiplayer_is_locked()) {
-                return;
-            }
-        }
-    }
 
     // Ensure the object is a critter.
     if (!obj_type_is_critter(obj_field_int32_get(obj, OBJ_F_TYPE))) {
