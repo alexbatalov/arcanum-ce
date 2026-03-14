@@ -321,24 +321,6 @@ typedef struct PacketFateStateSet {
 // Serializeable.
 static_assert(sizeof(PacketFateStateSet) == 0x40, "wrong size");
 
-typedef struct PacketRumorQStateSet {
-    int type;
-    int rumor;
-} PacketRumorQStateSet;
-
-// Serializeable.
-static_assert(sizeof(PacketRumorQStateSet) == 0x8, "wrong size");
-
-typedef struct PacketRumorKnownSet {
-    /* 0000 */ int type;
-    /* 0004 */ int rumor;
-    /* 0008 */ ObjectID oid;
-    /* 0020 */ DateTime datetime;
-} PacketRumorKnownSet;
-
-// Serializeable.
-static_assert(sizeof(PacketRumorKnownSet) == 0x28, "wrong size");
-
 typedef struct PacketDialog {
     /* 0000 */ int type;
     /* 0004 */ int subtype;

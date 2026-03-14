@@ -4,8 +4,6 @@
 
 #include "game/critter.h"
 #include "game/mes.h"
-#include "game/mp_utils.h"
-#include "game/multiplayer.h"
 #include "game/stat.h"
 
 /**
@@ -209,19 +207,6 @@ void rumor_qstate_set(int rumor)
     int pos;
     int bit;
 
-    if (!multiplayer_is_locked()) {
-        PacketRumorQStateSet pkt;
-
-        // Only host can send q-state change.
-        if (!tig_net_is_host()) {
-            return;
-        }
-
-        pkt.type = 37;
-        pkt.rumor = rumor;
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-    }
-
     pos = rumor_num_to_idx(rumor) / 8;
     bit = rumor_num_to_idx(rumor) % 8;
     rumor_qstate[pos] |= 1 << bit;
@@ -282,21 +267,6 @@ void rumor_known_set(int64_t obj, int rumor)
 
     // Get the current game time.
     datetime = sub_45A7C0();
-
-    if (!multiplayer_is_locked()) {
-        PacketRumorKnownSet pkt;
-
-        // Only host can send known rumor changes.
-        if (!tig_net_is_host()) {
-            return;
-        }
-
-        pkt.type = 38;
-        pkt.rumor = rumor;
-        pkt.oid = obj_get_id(obj);
-        pkt.datetime = datetime;
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-    }
 
     // Ensure the object is a player character.
     if (obj_field_int32_get(obj, OBJ_F_TYPE) != OBJ_TYPE_PC) {
