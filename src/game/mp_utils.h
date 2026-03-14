@@ -191,27 +191,6 @@ typedef struct Packet23 {
 // Serializeable.
 static_assert(sizeof(Packet23) == 0x38, "wrong size");
 
-typedef struct Packet24 {
-    /* 0000 */ int type;
-    /* 0004 */ int padding_4;
-    /* 0008 */ ObjectID item_oid;
-    /* 0020 */ ObjectID parent_oid;
-    /* 0038 */ int inventory_location;
-    /* 003C */ int padding_3C;
-} Packet24;
-
-// Serializeable.
-static_assert(sizeof(Packet24) == 0x40, "wrong size");
-
-typedef struct Packet25 {
-    /* 0000 */ int type;
-    /* 0004 */ int field_4;
-    /* 0008 */ ObjectID item_oid;
-    /* 0020 */ ObjectID parent_oid;
-    /* 0038 */ int field_38;
-    /* 003C */ int field_3C;
-} Packet25;
-
 typedef struct Packet26 {
     /* 0000 */ int type;
     /* 0004 */ int padding_4;

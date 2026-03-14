@@ -32,17 +32,6 @@
 #define FIRST_AMMUNITION_TYPE_ID 0
 #define FIRST_ARMOR_COVERAGE_TYPE_ID (FIRST_AMMUNITION_TYPE_ID + TIG_ART_AMMO_TYPE_COUNT)
 
-typedef struct ItemInsertInfo {
-    /* 0000 */ int64_t item_obj;
-    /* 0008 */ int64_t parent_obj;
-    /* 0010 */ int inventory_location;
-} ItemInsertInfo;
-
-typedef struct ItemRemoveInfo {
-    /* 0000 */ int64_t item_obj;
-    /* 0008 */ int64_t parent_obj;
-} ItemRemoveInfo;
-
 static bool sub_461CA0(int64_t item_obj, int64_t critter_obj, int inventory_location);
 static bool item_check_sell(int64_t item_obj, int64_t seller_pc_obj, int64_t buyer_npc_obj);
 static bool item_check_buy(int64_t item_obj, int64_t seller_npc_obj, int64_t buyer_pc_obj);
@@ -60,16 +49,12 @@ static bool sub_466A00(int64_t a1, int64_t key_obj);
 static void sub_466A50(int64_t key_obj, int64_t key_ring_obj);
 static void sub_466AA0(int64_t critter_obj, int64_t a2);
 static void sub_466BD0(int64_t key_ring_obj);
-static bool item_insert_success(void* userinfo);
-static bool item_insert_failure(void* userinfo);
 static bool sub_466EF0(int64_t obj, int64_t loc);
 static char* item_error_str(int reason);
 static int find_free_inv_loc_horizontal(int64_t item_obj, int64_t parent_obj, int* slots);
 static int find_free_inv_loc_vertical(int64_t item_obj, int64_t parent_obj, int* slots);
 static void item_equipped(int64_t item_obj, int64_t parent_obj, int inventory_location);
 static void item_unequipped(int64_t item_obj, int64_t parent_obj, int inventory_location);
-static bool item_force_remove_success(void* userinfo);
-static bool item_force_remove_failure(void* userinfo);
 static bool sub_467E70(void);
 static void item_recalc_light(int64_t item_obj, int64_t parent_obj);
 static bool item_cancel_decay(int64_t obj);
@@ -3701,9 +3686,6 @@ int item_check_insert(int64_t item_obj, int64_t parent_obj, int* inventory_locat
 // 0x466640
 void item_insert(int64_t item_obj, int64_t parent_obj, int inventory_location)
 {
-    char name[256];
-    ItemInsertInfo* insert_info;
-    unsigned int item_flags;
     int parent_obj_type;
     int item_obj_type;
     int inventory_num_fld;
@@ -3715,30 +3697,6 @@ void item_insert(int64_t item_obj, int64_t parent_obj, int inventory_location)
     int existing_qty;
     int qty;
     int cnt;
-
-    if (tig_net_is_active()) {
-        if ((obj_field_int32_get(item_obj, OBJ_F_ITEM_FLAGS) & OIF_MP_INSERTED) != 0) {
-            object_examine(item_obj, item_obj, name);
-            tig_debug_printf("MP: Item: cannot item_insert( %s ) it is already flagged OIF_MP_INSERTED.\n", name);
-            return;
-        }
-
-        if (!multiplayer_is_locked()) {
-            insert_info = (ItemInsertInfo*)MALLOC(sizeof(*insert_info));
-            insert_info->item_obj = item_obj;
-            insert_info->parent_obj = parent_obj;
-            insert_info->inventory_location = inventory_location;
-            sub_4A3230(obj_get_id(item_obj),
-                item_insert_success,
-                insert_info,
-                item_insert_failure,
-                insert_info);
-
-            item_flags = obj_field_int32_get(item_obj, OBJ_F_ITEM_FLAGS);
-            item_flags |= OIF_MP_INSERTED;
-            obj_field_int32_set(item_obj, OBJ_F_ITEM_FLAGS, item_flags);
-        }
-    }
 
     if (inventory_location == -1) {
         tig_debug_printf("Item: item_insert: ERROR: Attempt to insert an item at Location -1!\n");
@@ -3903,51 +3861,6 @@ void sub_466BD0(int64_t key_ring_obj)
     }
 
     obj_field_int32_set(key_ring_obj, OBJ_F_ITEM_INV_AID, aid);
-}
-
-// 0x466C40
-bool item_insert_success(void* userinfo)
-{
-    ItemInsertInfo* item_insert_info = (ItemInsertInfo*)userinfo;
-    Packet24 pkt;
-    unsigned int item_flags;
-
-    if (item_insert_info != NULL) {
-        pkt.type = 24;
-        sub_4F0640(item_insert_info->item_obj, &(pkt.item_oid));
-        sub_4F0640(item_insert_info->parent_obj, &(pkt.parent_oid));
-        item_insert_info->inventory_location = item_insert_info->inventory_location;
-
-        multiplayer_lock();
-        item_insert(item_insert_info->item_obj, item_insert_info->parent_obj, item_insert_info->inventory_location);
-        item_flags = obj_field_int32_get(item_insert_info->item_obj, OBJ_F_ITEM_FLAGS);
-        item_flags |= OIF_MP_INSERTED;
-        obj_field_int32_set(item_insert_info->item_obj, OBJ_F_ITEM_FLAGS, item_flags);
-        multiplayer_unlock();
-
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-
-        FREE(item_insert_info);
-    }
-
-    return true;
-}
-
-// 0x466CF0
-bool item_insert_failure(void* userinfo)
-{
-    ItemInsertInfo* item_insert_info = (ItemInsertInfo*)userinfo;
-    char name[256];
-    unsigned int flags;
-
-    object_examine(item_insert_info->item_obj, item_insert_info->item_obj, name);
-    tig_debug_printf("MP: Item: item_insert_failure: removing from %s OIF_MP_INSERTED.\n", name);
-    flags = obj_field_int32_get(item_insert_info->item_obj, OBJ_F_ITEM_FLAGS);
-    flags &= ~OIF_MP_INSERTED;
-    obj_field_int32_set(item_insert_info->item_obj, OBJ_F_ITEM_FLAGS, flags);
-    FREE(item_insert_info);
-
-    return true;
 }
 
 // 0x466D60
@@ -4370,8 +4283,6 @@ void item_equipped(int64_t item_obj, int64_t parent_obj, int inventory_location)
 void item_force_remove(int64_t item_obj, int64_t parent_obj)
 {
     bool is_pc = false;
-    char name[256];
-    unsigned int item_flags;
     int64_t actual_parent_obj;
     int parent_type;
     int inventory_num_fld;
@@ -4383,41 +4294,6 @@ void item_force_remove(int64_t item_obj, int64_t parent_obj)
     int inventory_location;
 
     dword_5E8820 = false;
-
-    if (tig_net_is_active()) {
-        if ((obj_field_int32_get(item_obj, OBJ_F_ITEM_FLAGS) & OIF_MP_INSERTED) == 0) {
-            if ((obj_field_int32_get(item_obj, OBJ_F_FLAGS) & OF_INVENTORY) == 0) {
-                object_examine(item_obj, item_obj, name);
-                tig_debug_printf("MP: Item: cannot item_force_remove( %s ) it is not flagged OIF_MP_INSERTED.\n", name);
-                return;
-            }
-
-            item_flags = obj_field_int32_get(item_obj, OBJ_F_ITEM_FLAGS);
-            item_flags |= OIF_MP_INSERTED;
-            obj_field_int32_set(item_obj, OBJ_F_ITEM_FLAGS, item_flags);
-        }
-
-        if (!multiplayer_is_locked()) {
-            ItemRemoveInfo* remove_info = (ItemRemoveInfo*)MALLOC(sizeof(*remove_info));
-            remove_info->item_obj = item_obj;
-            remove_info->parent_obj = parent_obj;
-            sub_4A3230(obj_get_id(item_obj),
-                item_force_remove_success,
-                remove_info,
-                item_force_remove_failure,
-                remove_info);
-
-            item_flags = obj_field_int32_get(item_obj, OBJ_F_ITEM_FLAGS);
-            item_flags &= ~OIF_MP_INSERTED;
-            obj_field_int32_set(item_obj, OBJ_F_ITEM_FLAGS, item_flags);
-
-            return;
-        }
-
-        item_flags = obj_field_int32_get(item_obj, OBJ_F_ITEM_FLAGS);
-        item_flags &= ~OIF_MP_INSERTED;
-        obj_field_int32_set(item_obj, OBJ_F_ITEM_FLAGS, item_flags);
-    }
 
     if (item_parent(item_obj, &actual_parent_obj)) {
         if (actual_parent_obj != parent_obj) {
@@ -4538,50 +4414,6 @@ void item_unequipped(int64_t item_obj, int64_t parent_obj, int inventory_locatio
     mt_item_notify_unwear(item_obj, parent_obj);
     item_recalc_light(item_obj, parent_obj);
     object_script_execute(parent_obj, item_obj, OBJ_HANDLE_NULL, SAP_WIELD_OFF, 0);
-}
-
-// 0x467D60
-bool item_force_remove_success(void* userinfo)
-{
-    ItemRemoveInfo* item_remove_info = (ItemRemoveInfo*)userinfo;
-    Packet25 pkt;
-    unsigned int item_flags;
-
-    if (item_remove_info != NULL) {
-        pkt.type = 25;
-        sub_4F0640(item_remove_info->item_obj, &(pkt.item_oid));
-        sub_4F0640(item_remove_info->parent_obj, &(pkt.parent_oid));
-
-        multiplayer_lock();
-        item_force_remove(item_remove_info->item_obj, item_remove_info->parent_obj);
-        item_flags = obj_field_int32_get(item_remove_info->item_obj, OBJ_F_ITEM_FLAGS);
-        item_flags &= ~OIF_MP_INSERTED;
-        obj_field_int32_set(item_remove_info->item_obj, OBJ_F_ITEM_FLAGS, item_flags);
-        multiplayer_unlock();
-
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-
-        FREE(item_remove_info);
-    }
-
-    return true;
-}
-
-// 0x467E00
-bool item_force_remove_failure(void* userinfo)
-{
-    ItemRemoveInfo* item_remove_info = (ItemRemoveInfo*)userinfo;
-    char name[256];
-    unsigned int flags;
-
-    object_examine(item_remove_info->item_obj, item_remove_info->item_obj, name);
-    tig_debug_printf("MP: Item: item_force_remove_failure: adding to %s OIF_MP_INSERTED.\n", name);
-    flags = obj_field_int32_get(item_remove_info->item_obj, OBJ_F_ITEM_FLAGS);
-    flags |= OIF_MP_INSERTED;
-    obj_field_int32_set(item_remove_info->item_obj, OBJ_F_ITEM_FLAGS, flags);
-    FREE(item_remove_info);
-
-    return true;
 }
 
 // 0x467E70
