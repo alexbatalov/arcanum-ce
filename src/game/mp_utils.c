@@ -619,27 +619,6 @@ void mp_container_open(int64_t obj)
     }
 }
 
-// 0x4EF010
-void mp_sector_block_set(int64_t sec, bool blocked)
-{
-    PacketSectorBlockSet pkt;
-
-    sector_block_set(sec, blocked);
-
-    if (tig_net_is_active()) {
-        pkt.type = 108;
-        pkt.sec = sec;
-        pkt.blocked = blocked;
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-    }
-}
-
-// 0x4EF060
-void mp_handle_sector_block_set(PacketSectorBlockSet* pkt)
-{
-    sector_block_set(pkt->sec, pkt->blocked);
-}
-
 // 0x4EF1E0
 void mp_map_precache_sectors(int64_t loc, int64_t obj)
 {

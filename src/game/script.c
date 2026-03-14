@@ -2563,9 +2563,9 @@ int script_execute_action(ScriptAction* action, int line, ScriptState* state)
         int64_t loc = location_make(x, y);
         int64_t sector_id = sector_id_from_loc(loc);
         if (sector_is_blocked(sector_id)) {
-            mp_sector_block_set(sector_id, false);
+            sector_block_set(sector_id, false);
         } else {
-            mp_sector_block_set(sector_id, true);
+            sector_block_set(sector_id, true);
         }
         return NEXT;
     }
