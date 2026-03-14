@@ -3,8 +3,6 @@
 #include "game/location.h"
 #include "game/map.h"
 #include "game/mes.h"
-#include "game/mp_utils.h"
-#include "game/multiplayer.h"
 #include "game/obj.h"
 #include "game/player.h"
 #include "game/sector.h"
@@ -406,12 +404,7 @@ bool area_is_known(int64_t pc_obj, int area)
         return false;
     }
 
-    if (tig_net_is_active()) {
-        player = multiplayer_find_slot_from_obj(pc_obj);
-        if (player != -1) {
-            return (area_flags_per_player[player][area] & AREA_KNOWN) != 0;
-        }
-    } else if (pc_obj == player_get_local_pc_obj()) {
+    if (pc_obj == player_get_local_pc_obj()) {
         return (area_flags[area] & AREA_KNOWN) != 0;
     }
 
@@ -425,9 +418,6 @@ bool area_is_known(int64_t pc_obj, int area)
  */
 bool area_set_known(int64_t pc_obj, int area)
 {
-    PacketAreaKnownSet pkt;
-    int player;
-
     // If the area is already known, no action is needed.
     if (area_is_known(pc_obj, area)) {
         return true;
@@ -439,26 +429,7 @@ bool area_set_known(int64_t pc_obj, int area)
         return false;
     }
 
-    if (tig_net_is_active()) {
-        if (!multiplayer_is_locked()) {
-            if (tig_net_is_host()) {
-                pkt.type = 101;
-                pkt.oid = obj_get_id(pc_obj);
-                pkt.area = area;
-                tig_net_send_app_all(&pkt, sizeof(pkt));
-
-                player = multiplayer_find_slot_from_obj(pc_obj);
-                if (player == -1) {
-                    return false;
-                }
-
-                area_flags_per_player[player][area] |= AREA_KNOWN;
-                area_last_known_area_per_player[player] = area;
-                mp_ui_toggle_primary_button(UI_PRIMARY_BUTTON_WORLDMAP, true, player);
-            }
-            return true;
-        }
-    } else if (pc_obj == player_get_local_pc_obj()) {
+    if (pc_obj == player_get_local_pc_obj()) {
         area_flags[area] |= AREA_KNOWN;
         area_last_known_area = area;
         ui_toggle_primary_button(UI_PRIMARY_BUTTON_WORLDMAP, true);
@@ -483,12 +454,7 @@ int area_get_last_known_area(int64_t pc_obj)
         return AREA_UNKNOWN;
     }
 
-    if (tig_net_is_active()) {
-        player = multiplayer_find_slot_from_obj(pc_obj);
-        if (player != -1) {
-            return area_last_known_area_per_player[player];
-        }
-    } else if (pc_obj == player_get_local_pc_obj()) {
+    if (pc_obj == player_get_local_pc_obj()) {
         return area_last_known_area;
     }
 
@@ -502,31 +468,13 @@ int area_get_last_known_area(int64_t pc_obj)
  */
 void area_reset_last_known_area(int64_t pc_obj)
 {
-    PacketAreaResetLastKnown pkt;
-    int player;
-
     // Validate the object and ensure it's a player character.
     if (pc_obj == OBJ_HANDLE_NULL
         || obj_field_int32_get(pc_obj, OBJ_F_TYPE) != OBJ_TYPE_PC) {
         return;
     }
 
-    if (tig_net_is_active()) {
-        if (!multiplayer_is_locked()) {
-            if (!tig_net_is_host()) {
-                return;
-            }
-
-            pkt.type = 102;
-            pkt.oid = obj_get_id(pc_obj);
-            tig_net_send_app_all(&pkt, sizeof(pkt));
-
-            player = multiplayer_find_slot_from_obj(pc_obj);
-            if (player != -1) {
-                area_last_known_area_per_player[player] = AREA_UNKNOWN;
-            }
-        }
-    } else if (pc_obj == player_get_local_pc_obj()) {
+    if (pc_obj == player_get_local_pc_obj()) {
         area_last_known_area = AREA_UNKNOWN;
     }
 }

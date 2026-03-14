@@ -787,26 +787,6 @@ typedef struct Packet100 {
 // Serializeable.
 static_assert(sizeof(Packet100) == 0x40, "wrong size");
 
-typedef struct PacketAreaKnownSet {
-    /* 0000 */ int type;
-    /* 0004 */ int padding_4;
-    /* 0008 */ ObjectID oid;
-    /* 0020 */ int area;
-    /* 0024 */ int padding_24;
-} PacketAreaKnownSet;
-
-// Serializeable.
-static_assert(sizeof(PacketAreaKnownSet) == 0x28, "wrong size");
-
-typedef struct PacketAreaResetLastKnown {
-    /* 0000 */ int type;
-    /* 0004 */ int padding_4;
-    /* 0008 */ ObjectID oid;
-} PacketAreaResetLastKnown;
-
-// Serializeable.
-static_assert(sizeof(PacketAreaResetLastKnown) == 0x20, "wrong size");
-
 typedef struct PacketObjectLock {
     /* 0000 */ int type;
     /* 0004 */ int padding_4;
@@ -1160,7 +1140,6 @@ void sub_4EDDE0(int64_t obj);
 void sub_4EDF20(int64_t obj, int64_t location, int dx, int dy, bool a7);
 void mp_item_activate(int64_t owner_obj, int64_t item_obj);
 void mp_ui_schematic_feedback(bool success, int64_t primary_obj, int64_t secondary_obj);
-void mp_ui_toggle_primary_button(UiPrimaryButton btn, bool on, int client_id);
 void mp_ui_written_start_type(int64_t obj, WrittenType written_type, int num);
 void mp_ui_show_inven_loot(int64_t obj, int64_t a2);
 void sub_4EE3A0(int64_t obj, int64_t a2);

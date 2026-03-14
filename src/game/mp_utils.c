@@ -265,24 +265,6 @@ void mp_ui_schematic_feedback(bool success, int64_t primary_obj, int64_t seconda
     }
 }
 
-// 0x4EE230
-void mp_ui_toggle_primary_button(UiPrimaryButton btn, bool on, int client_id)
-{
-    if (sub_529520() != client_id) {
-        Packet100 pkt;
-
-        pkt.type = 100;
-        pkt.subtype = 2;
-        pkt.d.a.field_8 = btn;
-        pkt.d.a.field_C = on;
-        tig_net_send_app(&pkt, sizeof(pkt), client_id);
-
-        return;
-    }
-
-    ui_toggle_primary_button(btn, on);
-}
-
 // 0x4EE290
 void mp_ui_written_start_type(int64_t obj, WrittenType written_type, int num)
 {
@@ -516,28 +498,6 @@ void sub_4EE5E0(Packet100* pkt)
         }
         break;
     }
-}
-
-// 0x4EEB90
-void mp_handle_area_reset_last_known(PacketAreaResetLastKnown* pkt)
-{
-    int64_t pc_obj;
-
-    pc_obj = objp_perm_lookup(pkt->oid);
-    multiplayer_lock();
-    area_reset_last_known_area(pc_obj);
-    multiplayer_unlock();
-}
-
-// 0x4EEBD0
-void mp_handle_area_known_set(PacketAreaKnownSet* pkt)
-{
-    int64_t pc_obj;
-
-    pc_obj = objp_perm_lookup(pkt->oid);
-    multiplayer_lock();
-    area_set_known(pc_obj, pkt->area);
-    multiplayer_unlock();
 }
 
 // 0x4EEC10
