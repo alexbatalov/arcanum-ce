@@ -183,13 +183,13 @@ static int scrollbar_ui_drag_base;
 static int scrollbar_ui_drag_delta;
 
 /**
- * When non-zero, `scrollbar_ui_process_event` silently ignores all incoming
- * messages. Managed by `scrollbar_ui_begin_ignore_events` and
+ * Flag indicating that `scrollbar_ui_process_event` silently ignores all
+ * incoming messages. Managed by `scrollbar_ui_begin_ignore_events` and
  * `scrollbar_ui_end_ignore_events`.
  *
  * 0x684684
  */
-static bool scrollbar_ui_ignore_events_counter;
+static bool scrollbar_ui_ignore_events;
 
 /**
  * Called when the game is initialized.
@@ -247,7 +247,7 @@ void scrollbar_ui_reset(void)
 
     scrollbar_ui_next_global_index = random_between(0, 8192);
     scrollbar_ui_dragging_index = -1;
-    scrollbar_ui_ignore_events_counter = false;
+    scrollbar_ui_ignore_events = false;
 }
 
 /**
@@ -556,7 +556,7 @@ bool scrollbar_ui_process_event(TigMessage* msg)
     int index;
     ScrollbarUiControl* ctrl;
 
-    if (scrollbar_ui_ignore_events_counter) {
+    if (scrollbar_ui_ignore_events) {
         return false;
     }
 
@@ -832,7 +832,7 @@ void scrollbar_ui_control_set(ScrollbarId id, int type, int value)
  */
 void scrollbar_ui_begin_ignore_events(void)
 {
-    scrollbar_ui_ignore_events_counter = true;
+    scrollbar_ui_ignore_events = true;
 }
 
 /**
@@ -841,7 +841,7 @@ void scrollbar_ui_begin_ignore_events(void)
 // 0x5811B0
 void scrollbar_ui_end_ignore_events(void)
 {
-    scrollbar_ui_ignore_events_counter = false;
+    scrollbar_ui_ignore_events = false;
 }
 
 /**
