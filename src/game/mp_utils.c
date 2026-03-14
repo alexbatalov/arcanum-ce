@@ -619,26 +619,6 @@ void mp_container_open(int64_t obj)
     }
 }
 
-// 0x4EEF80
-void mp_portal_toggle(int64_t obj)
-{
-    portal_toggle(obj);
-
-    if (tig_net_is_active()) {
-        PacketPortalToggle pkt;
-
-        pkt.type = 107;
-        pkt.oid = obj_get_id(obj);
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-    }
-}
-
-// 0x4EEFE0
-void mp_handle_portal_toggle(PacketPortalToggle* pkt)
-{
-    portal_toggle(objp_perm_lookup(pkt->oid));
-}
-
 // 0x4EF010
 void mp_sector_block_set(int64_t sec, bool blocked)
 {
