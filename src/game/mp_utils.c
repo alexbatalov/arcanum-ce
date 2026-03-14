@@ -265,20 +265,6 @@ void mp_ui_schematic_feedback(bool success, int64_t primary_obj, int64_t seconda
     }
 }
 
-// 0x4EE190
-void mp_ui_follower_refresh(void)
-{
-    Packet100 pkt;
-
-    ui_follower_refresh();
-
-    if (tig_net_is_active()) {
-        pkt.type = 100;
-        pkt.subtype = 0;
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-    }
-}
-
 // 0x4EE1D0
 void sub_4EE1D0(int64_t obj)
 {

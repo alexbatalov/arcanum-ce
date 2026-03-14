@@ -948,7 +948,7 @@ bool critter_follow(int64_t follower_obj, int64_t leader_obj, bool force)
 
     // Update follower state.
     anim_speed_recalc(follower_obj);
-    mp_ui_follower_refresh();
+    ui_follower_refresh();
 
     // Conceal new follower if leader is concealed.
     critter_set_concealed(follower_obj, critter_is_concealed(leader_obj));
@@ -1058,7 +1058,7 @@ void critter_disband_internal(int64_t obj)
         mp_obj_field_int32_set(obj, OBJ_F_NPC_FLAGS, flags);
     }
 
-    mp_ui_follower_refresh();
+    ui_follower_refresh();
 
     // Reveal critter if concealed.
     if (critter_is_concealed(obj)) {
