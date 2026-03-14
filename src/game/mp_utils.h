@@ -354,17 +354,6 @@ typedef struct PlayerBuySpellPacket {
 // Serializeable.
 static_assert(sizeof(PlayerBuySpellPacket) == 0x10, "wrong size");
 
-typedef struct SetBaseStatPacket {
-    /* 0000 */ int type;
-    /* 0004 */ int stat;
-    /* 0008 */ int value;
-    /* 000C */ int padding_C;
-    /* 0010 */ ObjectID oid;
-} SetBaseStatPacket;
-
-// Serializeable.
-static_assert(sizeof(SetBaseStatPacket) == 0x28, "wrong size");
-
 typedef struct Packet51 {
     /* 0000 */ int type;
     /* 0004 */ int field_4;

@@ -12,8 +12,6 @@
 #include "game/location.h"
 #include "game/magictech.h"
 #include "game/mes.h"
-#include "game/mp_utils.h"
-#include "game/multiplayer.h"
 #include "game/obj.h"
 #include "game/object.h"
 #include "game/player.h"
@@ -643,27 +641,6 @@ int stat_base_set(int64_t obj, int stat, int value)
         return false;
     }
 
-    if (tig_net_is_active()
-        && !multiplayer_is_locked()) {
-        SetBaseStatPacket pkt;
-
-        pkt.type = 50;
-        pkt.stat = stat;
-        pkt.value = value;
-        pkt.oid = obj_get_id(obj);
-
-        if (!tig_net_is_host()) {
-            if (player_is_local_pc_obj(obj)
-                && STAT_IS_PRIMARY(stat)
-                && abs(stat_base_get(obj, stat) - value) == 1) {
-                tig_net_send_app_all(&pkt, sizeof(pkt));
-            }
-            return true;
-        }
-
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-    }
-
     // We cannot modify derived stats for obvious reasons. If we're trying to do
     // it silently ignore this request and simply return it's current value.
     if (STAT_IS_DERIVED(stat)) {
@@ -1044,8 +1021,7 @@ bool stat_poison_timeevent_process(TimeEvent* timeevent)
     switch (type) {
     case POISON_EVENT_DAMAGE:
         if (poison > 0) {
-            if (!tig_net_is_active()
-                || (obj_field_int32_get(obj, OBJ_F_FLAGS) & OF_OFF) == 0) {
+            if ((obj_field_int32_get(obj, OBJ_F_FLAGS) & OF_OFF) == 0) {
                 sub_4B2210(OBJ_HANDLE_NULL, obj, &combat);
 
                 // Determine damage based on poison severity.
@@ -1071,16 +1047,14 @@ bool stat_poison_timeevent_process(TimeEvent* timeevent)
             poison_timeevent_schedule(obj, poison, false);
 
             // Update health bar.
-            if (!tig_net_is_active()
-                || (obj_field_int32_get(obj, OBJ_F_FLAGS) & OF_OFF) == 0) {
+            if ((obj_field_int32_get(obj, OBJ_F_FLAGS) & OF_OFF) == 0) {
                 ui_refresh_health_bar(obj);
             }
         }
         break;
     case POISON_EVENT_RECOVERY:
         if (poison > 0) {
-            if (!tig_net_is_active()
-                || (obj_field_int32_get(obj, OBJ_F_FLAGS) & OF_OFF) == 0) {
+            if ((obj_field_int32_get(obj, OBJ_F_FLAGS) & OF_OFF) == 0) {
                 // Reduce poison level based on recovery stat.
                 poison -= stat_level_get(obj, STAT_POISON_RECOVERY);
                 if (poison < 0) {
