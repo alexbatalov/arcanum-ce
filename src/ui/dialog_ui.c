@@ -463,7 +463,7 @@ bool sub_567E30(DialogUiEntry* entry, int a2)
         TB_TYPE_GREEN,
         TB_EXPIRE_DEFAULT,
         entry->state.options[a2]);
-    mp_tb_remove(entry->state.npc_obj);
+    tb_remove(entry->state.npc_obj);
     dialog_ui_speech_stop();
     sub_413130(&(entry->state), a2);
     sub_567D60(entry);

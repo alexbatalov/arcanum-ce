@@ -707,53 +707,6 @@ void sub_4EF540(void)
     // TODO: Incomplete.
 }
 
-// 0x4EF5C0
-void mp_tf_remove(int64_t obj)
-{
-    PacketTextRemove pkt;
-
-    tf_remove(obj);
-
-    if (tig_net_is_active()) {
-        pkt.type = 116;
-        pkt.subtype = 1;
-        pkt.action = 0;
-        pkt.oid = obj_get_id(obj);
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-    }
-}
-
-// 0x4EF630
-void mp_tb_remove(int64_t obj)
-{
-    PacketTextRemove pkt;
-
-    tb_remove(obj);
-
-    if (tig_net_is_active()) {
-        pkt.type = 116;
-        pkt.subtype = 0;
-        pkt.action = 0;
-        pkt.oid = obj_get_id(obj);
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-    }
-}
-
-// 0x4EF690
-void mp_handle_text_remove(PacketTextRemove* pkt)
-{
-    if (pkt->action == 0) {
-        switch (pkt->subtype) {
-        case 0:
-            tb_remove(objp_perm_lookup(pkt->oid));
-            break;
-        case 1:
-            tf_remove(objp_perm_lookup(pkt->oid));
-            break;
-        }
-    }
-}
-
 // 0x4EF6F0
 void mp_item_use(int64_t source_obj, int64_t item_obj, int64_t target_obj)
 {

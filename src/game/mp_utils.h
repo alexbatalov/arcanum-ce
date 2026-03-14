@@ -844,17 +844,6 @@ typedef struct PacketMapPrecacheSectors {
 // Serializeable.
 static_assert(sizeof(PacketMapPrecacheSectors) == 0x28, "wrong size");
 
-typedef struct PacketTextRemove {
-    /* 0000 */ int type;
-    /* 0004 */ int subtype;
-    /* 0008 */ int action;
-    /* 000C */ int padding_C;
-    /* 0010 */ ObjectID oid;
-} PacketTextRemove;
-
-// Serializeable.
-static_assert(sizeof(PacketTextRemove) == 0x28, "wrong size");
-
 typedef struct PacketItemUse {
     /* 0000 */ int type;
     /* 0004 */ int padding_4;
@@ -1111,8 +1100,6 @@ void mp_container_open(int64_t obj);
 void mp_sector_block_set(int64_t sec, bool blocked);
 void mp_art_touch(tig_art_id_t art_id);
 void mp_map_precache_sectors(int64_t loc, int64_t obj);
-void mp_tf_remove(int64_t obj);
-void mp_tb_remove(int64_t obj);
 void mp_item_use(int64_t source_obj, int64_t item_obj, int64_t target_obj);
 void sub_4EF830(int64_t a1, int64_t a2);
 bool mp_object_duplicate(int64_t obj, int64_t loc, int64_t* obj_ptr);

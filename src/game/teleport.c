@@ -19,6 +19,8 @@
 #include "game/player.h"
 #include "game/reaction.h"
 #include "game/roof.h"
+#include "game/tb.h"
+#include "game/tf.h"
 #include "game/ui.h"
 #include "game/wallcheck.h"
 
@@ -303,11 +305,11 @@ bool schedule_teleport_obj_recursively(int64_t obj, int64_t loc)
     flags = obj_field_int32_get(obj, OBJ_F_FLAGS);
 
     if ((flags & OF_TEXT) != 0) {
-        mp_tb_remove(obj);
+        tb_remove(obj);
     }
 
     if ((flags & OF_TEXT_FLOATER) != 0) {
-        mp_tf_remove(obj);
+        tf_remove(obj);
     }
 
     if (obj_type_is_critter(obj_type)) {
