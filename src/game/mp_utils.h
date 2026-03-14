@@ -376,17 +376,6 @@ typedef struct Packet51 {
 // Serializeable.
 static_assert(sizeof(Packet51) == 0x28, "wrong size");
 
-typedef struct SetSkillTrainingPacket {
-    /* 0000 */ int type;
-    /* 0004 */ int padding_4;
-    /* 0008 */ FollowerInfo field_8;
-    /* 0038 */ int skill;
-    /* 003C */ int training;
-} SetSkillTrainingPacket;
-
-// Serializeable.
-static_assert(sizeof(SetSkillTrainingPacket) == 0x40, "wrong size");
-
 typedef struct Packet54 {
     /* 0000 */ int type;
     /* 0004 */ int magictech_id;
@@ -714,43 +703,6 @@ typedef struct PacketReactionAdj {
 // Serializeable.
 static_assert(sizeof(PacketReactionAdj) == 0x40, "wrong size");
 
-#define REPAIR_INVOCATION_HP_DAM 0x01u
-#define REPAIR_INVOCATION_FIX 0x02u
-#define REPAIR_INVOCATION_HP_ADJ 0x04u
-#define REPAIR_INVOCATION_NOTIFY_UI 0x08u
-#define REPAIR_INVOCATION_NO_REPAIR 0x10u
-
-typedef struct RepairInvocation {
-    /* 0000 */ int type;
-    /* 0004 */ int flags;
-    /* 0008 */ int hp_dam;
-    /* 000C */ int hp_adj;
-    /* 0010 */ ObjectID target_oid;
-    /* 0028 */ ObjectID source_oid;
-    /* 0040 */ int success;
-    /* 0044 */ int padding_44;
-} RepairInvocation;
-
-// Serializeable.
-static_assert(sizeof(RepairInvocation) == 0x48, "wrong size");
-
-#define PICK_LOCK_INVOCATION_LOCK 0x01u
-#define PICK_LOCK_INVOCATION_JAM 0x02u
-#define PICK_LOCK_INVOCATION_UNLOCK 0x04u
-#define PICK_LOCK_INVOCATION_NOTIFY_UI 0x08u
-
-typedef struct PacketPickLockInvocation {
-    /* 0000 */ int type;
-    /* 0004 */ unsigned int flags;
-    /* 0008 */ ObjectID source_oid;
-    /* 0020 */ ObjectID target_oid;
-    /* 0038 */ int success;
-    /* 003C */ int padding_3C;
-} PacketPickLockInvocation;
-
-// Serializeable.
-static_assert(sizeof(PacketPickLockInvocation) == 0x40, "wrong size");
-
 typedef struct PacketTrapMarkKnown {
     /* 0000 */ int type;
     /* 0004 */ int padding_4;
@@ -762,21 +714,6 @@ typedef struct PacketTrapMarkKnown {
 
 // Serializeable.
 static_assert(sizeof(PacketTrapMarkKnown) == 0x40, "wrong size");
-
-#define DISARM_TRAP_INVOCATION_0x01 0x01u
-#define DISARM_TRAP_INVOCATION_DISARM 0x02u
-
-typedef struct PacketDisarmTrapInvocation {
-    /* 0000 */ int type;
-    /* 0004 */ int padding_4;
-    /* 0008 */ ObjectID source_oid;
-    /* 0020 */ ObjectID target_oid;
-    /* 0038 */ int success;
-    /* 003C */ unsigned int flags;
-} PacketDisarmTrapInvocation;
-
-// Serializeable.
-static_assert(sizeof(PacketDisarmTrapInvocation) == 0x40, "wrong size");
 
 typedef struct Packet92 {
     /* 0000 */ int type;

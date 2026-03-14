@@ -11,7 +11,6 @@
 #include "game/light.h"
 #include "game/mes.h"
 #include "game/mp_utils.h"
-#include "game/multiplayer.h"
 #include "game/player.h"
 #include "game/random.h"
 #include "game/stat.h"
@@ -620,7 +619,7 @@ int basic_skill_points_set(int64_t obj, int bs, int value)
     }
 
     // Update the skill field with the new points (preserving training bits).
-    mp_obj_arrayfield_int32_set(obj, OBJ_F_CRITTER_BASIC_SKILL_IDX, bs, value | (current_value & ~63));
+    obj_arrayfield_int32_set(obj, OBJ_F_CRITTER_BASIC_SKILL_IDX, bs, value | (current_value & ~63));
 
     return value;
 }
@@ -704,21 +703,6 @@ int basic_skill_training_set(int64_t obj, int bs, int training)
     // Get the current skill field value and extract training tier.
     skill_value = obj_arrayfield_int32_get(obj, OBJ_F_CRITTER_BASIC_SKILL_IDX, bs);
     current_training = (skill_value >> 6) & 3;
-
-    if (!multiplayer_is_locked()) {
-        SetSkillTrainingPacket pkt;
-
-        // Only host can send training changes.
-        if (!tig_net_is_host()) {
-            return current_training;
-        }
-
-        pkt.type = 56;
-        sub_4440E0(obj, &(pkt.field_8));
-        pkt.skill = bs;
-        pkt.training = training;
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-    }
 
     // Enforce sequential training: new tier must be one step above current or
     // equal.
@@ -1125,13 +1109,6 @@ int tech_skill_points_set(int64_t obj, int ts, int value)
         return 0;
     }
 
-    // NOTE: There is no such check in `basic_skill_points_set`.
-    if (tig_net_is_active()
-        && !tig_net_is_host()
-        && !multiplayer_is_locked()) {
-        return 0;
-    }
-
     // Ensure object is a critter.
     if (!obj_type_is_critter(obj_field_int32_get(obj, OBJ_F_TYPE))) {
         return 0;
@@ -1152,7 +1129,7 @@ int tech_skill_points_set(int64_t obj, int ts, int value)
     }
 
     // Update the skill field with the new points (preserving training bits).
-    mp_obj_arrayfield_int32_set(obj, OBJ_F_CRITTER_TECH_SKILL_IDX, ts, value | (current_value & ~63));
+    obj_arrayfield_int32_set(obj, OBJ_F_CRITTER_TECH_SKILL_IDX, ts, value | (current_value & ~63));
 
     // Update tech aptitude.
     tech_points = stat_base_get(obj, STAT_TECH_POINTS);
@@ -1211,21 +1188,6 @@ int tech_skill_training_set(int64_t obj, int ts, int training)
     // Get the current skill field value and extract training tier.
     skill_value = obj_arrayfield_int32_get(obj, OBJ_F_CRITTER_TECH_SKILL_IDX, ts);
     current_training = (skill_value >> 6) & 3;
-
-    if (!multiplayer_is_locked()) {
-        SetSkillTrainingPacket pkt;
-
-        // Only host can send training changes.
-        if (!tig_net_is_host()) {
-            return current_training;
-        }
-
-        pkt.type = 56;
-        sub_4440E0(obj, &(pkt.field_8));
-        pkt.skill = BASIC_SKILL_COUNT + ts;
-        pkt.training = training;
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-    }
 
     // Enforce sequential training: new tier must be one step above current or
     // equal.
@@ -1571,11 +1533,6 @@ bool skill_invocation_run(SkillInvocation* skill_invocation)
     bool is_critical;
     bool is_fate = false;
 
-    // Make sure skill invocation is processed only by the host.
-    if (tig_net_is_active() && !tig_net_is_host()) {
-        return false;
-    }
-
     source_obj = skill_invocation->source.obj;
     target_obj = skill_invocation->target.obj;
     target_loc = skill_invocation->target_loc;
@@ -1702,10 +1659,6 @@ bool skill_invocation_run(SkillInvocation* skill_invocation)
                     default:
                         // Transfer item.
                         moved = item_transfer(item_obj, source_obj);
-                        if (tig_net_is_active()) {
-                            obj_get_id(source_obj);
-                            obj_get_id(item_obj);
-                        }
                         break;
                     }
 
@@ -1717,17 +1670,6 @@ bool skill_invocation_run(SkillInvocation* skill_invocation)
                         unsigned int critter_flags2 = obj_field_int32_get(target_obj, OBJ_F_CRITTER_FLAGS2);
                         critter_flags2 |= OCF2_ITEM_STOLEN;
                         obj_field_int32_set(target_obj, OBJ_F_CRITTER_FLAGS2, critter_flags2);
-
-                        if (tig_net_is_active()) {
-                            Packet129 pkt;
-
-                            pkt.type = 129;
-                            pkt.oid = obj_get_id(target_obj);
-                            pkt.fld = OBJ_F_CRITTER_FLAGS2;
-                            pkt.subtype = 0;
-                            pkt.val = critter_flags2;
-                            tig_net_send_app_all(&pkt, sizeof(pkt));
-                        }
                     } else {
                         is_success = false;
                         is_critical = false;
@@ -1792,15 +1734,6 @@ bool skill_invocation_run(SkillInvocation* skill_invocation)
                     default:
                         // Transefer item.
                         moved = item_transfer(item_obj, target_obj);
-
-                        if (tig_net_is_active()) {
-                            Packet128 pkt;
-
-                            pkt.type = 128;
-                            pkt.target_oid = obj_get_id(target_obj);
-                            pkt.item_oid = obj_get_id(item_obj);
-                            tig_net_send_app_all(&pkt, sizeof(pkt));
-                        }
                         break;
                     }
 
@@ -1896,14 +1829,6 @@ bool skill_invocation_run(SkillInvocation* skill_invocation)
                     critter_flags &= ~OCF_CRIPPLED_LEGS_BOTH;
                 }
                 obj_field_int32_set(target_obj, OBJ_F_CRITTER_FLAGS, critter_flags);
-
-                Packet129 pkt;
-                pkt.type = 129;
-                pkt.oid = obj_get_id(target_obj);
-                pkt.fld = OBJ_F_CRITTER_FLAGS;
-                pkt.subtype = 0;
-                pkt.val = critter_flags;
-                tig_net_send_app_all(&pkt, sizeof(pkt));
             } else {
                 // Not a critical - the amount of healing is random between
                 // 1 and a calculated max.
@@ -1943,7 +1868,6 @@ bool skill_invocation_run(SkillInvocation* skill_invocation)
         break;
     }
     case SKILL_REPAIR: {
-        RepairInvocation pkt;
         int durability_dam_by_training[3];
 
         // Initialize durability damage table. Master of repair is a special
@@ -1952,20 +1876,12 @@ bool skill_invocation_run(SkillInvocation* skill_invocation)
         durability_dam_by_training[TRAINING_APPRENTICE] = 5;
         durability_dam_by_training[TRAINING_EXPERT] = 1;
 
-        // Set up network packet.
-        memset(&pkt, 0, sizeof(pkt));
-        pkt.type = 88;
-        pkt.source_oid = obj_get_id(source_obj);
-        pkt.target_oid = obj_get_id(target_obj);
-        pkt.success = 1; // NOTE: Probably error.
-
         // Check if the target is repairable.
         int hp_dam = object_hp_damage_get(target_obj);
         if (hp_dam <= 0
             && (tig_art_item_id_destroyed_get(obj_field_int32_get(target_obj, OBJ_F_CURRENT_AID)) == 0
                 || training != TRAINING_MASTER)) {
             // Notify UI there is nothing to repair.
-            pkt.flags |= REPAIR_INVOCATION_NO_REPAIR;
             if (player_is_local_pc_obj(source_obj)) {
                 if (skill_callbacks.no_repair_func != NULL) {
                     skill_callbacks.no_repair_func(source_obj, target_obj, is_success);
@@ -2005,9 +1921,6 @@ bool skill_invocation_run(SkillInvocation* skill_invocation)
 
             object_hp_damage_set(target_obj, hp_dam);
 
-            pkt.flags |= REPAIR_INVOCATION_HP_DAM;
-            pkt.hp_dam = hp_dam;
-
             // Calculate damage to durability.
             if (training == TRAINING_MASTER) {
                 if (tig_art_item_id_destroyed_get(obj_field_int32_get(target_obj, OBJ_F_CURRENT_AID)) != 0) {
@@ -2019,7 +1932,6 @@ bool skill_invocation_run(SkillInvocation* skill_invocation)
                     tig_art_id_t art_id = obj_field_int32_get(target_obj, OBJ_F_CURRENT_AID);
                     art_id = tig_art_item_id_destroyed_set(art_id, 0);
                     object_set_current_aid(target_obj, art_id);
-                    pkt.flags |= REPAIR_INVOCATION_FIX;
 
                     // Such fix is an automatic success.
                     is_success = true;
@@ -2043,40 +1955,21 @@ bool skill_invocation_run(SkillInvocation* skill_invocation)
             if (durability_dam > 0) {
                 int dam = durability_dam * object_hp_max(target_obj) / 100;
                 object_hp_adj_set(target_obj, object_hp_adj_get(target_obj) - dam);
-
-                pkt.flags |= REPAIR_INVOCATION_HP_ADJ;
-                pkt.hp_adj = object_hp_adj_get(target_obj);
             }
 
             // Notify UI of repair attempt.
-            pkt.flags |= REPAIR_INVOCATION_NOTIFY_UI;
             if (player_is_local_pc_obj(source_obj)) {
                 if (skill_callbacks.repair_func != NULL) {
                     skill_callbacks.repair_func(source_obj, target_obj, is_success);
                 }
             }
         }
-
-        // Send network packet.
-        if (tig_net_is_active()) {
-            tig_net_send_app_all(&pkt, sizeof(pkt));
-        }
         break;
     }
     case SKILL_PICK_LOCKS: {
-        PacketPickLockInvocation pkt;
-
-        // Set up network packet.
-        pkt.type = 89;
-        pkt.flags = 0;
-        pkt.source_oid = obj_get_id(source_obj);
-        pkt.target_oid = obj_get_id(target_obj);
-        pkt.success = is_success;
-
         if (object_locked_get(target_obj)) {
             // Attempt to unlock.
             if (is_success) {
-                pkt.flags |= PICK_LOCK_INVOCATION_UNLOCK;
                 object_locked_set(target_obj, false);
 
                 // Notify guards.
@@ -2084,7 +1977,6 @@ bool skill_invocation_run(SkillInvocation* skill_invocation)
             } else {
                 // Critical failure jam the lock.
                 if (is_critical) {
-                    pkt.flags |= PICK_LOCK_INVOCATION_JAM;
                     object_jammed_set(target_obj, true);
                 }
 
@@ -2093,7 +1985,6 @@ bool skill_invocation_run(SkillInvocation* skill_invocation)
             }
 
             // Notify UI of pick lock attempt.
-            pkt.flags |= PICK_LOCK_INVOCATION_NOTIFY_UI;
             if (is_controlled_by_local_pc(source_obj)) {
                 if (skill_callbacks.lock_func != NULL) {
                     skill_callbacks.lock_func(source_obj, target_obj, is_success);
@@ -2102,11 +1993,9 @@ bool skill_invocation_run(SkillInvocation* skill_invocation)
         } else {
             // Atempt to lock.
             if (is_success) {
-                pkt.flags |= PICK_LOCK_INVOCATION_LOCK;
                 object_locked_set(target_obj, true);
 
                 // Notify UI of pick lock attempt.
-                pkt.flags |= PICK_LOCK_INVOCATION_NOTIFY_UI;
                 if (player_is_local_pc_obj(source_obj)) {
                     if (skill_callbacks.lock_func != NULL) {
                         skill_callbacks.lock_func(source_obj, target_obj, is_success);
@@ -2114,23 +2003,9 @@ bool skill_invocation_run(SkillInvocation* skill_invocation)
                 }
             }
         }
-
-        // Send network packet.
-        if (tig_net_is_active()) {
-            tig_net_send_app_all(&pkt, sizeof(pkt));
-        }
         break;
     }
     case SKILL_DISARM_TRAPS: {
-        PacketDisarmTrapInvocation pkt;
-
-        // Set up network packet.
-        pkt.type = 91;
-        pkt.source_oid = obj_get_id(source_obj);
-        pkt.target_oid = obj_get_id(target_obj);
-        pkt.success = is_success;
-        pkt.flags = 0;
-
         if ((skill_invocation->flags & SKILL_INVOCATION_0x04) != 0) {
             // The master of disarming traps gets a second chance (unless the
             // first attempt was a critical failure).
@@ -2144,9 +2019,6 @@ bool skill_invocation_run(SkillInvocation* skill_invocation)
             // Process trap disarming.
             trap_handle_disarm(source_obj, target_obj, &is_success, &is_critical);
 
-            pkt.success = is_success;
-            pkt.flags |= DISARM_TRAP_INVOCATION_DISARM;
-
             // Notify UI of disarm trap attempt.
             if (is_controlled_by_local_pc(source_obj)) {
                 if (skill_callbacks.disarm_trap_func != NULL) {
@@ -2155,17 +2027,11 @@ bool skill_invocation_run(SkillInvocation* skill_invocation)
             }
         } else {
             // TODO: Unclear.
-            pkt.flags |= DISARM_TRAP_INVOCATION_0x01;
             if (player_is_local_pc_obj(source_obj)) {
                 if (skill_callbacks.field_C != NULL) {
                     skill_callbacks.field_C(source_obj, target_obj, is_success);
                 }
             }
-        }
-
-        // Send network packet.
-        if (tig_net_is_active()) {
-            tig_net_send_app_all(&pkt, sizeof(pkt));
         }
         break;
     }
@@ -2744,18 +2610,6 @@ void skill_perform_repair_service(int64_t item_obj, int64_t npc_obj, int64_t pc_
 {
     SkillInvocation skill_invocation;
 
-    if (tig_net_is_active() && !tig_net_is_host()) {
-        PacketPerformRepairService pkt;
-
-        pkt.type = 126;
-        sub_4F0640(item_obj, &(pkt.item_oid));
-        sub_4F0640(npc_obj, &(pkt.npc_oid));
-        sub_4F0640(pc_obj, &(pkt.pc_oid));
-        pkt.cost = cost;
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-        return;
-    }
-
     // Set up and run repair skill invocation with force success flag set.
     skill_invocation_init(&skill_invocation);
     skill_invocation.flags |= SKILL_INVOCATION_FORCED;
@@ -2781,18 +2635,6 @@ void skill_perform_repair_service(int64_t item_obj, int64_t npc_obj, int64_t pc_
  */
 bool get_follower_skills(int64_t obj)
 {
-    if (tig_net_is_active()) {
-        int player;
-
-        // Identify the player (client id) associated with the PC object.
-        player = multiplayer_find_slot_from_obj(obj);
-        if (player == -1) {
-            return false;
-        }
-
-        return (multiplayer_flags_get(player) & MULTIPLAYER_FOLLOWER_SKILLS) != 0;
-    }
-
     // In single-player mode simply retrieve the value from settings.
     return settings_get_value(&settings, FOLLOWER_SKILLS_KEY);
 }
@@ -2808,21 +2650,6 @@ void set_follower_skills(bool enabled)
 
     // In single-player mode simply set the value in settings.
     settings_set_value(&settings, FOLLOWER_SKILLS_KEY, enabled);
-
-    // In multiplayer mode, update the player-specific flag.
-    if (tig_net_is_active()) {
-        // Identify the player (client id) associated with the local PC object.
-        player = multiplayer_find_slot_from_obj(player_get_local_pc_obj());
-        if (player == -1) {
-            return;
-        }
-
-        if (enabled) {
-            multiplayer_flags_set(player, MULTIPLAYER_FOLLOWER_SKILLS);
-        } else {
-            multiplayer_flags_unset(player, MULTIPLAYER_FOLLOWER_SKILLS);
-        }
-    }
 }
 
 /**
