@@ -93,23 +93,6 @@ void sub_4EDA60(UiMessage* ui_message, int player, int a3)
     FREE(pkt);
 }
 
-// 0x4EDB70
-void mp_tf_add(int64_t obj, int tf_type, const char* str)
-{
-    PacketTextFloater* pkt;
-    int extra_length;
-
-    extra_length = (int)strlen(str) + 1;
-    pkt = (PacketTextFloater*)MALLOC(sizeof(*pkt) + extra_length);
-    pkt->type = 85;
-    pkt->extra_length = extra_length;
-    pkt->oid = obj_get_id(obj);
-    pkt->tf_type = tf_type;
-    strncpy((char*)(pkt + 1), str, extra_length);
-    tig_net_send_app_all(pkt, sizeof(*pkt) + extra_length);
-    FREE(pkt);
-}
-
 // 0x4EDC00
 void mp_reaction_adj(int64_t npc_obj, int64_t pc_obj, int value)
 {

@@ -644,17 +644,6 @@ typedef struct Packet84 {
 static_assert(sizeof(Packet84) == 0x28, "wrong size");
 #endif
 
-typedef struct PacketTextFloater {
-    /* 0000 */ int type;
-    /* 0004 */ int extra_length;
-    /* 0008 */ ObjectID oid;
-    /* 0020 */ int tf_type;
-    /* 0028 */ int padding_28;
-} PacketTextFloater;
-
-// Serializeable.
-static_assert(sizeof(PacketTextFloater) == 0x28, "wrong size");
-
 typedef struct PacketReactionAdj {
     /* 0000 */ int type;
     /* 0004 */ int padding_4;
@@ -1174,7 +1163,6 @@ bool sub_4ED6C0(int64_t obj);
 bool mp_object_create(int name, int64_t loc, int64_t* obj_ptr);
 void mp_object_destroy(int64_t obj);
 void sub_4EDA60(UiMessage* ui_message, int player, int a3);
-void mp_tf_add(int64_t obj, int tf_type, const char* str);
 void mp_reaction_adj(int64_t npc_obj, int64_t pc_obj, int value);
 void mp_trap_mark_known(int64_t pc_obj, int64_t trap_obj, int reason);
 void sub_4EDCE0(int64_t obj, tig_art_id_t art_id);
