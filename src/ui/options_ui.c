@@ -407,22 +407,12 @@ void options_ui_violence_filter_set(int value)
  */
 void options_ui_combat_mode_get(int* value_ptr, bool* enabled_ptr)
 {
-    if (tig_net_is_active()) {
-        if (combat_is_turn_based()) {
-            settings_set_value(&settings, TURN_BASED_KEY, 0);
-            settings_set_value(&settings, FAST_TURN_BASED_KEY, 0);
-        }
-
-        *value_ptr = 0;
-        *enabled_ptr = false;
+    if (combat_is_turn_based()) {
+        *value_ptr = settings_get_value(&settings, FAST_TURN_BASED_KEY) ? 2 : 1;
     } else {
-        if (combat_is_turn_based()) {
-            *value_ptr = settings_get_value(&settings, FAST_TURN_BASED_KEY) ? 2 : 1;
-        } else {
-            *value_ptr = 0;
-        }
-        *enabled_ptr = true;
+        *value_ptr = 0;
     }
+    *enabled_ptr = true;
 }
 
 /**
@@ -432,21 +422,19 @@ void options_ui_combat_mode_get(int* value_ptr, bool* enabled_ptr)
  */
 void options_ui_combat_mode_set(int value)
 {
-    if (!tig_net_is_active()) {
-        switch (value) {
-        case 0:
-            settings_set_value(&settings, TURN_BASED_KEY, 0);
-            settings_set_value(&settings, FAST_TURN_BASED_KEY, 0);
-            break;
-        case 1:
-            settings_set_value(&settings, TURN_BASED_KEY, 1);
-            settings_set_value(&settings, FAST_TURN_BASED_KEY, 0);
-            break;
-        case 2:
-            settings_set_value(&settings, TURN_BASED_KEY, 1);
-            settings_set_value(&settings, FAST_TURN_BASED_KEY, 1);
-            break;
-        }
+    switch (value) {
+    case 0:
+        settings_set_value(&settings, TURN_BASED_KEY, 0);
+        settings_set_value(&settings, FAST_TURN_BASED_KEY, 0);
+        break;
+    case 1:
+        settings_set_value(&settings, TURN_BASED_KEY, 1);
+        settings_set_value(&settings, FAST_TURN_BASED_KEY, 0);
+        break;
+    case 2:
+        settings_set_value(&settings, TURN_BASED_KEY, 1);
+        settings_set_value(&settings, FAST_TURN_BASED_KEY, 1);
+        break;
     }
 }
 
