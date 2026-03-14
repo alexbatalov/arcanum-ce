@@ -120,8 +120,6 @@ int tig_window_move_on_top(tig_window_handle_t window_handle);
 int tig_window_show(tig_window_handle_t window_handle);
 int tig_window_hide(tig_window_handle_t window_handle);
 bool tig_window_is_hidden(tig_window_handle_t window_handle);
-int sub_51E9E0(void);
-bool sub_51EA00(void);
 int tig_window_vbid_get(tig_window_handle_t window_handle, TigVideoBuffer** video_buffer_ptr);
 int tig_window_modal_dialog(TigWindowModalDialogInfo* modal_info, TigWindowModalDialogChoice* choice_ptr);
 

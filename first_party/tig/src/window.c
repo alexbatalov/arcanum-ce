@@ -102,9 +102,6 @@ static int tig_window_ctx_flags;
 // 0x60F110
 static TigRect tig_window_screen_rect;
 
-// 0x60F120
-static int dword_60F120;
-
 // 0x60F124
 static bool tig_window_initialized;
 
@@ -134,7 +131,6 @@ int tig_window_init(TigInitInfo* init_info)
         windows[index].usage = TIG_WINDOW_USAGE_FREE;
     }
 
-    dword_60F120 = 1;
     tig_window_ctx_flags = init_info->flags;
     tig_window_initialized = true;
 
@@ -1412,10 +1408,6 @@ bool tig_window_filter_message(TigMessage* msg)
     TigWindowMessageFilterFunc* filters[TIG_WINDOW_MAX];
     int cnt;
 
-    if (!dword_60F120) {
-        return false;
-    }
-
     cnt = 0;
     for (index = tig_window_num_windows - 1; index >= 0; index--) {
         window_handle = tig_window_stack[index];
@@ -1523,19 +1515,6 @@ bool tig_window_is_hidden(tig_window_handle_t window_handle)
 {
     int window_index = tig_window_handle_to_index(window_handle);
     return (windows[window_index].flags & TIG_WINDOW_HIDDEN) != 0;
-}
-
-// 0x51E9E0
-int sub_51E9E0(void)
-{
-    dword_60F120 = !dword_60F120;
-    return TIG_OK;
-}
-
-// 0x51EA00
-bool sub_51EA00(void)
-{
-    return dword_60F120;
 }
 
 // 0x51EA10
