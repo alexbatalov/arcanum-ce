@@ -637,43 +637,6 @@ void sub_4EF540(void)
     // TODO: Incomplete.
 }
 
-// 0x4EF6F0
-void mp_item_use(int64_t source_obj, int64_t item_obj, int64_t target_obj)
-{
-    PacketItemUse pkt;
-
-    if (!tig_net_is_active()
-        || tig_net_is_host()) {
-        item_use_on_obj(source_obj, item_obj, target_obj);
-        return;
-    }
-
-    pkt.type = 117;
-    sub_4F0640(source_obj, &(pkt.source_oid));
-    sub_4F0640(item_obj, &(pkt.item_oid));
-    sub_4F0640(target_obj, &(pkt.target_oid));
-    tig_net_send_app_all(&pkt, sizeof(pkt));
-}
-
-// 0x4EF790
-void mp_handle_item_use(PacketItemUse* pkt)
-{
-    int64_t source_obj;
-    int64_t item_obj;
-    int64_t target_obj;
-
-    if (pkt == NULL) {
-        return;
-    }
-
-    if (tig_net_is_host()) {
-        sub_4F0690(pkt->source_oid, &source_obj);
-        sub_4F0690(pkt->item_oid, &item_obj);
-        sub_4F0690(pkt->target_oid, &target_obj);
-        item_use_on_obj(source_obj, item_obj, target_obj);
-    }
-}
-
 // 0x4EF830
 void sub_4EF830(int64_t a1, int64_t a2)
 {

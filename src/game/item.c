@@ -1422,13 +1422,6 @@ void item_use_on_obj(int64_t source_obj, int64_t item_obj, int64_t target_obj)
         return;
     }
 
-    if (tig_net_is_active() && !tig_net_is_host()) {
-        if (player_is_local_pc_obj(source_obj)) {
-            mp_item_use(source_obj, item_obj, target_obj);
-        }
-        return;
-    }
-
     item_parent(item_obj, &parent_obj);
 
     item_type = obj_field_int32_get(item_obj, OBJ_F_TYPE);
