@@ -1123,7 +1123,6 @@ void mp_obj_arrayfield_int32_set(int64_t obj, int fld, int index, int value);
 void mp_obj_arrayfield_script_set(int64_t obj, int fld, int index, Script* value);
 void mp_obj_arrayfield_uint32_set(int64_t obj, int fld, int index, int value);
 void sub_4F0500(int64_t obj, int fld);
-void sub_4F0570(int64_t obj, int fld, int length);
 void sub_4F0640(int64_t obj, ObjectID* oid_ptr);
 void sub_4F0690(ObjectID oid, int64_t* obj_ptr);
 

@@ -1042,7 +1042,7 @@ void critter_disband_internal(int64_t obj)
         }
 
         // Shrink the array.
-        sub_4F0570(leader_obj, OBJ_F_CRITTER_FOLLOWER_IDX, cnt - 1);
+        obj_arrayfield_length_set(leader_obj, OBJ_F_CRITTER_FOLLOWER_IDX, cnt - 1);
     }
 
     critter_leader_set(obj, OBJ_HANDLE_NULL);

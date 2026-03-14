@@ -1119,23 +1119,6 @@ void sub_4F0500(int64_t obj, int fld)
     }
 }
 
-// 0x4F0570
-void sub_4F0570(int64_t obj, int fld, int length)
-{
-    Packet130 pkt;
-
-    obj_arrayfield_length_set(obj, fld, length);
-
-    if (tig_net_is_active()) {
-        pkt.type = 130;
-        pkt.field_4 = 1;
-        pkt.fld = fld;
-        pkt.length = length;
-        pkt.oid = obj_get_id(obj);
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-    }
-}
-
 // 0x4F05F0
 void sub_4F05F0(void)
 {
