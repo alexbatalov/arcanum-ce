@@ -266,7 +266,9 @@ bool teleport_process(TeleportData* teleport_data)
         if (oid.type != OID_TYPE_NULL) {
             obj = objp_perm_lookup(oid);
             if (obj != OBJ_HANDLE_NULL) {
-                mp_map_precache_sectors(teleport_data->loc, obj);
+                if (player_get_local_pc_obj() == obj) {
+                    map_precache_sectors(teleport_data->loc);
+                }
             }
 
             // CE: Using Teleport spell may cause fatigue exhaustion. All

@@ -619,35 +619,6 @@ void mp_container_open(int64_t obj)
     }
 }
 
-// 0x4EF1E0
-void mp_map_precache_sectors(int64_t loc, int64_t obj)
-{
-    if (player_get_local_pc_obj() == obj) {
-        map_precache_sectors(loc);
-        return;
-    }
-
-    if (tig_net_is_active()) {
-        PacketMapPrecacheSectors pkt;
-
-        pkt.type = 112;
-        pkt.oid = obj_get_id(obj);
-        pkt.loc = loc;
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-    }
-}
-
-// 0x4EF260
-void mp_handle_map_precache_sectors(PacketMapPrecacheSectors* pkt)
-{
-    int64_t obj;
-
-    obj = objp_perm_lookup(pkt->oid);
-    if (obj == player_get_local_pc_obj()) {
-        map_precache_sectors(pkt->loc);
-    }
-}
-
 // 0x4EF320
 void sub_4EF320(void)
 {
