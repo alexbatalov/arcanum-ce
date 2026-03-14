@@ -1384,15 +1384,6 @@ bool critter_fatigue_timeevent_process(TimeEvent* timeevent)
             }
             critter_fatigue_damage_set(critter_obj, dam);
 
-            if (tig_net_is_active() && tig_net_is_host()) {
-                PacketCritterFatigueDamageSet pkt;
-
-                pkt.type = 35;
-                pkt.oid = obj_get_id(critter_obj);
-                pkt.dam = dam;
-                tig_net_send_app_all(&pkt, sizeof(pkt));
-            }
-
             // Play get-up animation if recovered from unconsciousness.
             if (fatigue <= 0 && critter_fatigue_current(critter_obj) > 0) {
                 anim_goal_get_up(critter_obj);
@@ -1408,15 +1399,6 @@ bool critter_fatigue_timeevent_process(TimeEvent* timeevent)
             }
             dam += v3;
             critter_fatigue_damage_set(critter_obj, dam);
-        }
-
-        if (tig_net_is_active() && tig_net_is_host()) {
-            PacketCritterFatigueDamageSet pkt;
-
-            pkt.type = 35;
-            pkt.oid = obj_get_id(critter_obj);
-            pkt.dam = dam;
-            tig_net_send_app_all(&pkt, sizeof(pkt));
         }
 
         // Schedule next fatigue damage event if applicable.

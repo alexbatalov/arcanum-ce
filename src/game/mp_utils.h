@@ -307,17 +307,6 @@ typedef struct PacketCritterRestingHeal {
 
 static_assert(sizeof(PacketCritterRestingHeal) == 0x28, "wrong size");
 
-typedef struct PacketCritterFatigueDamageSet {
-    /* 0000 */ int type;
-    /* 0004 */ int padding_4;
-    /* 0008 */ ObjectID oid;
-    /* 0020 */ int dam;
-    /* 0024 */ int padding_24;
-} PacketCritterFatigueDamageSet;
-
-// Serializeable.
-static_assert(sizeof(PacketCritterFatigueDamageSet) == 0x28, "wrong size");
-
 #define FATE_STATE_ACTION_DEACTIVATE 0
 #define FATE_STATE_ACTION_ACTIVATE 1
 
@@ -1354,7 +1343,6 @@ typedef struct Packet130 {
 static_assert(sizeof(Packet130) == 0x28, "wrong size");
 
 bool sub_4ED6C0(int64_t obj);
-void mp_critter_fatigue_damage_set(int64_t obj, int damage);
 bool sub_4ED780(int64_t obj, int quest, int state, int64_t a4);
 bool mp_object_create(int name, int64_t loc, int64_t* obj_ptr);
 void mp_object_destroy(int64_t obj);

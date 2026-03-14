@@ -41,21 +41,6 @@ bool sub_4ED6C0(int64_t obj)
     return false;
 }
 
-// 0x4ED720
-void mp_critter_fatigue_damage_set(int64_t obj, int damage)
-{
-    PacketCritterFatigueDamageSet pkt;
-
-    critter_fatigue_damage_set(obj, damage);
-
-    if (tig_net_is_active()) {
-        pkt.type = 35;
-        sub_4F0640(obj, &(pkt.oid));
-        pkt.dam = damage;
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-    }
-}
-
 // 0x4ED780
 bool sub_4ED780(int64_t obj, int quest, int state, int64_t a4)
 {

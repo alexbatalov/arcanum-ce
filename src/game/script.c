@@ -2237,7 +2237,7 @@ int script_execute_action(ScriptAction* action, int line, ScriptState* state)
             if (fatigue_damage < 0) {
                 fatigue_damage = 0;
             }
-            mp_critter_fatigue_damage_set(handles[idx], fatigue_damage);
+            critter_fatigue_damage_set(handles[idx], fatigue_damage);
 
             if (fatigue <= 0 && critter_fatigue_current(handles[idx]) > 0) {
                 anim_goal_get_up(handles[idx]);

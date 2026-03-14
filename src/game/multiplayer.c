@@ -2841,7 +2841,7 @@ void sub_4A6010(int64_t obj)
     int index;
 
     object_hp_damage_set(obj, 0);
-    mp_critter_fatigue_damage_set(obj, 0);
+    critter_fatigue_damage_set(obj, 0);
     mp_object_flags_unset(obj, OF_OFF);
     mp_object_flags_unset(obj, OF_FLAT);
 
