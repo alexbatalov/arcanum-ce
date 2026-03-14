@@ -640,27 +640,6 @@ void mp_handle_sector_block_set(PacketSectorBlockSet* pkt)
     sector_block_set(pkt->sec, pkt->blocked);
 }
 
-// 0x4EF080
-void mp_spell_mastery_set(int64_t obj, int college)
-{
-    PacketSpellMasterySet pkt;
-
-    spell_mastery_set(obj, college);
-
-    if (tig_net_is_active()) {
-        pkt.type = 109;
-        pkt.oid = obj_get_id(obj);
-        pkt.college = college;
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-    }
-}
-
-// 0x4EF0F0
-void mp_handle_spell_mastery_set(PacketSpellMasterySet* pkt)
-{
-    spell_mastery_set(objp_perm_lookup(pkt->oid), pkt->college);
-}
-
 // 0x4EF120
 void mp_townmap_set_known(int map, bool known)
 {

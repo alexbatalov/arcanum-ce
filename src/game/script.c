@@ -2603,7 +2603,7 @@ int script_execute_action(ScriptAction* action, int line, ScriptState* state)
     case SAT_GIVE_SPELL_MASTERY_IN_COLLEGE: {
         int64_t obj = script_get_obj(action->op_type[0], action->op_value[0], state);
         int college = script_get_value(action->op_type[1], action->op_value[1], state);
-        mp_spell_mastery_set(obj, college);
+        spell_mastery_set(obj, college);
         return NEXT;
     }
     case SAT_UNFOG_TOWNMAP: {
