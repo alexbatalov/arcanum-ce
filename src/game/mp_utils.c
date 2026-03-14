@@ -806,29 +806,6 @@ void sub_4EFC30(int64_t pc_obj, const char* name, const char* rule)
     FREE(pkt);
 }
 
-// 0x4EFCD0
-void sub_4EFCD0(PacketScriptFunc* pkt)
-{
-    if (!tig_net_is_host()) {
-        multiplayer_lock();
-        switch (pkt->subtype) {
-        case SCRIPT_FUNC_SET_STORY_STATE:
-            script_story_state_set(pkt->story_state);
-            break;
-        case SCRIPT_FUNC_SET_GLOBAL_VAR:
-            script_global_var_set(pkt->index, pkt->value);
-            break;
-        case SCRIPT_FUNC_SET_GLOBAL_FLAG:
-            script_global_flag_set(pkt->index, pkt->value);
-            break;
-        case SCRIPT_FUNC_END_GAME:
-            ui_end_game();
-            break;
-        }
-        multiplayer_unlock();
-    }
-}
-
 // 0x4EFDD0
 void mp_obj_field_int32_set(int64_t obj, int fld, int value)
 {

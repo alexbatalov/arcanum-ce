@@ -409,20 +409,6 @@ int script_global_var_get(int index)
 // 0x444C90
 void script_global_var_set(int index, int value)
 {
-    if (!multiplayer_is_locked()) {
-        PacketScriptFunc pkt;
-
-        if (!tig_net_is_host()) {
-            return;
-        }
-
-        pkt.type = 124;
-        pkt.subtype = SCRIPT_FUNC_SET_GLOBAL_VAR;
-        pkt.index = index;
-        pkt.value = value;
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-    }
-
     script_global_vars[index] = value;
 }
 
@@ -435,20 +421,6 @@ int script_global_flag_get(int index)
 // 0x444D20
 void script_global_flag_set(int index, int value)
 {
-    if (!multiplayer_is_locked()) {
-        PacketScriptFunc pkt;
-
-        if (!tig_net_is_host()) {
-            return;
-        }
-
-        pkt.type = 124;
-        pkt.subtype = SCRIPT_FUNC_SET_GLOBAL_FLAG;
-        pkt.index = index;
-        pkt.value = value;
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-    }
-
     script_global_flags[index / 32] &= ~(1 << (index % 32));
     script_global_flags[index / 32] |= value << (index % 32);
 }
@@ -559,19 +531,6 @@ int script_story_state_get(void)
 // 0x4450A0
 void script_story_state_set(int value)
 {
-    if (!multiplayer_is_locked()) {
-        PacketScriptFunc pkt;
-
-        if (!tig_net_is_host()) {
-            return;
-        }
-
-        pkt.type = 124;
-        pkt.subtype = SCRIPT_FUNC_SET_STORY_STATE;
-        pkt.story_state = value;
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-    }
-
     if (value > script_story_state) {
         script_story_state = value;
     }
@@ -2773,13 +2732,6 @@ int script_execute_action(ScriptAction* action, int line, ScriptState* state)
     }
     case SAT_END_GAME_AND_PLAY_SLIDES: {
         ui_end_game();
-        if (tig_net_is_active()
-            && tig_net_is_host()) {
-            PacketScriptFunc pkt;
-            pkt.type = 124;
-            pkt.subtype = SCRIPT_FUNC_END_GAME;
-            tig_net_send_app_all(&pkt, sizeof(pkt));
-        }
         return NEXT;
     }
     case SAT_SET_ROTATION: {

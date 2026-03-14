@@ -849,26 +849,6 @@ typedef struct PacketChangeReputation {
 // Serializeable.
 static_assert(sizeof(PacketChangeReputation) == 0x28, "wrong size");
 
-#define SCRIPT_FUNC_SET_STORY_STATE 0
-#define SCRIPT_FUNC_SET_GLOBAL_VAR 1
-#define SCRIPT_FUNC_SET_GLOBAL_FLAG 2
-#define SCRIPT_FUNC_END_GAME 3
-
-typedef struct PacketScriptFunc {
-    /* 0000 */ int type;
-    /* 0004 */ int subtype;
-    union {
-        /* 0008 */ int story_state;
-        struct {
-            /* 0008 */ int index;
-            /* 000C */ int value;
-        };
-    };
-} PacketScriptFunc;
-
-// Serializeable.
-static_assert(sizeof(PacketScriptFunc) == 0x10, "wrong size");
-
 typedef struct PacketPerformIdentifyService {
     /* 0000 */ int type;
     /* 0004 */ int padding_4;
