@@ -132,16 +132,6 @@ typedef struct Packet10 {
 // Serializeable.
 static_assert(sizeof(Packet10) == 0x40, "wrong size");
 
-typedef struct PacketBroadcastMsg {
-    /* 0000 */ int type;
-    /* 0004 */ int padding_4;
-    /* 0008 */ ObjectID oid;
-    /* 0020 */ Broadcast bcast;
-} PacketBroadcastMsg;
-
-// Serializeable.
-static_assert(sizeof(PacketBroadcastMsg) == 0xA8, "wrong size");
-
 typedef struct PacketCombatModeSet {
     /* 0000 */ int type;
     /* 0004 */ int padding_4;

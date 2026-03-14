@@ -4,8 +4,6 @@
 #include "game/anim.h"
 #include "game/critter.h"
 #include "game/mes.h"
-#include "game/mp_utils.h"
-#include "game/multiplayer.h"
 #include "game/player.h"
 #include "game/text_filter.h"
 #include "game/ui.h"
@@ -177,17 +175,6 @@ int broadcast_match_str_to_base_type(const char* str)
 // 0x4C2F00
 void broadcast_msg(int64_t obj, Broadcast* bcast)
 {
-    if (tig_net_is_active() && !tig_net_is_host()) {
-        PacketBroadcastMsg pkt;
-
-        pkt.type = 18;
-        pkt.oid = obj_get_id(obj);
-        pkt.bcast = *bcast;
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-
-        return;
-    }
-
     broadcast_msg_client(obj, bcast);
 }
 
