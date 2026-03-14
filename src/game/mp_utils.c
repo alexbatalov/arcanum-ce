@@ -640,26 +640,6 @@ void mp_handle_sector_block_set(PacketSectorBlockSet* pkt)
     sector_block_set(pkt->sec, pkt->blocked);
 }
 
-// 0x4EF190
-void mp_art_touch(tig_art_id_t art_id)
-{
-    PacketArtTouch pkt;
-
-    tig_art_touch(art_id);
-
-    if (tig_net_is_active()) {
-        pkt.type = 111;
-        pkt.art_id = art_id;
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-    }
-}
-
-// 0x4EF1D0
-void mp_handle_art_touch(PacketArtTouch* pkt)
-{
-    tig_art_touch(pkt->art_id);
-}
-
 // 0x4EF1E0
 void mp_map_precache_sectors(int64_t loc, int64_t obj)
 {

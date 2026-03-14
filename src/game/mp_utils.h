@@ -785,14 +785,6 @@ typedef struct PacketSectorBlockSet {
 // Serializeable.
 static_assert(sizeof(PacketSectorBlockSet) == 0x18, "wrong size");
 
-typedef struct PacketArtTouch {
-    /* 0000 */ int type;
-    /* 0004 */ tig_art_id_t art_id;
-} PacketArtTouch;
-
-// Serializeable.
-static_assert(sizeof(PacketArtTouch) == 0x8, "wrong size");
-
 typedef struct PacketMapPrecacheSectors {
     /* 0000 */ int type;
     /* 0004 */ int field_4;
@@ -1057,7 +1049,6 @@ void mp_ui_show_inven_npc_identify(int64_t pc_obj, int64_t target_obj);
 void mp_container_close(int64_t obj);
 void mp_container_open(int64_t obj);
 void mp_sector_block_set(int64_t sec, bool blocked);
-void mp_art_touch(tig_art_id_t art_id);
 void mp_map_precache_sectors(int64_t loc, int64_t obj);
 void mp_item_use(int64_t source_obj, int64_t item_obj, int64_t target_obj);
 void sub_4EF830(int64_t a1, int64_t a2);
