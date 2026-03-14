@@ -56,7 +56,7 @@ int64_t sector_id_from_loc(int64_t loc);
 int64_t sector_loc_from_id(int64_t sector_id);
 int sector_rot(int64_t a, int64_t b);
 bool sector_in_dir(int64_t sec, int dir, int64_t* new_sec_ptr);
-bool sub_4D0090(LocRect* rect, SomeSectorStuff* a2);
+bool sector_rect_from_loc_rect(LocRect* loc_rect, SectorRect* sector_rect);
 SectorListNode* sector_list_create(LocRect* loc_rect);
 void sector_list_destroy(SectorListNode* node);
 bool sector_map_name_set(const char* base_path, const char* save_path);

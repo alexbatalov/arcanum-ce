@@ -731,7 +731,7 @@ bool sector_in_dir(int64_t sec, int dir, int64_t* new_sec_ptr)
 }
 
 // 0x4D0090
-bool sub_4D0090(LocRect* rect, SomeSectorStuff* a2)
+bool sector_rect_from_loc_rect(LocRect* loc_rect, SectorRect* sector_rect)
 {
     int x;
     int y;
@@ -740,31 +740,31 @@ bool sub_4D0090(LocRect* rect, SomeSectorStuff* a2)
     int64_t horizontal[4];
     int64_t vertical[4];
 
-    width = sector_compute_boundaries(rect->x1, rect->x2 + 1, 64, horizontal) - 1;
+    width = sector_compute_boundaries(loc_rect->x1, loc_rect->x2 + 1, 64, horizontal) - 1;
     if (width == 0) {
         return false;
     }
 
-    height = sector_compute_boundaries(rect->y1, rect->y2 + 1, 64, vertical) - 1;
+    height = sector_compute_boundaries(loc_rect->y1, loc_rect->y2 + 1, 64, vertical) - 1;
     if (height == 0) {
         return false;
     }
 
     for (y = 0; y < height; y++) {
-        a2->field_8[y].width = 0;
-        a2->field_8[y].field_50 = (int)(vertical[y + 1] - vertical[y]);
+        sector_rect->rows[y].num_cols = 0;
+        sector_rect->rows[y].num_vert_tiles = (int)(vertical[y + 1] - vertical[y]);
 
         for (x = 0; x < width; x++) {
-            a2->field_8[y].field_8[x] = LOCATION_MAKE(horizontal[x], vertical[y]);
-            a2->field_8[y].field_20[x] = sector_id_from_loc(a2->field_8[y].field_8[x]);
-            a2->field_8[y].field_38[x] = tile_id_from_loc(a2->field_8[y].field_8[x]);
-            a2->field_8[y].field_44[x] = (int)(horizontal[x + 1] - horizontal[x]);
+            sector_rect->rows[y].origin_locs[x] = LOCATION_MAKE(horizontal[x], vertical[y]);
+            sector_rect->rows[y].sector_ids[x] = sector_id_from_loc(sector_rect->rows[y].origin_locs[x]);
+            sector_rect->rows[y].tile_ids[x] = tile_id_from_loc(sector_rect->rows[y].origin_locs[x]);
+            sector_rect->rows[y].num_hor_tiles[x] = (int)(horizontal[x + 1] - horizontal[x]);
         }
 
-        a2->field_8[y].width = width;
+        sector_rect->rows[y].num_cols = width;
     }
 
-    a2->height = height;
+    sector_rect->num_rows = height;
 
     return true;
 }

@@ -662,8 +662,8 @@ void tile_draw_topdown(GameDrawInfo* draw_info)
 // if `tile_draw_topdown` is definitely there, why `tile_draw_iso` should not?
 void tile_draw_iso(GameDrawInfo* draw_info)
 {
-    SomeSectorStuff* v1;
-    SomeSectorStuffEntry* v3;
+    SectorRect* v1;
+    SectorRectRow* v3;
     TigArtBlitInfo art_blit_info;
     TigRect src_rect;
     TigRect dst_rect;
@@ -693,7 +693,7 @@ void tile_draw_iso(GameDrawInfo* draw_info)
     bool blit_info_initialized;
     int v38;
 
-    v1 = draw_info->field_8;
+    v1 = draw_info->sector_rect;
 
     art_blit_info.flags = 0; // NOTE: Initialize to silence compiler warning.
     art_blit_info.src_rect = &src_rect;
@@ -707,27 +707,27 @@ void tile_draw_iso(GameDrawInfo* draw_info)
 
     light_buffers_lock();
 
-    for (v2 = 0; v2 < v1->height; v2++) {
-        v3 = &(v1->field_8[v2]);
+    for (v2 = 0; v2 < v1->num_rows; v2++) {
+        v3 = &(v1->rows[v2]);
 
-        for (v4 = 0; v4 < v3->width; v4++) {
-            indexes[v4] = v3->field_38[v4];
-            widths[v4] = 64 - v3->field_44[v4];
-            sector_lock_results[v4] = sector_lock(v3->field_20[v4], &(sectors[v4]));
+        for (v4 = 0; v4 < v3->num_cols; v4++) {
+            indexes[v4] = v3->tile_ids[v4];
+            widths[v4] = 64 - v3->num_hor_tiles[v4];
+            sector_lock_results[v4] = sector_lock(v3->sector_ids[v4], &(sectors[v4]));
         }
 
-        location_xy(v3->field_8[0], &loc_x, &loc_y);
+        location_xy(v3->origin_locs[0], &loc_x, &loc_y);
 
         v10 = 0;
         v11 = 0;
 
-        for (v38 = 0; v38 < v3->field_50; v38++) {
+        for (v38 = 0; v38 < v3->num_vert_tiles; v38++) {
             center_x = (int)loc_x + v10;
             center_y = (int)loc_y + v11;
 
-            for (v15 = 0; v15 < v3->width; v15++) {
+            for (v15 = 0; v15 < v3->num_cols; v15++) {
                 if (sector_lock_results[v15]) {
-                    for (v42 = 0; v42 < v3->field_44[v15]; v42++) {
+                    for (v42 = 0; v42 < v3->num_hor_tiles[v15]; v42++) {
                         blit_info_initialized = false;
                         art_blit_info.art_id = sectors[v15]->tiles.art_ids[indexes[v15]];
                         tile_type = tig_art_tile_id_type_get(art_blit_info.art_id);
@@ -862,8 +862,8 @@ void tile_draw_iso(GameDrawInfo* draw_info)
 
                     indexes[v15] += widths[v15];
                 } else {
-                    center_x -= 40 * v3->field_44[v15];
-                    center_y += 20 * v3->field_44[v15];
+                    center_x -= 40 * v3->num_hor_tiles[v15];
+                    center_y += 20 * v3->num_hor_tiles[v15];
                 }
             }
 
@@ -871,9 +871,9 @@ void tile_draw_iso(GameDrawInfo* draw_info)
             v11 += 20;
         }
 
-        for (v4 = 0; v4 < v3->width; v4++) {
+        for (v4 = 0; v4 < v3->num_cols; v4++) {
             if (sector_lock_results[v4]) {
-                sector_unlock(v3->field_20[v4]);
+                sector_unlock(v3->sector_ids[v4]);
             }
         }
     }

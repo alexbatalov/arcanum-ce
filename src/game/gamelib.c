@@ -834,7 +834,7 @@ bool gamelib_draw(void)
     TigRectListNode* next;
     TigRect rect;
     LocRect loc_rect;
-    SomeSectorStuff v2;
+    SectorRect sector_rect;
     SectorListNode* sectors;
     GameDrawInfo draw_info;
 
@@ -850,13 +850,13 @@ bool gamelib_draw(void)
 
     if (location_screen_rect_to_loc_rect(&gamelib_iso_content_rect_ex, &loc_rect)) {
         if (gamelib_view_options.type == VIEW_TYPE_ISOMETRIC) {
-            sub_4D0090(&loc_rect, &v2);
+            sector_rect_from_loc_rect(&loc_rect, &sector_rect);
         }
 
         sectors = sector_list_create(&loc_rect);
         draw_info.screen_rect = &gamelib_iso_content_rect_ex;
         draw_info.loc_rect = &loc_rect;
-        draw_info.field_8 = &v2;
+        draw_info.sector_rect = &sector_rect;
         draw_info.sectors = sectors;
         draw_info.rects = &gamelib_dirty_rects_head;
         gamelib_draw_func(&draw_info);

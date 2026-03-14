@@ -49,29 +49,24 @@ typedef struct SectorListNode {
     /* 0018 */ struct SectorListNode* next;
 } SectorListNode;
 
-// TODO: Better name.
-typedef struct SomeSectorStuffEntry {
-    /* 0000 */ int width;
-    /* 0004 */ int field_4;
-    /* 0008 */ int64_t field_8[3];
-    /* 0020 */ int64_t field_20[3];
-    /* 0038 */ int field_38[3];
-    /* 0044 */ int field_44[3];
-    /* 0050 */ int field_50;
-    /* 0054 */ int field_54;
-} SomeSectorStuffEntry;
+typedef struct SectorRectRow {
+    /* 0000 */ int num_cols;
+    /* 0008 */ int64_t origin_locs[3];
+    /* 0020 */ int64_t sector_ids[3];
+    /* 0038 */ int tile_ids[3];
+    /* 0044 */ int num_hor_tiles[3];
+    /* 0050 */ int num_vert_tiles;
+} SectorRectRow;
 
-// TODO: Better name.
-typedef struct SomeSectorStuff {
-    /* 0000 */ int height;
-    /* 0004 */ int field_4;
-    /* 0008 */ SomeSectorStuffEntry field_8[3];
-} SomeSectorStuff;
+typedef struct SectorRect {
+    /* 0000 */ int num_rows;
+    /* 0008 */ SectorRectRow rows[3];
+} SectorRect;
 
 typedef struct GameDrawInfo {
     TigRect* screen_rect;
     LocRect* loc_rect;
-    SomeSectorStuff* field_8;
+    SectorRect* sector_rect;
     SectorListNode* sectors;
     TigRectListNode** rects;
 } GameDrawInfo;

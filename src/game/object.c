@@ -350,10 +350,10 @@ void object_ping(tig_timestamp_t timestamp)
     TigRect bounds;
     TigRectListNode* next;
     LocRect loc_rect;
-    SomeSectorStuff v1;
+    SectorRect v1;
     int col;
     int row;
-    SomeSectorStuffEntry* v2;
+    SectorRectRow* v2;
     int indexes[3];
     int widths[3];
     bool locks[3];
@@ -399,24 +399,24 @@ void object_ping(tig_timestamp_t timestamp)
         next = object_dirty_rects_head->next;
         if (tig_rect_intersection(&(object_dirty_rects_head->rect), &bounds, &rect) == TIG_OK
             && location_screen_rect_to_loc_rect(&rect, &loc_rect)
-            && sub_4D0090(&loc_rect, &v1)) {
-            for (col = 0; col < v1.height; col++) {
-                v2 = &(v1.field_8[col]);
+            && sector_rect_from_loc_rect(&loc_rect, &v1)) {
+            for (col = 0; col < v1.num_rows; col++) {
+                v2 = &(v1.rows[col]);
 
-                for (row = 0; row < v2->width; row++) {
-                    indexes[row] = v2->field_38[row];
-                    widths[row] = 64 - v2->field_44[row];
-                    if (sector_loaded(v2->field_20[row])) {
-                        locks[row] = sector_lock(v2->field_20[row], &(sectors[row]));
+                for (row = 0; row < v2->num_cols; row++) {
+                    indexes[row] = v2->tile_ids[row];
+                    widths[row] = 64 - v2->num_hor_tiles[row];
+                    if (sector_loaded(v2->sector_ids[row])) {
+                        locks[row] = sector_lock(v2->sector_ids[row], &(sectors[row]));
                     } else {
                         locks[row] = false;
                     }
                 }
 
-                for (v3 = 0; v3 < v2->field_50; v3++) {
-                    for (row = 0; row < v2->width; row++) {
+                for (v3 = 0; v3 < v2->num_vert_tiles; v3++) {
+                    for (row = 0; row < v2->num_cols; row++) {
                         if (locks[row]) {
-                            for (v4 = 0; v4 < v2->field_44[row]; v4++) {
+                            for (v4 = 0; v4 < v2->num_hor_tiles[row]; v4++) {
                                 obj_node = sectors[row]->objects.heads[indexes[row]];
                                 while (obj_node != NULL) {
                                     render_flags = obj_field_int32_get(obj_node->obj, OBJ_F_RENDER_FLAGS);
@@ -433,9 +433,9 @@ void object_ping(tig_timestamp_t timestamp)
                     }
                 }
 
-                for (row = 0; row < v2->width; row++) {
+                for (row = 0; row < v2->num_cols; row++) {
                     if (locks[row]) {
-                        sector_unlock(v2->field_20[row]);
+                        sector_unlock(v2->sector_ids[row]);
                     }
                 }
             }
@@ -504,8 +504,8 @@ static inline bool object_render_check_rotation(int64_t obj)
 // 0x43B390
 void object_draw(GameDrawInfo* draw_info)
 {
-    SomeSectorStuff* v1;
-    SomeSectorStuffEntry* v2;
+    SectorRect* v1;
+    SectorRectRow* v2;
     bool is_detecting_invisible;
     int col;
     int row;
@@ -545,24 +545,24 @@ void object_draw(GameDrawInfo* draw_info)
         return;
     }
 
-    v1 = draw_info->field_8;
+    v1 = draw_info->sector_rect;
     is_detecting_invisible = magictech_check_env_sf(OSF_DETECTING_INVISIBLE);
 
-    for (col = 0; col < v1->height; col++) {
-        v2 = &(v1->field_8[col]);
+    for (col = 0; col < v1->num_rows; col++) {
+        v2 = &(v1->rows[col]);
 
-        for (row = 0; row < v2->width; row++) {
-            locations[row] = v2->field_8[row];
-            indexes[row] = v2->field_38[row];
-            widths[row] = 64 - v2->field_44[row];
-            v5[row] = -v2->field_44[row]; // TODO: Unclear.
-            locks[row] = sector_lock(v2->field_20[row], &(sectors[row]));
+        for (row = 0; row < v2->num_cols; row++) {
+            locations[row] = v2->origin_locs[row];
+            indexes[row] = v2->tile_ids[row];
+            widths[row] = 64 - v2->num_hor_tiles[row];
+            v5[row] = -v2->num_hor_tiles[row]; // TODO: Unclear.
+            locks[row] = sector_lock(v2->sector_ids[row], &(sectors[row]));
         }
 
-        for (v3 = 0; v3 < v2->field_50; v3++) {
-            for (row = 0; row < v2->width; row++) {
+        for (v3 = 0; v3 < v2->num_vert_tiles; v3++) {
+            for (row = 0; row < v2->num_cols; row++) {
                 if (locks[row]) {
-                    for (v4 = 0; v4 < v2->field_44[row]; v4++) {
+                    for (v4 = 0; v4 < v2->num_hor_tiles[row]; v4++) {
                         obj_node = sectors[row]->objects.heads[indexes[row]];
                         if (obj_node != NULL) {
                             loc = locations[row];
@@ -899,9 +899,9 @@ void object_draw(GameDrawInfo* draw_info)
             }
         }
 
-        for (row = 0; row < v2->width; row++) {
+        for (row = 0; row < v2->num_cols; row++) {
             if (locks[row]) {
-                sector_unlock(v2->field_20[row]);
+                sector_unlock(v2->sector_ids[row]);
             }
         }
     }
@@ -1771,8 +1771,8 @@ bool sub_43D9F0(int x, int y, int64_t* obj_ptr, unsigned int flags)
 {
     TigRect rect;
     LocRect loc_rect;
-    SomeSectorStuff v1;
-    SomeSectorStuffEntry* v3;
+    SectorRect v1;
+    SectorRectRow* v3;
     int row;
     int col;
     int indexes[3];
@@ -1812,7 +1812,7 @@ bool sub_43D9F0(int x, int y, int64_t* obj_ptr, unsigned int flags)
         return false;
     }
 
-    if (!sub_4D0090(&loc_rect, &v1)) {
+    if (!sector_rect_from_loc_rect(&loc_rect, &v1)) {
         return false;
     }
 
@@ -1820,18 +1820,18 @@ bool sub_43D9F0(int x, int y, int64_t* obj_ptr, unsigned int flags)
     v67 = OBJ_HANDLE_NULL;
     v69 = OBJ_HANDLE_NULL;
 
-    for (row = v1.height - 1; row >= 0; row--) {
-        v3 = &(v1.field_8[row]);
-        for (col = v3->width - 1; col >= 0; col--) {
-            indexes[col] = v3->field_50 * 64 + v3->field_38[col] + v3->field_44[col] - 64 - 1;
-            widths[col] = 64 - v3->field_44[col];
-            locks[col] = sector_lock(v3->field_20[col], &(sectors[col]));
+    for (row = v1.num_rows - 1; row >= 0; row--) {
+        v3 = &(v1.rows[row]);
+        for (col = v3->num_cols - 1; col >= 0; col--) {
+            indexes[col] = v3->num_vert_tiles * 64 + v3->tile_ids[col] + v3->num_hor_tiles[col] - 64 - 1;
+            widths[col] = 64 - v3->num_hor_tiles[col];
+            locks[col] = sector_lock(v3->sector_ids[col], &(sectors[col]));
         }
 
-        for (v62 = v3->field_50 - 1; v62 >= 0; v62--) {
-            for (col = v3->width - 1; col >= 0; col--) {
+        for (v62 = v3->num_vert_tiles - 1; v62 >= 0; v62--) {
+            for (col = v3->num_cols - 1; col >= 0; col--) {
                 if (locks[col]) {
-                    for (v60 = v3->field_44[col] - 1; v60 >= 0; v60--) {
+                    for (v60 = v3->num_hor_tiles[col] - 1; v60 >= 0; v60--) {
                         for (obj_node = sectors[col]->objects.heads[indexes[col]]; obj_node != NULL; obj_node = obj_node->next) {
                             obj_type = obj_field_int32_get(obj_node->obj, OBJ_F_TYPE);
                             if (!object_type_visibility[obj_type]) {
@@ -1920,9 +1920,9 @@ bool sub_43D9F0(int x, int y, int64_t* obj_ptr, unsigned int flags)
                         if (v67 != OBJ_HANDLE_NULL) {
                             *obj_ptr = v67;
 
-                            for (col = 0; col < v3->width; col++) {
+                            for (col = 0; col < v3->num_cols; col++) {
                                 if (locks[col]) {
-                                    sector_unlock(v3->field_20[col]);
+                                    sector_unlock(v3->sector_ids[col]);
                                 }
                             }
 
@@ -1937,9 +1937,9 @@ bool sub_43D9F0(int x, int y, int64_t* obj_ptr, unsigned int flags)
             }
         }
 
-        for (col = 0; col < v3->width; col++) {
+        for (col = 0; col < v3->num_cols; col++) {
             if (locks[col]) {
-                sector_unlock(v3->field_20[col]);
+                sector_unlock(v3->sector_ids[col]);
             }
         }
     }
@@ -3388,8 +3388,8 @@ void object_list_location(int64_t loc, unsigned int flags, ObjectList* objects)
 void object_list_rect(LocRect* loc_rect, unsigned int flags, ObjectList* objects)
 {
     bool types[18];
-    SomeSectorStuff v1;
-    SomeSectorStuffEntry* v2;
+    SectorRect v1;
+    SectorRectRow* v2;
     int col;
     int row;
     int64_t obj;
@@ -3430,16 +3430,16 @@ void object_list_rect(LocRect* loc_rect, unsigned int flags, ObjectList* objects
 
     prev_ptr = &(objects->head);
 
-    if (!sub_4D0090(loc_rect, &v1)) {
+    if (!sector_rect_from_loc_rect(loc_rect, &v1)) {
         return;
     }
 
     if ((flags & (OBJ_TM_TRAP | OBJ_TM_SCENERY | OBJ_TM_PORTAL | OBJ_TM_WALL)) == 0) {
-        for (col = 0; col < v1.height; col++) {
-            v2 = &(v1.field_8[col]);
+        for (col = 0; col < v1.num_rows; col++) {
+            v2 = &(v1.rows[col]);
 
-            for (row = 0; row < v2->width; row++) {
-                if (obj_find_walk_first(v2->field_20[row], &obj, &iter)) {
+            for (row = 0; row < v2->num_cols; row++) {
+                if (obj_find_walk_first(v2->sector_ids[row], &obj, &iter)) {
                     do {
                         if (!sub_43D940(obj)
                             && (obj_field_int32_get(obj, OBJ_F_FLAGS) & OF_INVENTORY) == 0
@@ -3462,23 +3462,23 @@ void object_list_rect(LocRect* loc_rect, unsigned int flags, ObjectList* objects
             }
         }
     } else {
-        for (col = 0; col < v1.height; col++) {
-            v2 = &(v1.field_8[col]);
+        for (col = 0; col < v1.num_rows; col++) {
+            v2 = &(v1.rows[col]);
 
-            for (row = 0; row < v2->width; row++) {
-                indexes[row] = v2->field_38[row];
-                widths[row] = 64 - v2->field_44[row];
-                locks[row] = sector_lock(v2->field_20[row], &(sectors[row]));
+            for (row = 0; row < v2->num_cols; row++) {
+                indexes[row] = v2->tile_ids[row];
+                widths[row] = 64 - v2->num_hor_tiles[row];
+                locks[row] = sector_lock(v2->sector_ids[row], &(sectors[row]));
 
                 if (locks[row]) {
-                    objects->sectors[objects->num_sectors++] = v2->field_20[row];
+                    objects->sectors[objects->num_sectors++] = v2->sector_ids[row];
                 }
             }
 
-            for (v3 = 0; v3 < v2->field_50; v3++) {
-                for (row = 0; row < v2->width; row++) {
+            for (v3 = 0; v3 < v2->num_vert_tiles; v3++) {
+                for (row = 0; row < v2->num_cols; row++) {
                     if (locks[row]) {
-                        for (v4 = 0; v4 < v2->field_44[row]; v4++) {
+                        for (v4 = 0; v4 < v2->num_hor_tiles[row]; v4++) {
                             obj_node = sectors[row]->objects.heads[indexes[row]];
                             while (obj_node != NULL) {
                                 if ((dword_5E2F88 & obj_field_int32_get(obj_node->obj, OBJ_F_FLAGS)) == 0
