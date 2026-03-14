@@ -707,17 +707,6 @@ typedef struct Packet95 {
 
 static_assert(sizeof(Packet95) == 0x20, "wrong size");
 
-typedef struct PacketArrangeInventory {
-    /* 0000 */ int type;
-    /* 0004 */ int padding_4;
-    /* 0008 */ ObjectID oid;
-    /* 0020 */ bool vertical;
-    /* 0024 */ int padding_24;
-} PacketArrangeInventory;
-
-// Serializeable.
-static_assert(sizeof(PacketArrangeInventory) == 0x28, "wrong size");
-
 typedef struct Packet97 {
     /* 0000 */ int type;
     /* 0004 */ int padding_4;
@@ -1168,8 +1157,6 @@ void mp_trap_mark_known(int64_t pc_obj, int64_t trap_obj, int reason);
 void sub_4EDCE0(int64_t obj, tig_art_id_t art_id);
 void mp_ui_update_inven(int64_t obj);
 void sub_4EDDE0(int64_t obj);
-void mp_item_arrange_inventory(int64_t obj, bool vertical);
-void mp_handle_item_arrange_inventory(PacketArrangeInventory* pkt);
 void sub_4EDF20(int64_t obj, int64_t location, int dx, int dy, bool a7);
 void mp_item_activate(int64_t owner_obj, int64_t item_obj);
 void mp_ui_schematic_feedback(bool success, int64_t primary_obj, int64_t secondary_obj);

@@ -187,33 +187,6 @@ void sub_4EDE40(Packet95* pkt)
     }
 }
 
-// 0x4EDE80
-void mp_item_arrange_inventory(int64_t obj, bool vertical)
-{
-    PacketArrangeInventory pkt;
-
-    if (tig_net_is_active()
-        && !tig_net_is_host()) {
-        pkt.type = 96;
-        pkt.oid = obj_get_id(obj);
-        pkt.vertical = vertical;
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-    }
-}
-
-// 0x4EDEE0
-void mp_handle_item_arrange_inventory(PacketArrangeInventory* pkt)
-{
-    int64_t obj;
-
-    if (tig_net_is_host()) {
-        obj = objp_perm_lookup(pkt->oid);
-        if (obj != OBJ_HANDLE_NULL) {
-            item_arrange_inventory(obj, pkt->vertical);
-        }
-    }
-}
-
 // 0x4EDF20
 void sub_4EDF20(int64_t obj, int64_t location, int dx, int dy, bool a7)
 {

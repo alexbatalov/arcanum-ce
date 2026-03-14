@@ -4087,11 +4087,6 @@ void item_arrange_inventory(int64_t parent_obj, bool vertical)
     int inventory_locations[960];
     int inventory_location;
 
-    if (tig_net_is_active() && !tig_net_is_host()) {
-        mp_item_arrange_inventory(parent_obj, vertical);
-        return;
-    }
-
     if (obj_field_int32_get(parent_obj, OBJ_F_TYPE) == OBJ_TYPE_CONTAINER) {
         inventory_num_fld = OBJ_F_CONTAINER_INVENTORY_NUM;
         inventory_list_fld = OBJ_F_CONTAINER_INVENTORY_LIST_IDX;
