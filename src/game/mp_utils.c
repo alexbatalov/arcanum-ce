@@ -1103,22 +1103,6 @@ void mp_obj_arrayfield_uint32_set(int64_t obj, int fld, int index, int value)
     }
 }
 
-// 0x4F02F0
-void mp_object_set_current_aid(int64_t obj, tig_art_id_t art_id)
-{
-    Packet129 pkt;
-
-    object_set_current_aid(obj, art_id);
-
-    if (tig_net_is_active()) {
-        pkt.type = 129;
-        pkt.subtype = 9;
-        pkt.oid = obj_get_id(obj);
-        pkt.d.h.art_id = art_id;
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-    }
-}
-
 // 0x4F0360
 void mp_object_overlay_set(int64_t obj, int fld, int index, tig_art_id_t aid)
 {

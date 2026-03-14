@@ -2094,7 +2094,7 @@ int script_execute_action(ScriptAction* action, int line, ScriptState* state)
             art_id = tig_art_num_set(art_id, num);
             art_id = tig_art_id_frame_set(art_id, 0);
             if (tig_art_exists(art_id) == TIG_OK) {
-                mp_object_set_current_aid(handles[idx], art_id);
+                object_set_current_aid(handles[idx], art_id);
             }
         }
         sub_44B8F0(action->op_type[0], &objects);
