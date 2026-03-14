@@ -473,7 +473,7 @@ int monstergen_generate(GeneratorInfo* generator_info, int cnt)
         }
 
         // Create a deep copy (with inventory items) of the generator object.
-        if (!mp_object_duplicate(generator_info->obj, target_loc, &obj)) {
+        if (!object_duplicate(generator_info->obj, target_loc, &obj)) {
             break;
         }
 

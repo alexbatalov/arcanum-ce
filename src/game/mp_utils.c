@@ -667,54 +667,6 @@ void sub_4EF8B0(Packet118* pkt)
     }
 }
 
-// 0x4EF920
-bool mp_object_duplicate(int64_t obj, int64_t loc, int64_t* obj_ptr)
-{
-    bool ret = false;
-
-    if (!tig_net_is_active()
-        || tig_net_is_host()) {
-        ret = object_duplicate(obj, loc, obj_ptr);
-    }
-
-    if (tig_net_is_active()
-        && tig_net_is_host()) {
-        ObjectID* oids;
-        int cnt;
-        PacketObjectDuplicate* pkt;
-        int size;
-
-        sub_4063A0(*obj_ptr, &oids, &cnt);
-        size = sizeof(*pkt) + sizeof(*oids) * cnt;
-        pkt = (PacketObjectDuplicate*)MALLOC(size);
-        memcpy(pkt + 1, oids, sizeof(*oids) * cnt);
-        FREE(oids);
-
-        pkt->type = 119;
-        sub_4F0640(obj, &(pkt->oid));
-        pkt->loc = loc;
-        tig_net_send_app_all(pkt, size);
-        FREE(pkt); // FIX: Memory leak.
-    }
-
-    return ret;
-}
-
-// 0x4EFA10
-void mp_handle_object_duplicate(PacketObjectDuplicate* pkt)
-{
-    int64_t obj;
-    int64_t copy_obj;
-
-    sub_4F0690(pkt->oid, &obj);
-
-    if (obj == OBJ_HANDLE_NULL) {
-        return;
-    }
-
-    object_duplicate_ex(obj, pkt->loc, (ObjectID*)(pkt + 1), &copy_obj);
-}
-
 // 0x4EFA70
 void mp_stop_anim_id(AnimID anim_id)
 {

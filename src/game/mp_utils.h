@@ -784,18 +784,6 @@ typedef struct Packet118 {
 // Serializeable.
 static_assert(sizeof(Packet118) == 0x38, "wrong size");
 
-typedef struct PacketObjectDuplicate {
-    /* 0000 */ int type;
-    /* 0004 */ int padding_4;
-    /* 0008 */ ObjectID oid;
-    /* 0020 */ int64_t loc;
-    /* 0028 */ int field_28;
-    /* 002C */ int field_2C;
-} PacketObjectDuplicate;
-
-// Serializeable.
-static_assert(sizeof(PacketObjectDuplicate) == 0x30, "wrong size");
-
 typedef struct PacketStopAnimId {
     /* 0000 */ int type;
     /* 0004 */ AnimID anim_id;
@@ -997,8 +985,6 @@ void mp_ui_show_inven_npc_identify(int64_t pc_obj, int64_t target_obj);
 void mp_container_close(int64_t obj);
 void mp_container_open(int64_t obj);
 void sub_4EF830(int64_t a1, int64_t a2);
-bool mp_object_duplicate(int64_t obj, int64_t loc, int64_t* obj_ptr);
-void mp_handle_object_duplicate(PacketObjectDuplicate* pkt);
 void mp_stop_anim_id(AnimID anim_id);
 void mp_handle_stop_anim_id(PacketStopAnimId* pkt);
 void sub_4EFAE0(int64_t obj, int a2);
