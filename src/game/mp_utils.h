@@ -881,70 +881,6 @@ typedef struct Packet128 {
 // Serializeable.
 static_assert(sizeof(Packet128) == 0x38, "wrong size");
 
-#define P129_SUBTYPE_SCRIPT 6
-#define P129_SUBTYPE_INT32_ARRAY 7
-
-typedef struct Packet129 {
-    /* 0000 */ int type;
-    /* 0004 */ int field_4;
-    /* 0008 */ ObjectID oid;
-    /* 0020 */ int fld;
-    /* 0024 */ int subtype;
-    union {
-        union {
-            struct {
-                /* 0028 */ int field_28;
-            } a;
-            struct {
-                /* 0028 */ int field_28;
-            } b;
-            struct {
-                /* 0028 */ int field_28;
-            } c;
-            struct {
-                /* 0028 */ ObjectID oid;
-            } d;
-            struct {
-                /* 0028 */ int field_28;
-                /* 002C */ int padding_2C;
-                /* 0030 */ ObjectID oid;
-            } e;
-            struct {
-                /* 0028 */ int field_28;
-                /* 002C */ int field_2C;
-            } f;
-            struct {
-                /* 0028 */ int field_28;
-                /* 002C */ int field_2C;
-            } g;
-            struct {
-                /* 0028 */ tig_art_id_t art_id;
-            } h;
-            struct {
-                /* 0028 */ int field_28;
-                /* 002C */ int field_2C;
-                /* 0030 */ int field_30;
-            } i;
-            struct {
-                /* 0028 */ unsigned int flags;
-            } j;
-        } d;
-        /* 0028 */ int val;
-        /* 0028 */ int64_t val64;
-        struct {
-            /* 0028 */ int idx;
-            /* 002C */ int value;
-        } int32_array_val;
-        struct {
-            /* 0028 */ int idx;
-            /* 002C */ Script scr;
-        } scr_val;
-    };
-} Packet129;
-
-// Serializeable.
-static_assert(sizeof(Packet129) == 0x48, "wrong size");
-
 typedef struct Packet130 {
     /* 0000 */ int type;
     /* 0004 */ int field_4;
@@ -973,8 +909,6 @@ void mp_ui_show_inven_loot(int64_t obj, int64_t a2);
 void sub_4EE3A0(int64_t obj, int64_t a2);
 void mp_ui_show_inven_identify(int64_t pc_obj, int64_t target_obj);
 void sub_4EE4C0(int64_t obj, int64_t a2);
-void mp_container_close(int64_t obj);
-void mp_container_open(int64_t obj);
 void sub_4EF830(int64_t a1, int64_t a2);
 void sub_4EFAE0(int64_t obj, int a2);
 void sub_4EFBA0(int64_t obj);
@@ -983,15 +917,6 @@ void mp_gsound_play_sfx(int sound_id);
 void sub_4EED00(int64_t obj, int sound_id);
 void mp_gsound_play_sfx_on_obj(int sound_id, int loops, int64_t obj);
 void mp_gsound_play_scheme(int music_scheme_idx, int ambient_scheme_idx);
-void mp_obj_field_int32_set(int64_t obj, int fld, int value);
-void mp_obj_field_int64_set(int64_t obj, int fld, int64_t value);
-void mp_object_flags_unset(int64_t obj, unsigned int flags);
-void mp_object_flags_set(int64_t obj, unsigned int flags);
-void mp_obj_field_obj_set(int64_t obj, int fld, int64_t value);
-void sub_4F0070(int64_t obj, int fld, int index, int64_t value);
-void mp_obj_arrayfield_int32_set(int64_t obj, int fld, int index, int value);
-void mp_obj_arrayfield_script_set(int64_t obj, int fld, int index, Script* value);
-void mp_obj_arrayfield_uint32_set(int64_t obj, int fld, int index, int value);
 void sub_4F0500(int64_t obj, int fld);
 void sub_4F0640(int64_t obj, ObjectID* oid_ptr);
 void sub_4F0690(ObjectID oid, int64_t* obj_ptr);

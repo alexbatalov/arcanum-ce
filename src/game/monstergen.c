@@ -179,10 +179,10 @@ bool monstergen_set(GeneratorInfo* info)
     // Mark as generator.
     npc_flags = obj_field_int32_get(info->obj, OBJ_F_NPC_FLAGS);
     npc_flags |= ONF_GENERATOR;
-    mp_obj_field_int32_set(info->obj, OBJ_F_NPC_FLAGS, npc_flags);
+    obj_field_int32_set(info->obj, OBJ_F_NPC_FLAGS, npc_flags);
 
     // Mark it invulnerable and disable rendering.
-    mp_object_flags_set(info->obj, OF_INVULNERABLE | OF_OFF);
+    object_flags_set(info->obj, OF_INVULNERABLE | OF_OFF);
 
     // Update generator configuration.
     monstergen_update(info);
@@ -270,10 +270,10 @@ bool monstergen_remove(int64_t obj)
 
     // Unmark as being a generator.
     npc_flags &= ~ONF_GENERATOR;
-    mp_obj_field_int32_set(obj, OBJ_F_NPC_FLAGS, npc_flags);
+    obj_field_int32_set(obj, OBJ_F_NPC_FLAGS, npc_flags);
 
     // Restore vulnerability and enable rendering.
-    mp_object_flags_unset(obj, OF_INVULNERABLE | OF_OFF);
+    object_flags_unset(obj, OF_INVULNERABLE | OF_OFF);
 
     return true;
 }
@@ -487,7 +487,7 @@ int monstergen_generate(GeneratorInfo* generator_info, int cnt)
         // Mark the "instance" as generated.
         npc_flags = obj_field_int32_get(obj, OBJ_F_NPC_FLAGS);
         npc_flags |= ONF_GENERATED;
-        mp_obj_field_int32_set(obj, OBJ_F_NPC_FLAGS, npc_flags);
+        obj_field_int32_set(obj, OBJ_F_NPC_FLAGS, npc_flags);
 
         num_generated++;
     }

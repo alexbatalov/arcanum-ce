@@ -691,7 +691,7 @@ void sub_572640(int64_t pc_obj, int64_t target_obj, int mode)
         if (obj_field_int32_get(target_obj, OBJ_F_TYPE) == OBJ_TYPE_CONTAINER) {
             if (mode == INVEN_UI_MODE_LOOT) {
                 if (tig_art_id_frame_get(obj_field_int32_get(target_obj, OBJ_F_CURRENT_AID)) == 0) {
-                    mp_container_open(target_obj);
+                    object_inc_current_aid(target_obj);
 
                     sound_id = sfx_container_sound(target_obj, CONTAINER_SOUND_OPEN);
                     gsound_play_sfx(sound_id, 1);
@@ -4318,7 +4318,7 @@ bool sub_578EA0(Packet81* pkt)
         unsigned int item_flags = obj_field_int32_get(v2, OBJ_F_ITEM_FLAGS);
         if ((item_flags & OIF_IDENTIFIED) == 0) {
             item_flags |= OIF_IDENTIFIED;
-            mp_obj_field_int32_set(v2, OBJ_F_ITEM_FLAGS, item_flags);
+            obj_field_int32_set(v2, OBJ_F_ITEM_FLAGS, item_flags);
         }
     }
 

@@ -285,7 +285,7 @@ int tech_degree_set(int64_t obj, int tech, int value)
         return 0;
     }
 
-    mp_obj_arrayfield_uint32_set(obj, OBJ_F_CRITTER_SPELL_TECH_IDX, SEVENTEEN + tech, value);
+    obj_arrayfield_uint32_set(obj, OBJ_F_CRITTER_SPELL_TECH_IDX, SEVENTEEN + tech, value);
 
     return value;
 }
@@ -399,7 +399,7 @@ void tech_learn_schematic(int64_t pc_obj, int64_t written_obj)
 
     if (index >= cnt) {
         // Add the schematic to the player's known schematics.
-        mp_obj_arrayfield_uint32_set(pc_obj, OBJ_F_PC_SCHEMATICS_FOUND_IDX, index, schematic);
+        obj_arrayfield_uint32_set(pc_obj, OBJ_F_PC_SCHEMATICS_FOUND_IDX, index, schematic);
 
         // Destroy the written object.
         object_destroy(written_obj);

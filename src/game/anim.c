@@ -5568,7 +5568,7 @@ bool sub_426F60(AnimRunInfo* run_info)
     flags = obj_field_int32_get(obj, OBJ_F_CRITTER_FLAGS);
     if ((flags & OCF_STUNNED) != 0) {
         flags &= ~OCF_STUNNED;
-        mp_obj_field_int32_set(obj, OBJ_F_CRITTER_FLAGS, flags);
+        obj_field_int32_set(obj, OBJ_F_CRITTER_FLAGS, flags);
     }
 
     return true;
@@ -8202,7 +8202,7 @@ bool sub_42B250(AnimRunInfo* run_info)
             critter_flags = obj_field_int32_get(obj, OBJ_F_CRITTER_FLAGS);
             if ((critter_flags & OCF_STUNNED) != 0) {
                 critter_flags &= ~OCF_STUNNED;
-                mp_obj_field_int32_set(obj, OBJ_F_CRITTER_FLAGS, critter_flags);
+                obj_field_int32_set(obj, OBJ_F_CRITTER_FLAGS, critter_flags);
             }
         }
     }

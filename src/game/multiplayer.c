@@ -2537,7 +2537,7 @@ int sub_4A5710(int64_t obj, mes_file_handle_t mes_file)
     money_amt = background_adjust_money(money_amt, background_get(obj));
     if (money_amt > 0) {
         mp_object_create(BP_GOLD, location, &money_obj);
-        mp_obj_field_int32_set(money_obj, OBJ_F_GOLD_QUANTITY, money_amt);
+        obj_field_int32_set(money_obj, OBJ_F_GOLD_QUANTITY, money_amt);
         item_transfer(money_obj, obj);
     }
     return money_amt;
@@ -2842,16 +2842,16 @@ void sub_4A6010(int64_t obj)
 
     object_hp_damage_set(obj, 0);
     critter_fatigue_damage_set(obj, 0);
-    mp_object_flags_unset(obj, OF_OFF);
-    mp_object_flags_unset(obj, OF_FLAT);
+    object_flags_unset(obj, OF_OFF);
+    object_flags_unset(obj, OF_FLAT);
 
     flags = obj_field_int32_get(obj, OBJ_F_CRITTER_FLAGS);
     flags &= ~0xFC03D0FF;
-    mp_obj_field_int32_set(obj, OBJ_F_CRITTER_FLAGS, flags);
+    obj_field_int32_set(obj, OBJ_F_CRITTER_FLAGS, flags);
 
     flags = obj_field_int32_get(obj, OBJ_F_CRITTER_FLAGS2);
     flags &= ~0x3FFFFF;
-    mp_obj_field_int32_set(obj, OBJ_F_CRITTER_FLAGS2, flags);
+    obj_field_int32_set(obj, OBJ_F_CRITTER_FLAGS2, flags);
 
     if (combat_critter_is_combat_mode_active(obj)) {
         combat_critter_deactivate_combat_mode(obj);

@@ -439,7 +439,7 @@ int script_pc_var_get(int64_t obj, int index)
 void script_pc_var_set(int64_t obj, int index, int value)
 {
     if (obj_field_int32_get(obj, OBJ_F_TYPE) == OBJ_TYPE_PC) {
-        mp_obj_arrayfield_uint32_set(obj, OBJ_F_PC_GLOBAL_VARIABLES, index, value);
+        obj_arrayfield_uint32_set(obj, OBJ_F_PC_GLOBAL_VARIABLES, index, value);
     }
 }
 
@@ -465,7 +465,7 @@ void script_pc_flag_set(int64_t obj, int index, int value)
         flags = obj_arrayfield_uint32_get(obj, OBJ_F_PC_GLOBAL_FLAGS, index / 32);
         flags &= ~(1 << (index % 32));
         flags |= value << (index % 32);
-        mp_obj_arrayfield_uint32_set(obj, OBJ_F_PC_GLOBAL_FLAGS, index / 32, flags);
+        obj_arrayfield_uint32_set(obj, OBJ_F_PC_GLOBAL_FLAGS, index / 32, flags);
     }
 }
 
@@ -493,7 +493,7 @@ void script_local_flag_set(int64_t obj, int index, int flag, bool enabled)
             scr.hdr.flags &= ~(1 << flag);
         }
 
-        mp_obj_arrayfield_script_set(obj, OBJ_F_SCRIPTS_IDX, index, &scr);
+        obj_arrayfield_script_set(obj, OBJ_F_SCRIPTS_IDX, index, &scr);
     }
 }
 
@@ -518,7 +518,7 @@ void script_local_counter_set(int64_t obj, int index, int counter, int value)
         scr.hdr.counters &= ~(0xFF << (8 * counter));
         scr.hdr.counters |= value << (8 * counter);
 
-        mp_obj_arrayfield_script_set(obj, OBJ_F_SCRIPTS_IDX, index, &scr);
+        obj_arrayfield_script_set(obj, OBJ_F_SCRIPTS_IDX, index, &scr);
     }
 }
 
@@ -1893,7 +1893,7 @@ int script_execute_action(ScriptAction* action, int line, ScriptState* state)
         int y = script_get_value(action->op_type[2], action->op_value[2], state);
 
         if (obj_field_int32_get(obj, OBJ_F_TYPE) == OBJ_TYPE_NPC) {
-            mp_obj_field_int64_set(obj, OBJ_F_NPC_STANDPOINT_DAY, location_make(x, y));
+            obj_field_int64_set(obj, OBJ_F_NPC_STANDPOINT_DAY, location_make(x, y));
         }
 
         return NEXT;
@@ -1904,7 +1904,7 @@ int script_execute_action(ScriptAction* action, int line, ScriptState* state)
         int y = script_get_value(action->op_type[2], action->op_value[2], state);
 
         if (obj_field_int32_get(obj, OBJ_F_TYPE) == OBJ_TYPE_NPC) {
-            mp_obj_field_int64_set(obj, OBJ_F_NPC_STANDPOINT_NIGHT, location_make(x, y));
+            obj_field_int64_set(obj, OBJ_F_NPC_STANDPOINT_NIGHT, location_make(x, y));
         }
 
         return NEXT;
@@ -1967,7 +1967,7 @@ int script_execute_action(ScriptAction* action, int line, ScriptState* state)
         if (obj_field_int32_get(new_obj, OBJ_F_TYPE) == OBJ_TYPE_NPC) {
             unsigned int critter_flags = obj_field_int32_get(new_obj, OBJ_F_CRITTER_FLAGS);
             critter_flags |= OCF_ENCOUNTER;
-            mp_obj_field_int32_set(new_obj, OBJ_F_CRITTER_FLAGS, critter_flags);
+            obj_field_int32_set(new_obj, OBJ_F_CRITTER_FLAGS, critter_flags);
         }
 
         return NEXT;
@@ -2017,9 +2017,9 @@ int script_execute_action(ScriptAction* action, int line, ScriptState* state)
         int cnt = script_resolve_focus_obj(action->op_type[0], action->op_value[0], state, handles, &objects);
         for (int idx = 0; idx < cnt; idx++) {
             if ((obj_field_int32_get(handles[idx], OBJ_F_FLAGS) & OF_OFF) != 0) {
-                mp_object_flags_unset(handles[idx], OF_OFF);
+                object_flags_unset(handles[idx], OF_OFF);
             } else {
-                mp_object_flags_set(handles[idx], OF_OFF);
+                object_flags_set(handles[idx], OF_OFF);
             }
         }
         sub_44B8F0(action->op_type[0], &objects);
@@ -2029,9 +2029,9 @@ int script_execute_action(ScriptAction* action, int line, ScriptState* state)
         int cnt = script_resolve_focus_obj(action->op_type[0], action->op_value[0], state, handles, &objects);
         for (int idx = 0; idx < cnt; idx++) {
             if ((obj_field_int32_get(handles[idx], OBJ_F_FLAGS) & OF_INVULNERABLE) != 0) {
-                mp_object_flags_unset(handles[idx], OF_INVULNERABLE);
+                object_flags_unset(handles[idx], OF_INVULNERABLE);
             } else {
-                mp_object_flags_set(handles[idx], OF_INVULNERABLE);
+                object_flags_set(handles[idx], OF_INVULNERABLE);
             }
         }
         sub_44B8F0(action->op_type[0], &objects);
@@ -2302,9 +2302,9 @@ int script_execute_action(ScriptAction* action, int line, ScriptState* state)
             break;
         case OBJ_TYPE_CONTAINER:
             if (tig_art_id_frame_get(obj_field_int32_get(obj, OBJ_F_CURRENT_AID)) == 0) {
-                mp_container_open(obj);
+                object_inc_current_aid(obj);
             } else {
-                mp_container_close(obj);
+                object_dec_current_aid(obj);
             }
             break;
         }
@@ -2330,7 +2330,7 @@ int script_execute_action(ScriptAction* action, int line, ScriptState* state)
     case SAT_RENAME: {
         int64_t obj = script_get_obj(action->op_type[0], action->op_value[0], state);
         int name = script_get_value(action->op_type[1], action->op_value[1], state);
-        mp_obj_field_int32_set(obj, OBJ_F_NAME, name);
+        obj_field_int32_set(obj, OBJ_F_NAME, name);
         return NEXT;
     }
     case SAT_ACTION_BECOME_PRONE: {
@@ -2346,7 +2346,7 @@ int script_execute_action(ScriptAction* action, int line, ScriptState* state)
         int start = script_get_value(action->op_type[1], action->op_value[1], state);
 
         if (obj_field_int32_get(obj, OBJ_F_TYPE) == OBJ_TYPE_WRITTEN) {
-            mp_obj_field_int32_set(obj, OBJ_F_WRITTEN_TEXT_START_LINE, start);
+            obj_field_int32_set(obj, OBJ_F_WRITTEN_TEXT_START_LINE, start);
         }
 
         return NEXT;
@@ -2388,7 +2388,7 @@ int script_execute_action(ScriptAction* action, int line, ScriptState* state)
             Script scr;
             obj_arrayfield_script_get(obj, OBJ_F_SCRIPTS_IDX, sap, &scr);
             scr.num = num;
-            mp_obj_arrayfield_script_set(obj, OBJ_F_SCRIPTS_IDX, sap, &scr);
+            obj_arrayfield_script_set(obj, OBJ_F_SCRIPTS_IDX, sap, &scr);
         }
         return NEXT;
     }
@@ -2686,7 +2686,7 @@ int script_execute_action(ScriptAction* action, int line, ScriptState* state)
             } else {
                 flags |= OIF_NO_DISPLAY;
             }
-            mp_obj_field_int32_set(item_obj, OBJ_F_ITEM_FLAGS, flags);
+            obj_field_int32_set(item_obj, OBJ_F_ITEM_FLAGS, flags);
         }
         return NEXT;
     }
@@ -2802,8 +2802,8 @@ int script_execute_action(ScriptAction* action, int line, ScriptState* state)
         int map = script_get_value(action->op_type[3], action->op_value[3], state) - 4999;
         int64_t loc = location_make(x, y);
         if (obj_field_int32_get(obj, OBJ_F_TYPE) == OBJ_TYPE_NPC) {
-            mp_obj_field_int64_set(obj, OBJ_F_NPC_STANDPOINT_DAY, loc);
-            mp_obj_field_int32_set(obj, OBJ_F_CRITTER_TELEPORT_MAP, map);
+            obj_field_int64_set(obj, OBJ_F_NPC_STANDPOINT_DAY, loc);
+            obj_field_int32_set(obj, OBJ_F_CRITTER_TELEPORT_MAP, map);
         }
         return NEXT;
     }
@@ -2814,8 +2814,8 @@ int script_execute_action(ScriptAction* action, int line, ScriptState* state)
         int map = script_get_value(action->op_type[3], action->op_value[3], state) - 4999;
         int64_t loc = location_make(x, y);
         if (obj_field_int32_get(obj, OBJ_F_TYPE) == OBJ_TYPE_NPC) {
-            mp_obj_field_int64_set(obj, OBJ_F_NPC_STANDPOINT_NIGHT, loc);
-            mp_obj_field_int32_set(obj, OBJ_F_CRITTER_TELEPORT_MAP, map);
+            obj_field_int64_set(obj, OBJ_F_NPC_STANDPOINT_NIGHT, loc);
+            obj_field_int32_set(obj, OBJ_F_CRITTER_TELEPORT_MAP, map);
         }
         return NEXT;
     }

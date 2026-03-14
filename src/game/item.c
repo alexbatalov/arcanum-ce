@@ -2154,11 +2154,11 @@ void sub_463E20(int64_t obj)
         }
 
         if (spawn) {
-            mp_obj_field_int32_set(obj, inventory_source_fld, 0);
+            obj_field_int32_set(obj, inventory_source_fld, 0);
 
             unsigned int container_flags = obj_field_int32_get(obj, OBJ_F_CONTAINER_FLAGS);
             container_flags &= ~OCOF_INVEN_SPAWN_ONCE;
-            mp_obj_field_int32_set(obj, OBJ_F_CONTAINER_FLAGS, container_flags);
+            obj_field_int32_set(obj, OBJ_F_CONTAINER_FLAGS, container_flags);
         }
     }
 }
@@ -2490,7 +2490,7 @@ bool item_gold_transfer(int64_t from_obj, int64_t to_obj, int qty, int64_t gold_
                 if (from_qty == qty) {
                     object_destroy(gold_obj);
                 } else {
-                    mp_obj_field_int32_set(gold_obj, OBJ_F_GOLD_QUANTITY, from_qty - qty);
+                    obj_field_int32_set(gold_obj, OBJ_F_GOLD_QUANTITY, from_qty - qty);
                 }
             }
         }
@@ -2499,7 +2499,7 @@ bool item_gold_transfer(int64_t from_obj, int64_t to_obj, int qty, int64_t gold_
             gold_obj = item_gold_obj(to_obj);
             if (gold_obj != OBJ_HANDLE_NULL) {
                 to_qty = obj_field_int32_get(gold_obj, OBJ_F_GOLD_QUANTITY);
-                mp_obj_field_int32_set(gold_obj, OBJ_F_GOLD_QUANTITY, to_qty + qty);
+                obj_field_int32_set(gold_obj, OBJ_F_GOLD_QUANTITY, to_qty + qty);
             } else {
                 loc = obj_field_int64_get(to_obj, OBJ_F_LOCATION);
                 gold_obj = item_gold_create(qty, loc);
@@ -2519,7 +2519,7 @@ int64_t item_gold_create(int amount, int64_t loc)
     int64_t gold_obj;
 
     if (mp_object_create(BP_GOLD, loc, &gold_obj)) {
-        mp_obj_field_int32_set(gold_obj, OBJ_F_GOLD_QUANTITY, amount);
+        obj_field_int32_set(gold_obj, OBJ_F_GOLD_QUANTITY, amount);
     }
 
     return gold_obj;
@@ -3142,7 +3142,7 @@ bool item_ammo_transfer(int64_t from_obj, int64_t to_obj, int qty, int ammo_type
             if (remaining_qty == qty) {
                 object_destroy(ammo_obj);
             } else {
-                mp_obj_field_int32_set(ammo_obj, OBJ_F_AMMO_QUANTITY, remaining_qty - qty);
+                obj_field_int32_set(ammo_obj, OBJ_F_AMMO_QUANTITY, remaining_qty - qty);
             }
         }
     }
@@ -3151,7 +3151,7 @@ bool item_ammo_transfer(int64_t from_obj, int64_t to_obj, int qty, int ammo_type
         to_ammo_obj = item_ammo_obj(to_obj, ammo_type);
         if (to_ammo_obj != OBJ_HANDLE_NULL) {
             remaining_qty = obj_field_int32_get(ammo_obj, OBJ_F_AMMO_QUANTITY);
-            mp_obj_field_int32_set(ammo_obj, OBJ_F_AMMO_QUANTITY, remaining_qty + qty);
+            obj_field_int32_set(ammo_obj, OBJ_F_AMMO_QUANTITY, remaining_qty + qty);
         } else {
             to_ammo_obj = item_ammo_create(qty,
                 ammo_type,
@@ -3172,7 +3172,7 @@ int64_t item_ammo_create(int quantity, int ammo_type, int64_t loc)
     int64_t ammo_obj;
 
     if (mp_object_create(dword_5B32B0[ammo_type], loc, &ammo_obj)) {
-        mp_obj_field_int32_set(ammo_obj, OBJ_F_AMMO_QUANTITY, quantity);
+        obj_field_int32_set(ammo_obj, OBJ_F_AMMO_QUANTITY, quantity);
     }
 
     return ammo_obj;
@@ -4057,7 +4057,7 @@ void item_arrange_inventory(int64_t parent_obj, bool vertical)
     }
 
     for (idx = 0; idx < cnt; idx++) {
-        mp_obj_field_int32_set(items[idx], OBJ_F_ITEM_INV_LOCATION, inventory_locations[idx]);
+        obj_field_int32_set(items[idx], OBJ_F_ITEM_INV_LOCATION, inventory_locations[idx]);
     }
 
     mp_ui_update_inven(parent_obj);

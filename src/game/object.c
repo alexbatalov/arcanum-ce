@@ -1578,7 +1578,7 @@ int object_hp_damage_set(int64_t obj, int value)
         value = 0;
     }
 
-    mp_obj_field_int32_set(obj, OBJ_F_HP_DAMAGE, value);
+    obj_field_int32_set(obj, OBJ_F_HP_DAMAGE, value);
 
     if (value > 0) {
         obj_type = obj_field_int32_get(obj, OBJ_F_TYPE);
@@ -3892,7 +3892,7 @@ bool object_script_execute(int64_t triggerer_obj, int64_t attachee_obj, int64_t 
         if (scr_before.num != scr.num
             || scr_before.hdr.flags != scr.hdr.flags
             || scr_before.hdr.counters != scr.hdr.counters) {
-            mp_obj_arrayfield_script_set(attachee_obj, OBJ_F_SCRIPTS_IDX, attachment_point, &scr);
+            obj_arrayfield_script_set(attachee_obj, OBJ_F_SCRIPTS_IDX, attachment_point, &scr);
         }
     } else {
         object_destroy(attachee_obj);

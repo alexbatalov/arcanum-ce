@@ -682,7 +682,7 @@ int spell_college_level_set(int64_t obj, int college, int level)
         return 0;
     }
 
-    mp_obj_arrayfield_uint32_set(obj, OBJ_F_CRITTER_SPELL_TECH_IDX, college, level);
+    obj_arrayfield_uint32_set(obj, OBJ_F_CRITTER_SPELL_TECH_IDX, college, level);
 
     return level;
 }

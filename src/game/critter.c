@@ -897,7 +897,7 @@ int64_t critter_leader_get(int64_t obj)
 void critter_leader_set(int64_t follower_obj, int64_t leader_obj)
 {
     if (obj_field_int32_get(follower_obj, OBJ_F_TYPE) == OBJ_TYPE_NPC) {
-        mp_obj_field_obj_set(follower_obj, OBJ_F_NPC_LEADER, leader_obj);
+        obj_field_handle_set(follower_obj, OBJ_F_NPC_LEADER, leader_obj);
     }
 }
 
@@ -932,7 +932,7 @@ bool critter_follow(int64_t follower_obj, int64_t leader_obj, bool force)
     }
 
     // Add follower to leader's follower list.
-    sub_4F0070(leader_obj,
+    obj_arrayfield_obj_set(leader_obj,
         OBJ_F_CRITTER_FOLLOWER_IDX,
         obj_arrayfield_length_get(leader_obj, OBJ_F_CRITTER_FOLLOWER_IDX),
         follower_obj);
@@ -944,7 +944,7 @@ bool critter_follow(int64_t follower_obj, int64_t leader_obj, bool force)
     if (force) {
         flags |= ONF_FORCED_FOLLOWER;
     }
-    mp_obj_field_int32_set(follower_obj, OBJ_F_NPC_FLAGS, flags);
+    obj_field_int32_set(follower_obj, OBJ_F_NPC_FLAGS, flags);
 
     // Update follower state.
     anim_speed_recalc(follower_obj);
@@ -1036,7 +1036,7 @@ void critter_disband_internal(int64_t obj)
         if (idx < cnt - 1) {
             while (idx < cnt - 1) {
                 follower_obj = obj_arrayfield_handle_get(leader_obj, OBJ_F_CRITTER_FOLLOWER_IDX, idx + 1);
-                sub_4F0070(leader_obj, OBJ_F_CRITTER_FOLLOWER_IDX, idx, follower_obj);
+                obj_arrayfield_obj_set(leader_obj, OBJ_F_CRITTER_FOLLOWER_IDX, idx, follower_obj);
                 idx++;
             }
         }
@@ -1055,7 +1055,7 @@ void critter_disband_internal(int64_t obj)
     flags = obj_field_int32_get(obj, OBJ_F_NPC_FLAGS);
     if ((flags & ONF_FORCED_FOLLOWER) != 0) {
         flags &= ~ONF_FORCED_FOLLOWER;
-        mp_obj_field_int32_set(obj, OBJ_F_NPC_FLAGS, flags);
+        obj_field_int32_set(obj, OBJ_F_NPC_FLAGS, flags);
     }
 
     ui_follower_refresh();

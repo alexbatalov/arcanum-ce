@@ -6911,14 +6911,14 @@ void sub_459EA0(int64_t obj)
         if ((flags & OSF_TEMPUS_FUGIT) != 0) {
             flags &= ~OSF_TEMPUS_FUGIT;
         }
-        mp_obj_field_int32_set(obj, OBJ_F_SPELL_FLAGS, flags);
+        obj_field_int32_set(obj, OBJ_F_SPELL_FLAGS, flags);
 
         if ((obj_field_int32_get(obj, OBJ_F_NPC_FLAGS) & ONF_FAMILIAR) != 0) {
             leader_obj = critter_leader_get(obj);
             if (leader_obj != OBJ_HANDLE_NULL) {
                 flags = obj_field_int32_get(leader_obj, OBJ_F_SPELL_FLAGS);
                 flags &= ~OSF_FAMILIAR;
-                mp_obj_field_int32_set(leader_obj, OBJ_F_SPELL_FLAGS, flags);
+                obj_field_int32_set(leader_obj, OBJ_F_SPELL_FLAGS, flags);
             }
         }
     }

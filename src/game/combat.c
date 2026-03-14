@@ -449,33 +449,33 @@ void combat_create_projectile(CombatContext* combat, int64_t loc, int a3, int a4
         return;
     }
 
-    mp_obj_field_int32_set(proj_obj, OBJ_F_PROJECTILE_FLAGS_COMBAT_DAMAGE, combat->dam_flags);
+    obj_field_int32_set(proj_obj, OBJ_F_PROJECTILE_FLAGS_COMBAT_DAMAGE, combat->dam_flags);
 
     if ((combat->flags & 0x100) != 0) {
         hit_loc = combat->dam[DAMAGE_TYPE_NORMAL];
     } else {
         hit_loc = combat->hit_loc;
     }
-    mp_obj_field_int32_set(proj_obj, OBJ_F_PROJECTILE_HIT_LOC, hit_loc);
+    obj_field_int32_set(proj_obj, OBJ_F_PROJECTILE_HIT_LOC, hit_loc);
 
-    mp_obj_field_obj_set(proj_obj, OBJ_F_PROJECTILE_PARENT_WEAPON, combat->weapon_obj);
+    obj_field_handle_set(proj_obj, OBJ_F_PROJECTILE_PARENT_WEAPON, combat->weapon_obj);
 
     if (combat->weapon_obj != OBJ_HANDLE_NULL
         && obj_field_int32_get(combat->weapon_obj, OBJ_F_TYPE) == OBJ_TYPE_WEAPON) {
         weapon_flags = obj_field_int32_get(combat->weapon_obj, OBJ_F_WEAPON_FLAGS);
         if ((weapon_flags & OWF_TRANS_PROJECTILE) != 0) {
-            mp_obj_field_int32_set(proj_obj, OBJ_F_BLIT_FLAGS, TIG_ART_BLT_BLEND_ADD);
+            obj_field_int32_set(proj_obj, OBJ_F_BLIT_FLAGS, TIG_ART_BLT_BLEND_ADD);
         }
         if ((weapon_flags & OWF_BOOMERANGS) != 0) {
             critter_flags2 = obj_field_int32_get(combat->attacker_obj, OBJ_F_CRITTER_FLAGS2);
             critter_flags2 |= OCF2_USING_BOOMERANG;
-            mp_obj_field_int32_set(combat->attacker_obj, OBJ_F_CRITTER_FLAGS2, critter_flags2);
+            obj_field_int32_set(combat->attacker_obj, OBJ_F_CRITTER_FLAGS2, critter_flags2);
 
             combat->flags |= 0x1000;
         }
     }
 
-    mp_obj_field_int32_set(proj_obj, OBJ_F_PROJECTILE_FLAGS_COMBAT, combat->flags);
+    obj_field_int32_set(proj_obj, OBJ_F_PROJECTILE_FLAGS_COMBAT, combat->flags);
 
     anim_goal_projectile(combat->attacker_obj,
         proj_obj,
@@ -511,12 +511,12 @@ void sub_4B2690(int64_t proj_obj, int64_t a2, int64_t a3, CombatContext* combat,
         weapon_obj = obj_field_handle_get(proj_obj, OBJ_F_PROJECTILE_PARENT_WEAPON);
         loc = obj_field_int64_get(proj_obj, OBJ_F_LOCATION);
         sub_4EDF20(weapon_obj, loc, 0, 0, false);
-        mp_object_flags_unset(weapon_obj, OF_OFF);
+        object_flags_unset(weapon_obj, OF_OFF);
         object_destroy(proj_obj);
     } else if ((proj_flags & 0x1000) != 0) {
         if (a5 && (proj_flags & 0x2000) == 0) {
             proj_flags |= 0x2000;
-            mp_obj_field_int32_set(proj_obj, OBJ_F_PROJECTILE_FLAGS_COMBAT, proj_flags);
+            obj_field_int32_set(proj_obj, OBJ_F_PROJECTILE_FLAGS_COMBAT, proj_flags);
             if (!sub_435A00(proj_obj, obj_field_int64_get(a2, OBJ_F_LOCATION), a3)) {
                 sub_4B2690(proj_obj, a2, a3, combat, true);
                 return;
@@ -524,7 +524,7 @@ void sub_4B2690(int64_t proj_obj, int64_t a2, int64_t a3, CombatContext* combat,
         } else {
             critter_flags2 = obj_field_int32_get(a2, OBJ_F_CRITTER_FLAGS2);
             critter_flags2 &= ~OCF2_USING_BOOMERANG;
-            mp_obj_field_int32_set(a2, OBJ_F_CRITTER_FLAGS2, critter_flags2);
+            obj_field_int32_set(a2, OBJ_F_CRITTER_FLAGS2, critter_flags2);
 
             object_destroy(proj_obj);
             sub_4A9AD0(a2, a3);
@@ -1168,7 +1168,7 @@ void combat_throw(int64_t attacker_obj, int64_t weapon_obj, int64_t target_obj, 
         combat.flags |= 0x4000;
         combat.flags |= CF_RANGED;
         combat.flags |= 0x40;
-        mp_object_flags_set(weapon_obj, OF_OFF);
+        object_flags_set(weapon_obj, OF_OFF);
         object_drop(weapon_obj, attacker_loc);
         sub_4B3170(&combat);
     } else {
