@@ -126,6 +126,8 @@ Several configuration options are available as command-line switches (admittedly
 
 - `-geometry=1280x720`: Set window size (default is 800x600)
 
+When `HighRes/config.ini` from the Unofficial Arcanum Patch is present in the game directory, Community Edition also imports `Width`, `Height`, `Windowed`, `ShowFPS`, `ScrollFPS`, `ScrollDist`, `Logos`, and `Intro` at startup.
+
 ## Contributing
 
 Play the game and file bugs if any (there are likely many). Attach a save game for investigation. Suggestions for quality of life improvements are also welcome. The major objective for 25H2 is to clarify remaining functions.

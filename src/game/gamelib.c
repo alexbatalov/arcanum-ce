@@ -22,6 +22,7 @@
 #include "game/gfade.h"
 #include "game/gmovie.h"
 #include "game/gsound.h"
+#include "game/highres_config.h"
 #include "game/hrp.h"
 #include "game/invensource.h"
 #include "game/item.h"
@@ -329,7 +330,10 @@ bool gamelib_init(GameInitInfo* init_info)
     gamelib_load_data();
 
     if (!init_info->editor) {
-        gamelib_logo();
+        if (highres_config_get()->logos) {
+            gamelib_logo();
+        }
+
         gamelib_splash(init_info->iso_window_handle);
     }
 
