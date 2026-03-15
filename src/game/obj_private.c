@@ -69,8 +69,12 @@ static int bitset_mask_of(int bit);
 static void popcount_table_init(void);
 static void popcount_masks_init(void);
 
-// 0x6036A8
-static bool dword_6036A8;
+/**
+ * Flag indicating that obj data system has been initialized.
+ *
+ * 0x6036A8
+ */
+static bool obj_data_initialized;
 
 /**
  * Lookup table for every 16-bit value.
@@ -174,573 +178,765 @@ static int bitset_count;
  */
 static bool bitset_pool_initialized;
 
-// 0x4E3F80
-void sub_4E3F80(void)
+/**
+ * Initializes the obj data system.
+ *
+ * 0x4E3F80
+ */
+void obj_data_init(void)
 {
-    dword_6036A8 = true;
+    obj_data_initialized = true;
 }
 
-// 0x4E3F90
-void sub_4E3F90(void)
+/**
+ * Shuts down the obj data system.
+ *
+ * 0x4E3F90
+ */
+void obj_data_exit(void)
 {
-    dword_6036A8 = false;
+    obj_data_initialized = false;
 }
 
-// 0x4E3FA0
-void sub_4E3FA0(ObjSa* a1)
+/**
+ * Resets an obj field to its zero/null state, freeing heap memory where the
+ * field type requires it.
+ *
+ * Operates on the live field pointed to by `descr->ptr`. After this call the
+ * field holds its "empty" representation: 0 for scalars, NULL for pointers,
+ * and a deallocated `SizeableArray` for array types.
+ *
+ * 0x4E3FA0
+ */
+void obj_data_reset(ObjDataDescriptor* descr)
 {
-    switch (a1->type) {
-    case SA_TYPE_INT32:
-        *(int*)a1->ptr = 0;
+    switch (descr->type) {
+    case OD_TYPE_INT32:
+        *(int*)descr->ptr = 0;
         break;
-    case SA_TYPE_INT64:
-    case SA_TYPE_STRING:
-    case SA_TYPE_HANDLE:
-        if (*(void**)a1->ptr != NULL) {
-            FREE(*(void**)a1->ptr);
-            *(void**)a1->ptr = NULL;
+    case OD_TYPE_INT64:
+    case OD_TYPE_STRING:
+    case OD_TYPE_HANDLE:
+        // These types store a heap pointer, free it and nullify the pointer.
+        if (*(void**)descr->ptr != NULL) {
+            FREE(*(void**)descr->ptr);
+            *(void**)descr->ptr = NULL;
         }
         break;
-    case SA_TYPE_INT32_ARRAY:
-    case SA_TYPE_INT64_ARRAY:
-    case SA_TYPE_UINT32_ARRAY:
-    case SA_TYPE_UINT64_ARRAY:
-    case SA_TYPE_SCRIPT:
-    case SA_TYPE_QUEST:
-    case SA_TYPE_HANDLE_ARRAY:
-        if (*(SizeableArray**)a1->ptr != NULL) {
-            sa_deallocate((SizeableArray**)a1->ptr);
+    case OD_TYPE_INT32_ARRAY:
+    case OD_TYPE_INT64_ARRAY:
+    case OD_TYPE_UINT32_ARRAY:
+    case OD_TYPE_UINT64_ARRAY:
+    case OD_TYPE_SCRIPT_ARRAY:
+    case OD_TYPE_QUEST_ARRAY:
+    case OD_TYPE_HANDLE_ARRAY:
+        // Array types own a `SizeableArray` on the heap, deallocate.
+        if (*(SizeableArray**)descr->ptr != NULL) {
+            sa_deallocate((SizeableArray**)descr->ptr);
         }
         break;
-    case SA_TYPE_PTR:
-        *(intptr_t*)a1->ptr = 0;
+    case OD_TYPE_PTR:
+        // CE: Raw pointer field: zero without freeing (unowned reference).
+        *(intptr_t*)descr->ptr = 0;
         break;
-    case SA_TYPE_PTR_ARRAY:
-        if (*(SizeableArray**)a1->ptr != NULL) {
-            sa_deallocate((SizeableArray**)a1->ptr);
+    case OD_TYPE_PTR_ARRAY:
+        // CE: Raw pointer array: same behaviour as for other arrays.
+        if (*(SizeableArray**)descr->ptr != NULL) {
+            sa_deallocate((SizeableArray**)descr->ptr);
         }
         break;
     }
 }
 
-// 0x4E4000
-void sub_4E4000(ObjSa* a1)
+/**
+ * Persists data by copying from transient storage data back to the live obj
+ * field.
+ *
+ * For types that heap-allocate (INT64, STRING, HANDLE, arrays) memory is
+ * allocated on demand and freed when the stored value is empty/null.
+ *
+ * 0x4E4000
+ */
+void obj_data_store(ObjDataDescriptor* descr)
 {
-    switch (a1->type) {
-    case SA_TYPE_INT32:
-        *(int*)a1->ptr = a1->storage.value;
+    switch (descr->type) {
+    case OD_TYPE_INT32:
+        *(int*)descr->ptr = descr->storage.value;
         break;
-    case SA_TYPE_INT64:
-        if (a1->storage.value64 != 0) {
-            if (*(int64_t**)a1->ptr == NULL) {
-                *(int64_t**)a1->ptr = MALLOC(sizeof(int64_t));
+    case OD_TYPE_INT64:
+        if (descr->storage.value64 != 0) {
+            // Allocate the backing int64 on demand if not yet present.
+            if (*(int64_t**)descr->ptr == NULL) {
+                *(int64_t**)descr->ptr = MALLOC(sizeof(int64_t));
             }
-            **(int64_t**)a1->ptr = a1->storage.value64;
+            **(int64_t**)descr->ptr = descr->storage.value64;
         } else {
-            if (*(int64_t**)a1->ptr != NULL) {
-                FREE(*(int64_t**)a1->ptr);
-                *(int64_t**)a1->ptr = NULL;
+            // Zero value: free the backing storage and nullify the pointer.
+            if (*(int64_t**)descr->ptr != NULL) {
+                FREE(*(int64_t**)descr->ptr);
+                *(int64_t**)descr->ptr = NULL;
             }
         }
         break;
-    case SA_TYPE_INT32_ARRAY:
-    case SA_TYPE_UINT32_ARRAY:
-        if (*(SizeableArray**)a1->ptr == NULL) {
-            sa_allocate((SizeableArray**)a1->ptr, sizeof(int));
+    case OD_TYPE_INT32_ARRAY:
+    case OD_TYPE_UINT32_ARRAY:
+        if (*(SizeableArray**)descr->ptr == NULL) {
+            // Allocate array for storing 32-bit values.
+            sa_allocate((SizeableArray**)descr->ptr, sizeof(int));
         }
-        sa_set((SizeableArray**)a1->ptr, a1->idx, &(a1->storage));
+        sa_set((SizeableArray**)descr->ptr, descr->idx, &(descr->storage));
         break;
-    case SA_TYPE_INT64_ARRAY:
-    case SA_TYPE_UINT64_ARRAY:
-        if (*(SizeableArray**)a1->ptr == NULL) {
-            sa_allocate((SizeableArray**)a1->ptr, sizeof(int64_t));
+    case OD_TYPE_INT64_ARRAY:
+    case OD_TYPE_UINT64_ARRAY:
+        if (*(SizeableArray**)descr->ptr == NULL) {
+            // Allocate array for storing 64-bit values.
+            sa_allocate((SizeableArray**)descr->ptr, sizeof(int64_t));
         }
-        sa_set((SizeableArray**)a1->ptr, a1->idx, &(a1->storage));
+        sa_set((SizeableArray**)descr->ptr, descr->idx, &(descr->storage));
         break;
-    case SA_TYPE_SCRIPT:
-        if (*(SizeableArray**)a1->ptr == NULL) {
-            sa_allocate((SizeableArray**)a1->ptr, sizeof(Script));
+    case OD_TYPE_SCRIPT_ARRAY:
+        if (*(SizeableArray**)descr->ptr == NULL) {
+            // Allocate array for storing `Script` objects (script number,
+            // flags, and counters).
+            sa_allocate((SizeableArray**)descr->ptr, sizeof(Script));
         }
-        sa_set((SizeableArray**)a1->ptr, a1->idx, &(a1->storage));
+        sa_set((SizeableArray**)descr->ptr, descr->idx, &(descr->storage));
         break;
-    case SA_TYPE_QUEST:
-        if (*(SizeableArray**)a1->ptr == NULL) {
-            sa_allocate((SizeableArray**)a1->ptr, sizeof(PcQuestState));
+    case OD_TYPE_QUEST_ARRAY:
+        if (*(SizeableArray**)descr->ptr == NULL) {
+            // Allocate array for storing `PcQuestState` objects (datetime and
+            // state).
+            sa_allocate((SizeableArray**)descr->ptr, sizeof(PcQuestState));
         }
-        sa_set((SizeableArray**)a1->ptr, a1->idx, &(a1->storage));
+        sa_set((SizeableArray**)descr->ptr, descr->idx, &(descr->storage));
         break;
-    case SA_TYPE_STRING:
-        if (*(char**)a1->ptr != NULL) {
-            FREE(*(char**)a1->ptr);
+    case OD_TYPE_STRING:
+        // Replace any existing string with a fresh duplicate of the stored one.
+        if (*(char**)descr->ptr != NULL) {
+            FREE(*(char**)descr->ptr);
         }
-        *(char**)a1->ptr = STRDUP(a1->storage.str);
+        *(char**)descr->ptr = STRDUP(descr->storage.str);
         break;
-    case SA_TYPE_HANDLE:
-        if (a1->storage.oid.type != OID_TYPE_NULL) {
-            if (*(ObjectID**)a1->ptr == NULL) {
-                *(ObjectID**)a1->ptr = MALLOC(sizeof(ObjectID));
+    case OD_TYPE_HANDLE:
+        if (descr->storage.oid.type != OID_TYPE_NULL) {
+            // Non-null handle: allocate `ObjectID` on demand and copy into it.
+            if (*(ObjectID**)descr->ptr == NULL) {
+                *(ObjectID**)descr->ptr = MALLOC(sizeof(ObjectID));
             }
-            **(ObjectID**)a1->ptr = a1->storage.oid;
+            **(ObjectID**)descr->ptr = descr->storage.oid;
             break;
         } else {
-            if (*(ObjectID**)a1->ptr != NULL) {
-                FREE(*(ObjectID**)a1->ptr);
-                *(ObjectID**)a1->ptr = NULL;
+            // Null handle: free any existing `ObjectID` and nullify the
+            // pointer.
+            if (*(ObjectID**)descr->ptr != NULL) {
+                FREE(*(ObjectID**)descr->ptr);
+                *(ObjectID**)descr->ptr = NULL;
             }
         }
         break;
-    case SA_TYPE_HANDLE_ARRAY:
-        if (*(SizeableArray**)a1->ptr == NULL) {
-            sa_allocate((SizeableArray**)a1->ptr, sizeof(ObjectID));
+    case OD_TYPE_HANDLE_ARRAY:
+        if (*(SizeableArray**)descr->ptr == NULL) {
+            // Allocate array for storing `ObjectID` objects.
+            sa_allocate((SizeableArray**)descr->ptr, sizeof(ObjectID));
         }
-        sa_set((SizeableArray**)a1->ptr, a1->idx, &(a1->storage));
+        sa_set((SizeableArray**)descr->ptr, descr->idx, &(descr->storage));
         break;
-    case SA_TYPE_PTR:
-        *(intptr_t*)a1->ptr = a1->storage.ptr;
+    case OD_TYPE_PTR:
+        *(intptr_t*)descr->ptr = descr->storage.ptr;
         break;
-    case SA_TYPE_PTR_ARRAY:
-        if (*(SizeableArray**)a1->ptr == NULL) {
-            sa_allocate((SizeableArray**)a1->ptr, sizeof(intptr_t));
+    case OD_TYPE_PTR_ARRAY:
+        if (*(SizeableArray**)descr->ptr == NULL) {
+            // Allocate array for storing raw pointers (these are useful at
+            // runtime in transient properties).
+            sa_allocate((SizeableArray**)descr->ptr, sizeof(intptr_t));
         }
-        sa_set((SizeableArray**)a1->ptr, a1->idx, &(a1->storage));
+        sa_set((SizeableArray**)descr->ptr, descr->idx, &(descr->storage));
         break;
     }
 }
 
-// 0x4E4180
-void sub_4E4180(ObjSa* a1)
+/**
+ * Fetches the current value from the live obj field into the transient
+ * storage.
+ *
+ * 0x4E4180
+ */
+void obj_data_fetch(ObjDataDescriptor* descr)
 {
-    switch (a1->type) {
-    case SA_TYPE_INT32:
-        a1->storage.value = *(int*)a1->ptr;
+    switch (descr->type) {
+    case OD_TYPE_INT32:
+        descr->storage.value = *(int*)descr->ptr;
         break;
-    case SA_TYPE_INT64:
-        if (*(int64_t**)a1->ptr != NULL) {
-            a1->storage.value64 = **(int64_t**)a1->ptr;
+    case OD_TYPE_INT64:
+        if (*(int64_t**)descr->ptr != NULL) {
+            descr->storage.value64 = **(int64_t**)descr->ptr;
         } else {
-            a1->storage.value64 = 0;
+            descr->storage.value64 = 0;
         }
         break;
-    case SA_TYPE_INT32_ARRAY:
-    case SA_TYPE_UINT32_ARRAY:
-        if (*(SizeableArray**)a1->ptr != NULL) {
-            sa_get((SizeableArray**)a1->ptr, a1->idx, &(a1->storage));
+    case OD_TYPE_INT32_ARRAY:
+    case OD_TYPE_UINT32_ARRAY:
+        if (*(SizeableArray**)descr->ptr != NULL) {
+            sa_get((SizeableArray**)descr->ptr, descr->idx, &(descr->storage));
         } else {
-            a1->storage.value = 0;
+            descr->storage.value = 0;
         }
         break;
-    case SA_TYPE_INT64_ARRAY:
-    case SA_TYPE_UINT64_ARRAY:
-        if (*(SizeableArray**)a1->ptr != NULL) {
-            sa_get((SizeableArray**)a1->ptr, a1->idx, &(a1->storage));
+    case OD_TYPE_INT64_ARRAY:
+    case OD_TYPE_UINT64_ARRAY:
+        if (*(SizeableArray**)descr->ptr != NULL) {
+            sa_get((SizeableArray**)descr->ptr, descr->idx, &(descr->storage));
         } else {
-            a1->storage.value64 = 0;
+            descr->storage.value64 = 0;
         }
         break;
-    case SA_TYPE_SCRIPT:
-        if (*(SizeableArray**)a1->ptr != NULL) {
-            sa_get((SizeableArray**)a1->ptr, a1->idx, &(a1->storage));
+    case OD_TYPE_SCRIPT_ARRAY:
+        if (*(SizeableArray**)descr->ptr != NULL) {
+            sa_get((SizeableArray**)descr->ptr, descr->idx, &(descr->storage));
         } else {
-            memset(&(a1->storage.scr), 0, sizeof(a1->storage.scr));
+            memset(&(descr->storage.scr), 0, sizeof(descr->storage.scr));
         }
         break;
-    case SA_TYPE_QUEST:
-        if (*(SizeableArray**)a1->ptr != NULL) {
-            sa_get((SizeableArray**)a1->ptr, a1->idx, &(a1->storage));
+    case OD_TYPE_QUEST_ARRAY:
+        if (*(SizeableArray**)descr->ptr != NULL) {
+            sa_get((SizeableArray**)descr->ptr, descr->idx, &(descr->storage));
         } else {
-            memset(&(a1->storage.quest), 0, sizeof(a1->storage.quest));
+            memset(&(descr->storage.quest), 0, sizeof(descr->storage.quest));
         }
         break;
-    case SA_TYPE_STRING:
-        if (*(char**)a1->ptr != NULL) {
-            a1->storage.str = STRDUP(*(char**)a1->ptr);
+    case OD_TYPE_STRING:
+        // Duplicate the string so the caller owns an independent copy.
+        if (*(char**)descr->ptr != NULL) {
+            descr->storage.str = STRDUP(*(char**)descr->ptr);
         } else {
-            a1->storage.str = NULL;
+            descr->storage.str = NULL;
         }
         break;
-    case SA_TYPE_HANDLE:
-        if (*(ObjectID**)a1->ptr != NULL) {
-            a1->storage.oid = **(ObjectID**)a1->ptr;
+    case OD_TYPE_HANDLE:
+        if (*(ObjectID**)descr->ptr != NULL) {
+            descr->storage.oid = **(ObjectID**)descr->ptr;
         } else {
-            a1->storage.oid.type = OID_TYPE_NULL;
+            descr->storage.oid.type = OID_TYPE_NULL;
         }
         break;
-    case SA_TYPE_HANDLE_ARRAY:
-        if (*(SizeableArray**)a1->ptr != NULL) {
-            sa_get((SizeableArray**)a1->ptr, a1->idx, &(a1->storage));
+    case OD_TYPE_HANDLE_ARRAY:
+        if (*(SizeableArray**)descr->ptr != NULL) {
+            sa_get((SizeableArray**)descr->ptr, descr->idx, &(descr->storage));
         } else {
-            a1->storage.oid.type = OID_TYPE_NULL;
+            descr->storage.oid.type = OID_TYPE_NULL;
         }
         break;
-    case SA_TYPE_PTR:
-        a1->storage.ptr = *(intptr_t*)a1->ptr;
+    case OD_TYPE_PTR:
+        descr->storage.ptr = *(intptr_t*)descr->ptr;
         break;
-    case SA_TYPE_PTR_ARRAY:
-        if (*(SizeableArray**)a1->ptr != NULL) {
-            sa_get((SizeableArray**)a1->ptr, a1->idx, &(a1->storage));
+    case OD_TYPE_PTR_ARRAY:
+        if (*(SizeableArray**)descr->ptr != NULL) {
+            sa_get((SizeableArray**)descr->ptr, descr->idx, &(descr->storage));
         } else {
-            a1->storage.ptr = 0;
+            descr->storage.ptr = 0;
         }
         break;
     }
 }
 
-// 0x4E4280
-void sub_4E4280(ObjSa* a1, void* value)
+/**
+ * Performs a deep copy of the live obj field into a caller-supplied
+ * destination buffer.
+ *
+ * `value` must point to storage large enough for the field's type.
+ * Heap-allocated data is duplicated - the caller is responsible for freeing it.
+ *
+ * 0x4E4280
+ */
+void obj_data_copy(ObjDataDescriptor* descr, void* value)
 {
-    switch (a1->type) {
-    case SA_TYPE_INT32:
-        *(int*)value = *(int*)a1->ptr;
+    switch (descr->type) {
+    case OD_TYPE_INT32:
+        *(int*)value = *(int*)descr->ptr;
         break;
-    case SA_TYPE_INT64:
-        if (*(int64_t**)a1->ptr != NULL) {
+    case OD_TYPE_INT64:
+        if (*(int64_t**)descr->ptr != NULL) {
             *(int64_t**)value = (int64_t*)MALLOC(sizeof(int64_t));
-            **(int64_t**)value = **(int64_t**)a1->ptr;
+            **(int64_t**)value = **(int64_t**)descr->ptr;
         } else {
             *(int64_t**)value = NULL;
         }
         break;
-    case SA_TYPE_INT32_ARRAY:
-    case SA_TYPE_INT64_ARRAY:
-    case SA_TYPE_UINT32_ARRAY:
-    case SA_TYPE_UINT64_ARRAY:
-    case SA_TYPE_SCRIPT:
-    case SA_TYPE_QUEST:
-    case SA_TYPE_HANDLE_ARRAY:
-        if (*(SizeableArray**)a1->ptr != NULL) {
-            sa_copy((SizeableArray**)value, (SizeableArray**)a1->ptr);
+    case OD_TYPE_INT32_ARRAY:
+    case OD_TYPE_INT64_ARRAY:
+    case OD_TYPE_UINT32_ARRAY:
+    case OD_TYPE_UINT64_ARRAY:
+    case OD_TYPE_SCRIPT_ARRAY:
+    case OD_TYPE_QUEST_ARRAY:
+    case OD_TYPE_HANDLE_ARRAY:
+        if (*(SizeableArray**)descr->ptr != NULL) {
+            sa_copy((SizeableArray**)value, (SizeableArray**)descr->ptr);
         } else {
             *(SizeableArray**)value = NULL;
         }
         break;
-    case SA_TYPE_STRING:
-        if (*(char**)a1->ptr != NULL) {
-            *(char**)value = STRDUP(*(char**)a1->ptr);
+    case OD_TYPE_STRING:
+        if (*(char**)descr->ptr != NULL) {
+            *(char**)value = STRDUP(*(char**)descr->ptr);
         } else {
             *(char**)value = NULL;
         }
         break;
-    case SA_TYPE_HANDLE:
-        if (*(ObjectID**)a1->ptr != NULL) {
+    case OD_TYPE_HANDLE:
+        if (*(ObjectID**)descr->ptr != NULL) {
             *(ObjectID**)value = (ObjectID*)MALLOC(sizeof(ObjectID));
-            **(ObjectID**)value = **(ObjectID**)a1->ptr;
+            **(ObjectID**)value = **(ObjectID**)descr->ptr;
         } else {
             *(ObjectID**)value = NULL;
         }
         break;
-    case SA_TYPE_PTR:
-    case SA_TYPE_PTR_ARRAY:
+    case OD_TYPE_PTR:
+    case OD_TYPE_PTR_ARRAY:
         assert(0);
     }
 }
 
-// 0x4E4360
-bool sub_4E4360(ObjSa* a1, TigFile* stream)
+/**
+ * Reads an obj field from a `TigFile` stream into the live field.
+ *
+ * Unlike `obj_data_read_file_fast`, this variant handles the case where the
+ * field may already hold live heap data: existing allocations are freed before
+ * new ones are created.
+ *
+ * Returns `true` on success, `false` otherwise.
+ *
+ * 0x4E4360
+ */
+bool obj_data_read_file_slow(ObjDataDescriptor* descr, TigFile* stream)
 {
     uint8_t presence;
     int size;
 
-    switch (a1->type) {
-    case SA_TYPE_INT32:
-        if (!objf_read(a1->ptr, sizeof(int), stream)) {
+    switch (descr->type) {
+    case OD_TYPE_INT32:
+        if (!objf_read(descr->ptr, sizeof(int), stream)) {
             return false;
         }
         return true;
-    case SA_TYPE_INT64:
+    case OD_TYPE_INT64:
+        // Read presence byte to determine whether the value is stored.
         if (!objf_read(&presence, sizeof(presence), stream)) {
             return false;
         }
+
         if (!presence) {
-            if (*(int64_t**)a1->ptr != NULL) {
-                FREE(*(int64_t**)a1->ptr);
-                *(int64_t**)a1->ptr = NULL;
+            // Not present: free any existing allocation and null the pointer.
+            if (*(int64_t**)descr->ptr != NULL) {
+                FREE(*(int64_t**)descr->ptr);
+                *(int64_t**)descr->ptr = NULL;
             }
             return true;
         }
-        if (*(int64_t**)a1->ptr == NULL) {
-            *(int64_t**)a1->ptr = (int64_t*)MALLOC(sizeof(int64_t));
+
+        // Present: allocate if needed...
+        if (*(int64_t**)descr->ptr == NULL) {
+            *(int64_t**)descr->ptr = (int64_t*)MALLOC(sizeof(int64_t));
         }
-        if (!objf_read(*(int64_t**)a1->ptr, sizeof(int64_t), stream)) {
+
+        // ...and read the value.
+        if (!objf_read(*(int64_t**)descr->ptr, sizeof(int64_t), stream)) {
             return false;
         }
+
         return true;
-    case SA_TYPE_INT32_ARRAY:
-    case SA_TYPE_INT64_ARRAY:
-    case SA_TYPE_UINT32_ARRAY:
-    case SA_TYPE_UINT64_ARRAY:
-    case SA_TYPE_SCRIPT:
-    case SA_TYPE_QUEST:
-    case SA_TYPE_HANDLE_ARRAY:
+    case OD_TYPE_INT32_ARRAY:
+    case OD_TYPE_INT64_ARRAY:
+    case OD_TYPE_UINT32_ARRAY:
+    case OD_TYPE_UINT64_ARRAY:
+    case OD_TYPE_SCRIPT_ARRAY:
+    case OD_TYPE_QUEST_ARRAY:
+    case OD_TYPE_HANDLE_ARRAY:
+        // Read presence byte to determine whether the value is stored.
         if (!objf_read(&presence, sizeof(presence), stream)) {
             return false;
         }
+
         if (!presence) {
-            *(SizeableArray**)a1->ptr = NULL;
+            // Not present: free any existing allocation and null the pointer.
+            *(SizeableArray**)descr->ptr = NULL;
             return true;
         }
-        if (!sa_read_file((SizeableArray**)a1->ptr, stream)) {
+
+        // Present: delegate deallocate/allocate/read dance to
+        // `SerializeableArray`.
+        if (!sa_read_file((SizeableArray**)descr->ptr, stream)) {
             return false;
         }
+
         return true;
-    case SA_TYPE_STRING:
+    case OD_TYPE_STRING:
+        // Read presence byte to determine whether the value is stored.
         if (!objf_read(&presence, sizeof(presence), stream)) {
             return false;
         }
-        if (*(char**)a1->ptr != NULL) {
-            FREE(*(char**)a1->ptr);
+
+        // Always free any existing string before reading a new value.
+        if (*(char**)descr->ptr != NULL) {
+            FREE(*(char**)descr->ptr);
         }
+
         if (!presence) {
-            *(char**)a1->ptr = NULL;
+            // Not present: previous pointer is already freed, just nullify the
+            // pointer.
+            *(char**)descr->ptr = NULL;
             return true;
         }
+
+        // Present: read string length...
         if (!objf_read(&size, sizeof(size), stream)) {
             return false;
         }
-        *(char**)a1->ptr = (char*)MALLOC(size + 1);
-        if (!objf_read(*(char**)a1->ptr, size + 1, stream)) {
+
+        // ...then allocate and read the string.
+        *(char**)descr->ptr = (char*)MALLOC(size + 1);
+        if (!objf_read(*(char**)descr->ptr, size + 1, stream)) {
             return false;
         }
+
         return true;
-    case SA_TYPE_HANDLE:
+    case OD_TYPE_HANDLE:
+        // Read presence byte to determine whether the value is stored.
         if (!objf_read(&presence, sizeof(presence), stream)) {
             return false;
         }
+
         if (!presence) {
-            if (*(ObjectID**)a1->ptr != NULL) {
-                FREE(*(ObjectID**)a1->ptr);
-                *(ObjectID**)a1->ptr = NULL;
+            // Not present: free any existing allocation and null the pointer.
+            if (*(ObjectID**)descr->ptr != NULL) {
+                FREE(*(ObjectID**)descr->ptr);
+                *(ObjectID**)descr->ptr = NULL;
             }
             return true;
         }
-        if (*(ObjectID**)a1->ptr == NULL) {
-            *(ObjectID**)a1->ptr = (ObjectID*)MALLOC(sizeof(ObjectID));
+
+        // Present: allocate if needed...
+        if (*(ObjectID**)descr->ptr == NULL) {
+            *(ObjectID**)descr->ptr = (ObjectID*)MALLOC(sizeof(ObjectID));
         }
-        if (!objf_read(*(ObjectID**)a1->ptr, sizeof(ObjectID), stream)) {
+
+        // ...and read the value.
+        if (!objf_read(*(ObjectID**)descr->ptr, sizeof(ObjectID), stream)) {
             return false;
         }
+
         return true;
-    case SA_TYPE_PTR:
-    case SA_TYPE_PTR_ARRAY:
+    case OD_TYPE_PTR:
+    case OD_TYPE_PTR_ARRAY:
+        // These fields should only be stored in transient obj storage and
+        // should never be serialized.
         assert(0);
     default:
         return false;
     }
 }
 
-// 0x4E44F0
-bool sub_4E44F0(ObjSa* a1, TigFile* stream)
+/**
+ * Reads an obj field from a `TigFile` stream into a freshly zeroed field.
+ *
+ * This is a simpler, faster variant of `obj_data_read_file_slow` intended for
+ * brand-new obj whose fields have never been initialised. It does NOT free or
+ * check for existing heap allocations. All output pointers are assumed to be
+ * NULL on entry.
+ *
+ * Returns `true` on success, `false` otherwise.
+ *
+ * 0x4E44F0
+ */
+bool obj_data_read_file_fast(ObjDataDescriptor* descr, TigFile* stream)
 {
     uint8_t presence;
     int size;
 
-    switch (a1->type) {
-    case SA_TYPE_INT32:
-        if (!objf_read(a1->ptr, sizeof(int), stream)) {
+    switch (descr->type) {
+    case OD_TYPE_INT32:
+        if (!objf_read(descr->ptr, sizeof(int), stream)) {
             return false;
         }
         return true;
-    case SA_TYPE_INT64:
+    case OD_TYPE_INT64:
+        // Read presence byte to determine whether the value is stored.
         if (!objf_read(&presence, sizeof(presence), stream)) {
             return false;
         }
+
         if (!presence) {
-            *(int64_t**)a1->ptr = NULL;
+            // Not present: nullify the pointer.
+            *(int64_t**)descr->ptr = NULL;
             return true;
         }
-        *(int64_t**)a1->ptr = (int64_t*)MALLOC(sizeof(int64_t));
-        if (!objf_read(*(int64_t**)a1->ptr, sizeof(int64_t), stream)) {
+
+        // Present: allocate and read the value.
+        *(int64_t**)descr->ptr = (int64_t*)MALLOC(sizeof(int64_t));
+        if (!objf_read(*(int64_t**)descr->ptr, sizeof(int64_t), stream)) {
             return false;
         }
+
         return true;
-    case SA_TYPE_INT32_ARRAY:
-    case SA_TYPE_INT64_ARRAY:
-    case SA_TYPE_UINT32_ARRAY:
-    case SA_TYPE_UINT64_ARRAY:
-    case SA_TYPE_SCRIPT:
-    case SA_TYPE_QUEST:
-    case SA_TYPE_HANDLE_ARRAY:
+    case OD_TYPE_INT32_ARRAY:
+    case OD_TYPE_INT64_ARRAY:
+    case OD_TYPE_UINT32_ARRAY:
+    case OD_TYPE_UINT64_ARRAY:
+    case OD_TYPE_SCRIPT_ARRAY:
+    case OD_TYPE_QUEST_ARRAY:
+    case OD_TYPE_HANDLE_ARRAY:
+        // Read presence byte to determine whether the value is stored.
         if (!objf_read(&presence, sizeof(presence), stream)) {
             return false;
         }
+
         if (!presence) {
-            *(SizeableArray**)a1->ptr = NULL;
+            // Not present: nullify the pointer.
+            *(SizeableArray**)descr->ptr = NULL;
             return true;
         }
-        if (!sa_read_no_dealloc((SizeableArray**)a1->ptr, stream)) {
+
+        // Present: allocate and read the value.
+        if (!sa_read_no_dealloc((SizeableArray**)descr->ptr, stream)) {
             return false;
         }
+
         return true;
-    case SA_TYPE_STRING:
+    case OD_TYPE_STRING:
+        // Read presence byte to determine whether the value is stored.
         if (!objf_read(&presence, sizeof(presence), stream)) {
             return false;
         }
+
         if (!presence) {
-            *(char**)a1->ptr = NULL;
+            // Not present: nullify the pointer.
+            *(char**)descr->ptr = NULL;
             return true;
         }
+
+        // Present: read string length...
         if (!objf_read(&size, sizeof(size), stream)) {
             return false;
         }
-        *(char**)a1->ptr = (char*)MALLOC(size + 1);
-        if (!objf_read(*(char**)a1->ptr, size + 1, stream)) {
+
+        // ...then allocate and read the string.
+        *(char**)descr->ptr = (char*)MALLOC(size + 1);
+        if (!objf_read(*(char**)descr->ptr, size + 1, stream)) {
             return false;
         }
+
         return true;
-    case SA_TYPE_HANDLE:
+    case OD_TYPE_HANDLE:
+        // Read presence byte to determine whether the value is stored.
         if (!objf_read(&presence, sizeof(presence), stream)) {
             return false;
         }
+
         if (!presence) {
-            *(ObjectID**)a1->ptr = NULL;
+            // Not present: nullify the pointer.
+            *(ObjectID**)descr->ptr = NULL;
             return true;
         }
-        *(ObjectID**)a1->ptr = (ObjectID*)MALLOC(sizeof(ObjectID));
-        if (!objf_read(*(ObjectID**)a1->ptr, sizeof(ObjectID), stream)) {
+
+        // Present: allocate and read the value.
+        *(ObjectID**)descr->ptr = (ObjectID*)MALLOC(sizeof(ObjectID));
+        if (!objf_read(*(ObjectID**)descr->ptr, sizeof(ObjectID), stream)) {
             return false;
         }
+
         return true;
-    case SA_TYPE_PTR:
-    case SA_TYPE_PTR_ARRAY:
+    case OD_TYPE_PTR:
+    case OD_TYPE_PTR_ARRAY:
+        // These fields should only be stored in transient obj storage and
+        // should never be serialized.
         assert(0);
     default:
         return false;
     }
 }
 
-// 0x4E4660
-void sub_4E4660(ObjSa* a1, uint8_t** data)
+/**
+ * Reads an obj field from a memory buffer.
+ *
+ * Mirrors `obj_data_read_file_slow`, but reads from a raw byte stream rather
+ * than a `TigFile`. The buffer pointer `*data` is advanced by the number of
+ * bytes consumed. Existing heap allocations in the field are freed before new
+ * ones are created.
+ *
+ * 0x4E4660
+ */
+void obj_data_read_mem(ObjDataDescriptor* descr, uint8_t** data)
 {
     uint8_t presence;
     int size;
 
-    switch (a1->type) {
-    case SA_TYPE_INT32:
-        sub_4E4C50(a1->ptr, sizeof(int), data);
+    switch (descr->type) {
+    case OD_TYPE_INT32:
+        mem_read_advance(descr->ptr, sizeof(int), data);
         return;
-    case SA_TYPE_INT64:
-        sub_4E4C50(&presence, sizeof(presence), data);
+    case OD_TYPE_INT64:
+        // Read presence byte to determine whether the value is stored.
+        mem_read_advance(&presence, sizeof(presence), data);
+
         if (!presence) {
-            if (*(int64_t**)a1->ptr != NULL) {
-                FREE(*(int64_t**)a1->ptr);
-                *(int64_t**)a1->ptr = NULL;
+            // Not present: free any existing allocation and null the pointer.
+            if (*(int64_t**)descr->ptr != NULL) {
+                FREE(*(int64_t**)descr->ptr);
+                *(int64_t**)descr->ptr = NULL;
             }
             return;
         }
-        if (*(int64_t**)a1->ptr == NULL) {
-            *(int64_t**)a1->ptr = (int64_t*)MALLOC(sizeof(int64_t));
+
+        // Present: allocate if needed...
+        if (*(int64_t**)descr->ptr == NULL) {
+            *(int64_t**)descr->ptr = (int64_t*)MALLOC(sizeof(int64_t));
         }
-        sub_4E4C50(*(int64_t**)a1->ptr, sizeof(int64_t), data);
+
+        // ...and read the value.
+        mem_read_advance(*(int64_t**)descr->ptr, sizeof(int64_t), data);
         return;
-    case SA_TYPE_INT32_ARRAY:
-    case SA_TYPE_INT64_ARRAY:
-    case SA_TYPE_UINT32_ARRAY:
-    case SA_TYPE_UINT64_ARRAY:
-    case SA_TYPE_SCRIPT:
-    case SA_TYPE_QUEST:
-    case SA_TYPE_HANDLE_ARRAY:
-        sub_4E4C50(&presence, sizeof(presence), data);
+    case OD_TYPE_INT32_ARRAY:
+    case OD_TYPE_INT64_ARRAY:
+    case OD_TYPE_UINT32_ARRAY:
+    case OD_TYPE_UINT64_ARRAY:
+    case OD_TYPE_SCRIPT_ARRAY:
+    case OD_TYPE_QUEST_ARRAY:
+    case OD_TYPE_HANDLE_ARRAY:
+        // Read presence byte to determine whether the value is stored.
+        mem_read_advance(&presence, sizeof(presence), data);
+
         if (!presence) {
-            if (*(SizeableArray**)a1->ptr != NULL) {
-                FREE(*(SizeableArray**)a1->ptr);
-                *(SizeableArray**)a1->ptr = NULL;
+            // Not present: free any existing allocation and null the pointer.
+            if (*(SizeableArray**)descr->ptr != NULL) {
+                FREE(*(SizeableArray**)descr->ptr);
+                *(SizeableArray**)descr->ptr = NULL;
             }
             return;
         }
-        sa_read_mem((SizeableArray**)a1->ptr, data);
+
+        // Present: delegate deallocate/allocate/read dance to
+        // `SerializeableArray`.
+        sa_read_mem((SizeableArray**)descr->ptr, data);
         return;
-    case SA_TYPE_STRING:
-        sub_4E4C50(&presence, sizeof(presence), data);
-        if (*(char**)a1->ptr != NULL) {
-            FREE(*(char**)a1->ptr);
+    case OD_TYPE_STRING:
+        // Read presence byte to determine whether the value is stored.
+        mem_read_advance(&presence, sizeof(presence), data);
+
+        // Always free any existing string before reading a new value.
+        if (*(char**)descr->ptr != NULL) {
+            FREE(*(char**)descr->ptr);
         }
+
         if (!presence) {
-            *(char**)a1->ptr = NULL;
+            // Not present: previous pointer is already freed, just nullify the
+            // pointer.
+            *(char**)descr->ptr = NULL;
             return;
         }
-        sub_4E4C50(&size, sizeof(size), data);
-        *(char**)a1->ptr = (char*)MALLOC(size + 1);
-        sub_4E4C50(*(char**)a1->ptr, size + 1, data);
+
+        // Present: read string length...
+        mem_read_advance(&size, sizeof(size), data);
+
+        // ...then allocate and read the string.
+        *(char**)descr->ptr = (char*)MALLOC(size + 1);
+        mem_read_advance(*(char**)descr->ptr, size + 1, data);
         return;
-    case SA_TYPE_HANDLE:
-        sub_4E4C50(&presence, sizeof(presence), data);
+    case OD_TYPE_HANDLE:
+        // Read presence byte to determine whether the value is stored.
+        mem_read_advance(&presence, sizeof(presence), data);
+
         if (!presence) {
-            if (*(ObjectID**)a1->ptr != NULL) {
-                FREE(*(ObjectID**)a1->ptr);
-                *(ObjectID**)a1->ptr = NULL;
+            // Not present: free any existing allocation and null the pointer.
+            if (*(ObjectID**)descr->ptr != NULL) {
+                FREE(*(ObjectID**)descr->ptr);
+                *(ObjectID**)descr->ptr = NULL;
             }
             return;
         }
-        if (*(ObjectID**)a1->ptr == NULL) {
-            *(ObjectID**)a1->ptr = (ObjectID*)MALLOC(sizeof(ObjectID));
+
+        // Present: allocate if needed...
+        if (*(ObjectID**)descr->ptr == NULL) {
+            *(ObjectID**)descr->ptr = (ObjectID*)MALLOC(sizeof(ObjectID));
         }
-        sub_4E4C50(*(ObjectID**)a1->ptr, sizeof(ObjectID), data);
+
+        // ...and read the value.
+        mem_read_advance(*(ObjectID**)descr->ptr, sizeof(ObjectID), data);
         return;
-    case SA_TYPE_PTR:
-    case SA_TYPE_PTR_ARRAY:
+    case OD_TYPE_PTR:
+    case OD_TYPE_PTR_ARRAY:
+        // These fields should only be stored in transient obj storage and
+        // should never be serialized.
         assert(0);
     }
 }
 
-// 0x4E47E0
-bool sub_4E47E0(ObjSa* a1, TigFile* stream)
+/**
+ * Writes an obj field to a `TigFile` stream.
+ *
+ * Returns `true` on success, `false` otherwise.
+ *
+ * 0x4E47E0
+ */
+bool obj_data_write_file(ObjDataDescriptor* descr, TigFile* stream)
 {
     uint8_t presence;
     int size;
 
-    switch (a1->type) {
-    case SA_TYPE_INT32:
-        if (!objf_write((int*)a1->ptr, sizeof(int), stream)) return false;
+    switch (descr->type) {
+    case OD_TYPE_INT32:
+        if (!objf_write((int*)descr->ptr, sizeof(int), stream)) return false;
         return true;
-    case SA_TYPE_INT64:
-        if (*(int64_t**)a1->ptr != NULL) {
+    case OD_TYPE_INT64:
+        if (*(int64_t**)descr->ptr != NULL) {
             presence = 1;
             if (!objf_write(&presence, sizeof(presence), stream)) return false;
-            if (!objf_write(*(int64_t**)a1->ptr, sizeof(int64_t), stream)) return false;
+            if (!objf_write(*(int64_t**)descr->ptr, sizeof(int64_t), stream)) return false;
         } else {
             presence = 0;
             if (!objf_write(&presence, sizeof(presence), stream)) return false;
         }
         return true;
-    case SA_TYPE_INT32_ARRAY:
-    case SA_TYPE_INT64_ARRAY:
-    case SA_TYPE_UINT32_ARRAY:
-    case SA_TYPE_UINT64_ARRAY:
-    case SA_TYPE_SCRIPT:
-    case SA_TYPE_QUEST:
-    case SA_TYPE_HANDLE_ARRAY:
-        if (*(SizeableArray**)a1->ptr != NULL) {
+    case OD_TYPE_INT32_ARRAY:
+    case OD_TYPE_INT64_ARRAY:
+    case OD_TYPE_UINT32_ARRAY:
+    case OD_TYPE_UINT64_ARRAY:
+    case OD_TYPE_SCRIPT_ARRAY:
+    case OD_TYPE_QUEST_ARRAY:
+    case OD_TYPE_HANDLE_ARRAY:
+        if (*(SizeableArray**)descr->ptr != NULL) {
             presence = 1;
             if (!objf_write(&presence, sizeof(presence), stream)) return false;
-            if (!sa_write_file((SizeableArray**)a1->ptr, stream)) return false;
+            if (!sa_write_file((SizeableArray**)descr->ptr, stream)) return false;
         } else {
             presence = 0;
             if (!objf_write(&presence, sizeof(presence), stream)) return false;
         }
         return true;
-    case SA_TYPE_STRING:
-        if (*(char**)a1->ptr != NULL) {
+    case OD_TYPE_STRING:
+        if (*(char**)descr->ptr != NULL) {
             presence = 1;
             if (!objf_write(&presence, sizeof(presence), stream)) return false;
-            size = (int)strlen(*(char**)a1->ptr);
+            size = (int)strlen(*(char**)descr->ptr);
             if (!objf_write(&size, sizeof(size), stream)) return false;
-            if (!objf_write(*(char**)a1->ptr, size + 1, stream)) return false;
+            if (!objf_write(*(char**)descr->ptr, size + 1, stream)) return false;
         } else {
             presence = 0;
             if (!objf_write(&presence, sizeof(presence), stream)) return false;
         }
         return true;
-    case SA_TYPE_HANDLE:
-        if (*(ObjectID**)a1->ptr != NULL) {
+    case OD_TYPE_HANDLE:
+        if (*(ObjectID**)descr->ptr != NULL) {
             presence = 1;
             if (!objf_write(&presence, sizeof(presence), stream)) return false;
-            if (!objf_write(*(ObjectID**)a1->ptr, sizeof(ObjectID), stream)) return false;
+            if (!objf_write(*(ObjectID**)descr->ptr, sizeof(ObjectID), stream)) return false;
         } else {
             presence = 0;
             if (!objf_write(&presence, sizeof(presence), stream)) return false;
         }
         return true;
-    case SA_TYPE_PTR:
-    case SA_TYPE_PTR_ARRAY:
+    case OD_TYPE_PTR:
+    case OD_TYPE_PTR_ARRAY:
+        // These fields should only be stored in transient obj storage and
+        // should never be serialized.
         assert(0);
     default:
         return false;
@@ -748,7 +944,7 @@ bool sub_4E47E0(ObjSa* a1, TigFile* stream)
 }
 
 // 0x4E4990
-void sub_4E4990(ObjSa* a1, WriteBuffer* wb)
+void obj_data_write_mem(ObjDataDescriptor* a1, WriteBuffer* wb)
 {
     // uint8_t presence;
     // int size;
@@ -812,39 +1008,51 @@ void sub_4E4990(ObjSa* a1, WriteBuffer* wb)
     // }
 }
 
-// 0x4E4B70
-void sub_4E4B70(ObjSa* a1)
+/**
+ * Erases the element at `descr->idx` from an array-type field.
+ *
+ * Has no effect for non-array types or when the array pointer is NULL.
+ *
+ * 0x4E4B70
+ */
+void obj_data_remove_idx(ObjDataDescriptor* descr)
 {
-    switch (a1->type) {
-    case SA_TYPE_INT32_ARRAY:
-    case SA_TYPE_INT64_ARRAY:
-    case SA_TYPE_UINT32_ARRAY:
-    case SA_TYPE_UINT64_ARRAY:
-    case SA_TYPE_SCRIPT:
-    case SA_TYPE_QUEST:
-    case SA_TYPE_HANDLE_ARRAY:
-    case SA_TYPE_PTR_ARRAY:
-        if (*(SizeableArray**)a1->ptr != NULL) {
-            sa_remove((SizeableArray**)a1->ptr, a1->idx);
+    switch (descr->type) {
+    case OD_TYPE_INT32_ARRAY:
+    case OD_TYPE_INT64_ARRAY:
+    case OD_TYPE_UINT32_ARRAY:
+    case OD_TYPE_UINT64_ARRAY:
+    case OD_TYPE_SCRIPT_ARRAY:
+    case OD_TYPE_QUEST_ARRAY:
+    case OD_TYPE_HANDLE_ARRAY:
+    case OD_TYPE_PTR_ARRAY:
+        if (*(SizeableArray**)descr->ptr != NULL) {
+            sa_remove((SizeableArray**)descr->ptr, descr->idx);
         }
         break;
     }
 }
 
-// 0x4E4BA0
-int sub_4E4BA0(ObjSa* a1)
+/**
+ * Returns the number of elements in an array-type field.
+ *
+ * Returns `0` for non-array types or when the array pointer is NULL.
+ *
+ * 0x4E4BA0
+ */
+int obj_data_count_idx(ObjDataDescriptor* descr)
 {
-    switch (a1->type) {
-    case SA_TYPE_INT32_ARRAY:
-    case SA_TYPE_INT64_ARRAY:
-    case SA_TYPE_UINT32_ARRAY:
-    case SA_TYPE_UINT64_ARRAY:
-    case SA_TYPE_SCRIPT:
-    case SA_TYPE_QUEST:
-    case SA_TYPE_HANDLE_ARRAY:
-    case SA_TYPE_PTR_ARRAY:
-        if (*(SizeableArray**)a1->ptr != NULL) {
-            return sa_count((SizeableArray**)a1->ptr);
+    switch (descr->type) {
+    case OD_TYPE_INT32_ARRAY:
+    case OD_TYPE_INT64_ARRAY:
+    case OD_TYPE_UINT32_ARRAY:
+    case OD_TYPE_UINT64_ARRAY:
+    case OD_TYPE_SCRIPT_ARRAY:
+    case OD_TYPE_QUEST_ARRAY:
+    case OD_TYPE_HANDLE_ARRAY:
+    case OD_TYPE_PTR_ARRAY:
+        if (*(SizeableArray**)descr->ptr != NULL) {
+            return sa_count((SizeableArray**)descr->ptr);
         }
         break;
     }
@@ -871,7 +1079,7 @@ void write_buffer_append(const void* data, int size, WriteBuffer* wb)
 }
 
 // 0x4E4C50
-void sub_4E4C50(void* buffer, int size, uint8_t** data)
+void mem_read_advance(void* buffer, int size, uint8_t** data)
 {
     memcpy(buffer, *data, size);
     (*data) += size;
@@ -1240,13 +1448,13 @@ void bitset_read_mem(int* id_ptr, uint8_t** data)
 
     id = bitset_alloc();
 
-    sub_4E4C50(&cnt, sizeof(cnt), data);
+    mem_read_advance(&cnt, sizeof(cnt), data);
 
     if (cnt != bitset_descriptors[id].cnt) {
         bitset_grow(id, cnt - bitset_descriptors[id].cnt);
     }
 
-    sub_4E4C50(&(bitset_storage[bitset_descriptors[id].offset]), sizeof(*bitset_storage) * cnt, data);
+    mem_read_advance(&(bitset_storage[bitset_descriptors[id].offset]), sizeof(*bitset_storage) * cnt, data);
 
     *id_ptr = id;
 }

@@ -553,7 +553,7 @@ bool obj_init(GameInitInfo* init_info)
     obj_editor = init_info->editor;
     bitset_pool_init();
     obj_pool_init(sizeof(Object), obj_editor);
-    sub_4E3F80();
+    obj_data_init();
     obj_find_init();
     sub_40A400();
     sub_40BAC0();
@@ -578,7 +578,7 @@ void obj_exit(void)
     sub_40BBB0();
     obj_find_exit();
     obj_pool_exit();
-    sub_4E3F90();
+    obj_data_exit();
     bitset_pool_exit();
 
     FREE(object_fields);
@@ -593,11 +593,11 @@ void obj_exit(void)
 void sub_405250(void)
 {
     obj_pool_exit();
-    sub_4E3F90();
+    obj_data_exit();
     bitset_pool_exit();
     bitset_pool_init();
     obj_pool_init(sizeof(Object), obj_editor);
-    sub_4E3F80();
+    obj_data_init();
 }
 
 // 0x405280
@@ -1258,7 +1258,7 @@ bool obj_read_mem(uint8_t* data, int64_t* obj_ptr)
         return false;
     }
 
-    sub_4E4C50(&oid, sizeof(oid), &data);
+    mem_read_advance(&oid, sizeof(oid), &data);
     data -= sizeof(oid);
 
     if (oid.type == OID_TYPE_BLOCKED) {
@@ -2352,7 +2352,7 @@ void obj_unlock(int64_t obj)
 // 0x408760
 void sub_408760(Object* object, int fld, void* value_ptr)
 {
-    ObjSa v1;
+    ObjDataDescriptor v1;
 
     if (object->prototype_oid.type == OID_TYPE_BLOCKED) {
         v1.ptr = &(object->data[sub_40CB40(object, fld)]);
@@ -2374,30 +2374,30 @@ void sub_408760(Object* object, int fld, void* value_ptr)
 
     v1.type = object_fields[fld].type;
     switch (v1.type) {
-    case SA_TYPE_INT32:
+    case OD_TYPE_INT32:
         v1.storage.value = *(int*)value_ptr;
         break;
-    case SA_TYPE_INT64:
+    case OD_TYPE_INT64:
         v1.storage.value64 = *(int64_t*)value_ptr;
         break;
-    case SA_TYPE_STRING:
+    case OD_TYPE_STRING:
         v1.storage.str = *(char**)value_ptr;
         break;
-    case SA_TYPE_HANDLE:
+    case OD_TYPE_HANDLE:
         v1.storage.oid = *(ObjectID*)value_ptr;
         break;
-    case SA_TYPE_PTR:
+    case OD_TYPE_PTR:
         v1.storage.ptr = *(intptr_t*)value_ptr;
         break;
     }
 
-    sub_4E4000(&v1);
+    obj_data_store(&v1);
 }
 
 // 0x4088B0
 void sub_4088B0(Object* object, int fld, int index, void* value_ptr)
 {
-    ObjSa v1;
+    ObjDataDescriptor v1;
 
     if (object->prototype_oid.type == OID_TYPE_BLOCKED) {
         v1.ptr = &(object->data[sub_40CB40(object, fld)]);
@@ -2419,35 +2419,35 @@ void sub_4088B0(Object* object, int fld, int index, void* value_ptr)
     v1.type = object_fields[fld].type;
 
     switch (v1.type) {
-    case SA_TYPE_INT32_ARRAY:
-    case SA_TYPE_UINT32_ARRAY:
+    case OD_TYPE_INT32_ARRAY:
+    case OD_TYPE_UINT32_ARRAY:
         v1.storage.value = *(int*)value_ptr;
         break;
-    case SA_TYPE_INT64_ARRAY:
-    case SA_TYPE_UINT64_ARRAY:
+    case OD_TYPE_INT64_ARRAY:
+    case OD_TYPE_UINT64_ARRAY:
         v1.storage.value64 = *(uint64_t*)value_ptr;
         break;
-    case SA_TYPE_SCRIPT:
+    case OD_TYPE_SCRIPT_ARRAY:
         v1.storage.scr = *(Script*)value_ptr;
         break;
-    case SA_TYPE_QUEST:
+    case OD_TYPE_QUEST_ARRAY:
         v1.storage.quest = *(PcQuestState*)value_ptr;
         break;
-    case SA_TYPE_HANDLE_ARRAY:
+    case OD_TYPE_HANDLE_ARRAY:
         v1.storage.oid = *(ObjectID*)value_ptr;
         break;
-    case SA_TYPE_PTR_ARRAY:
+    case OD_TYPE_PTR_ARRAY:
         v1.storage.ptr = *(intptr_t*)value_ptr;
         break;
     }
 
-    sub_4E4000(&v1);
+    obj_data_store(&v1);
 }
 
 // 0x408A20
 void sub_408A20(Object* object, int fld, void* value_ptr)
 {
-    ObjSa v1;
+    ObjDataDescriptor v1;
     int index;
 
     if (fld == OBJ_F_TYPE) {
@@ -2459,14 +2459,14 @@ void sub_408A20(Object* object, int fld, void* value_ptr)
     if (object->prototype_oid.type == OID_TYPE_BLOCKED) {
         index = sub_40CB40(object, fld);
         v1.ptr = &(object->data[index]);
-        sub_4E4180(&v1);
+        obj_data_fetch(&v1);
     } else if (fld > OBJ_F_TRANSIENT_BEGIN && fld < OBJ_F_TRANSIENT_END) {
         v1.ptr = &(object->transient_properties[fld - OBJ_F_TRANSIENT_BEGIN - 1]);
-        sub_4E4180(&v1);
+        obj_data_fetch(&v1);
     } else if (sub_40D320(object, fld)) {
         index = sub_40D230(object, fld);
         v1.ptr = &(object->data[index]);
-        sub_4E4180(&v1);
+        obj_data_fetch(&v1);
     } else {
         int64_t proto_handle;
         Object* proto;
@@ -2475,24 +2475,24 @@ void sub_408A20(Object* object, int fld, void* value_ptr)
         proto = obj_lock(proto_handle);
         index = sub_40CB40(proto, fld);
         v1.ptr = &(proto->data[index]);
-        sub_4E4180(&v1);
+        obj_data_fetch(&v1);
         obj_unlock(proto_handle);
     }
 
     switch (v1.type) {
-    case SA_TYPE_INT32:
+    case OD_TYPE_INT32:
         *(int*)value_ptr = v1.storage.value;
         break;
-    case SA_TYPE_INT64:
+    case OD_TYPE_INT64:
         *(int64_t*)value_ptr = v1.storage.value64;
         break;
-    case SA_TYPE_STRING:
+    case OD_TYPE_STRING:
         *(char**)value_ptr = v1.storage.str;
         break;
-    case SA_TYPE_HANDLE:
+    case OD_TYPE_HANDLE:
         *(ObjectID*)value_ptr = v1.storage.oid;
         break;
-    case SA_TYPE_PTR:
+    case OD_TYPE_PTR:
         *(intptr_t*)value_ptr = v1.storage.ptr;
         break;
     }
@@ -2501,7 +2501,7 @@ void sub_408A20(Object* object, int fld, void* value_ptr)
 // 0x408BB0
 void sub_408BB0(Object* object, int fld, int index, void* value)
 {
-    ObjSa v1;
+    ObjDataDescriptor v1;
     int64_t proto_handle;
     Object* proto;
 
@@ -2510,40 +2510,40 @@ void sub_408BB0(Object* object, int fld, int index, void* value)
 
     if (object->prototype_oid.type == OID_TYPE_BLOCKED) {
         v1.ptr = &(object->data[sub_40CB40(object, fld)]);
-        sub_4E4180(&v1);
+        obj_data_fetch(&v1);
     } else if (fld > OBJ_F_TRANSIENT_BEGIN && fld < OBJ_F_TRANSIENT_END) {
         v1.ptr = &(object->transient_properties[fld - OBJ_F_TRANSIENT_BEGIN - 1]);
-        sub_4E4180(&v1);
+        obj_data_fetch(&v1);
     } else if (sub_40D350(object, fld)) {
         v1.ptr = &(object->data[sub_40D230(object, fld)]);
-        sub_4E4180(&v1);
+        obj_data_fetch(&v1);
     } else {
         proto_handle = obj_get_prototype_handle(object);
         proto = obj_lock(proto_handle);
         v1.ptr = &(proto->data[sub_40CB40(proto, fld)]);
-        sub_4E4180(&v1);
+        obj_data_fetch(&v1);
         obj_unlock(proto_handle);
     }
 
     switch (v1.type) {
-    case SA_TYPE_INT32_ARRAY:
-    case SA_TYPE_UINT32_ARRAY:
+    case OD_TYPE_INT32_ARRAY:
+    case OD_TYPE_UINT32_ARRAY:
         *(int*)value = v1.storage.value;
         break;
-    case SA_TYPE_INT64_ARRAY:
-    case SA_TYPE_UINT64_ARRAY:
+    case OD_TYPE_INT64_ARRAY:
+    case OD_TYPE_UINT64_ARRAY:
         *(int64_t*)value = v1.storage.value64;
         break;
-    case SA_TYPE_SCRIPT:
+    case OD_TYPE_SCRIPT_ARRAY:
         *(Script*)value = v1.storage.scr;
         break;
-    case SA_TYPE_QUEST:
+    case OD_TYPE_QUEST_ARRAY:
         *(PcQuestState*)value = v1.storage.quest;
         break;
-    case SA_TYPE_HANDLE_ARRAY:
+    case OD_TYPE_HANDLE_ARRAY:
         *(ObjectID*)value = v1.storage.oid;
         break;
-    case SA_TYPE_PTR_ARRAY:
+    case OD_TYPE_PTR_ARRAY:
         *(intptr_t*)value = v1.storage.ptr;
         break;
     }
@@ -2552,7 +2552,7 @@ void sub_408BB0(Object* object, int fld, int index, void* value)
 // 0x408D60
 void sub_408D60(Object* object, int fld, int* value_ptr)
 {
-    ObjSa v1;
+    ObjDataDescriptor v1;
     int64_t proto_handle;
     Object* proto;
 
@@ -2560,21 +2560,21 @@ void sub_408D60(Object* object, int fld, int* value_ptr)
 
     if (object->prototype_oid.type == OID_TYPE_BLOCKED) {
         v1.ptr = &(object->data[sub_40CB40(object, fld)]);
-        *value_ptr = sub_4E4BA0(&v1);
+        *value_ptr = obj_data_count_idx(&v1);
     } else {
         if (fld > OBJ_F_TRANSIENT_BEGIN && fld < OBJ_F_TRANSIENT_END) {
             v1.ptr = &(object->transient_properties[fld - OBJ_F_TRANSIENT_BEGIN - 1]);
-            *value_ptr = sub_4E4BA0(&v1);
+            *value_ptr = obj_data_count_idx(&v1);
         }
 
         if (sub_40D320(object, fld)) {
             v1.ptr = &(object->data[sub_40D230(object, fld)]);
-            *value_ptr = sub_4E4BA0(&v1);
+            *value_ptr = obj_data_count_idx(&v1);
         } else {
             proto_handle = obj_get_prototype_handle(object);
             proto = obj_lock(proto_handle);
             v1.ptr = &(proto->data[sub_40CB40(proto, fld)]);
-            *value_ptr = sub_4E4BA0(&v1);
+            *value_ptr = obj_data_count_idx(&v1);
             obj_unlock(proto_handle);
         }
     }
@@ -2583,7 +2583,7 @@ void sub_408D60(Object* object, int fld, int* value_ptr)
 // 0x408E70
 void sub_408E70(Object* object, int fld, int value)
 {
-    ObjSa v1;
+    ObjDataDescriptor v1;
 
     if (object->prototype_oid.type == OID_TYPE_BLOCKED) {
         v1.ptr = &(object->data[sub_40CB40(object, fld)]);
@@ -2604,7 +2604,7 @@ void sub_408E70(Object* object, int fld, int value)
 
     v1.type = object_fields[fld].type;
     v1.idx = value;
-    sub_4E4B70(&v1);
+    obj_data_remove_idx(&v1);
 }
 
 // 0x408F40
@@ -3074,14 +3074,14 @@ bool obj_proto_read_mem(uint8_t* data, int64_t* obj_ptr)
     int size;
 
     object = obj_allocate(&obj);
-    sub_4E4C50(&(object->prototype_oid), sizeof(object->prototype_oid), &data);
+    mem_read_advance(&(object->prototype_oid), sizeof(object->prototype_oid), &data);
     object->prototype_obj = OBJ_HANDLE_NULL;
-    sub_4E4C50(&(object->oid), sizeof(object->oid), &data);
-    sub_4E4C50(&(object->type), sizeof(object->type), &data);
+    mem_read_advance(&(object->oid), sizeof(object->oid), &data);
+    mem_read_advance(&(object->type), sizeof(object->type), &data);
 
     size = sizeof(*object->field_4C) * sub_40C030(object->type);
     object->field_4C = MALLOC(size);
-    sub_4E4C50(object->field_4C, size, &data);
+    mem_read_advance(object->field_4C, size, &data);
 
     object->field_40 = 0;
     object->modified = false;
@@ -3134,18 +3134,18 @@ bool obj_inst_read_mem(uint8_t* data, int64_t* obj_ptr)
     int64_t obj;
 
     object = obj_allocate(&obj);
-    sub_4E4C50(&(object->prototype_oid), sizeof(object->prototype_oid), &data);
+    mem_read_advance(&(object->prototype_oid), sizeof(object->prototype_oid), &data);
     object->prototype_obj = OBJ_HANDLE_NULL;
-    sub_4E4C50(&(object->oid), sizeof(object->oid), &data);
-    sub_4E4C50(&(object->type), sizeof(object->type), &data);
-    sub_4E4C50(&(object->num_fields), sizeof(object->num_fields), &data);
+    mem_read_advance(&(object->oid), sizeof(object->oid), &data);
+    mem_read_advance(&(object->type), sizeof(object->type), &data);
+    mem_read_advance(&(object->num_fields), sizeof(object->num_fields), &data);
 
     object->field_40 = 0;
     object->modified = false;
     sub_40C580(object);
 
     object->data = (intptr_t*)CALLOC(object->num_fields, sizeof(*object->data));
-    sub_4E4C50(object->field_48, 4 * sub_40C030(object->type), &data);
+    mem_read_advance(object->field_48, 4 * sub_40C030(object->type), &data);
 
     dword_5D111C = data;
     if (!sub_40CBA0(object, obj_inst_field_read_mem)) {
@@ -3173,11 +3173,11 @@ bool obj_inst_read_mem(uint8_t* data, int64_t* obj_ptr)
 // 0x40A070
 bool obj_proto_field_write_file(Object* object, int fld)
 {
-    ObjSa v1;
+    ObjDataDescriptor v1;
 
     v1.type = object_fields[fld].type;
     v1.ptr = &(object->data[dword_5D10F4]);
-    if (!sub_4E47E0(&v1, dword_5D110C)) {
+    if (!obj_data_write_file(&v1, dword_5D110C)) {
         return false;
     }
 
@@ -3189,11 +3189,11 @@ bool obj_proto_field_write_file(Object* object, int fld)
 // 0x40A0E0
 bool obj_proto_field_write_mem(Object* object, int fld)
 {
-    ObjSa v1;
+    ObjDataDescriptor v1;
 
     v1.type = object_fields[fld].type;
     v1.ptr = &(object->data[dword_5D10F4]);
-    sub_4E4990(&v1, dword_5D1118);
+    obj_data_write_mem(&v1, dword_5D1118);
     dword_5D10F4++;
 
     return true;
@@ -3202,11 +3202,11 @@ bool obj_proto_field_write_mem(Object* object, int fld)
 // 0x40A140
 bool obj_proto_field_read_file(Object* object, int fld)
 {
-    ObjSa v1;
+    ObjDataDescriptor v1;
 
     v1.type = object_fields[fld].type;
     v1.ptr = &(object->data[dword_5D10F4]);
-    if (!sub_4E4360(&v1, dword_5D110C)) {
+    if (!obj_data_read_file_slow(&v1, dword_5D110C)) {
         return false;
     }
 
@@ -3218,11 +3218,11 @@ bool obj_proto_field_read_file(Object* object, int fld)
 // 0x40A1B0
 bool obj_proto_field_read_mem(Object* object, int fld)
 {
-    ObjSa v1;
+    ObjDataDescriptor v1;
 
     v1.type = object_fields[fld].type;
     v1.ptr = &(object->data[dword_5D10F4]);
-    sub_4E4660(&v1, &dword_5D111C);
+    obj_data_read_mem(&v1, &dword_5D111C);
     dword_5D10F4++;
 
     return true;
@@ -3231,11 +3231,11 @@ bool obj_proto_field_read_mem(Object* object, int fld)
 // 0x40A210
 bool object_field_write(Object* object, int idx, ObjectFieldInfo* info)
 {
-    ObjSa v1;
+    ObjDataDescriptor v1;
 
     v1.type = info->type;
     v1.ptr = &(object->data[idx]);
-    if (!sub_4E47E0(&v1, dword_5D110C)) {
+    if (!obj_data_write_file(&v1, dword_5D110C)) {
         return false;
     }
 
@@ -3245,11 +3245,11 @@ bool object_field_write(Object* object, int idx, ObjectFieldInfo* info)
 // 0x40A250
 bool obj_inst_field_write_mem(Object* object, int idx, ObjectFieldInfo* info)
 {
-    ObjSa v1;
+    ObjDataDescriptor v1;
 
     v1.type = info->type;
     v1.ptr = &(object->data[idx]);
-    sub_4E4990(&v1, dword_5D1118);
+    obj_data_write_mem(&v1, dword_5D1118);
 
     return true;
 }
@@ -3257,11 +3257,11 @@ bool obj_inst_field_write_mem(Object* object, int idx, ObjectFieldInfo* info)
 // 0x40A290
 bool object_field_read(Object* object, int idx, ObjectFieldInfo* info)
 {
-    ObjSa v1;
+    ObjDataDescriptor v1;
 
     v1.type = info->type;
     v1.ptr = &(object->data[idx]);
-    if (!sub_4E44F0(&v1, dword_5D110C)) {
+    if (!obj_data_read_file_fast(&v1, dword_5D110C)) {
         return false;
     }
 
@@ -3271,11 +3271,11 @@ bool object_field_read(Object* object, int idx, ObjectFieldInfo* info)
 // 0x40A2D0
 bool obj_inst_field_read_mem(Object* object, int idx, ObjectFieldInfo* info)
 {
-    ObjSa v1;
+    ObjDataDescriptor v1;
 
     v1.type = info->type;
     v1.ptr = &(object->data[idx]);
-    sub_4E4660(&v1, &dword_5D111C);
+    obj_data_read_mem(&v1, &dword_5D111C);
 
     return true;
 }
@@ -3336,7 +3336,7 @@ void sub_40A400(void)
 
     for (fld = OBJ_F_BEGIN; fld < OBJ_F_TOTAL_NORMAL; fld++) {
         info = &(object_fields[fld]);
-        if (info->type == SA_TYPE_BEGIN) {
+        if (info->type == OD_TYPE_BEGIN) {
             sub_40B8E0(fld);
             info->complex_array_idx = -1;
             info->change_array_idx = -1;
@@ -3381,7 +3381,7 @@ void sub_40A400(void)
             }
 
             dword_5D1100[sub_40A790(fld)] = v2;
-        } else if (info->type == SA_TYPE_END) {
+        } else if (info->type == OD_TYPE_END) {
             info->complex_array_idx = -1;
             info->change_array_idx = -1;
             info->mask = 0;
@@ -3410,19 +3410,19 @@ void sub_40A400(void)
             info->mask = 1 << info->bit;
 
             switch (info->type) {
-            case SA_TYPE_INT32:
-            case SA_TYPE_INT64:
-            case SA_TYPE_STRING:
-            case SA_TYPE_HANDLE:
+            case OD_TYPE_INT32:
+            case OD_TYPE_INT64:
+            case OD_TYPE_STRING:
+            case OD_TYPE_HANDLE:
                 info->complex_array_idx = -1;
                 break;
-            case SA_TYPE_INT32_ARRAY:
-            case SA_TYPE_INT64_ARRAY:
-            case SA_TYPE_UINT32_ARRAY:
-            case SA_TYPE_UINT64_ARRAY:
-            case SA_TYPE_SCRIPT:
-            case SA_TYPE_QUEST:
-            case SA_TYPE_HANDLE_ARRAY:
+            case OD_TYPE_INT32_ARRAY:
+            case OD_TYPE_INT64_ARRAY:
+            case OD_TYPE_UINT32_ARRAY:
+            case OD_TYPE_UINT64_ARRAY:
+            case OD_TYPE_SCRIPT_ARRAY:
+            case OD_TYPE_QUEST_ARRAY:
+            case OD_TYPE_HANDLE_ARRAY:
                 info->complex_array_idx = v1++;
                 break;
             }
@@ -3479,7 +3479,7 @@ void sub_40A7B0(void)
     int fld;
 
     for (fld = OBJ_F_BEGIN; fld <= OBJ_F_TOTAL_NORMAL; fld++) {
-        object_fields[fld].cnt = object_fields[fld].type > SA_TYPE_INVALID && object_fields[fld].type <= SA_TYPE_END ? 0 : 1;
+        object_fields[fld].cnt = object_fields[fld].type > OD_TYPE_INVALID && object_fields[fld].type <= OD_TYPE_END ? 0 : 1;
     }
 
     for (fld = OBJ_F_TOTAL_NORMAL; fld < OBJ_F_MAX; fld++) {
@@ -3502,352 +3502,352 @@ void sub_40A7B0(void)
 // 0x40A8A0
 void sub_40A8A0(void)
 {
-    object_fields[OBJ_F_BEGIN].type = SA_TYPE_BEGIN;
-    object_fields[OBJ_F_CURRENT_AID].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_LOCATION].type = SA_TYPE_INT64;
-    object_fields[OBJ_F_OFFSET_X].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_OFFSET_Y].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_SHADOW].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_OVERLAY_FORE].type = SA_TYPE_UINT32_ARRAY;
-    object_fields[OBJ_F_OVERLAY_BACK].type = SA_TYPE_UINT32_ARRAY;
-    object_fields[OBJ_F_UNDERLAY].type = SA_TYPE_UINT32_ARRAY;
-    object_fields[OBJ_F_BLIT_FLAGS].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_BLIT_COLOR].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_BLIT_ALPHA].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_BLIT_SCALE].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_LIGHT_FLAGS].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_LIGHT_AID].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_LIGHT_COLOR].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_OVERLAY_LIGHT_FLAGS].type = SA_TYPE_UINT32_ARRAY;
-    object_fields[OBJ_F_OVERLAY_LIGHT_AID].type = SA_TYPE_UINT32_ARRAY;
-    object_fields[OBJ_F_OVERLAY_LIGHT_COLOR].type = SA_TYPE_UINT32_ARRAY;
-    object_fields[OBJ_F_FLAGS].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_SPELL_FLAGS].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_BLOCKING_MASK].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_NAME].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_DESCRIPTION].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_AID].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_DESTROYED_AID].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_AC].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_HP_PTS].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_HP_ADJ].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_MATERIAL].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_HP_DAMAGE].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_RESISTANCE_IDX].type = SA_TYPE_INT32_ARRAY;
-    object_fields[OBJ_F_SCRIPTS_IDX].type = SA_TYPE_SCRIPT;
-    object_fields[OBJ_F_SOUND_EFFECT].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_CATEGORY].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_PAD_IAS_1].type = SA_TYPE_UINT32_ARRAY;
-    object_fields[OBJ_F_PAD_I64AS_1].type = SA_TYPE_UINT64_ARRAY;
-    object_fields[OBJ_F_END].type = SA_TYPE_END;
-    object_fields[OBJ_F_WALL_BEGIN].type = SA_TYPE_BEGIN;
-    object_fields[OBJ_F_WALL_FLAGS].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_WALL_PAD_I_1].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_WALL_PAD_I_2].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_WALL_PAD_IAS_1].type = SA_TYPE_UINT32_ARRAY;
-    object_fields[OBJ_F_WALL_PAD_I64AS_1].type = SA_TYPE_UINT64_ARRAY;
-    object_fields[OBJ_F_WALL_END].type = SA_TYPE_END;
-    object_fields[OBJ_F_PORTAL_BEGIN].type = SA_TYPE_BEGIN;
-    object_fields[OBJ_F_PORTAL_FLAGS].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_PORTAL_LOCK_DIFFICULTY].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_PORTAL_KEY_ID].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_PORTAL_NOTIFY_NPC].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_PORTAL_PAD_I_1].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_PORTAL_PAD_I_2].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_PORTAL_PAD_IAS_1].type = SA_TYPE_UINT32_ARRAY;
-    object_fields[OBJ_F_PORTAL_PAD_I64AS_1].type = SA_TYPE_UINT64_ARRAY;
-    object_fields[OBJ_F_PORTAL_END].type = SA_TYPE_END;
-    object_fields[OBJ_F_CONTAINER_BEGIN].type = SA_TYPE_BEGIN;
-    object_fields[OBJ_F_CONTAINER_FLAGS].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_CONTAINER_LOCK_DIFFICULTY].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_CONTAINER_KEY_ID].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_CONTAINER_INVENTORY_NUM].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_CONTAINER_INVENTORY_LIST_IDX].type = SA_TYPE_HANDLE_ARRAY;
-    object_fields[OBJ_F_CONTAINER_INVENTORY_SOURCE].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_CONTAINER_NOTIFY_NPC].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_CONTAINER_PAD_I_1].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_CONTAINER_PAD_I_2].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_CONTAINER_PAD_IAS_1].type = SA_TYPE_UINT32_ARRAY;
-    object_fields[OBJ_F_CONTAINER_PAD_I64AS_1].type = SA_TYPE_UINT64_ARRAY;
-    object_fields[OBJ_F_CONTAINER_END].type = SA_TYPE_END;
-    object_fields[OBJ_F_SCENERY_BEGIN].type = SA_TYPE_BEGIN;
-    object_fields[OBJ_F_SCENERY_FLAGS].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_SCENERY_WHOS_IN_ME].type = SA_TYPE_HANDLE;
-    object_fields[OBJ_F_SCENERY_RESPAWN_DELAY].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_SCENERY_PAD_I_2].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_SCENERY_PAD_IAS_1].type = SA_TYPE_UINT32_ARRAY;
-    object_fields[OBJ_F_SCENERY_PAD_I64AS_1].type = SA_TYPE_UINT64_ARRAY;
-    object_fields[OBJ_F_SCENERY_END].type = SA_TYPE_END;
-    object_fields[OBJ_F_PROJECTILE_BEGIN].type = SA_TYPE_BEGIN;
-    object_fields[OBJ_F_PROJECTILE_FLAGS_COMBAT].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_PROJECTILE_FLAGS_COMBAT_DAMAGE].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_PROJECTILE_HIT_LOC].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_PROJECTILE_PARENT_WEAPON].type = SA_TYPE_HANDLE;
-    object_fields[OBJ_F_PROJECTILE_PAD_I_1].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_PROJECTILE_PAD_I_2].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_PROJECTILE_PAD_IAS_1].type = SA_TYPE_UINT32_ARRAY;
-    object_fields[OBJ_F_PROJECTILE_PAD_I64AS_1].type = SA_TYPE_UINT64_ARRAY;
-    object_fields[OBJ_F_PROJECTILE_END].type = SA_TYPE_END;
-    object_fields[OBJ_F_ITEM_BEGIN].type = SA_TYPE_BEGIN;
-    object_fields[OBJ_F_ITEM_FLAGS].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_ITEM_PARENT].type = SA_TYPE_HANDLE;
-    object_fields[OBJ_F_ITEM_WEIGHT].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_ITEM_MAGIC_WEIGHT_ADJ].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_ITEM_WORTH].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_ITEM_MANA_STORE].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_ITEM_INV_AID].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_ITEM_INV_LOCATION].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_ITEM_USE_AID_FRAGMENT].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_ITEM_MAGIC_TECH_COMPLEXITY].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_ITEM_DISCIPLINE].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_ITEM_DESCRIPTION_UNKNOWN].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_ITEM_DESCRIPTION_EFFECTS].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_ITEM_SPELL_1].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_ITEM_SPELL_2].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_ITEM_SPELL_3].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_ITEM_SPELL_4].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_ITEM_SPELL_5].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_ITEM_SPELL_MANA_STORE].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_ITEM_AI_ACTION].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_ITEM_PAD_I_1].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_ITEM_PAD_IAS_1].type = SA_TYPE_UINT32_ARRAY;
-    object_fields[OBJ_F_ITEM_PAD_I64AS_1].type = SA_TYPE_UINT64_ARRAY;
-    object_fields[OBJ_F_ITEM_END].type = SA_TYPE_END;
-    object_fields[OBJ_F_WEAPON_BEGIN].type = SA_TYPE_BEGIN;
-    object_fields[OBJ_F_WEAPON_FLAGS].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_WEAPON_PAPER_DOLL_AID].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_WEAPON_BONUS_TO_HIT].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_WEAPON_MAGIC_HIT_ADJ].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_WEAPON_DAMAGE_LOWER_IDX].type = SA_TYPE_INT32_ARRAY;
-    object_fields[OBJ_F_WEAPON_DAMAGE_UPPER_IDX].type = SA_TYPE_INT32_ARRAY;
-    object_fields[OBJ_F_WEAPON_MAGIC_DAMAGE_ADJ_IDX].type = SA_TYPE_INT32_ARRAY;
-    object_fields[OBJ_F_WEAPON_SPEED_FACTOR].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_WEAPON_MAGIC_SPEED_ADJ].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_WEAPON_RANGE].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_WEAPON_MAGIC_RANGE_ADJ].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_WEAPON_MIN_STRENGTH].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_WEAPON_MAGIC_MIN_STRENGTH_ADJ].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_WEAPON_AMMO_TYPE].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_WEAPON_AMMO_CONSUMPTION].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_WEAPON_MISSILE_AID].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_WEAPON_VISUAL_EFFECT_AID].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_WEAPON_CRIT_HIT_CHART].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_WEAPON_MAGIC_CRIT_HIT_CHANCE].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_WEAPON_MAGIC_CRIT_HIT_EFFECT].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_WEAPON_CRIT_MISS_CHART].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_WEAPON_MAGIC_CRIT_MISS_CHANCE].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_WEAPON_MAGIC_CRIT_MISS_EFFECT].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_WEAPON_PAD_I_1].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_WEAPON_PAD_I_2].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_WEAPON_PAD_IAS_1].type = SA_TYPE_UINT32_ARRAY;
-    object_fields[OBJ_F_WEAPON_PAD_I64AS_1].type = SA_TYPE_UINT64_ARRAY;
-    object_fields[OBJ_F_WEAPON_END].type = SA_TYPE_END;
-    object_fields[OBJ_F_AMMO_BEGIN].type = SA_TYPE_BEGIN;
-    object_fields[OBJ_F_AMMO_FLAGS].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_AMMO_QUANTITY].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_AMMO_TYPE].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_AMMO_PAD_I_1].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_AMMO_PAD_I_2].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_AMMO_PAD_IAS_1].type = SA_TYPE_UINT32_ARRAY;
-    object_fields[OBJ_F_AMMO_PAD_I64AS_1].type = SA_TYPE_UINT64_ARRAY;
-    object_fields[OBJ_F_AMMO_END].type = SA_TYPE_END;
-    object_fields[OBJ_F_ARMOR_BEGIN].type = SA_TYPE_BEGIN;
-    object_fields[OBJ_F_ARMOR_FLAGS].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_ARMOR_PAPER_DOLL_AID].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_ARMOR_AC_ADJ].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_ARMOR_MAGIC_AC_ADJ].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_ARMOR_RESISTANCE_ADJ_IDX].type = SA_TYPE_INT32_ARRAY;
-    object_fields[OBJ_F_ARMOR_MAGIC_RESISTANCE_ADJ_IDX].type = SA_TYPE_INT32_ARRAY;
-    object_fields[OBJ_F_ARMOR_SILENT_MOVE_ADJ].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_ARMOR_MAGIC_SILENT_MOVE_ADJ].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_ARMOR_UNARMED_BONUS_DAMAGE].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_ARMOR_PAD_I_2].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_ARMOR_PAD_IAS_1].type = SA_TYPE_UINT32_ARRAY;
-    object_fields[OBJ_F_ARMOR_PAD_I64AS_1].type = SA_TYPE_UINT64_ARRAY;
-    object_fields[OBJ_F_ARMOR_END].type = SA_TYPE_END;
-    object_fields[OBJ_F_GOLD_BEGIN].type = SA_TYPE_BEGIN;
-    object_fields[OBJ_F_GOLD_FLAGS].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_GOLD_QUANTITY].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_GOLD_PAD_I_1].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_GOLD_PAD_I_2].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_GOLD_PAD_IAS_1].type = SA_TYPE_UINT32_ARRAY;
-    object_fields[OBJ_F_GOLD_PAD_I64AS_1].type = SA_TYPE_UINT64_ARRAY;
-    object_fields[OBJ_F_GOLD_END].type = SA_TYPE_END;
-    object_fields[OBJ_F_FOOD_BEGIN].type = SA_TYPE_BEGIN;
-    object_fields[OBJ_F_FOOD_FLAGS].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_FOOD_PAD_I_1].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_FOOD_PAD_I_2].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_FOOD_PAD_IAS_1].type = SA_TYPE_UINT32_ARRAY;
-    object_fields[OBJ_F_FOOD_PAD_I64AS_1].type = SA_TYPE_UINT64_ARRAY;
-    object_fields[OBJ_F_FOOD_END].type = SA_TYPE_END;
-    object_fields[OBJ_F_SCROLL_BEGIN].type = SA_TYPE_BEGIN;
-    object_fields[OBJ_F_SCROLL_FLAGS].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_SCROLL_PAD_I_1].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_SCROLL_PAD_I_2].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_SCROLL_PAD_IAS_1].type = SA_TYPE_UINT32_ARRAY;
-    object_fields[OBJ_F_SCROLL_PAD_I64AS_1].type = SA_TYPE_UINT64_ARRAY;
-    object_fields[OBJ_F_SCROLL_END].type = SA_TYPE_END;
-    object_fields[OBJ_F_KEY_BEGIN].type = SA_TYPE_BEGIN;
-    object_fields[OBJ_F_KEY_KEY_ID].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_KEY_PAD_I_1].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_KEY_PAD_I_2].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_KEY_PAD_IAS_1].type = SA_TYPE_UINT32_ARRAY;
-    object_fields[OBJ_F_KEY_PAD_I64AS_1].type = SA_TYPE_UINT64_ARRAY;
-    object_fields[OBJ_F_KEY_END].type = SA_TYPE_END;
-    object_fields[OBJ_F_KEY_RING_BEGIN].type = SA_TYPE_BEGIN;
-    object_fields[OBJ_F_KEY_RING_FLAGS].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_KEY_RING_LIST_IDX].type = SA_TYPE_UINT32_ARRAY;
-    object_fields[OBJ_F_KEY_RING_PAD_I_1].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_KEY_RING_PAD_I_2].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_KEY_RING_PAD_IAS_1].type = SA_TYPE_UINT32_ARRAY;
-    object_fields[OBJ_F_KEY_RING_PAD_I64AS_1].type = SA_TYPE_UINT64_ARRAY;
-    object_fields[OBJ_F_KEY_RING_END].type = SA_TYPE_END;
-    object_fields[OBJ_F_WRITTEN_BEGIN].type = SA_TYPE_BEGIN;
-    object_fields[OBJ_F_WRITTEN_FLAGS].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_WRITTEN_SUBTYPE].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_WRITTEN_TEXT_START_LINE].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_WRITTEN_TEXT_END_LINE].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_WRITTEN_PAD_I_1].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_WRITTEN_PAD_I_2].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_WRITTEN_PAD_IAS_1].type = SA_TYPE_UINT32_ARRAY;
-    object_fields[OBJ_F_WRITTEN_PAD_I64AS_1].type = SA_TYPE_UINT64_ARRAY;
-    object_fields[OBJ_F_WRITTEN_END].type = SA_TYPE_END;
-    object_fields[OBJ_F_GENERIC_BEGIN].type = SA_TYPE_BEGIN;
-    object_fields[OBJ_F_GENERIC_FLAGS].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_GENERIC_USAGE_BONUS].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_GENERIC_USAGE_COUNT_REMAINING].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_GENERIC_PAD_IAS_1].type = SA_TYPE_UINT32_ARRAY;
-    object_fields[OBJ_F_GENERIC_PAD_I64AS_1].type = SA_TYPE_UINT64_ARRAY;
-    object_fields[OBJ_F_GENERIC_END].type = SA_TYPE_END;
-    object_fields[OBJ_F_CRITTER_BEGIN].type = SA_TYPE_BEGIN;
-    object_fields[OBJ_F_CRITTER_FLAGS].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_CRITTER_FLAGS2].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_CRITTER_STAT_BASE_IDX].type = SA_TYPE_INT32_ARRAY;
-    object_fields[OBJ_F_CRITTER_BASIC_SKILL_IDX].type = SA_TYPE_INT32_ARRAY;
-    object_fields[OBJ_F_CRITTER_TECH_SKILL_IDX].type = SA_TYPE_INT32_ARRAY;
-    object_fields[OBJ_F_CRITTER_SPELL_TECH_IDX].type = SA_TYPE_UINT32_ARRAY;
-    object_fields[OBJ_F_CRITTER_FATIGUE_PTS].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_CRITTER_FATIGUE_ADJ].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_CRITTER_FATIGUE_DAMAGE].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_CRITTER_CRIT_HIT_CHART].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_CRITTER_EFFECTS_IDX].type = SA_TYPE_UINT32_ARRAY;
-    object_fields[OBJ_F_CRITTER_EFFECT_CAUSE_IDX].type = SA_TYPE_UINT32_ARRAY;
-    object_fields[OBJ_F_CRITTER_FLEEING_FROM].type = SA_TYPE_HANDLE;
-    object_fields[OBJ_F_CRITTER_PORTRAIT].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_CRITTER_GOLD].type = SA_TYPE_HANDLE;
-    object_fields[OBJ_F_CRITTER_ARROWS].type = SA_TYPE_HANDLE;
-    object_fields[OBJ_F_CRITTER_BULLETS].type = SA_TYPE_HANDLE;
-    object_fields[OBJ_F_CRITTER_POWER_CELLS].type = SA_TYPE_HANDLE;
-    object_fields[OBJ_F_CRITTER_FUEL].type = SA_TYPE_HANDLE;
-    object_fields[OBJ_F_CRITTER_INVENTORY_NUM].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_CRITTER_INVENTORY_LIST_IDX].type = SA_TYPE_HANDLE_ARRAY;
-    object_fields[OBJ_F_CRITTER_INVENTORY_SOURCE].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_CRITTER_DESCRIPTION_UNKNOWN].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_CRITTER_FOLLOWER_IDX].type = SA_TYPE_HANDLE_ARRAY;
-    object_fields[OBJ_F_CRITTER_TELEPORT_DEST].type = SA_TYPE_INT64;
-    object_fields[OBJ_F_CRITTER_TELEPORT_MAP].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_CRITTER_DEATH_TIME].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_CRITTER_AUTO_LEVEL_SCHEME].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_CRITTER_PAD_I_1].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_CRITTER_PAD_I_2].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_CRITTER_PAD_I_3].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_CRITTER_PAD_IAS_1].type = SA_TYPE_UINT32_ARRAY;
-    object_fields[OBJ_F_CRITTER_PAD_I64AS_1].type = SA_TYPE_UINT64_ARRAY;
-    object_fields[OBJ_F_CRITTER_END].type = SA_TYPE_END;
-    object_fields[OBJ_F_PC_BEGIN].type = SA_TYPE_BEGIN;
-    object_fields[OBJ_F_PC_FLAGS].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_PC_FLAGS_FATE].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_PC_REPUTATION_IDX].type = SA_TYPE_UINT32_ARRAY;
-    object_fields[OBJ_F_PC_BACKGROUND].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_PC_BACKGROUND_TEXT].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_PC_REPUTATION_TS_IDX].type = SA_TYPE_UINT64_ARRAY;
-    object_fields[OBJ_F_PC_BACKGROUND].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_PC_QUEST_IDX].type = SA_TYPE_QUEST;
-    object_fields[OBJ_F_PC_BLESSING_IDX].type = SA_TYPE_UINT32_ARRAY;
-    object_fields[OBJ_F_PC_BLESSING_TS_IDX].type = SA_TYPE_UINT64_ARRAY;
-    object_fields[OBJ_F_PC_CURSE_IDX].type = SA_TYPE_UINT32_ARRAY;
-    object_fields[OBJ_F_PC_CURSE_TS_IDX].type = SA_TYPE_UINT64_ARRAY;
-    object_fields[OBJ_F_PC_PARTY_ID].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_PC_RUMOR_IDX].type = SA_TYPE_UINT64_ARRAY;
-    object_fields[OBJ_F_PC_PAD_IAS_2].type = SA_TYPE_UINT32_ARRAY;
-    object_fields[OBJ_F_PC_SCHEMATICS_FOUND_IDX].type = SA_TYPE_UINT32_ARRAY;
-    object_fields[OBJ_F_PC_LOGBOOK_EGO_IDX].type = SA_TYPE_UINT32_ARRAY;
-    object_fields[OBJ_F_PC_FOG_MASK].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_PC_PLAYER_NAME].type = SA_TYPE_STRING;
-    object_fields[OBJ_F_PC_BANK_MONEY].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_PC_GLOBAL_FLAGS].type = SA_TYPE_UINT32_ARRAY;
-    object_fields[OBJ_F_PC_GLOBAL_VARIABLES].type = SA_TYPE_UINT32_ARRAY;
-    object_fields[OBJ_F_PC_PAD_I_1].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_PC_PAD_I_2].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_PC_PAD_IAS_1].type = SA_TYPE_UINT32_ARRAY;
-    object_fields[OBJ_F_PC_PAD_I64AS_1].type = SA_TYPE_UINT64_ARRAY;
-    object_fields[OBJ_F_PC_END].type = SA_TYPE_END;
-    object_fields[OBJ_F_NPC_BEGIN].type = SA_TYPE_BEGIN;
-    object_fields[OBJ_F_NPC_FLAGS].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_NPC_LEADER].type = SA_TYPE_HANDLE;
-    object_fields[OBJ_F_NPC_AI_DATA].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_NPC_COMBAT_FOCUS].type = SA_TYPE_HANDLE;
-    object_fields[OBJ_F_NPC_WHO_HIT_ME_LAST].type = SA_TYPE_HANDLE;
-    object_fields[OBJ_F_NPC_EXPERIENCE_WORTH].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_NPC_EXPERIENCE_POOL].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_NPC_WAYPOINTS_IDX].type = SA_TYPE_UINT64_ARRAY;
-    object_fields[OBJ_F_NPC_WAYPOINT_CURRENT].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_NPC_STANDPOINT_DAY].type = SA_TYPE_INT64;
-    object_fields[OBJ_F_NPC_STANDPOINT_NIGHT].type = SA_TYPE_INT64;
-    object_fields[OBJ_F_NPC_ORIGIN].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_NPC_FACTION].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_NPC_RETAIL_PRICE_MULTIPLIER].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_NPC_SUBSTITUTE_INVENTORY].type = SA_TYPE_HANDLE;
-    object_fields[OBJ_F_NPC_REACTION_BASE].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_NPC_SOCIAL_CLASS].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_NPC_REACTION_PC_IDX].type = SA_TYPE_HANDLE_ARRAY;
-    object_fields[OBJ_F_NPC_REACTION_LEVEL_IDX].type = SA_TYPE_UINT32_ARRAY;
-    object_fields[OBJ_F_NPC_REACTION_TIME_IDX].type = SA_TYPE_UINT32_ARRAY;
-    object_fields[OBJ_F_NPC_WAIT].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_NPC_GENERATOR_DATA].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_NPC_PAD_I_1].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_NPC_DAMAGE_IDX].type = SA_TYPE_UINT32_ARRAY;
-    object_fields[OBJ_F_NPC_SHIT_LIST_IDX].type = SA_TYPE_HANDLE_ARRAY;
-    object_fields[OBJ_F_NPC_END].type = SA_TYPE_END;
-    object_fields[OBJ_F_TRAP_BEGIN].type = SA_TYPE_BEGIN;
-    object_fields[OBJ_F_TRAP_FLAGS].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_TRAP_DIFFICULTY].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_TRAP_PAD_I_2].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_TRAP_PAD_IAS_1].type = SA_TYPE_UINT32_ARRAY;
-    object_fields[OBJ_F_TRAP_PAD_I64AS_1].type = SA_TYPE_UINT64_ARRAY;
-    object_fields[OBJ_F_TRAP_END].type = SA_TYPE_END;
-    object_fields[OBJ_F_TOTAL_NORMAL].type = SA_TYPE_INVALID;
-    object_fields[OBJ_F_RENDER_COLOR].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_RENDER_COLORS].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_RENDER_PALETTE].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_RENDER_SCALE].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_RENDER_ALPHA].type = SA_TYPE_INT32_ARRAY;
-    object_fields[OBJ_F_RENDER_X].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_RENDER_Y].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_RENDER_WIDTH].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_RENDER_HEIGHT].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_PALETTE].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_COLOR].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_COLORS].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_RENDER_FLAGS].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_TEMP_ID].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_LIGHT_HANDLE].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_OVERLAY_LIGHT_HANDLES].type = SA_TYPE_UINT32_ARRAY;
-    object_fields[OBJ_F_SHADOW_HANDLES].type = SA_TYPE_INT32_ARRAY;
-    object_fields[OBJ_F_INTERNAL_FLAGS].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_FIND_NODE].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_TYPE].type = SA_TYPE_INT32;
-    object_fields[OBJ_F_PROTOTYPE_HANDLE].type = SA_TYPE_HANDLE;
+    object_fields[OBJ_F_BEGIN].type = OD_TYPE_BEGIN;
+    object_fields[OBJ_F_CURRENT_AID].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_LOCATION].type = OD_TYPE_INT64;
+    object_fields[OBJ_F_OFFSET_X].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_OFFSET_Y].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_SHADOW].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_OVERLAY_FORE].type = OD_TYPE_UINT32_ARRAY;
+    object_fields[OBJ_F_OVERLAY_BACK].type = OD_TYPE_UINT32_ARRAY;
+    object_fields[OBJ_F_UNDERLAY].type = OD_TYPE_UINT32_ARRAY;
+    object_fields[OBJ_F_BLIT_FLAGS].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_BLIT_COLOR].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_BLIT_ALPHA].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_BLIT_SCALE].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_LIGHT_FLAGS].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_LIGHT_AID].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_LIGHT_COLOR].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_OVERLAY_LIGHT_FLAGS].type = OD_TYPE_UINT32_ARRAY;
+    object_fields[OBJ_F_OVERLAY_LIGHT_AID].type = OD_TYPE_UINT32_ARRAY;
+    object_fields[OBJ_F_OVERLAY_LIGHT_COLOR].type = OD_TYPE_UINT32_ARRAY;
+    object_fields[OBJ_F_FLAGS].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_SPELL_FLAGS].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_BLOCKING_MASK].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_NAME].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_DESCRIPTION].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_AID].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_DESTROYED_AID].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_AC].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_HP_PTS].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_HP_ADJ].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_MATERIAL].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_HP_DAMAGE].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_RESISTANCE_IDX].type = OD_TYPE_INT32_ARRAY;
+    object_fields[OBJ_F_SCRIPTS_IDX].type = OD_TYPE_SCRIPT_ARRAY;
+    object_fields[OBJ_F_SOUND_EFFECT].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_CATEGORY].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_PAD_IAS_1].type = OD_TYPE_UINT32_ARRAY;
+    object_fields[OBJ_F_PAD_I64AS_1].type = OD_TYPE_UINT64_ARRAY;
+    object_fields[OBJ_F_END].type = OD_TYPE_END;
+    object_fields[OBJ_F_WALL_BEGIN].type = OD_TYPE_BEGIN;
+    object_fields[OBJ_F_WALL_FLAGS].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_WALL_PAD_I_1].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_WALL_PAD_I_2].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_WALL_PAD_IAS_1].type = OD_TYPE_UINT32_ARRAY;
+    object_fields[OBJ_F_WALL_PAD_I64AS_1].type = OD_TYPE_UINT64_ARRAY;
+    object_fields[OBJ_F_WALL_END].type = OD_TYPE_END;
+    object_fields[OBJ_F_PORTAL_BEGIN].type = OD_TYPE_BEGIN;
+    object_fields[OBJ_F_PORTAL_FLAGS].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_PORTAL_LOCK_DIFFICULTY].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_PORTAL_KEY_ID].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_PORTAL_NOTIFY_NPC].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_PORTAL_PAD_I_1].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_PORTAL_PAD_I_2].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_PORTAL_PAD_IAS_1].type = OD_TYPE_UINT32_ARRAY;
+    object_fields[OBJ_F_PORTAL_PAD_I64AS_1].type = OD_TYPE_UINT64_ARRAY;
+    object_fields[OBJ_F_PORTAL_END].type = OD_TYPE_END;
+    object_fields[OBJ_F_CONTAINER_BEGIN].type = OD_TYPE_BEGIN;
+    object_fields[OBJ_F_CONTAINER_FLAGS].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_CONTAINER_LOCK_DIFFICULTY].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_CONTAINER_KEY_ID].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_CONTAINER_INVENTORY_NUM].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_CONTAINER_INVENTORY_LIST_IDX].type = OD_TYPE_HANDLE_ARRAY;
+    object_fields[OBJ_F_CONTAINER_INVENTORY_SOURCE].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_CONTAINER_NOTIFY_NPC].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_CONTAINER_PAD_I_1].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_CONTAINER_PAD_I_2].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_CONTAINER_PAD_IAS_1].type = OD_TYPE_UINT32_ARRAY;
+    object_fields[OBJ_F_CONTAINER_PAD_I64AS_1].type = OD_TYPE_UINT64_ARRAY;
+    object_fields[OBJ_F_CONTAINER_END].type = OD_TYPE_END;
+    object_fields[OBJ_F_SCENERY_BEGIN].type = OD_TYPE_BEGIN;
+    object_fields[OBJ_F_SCENERY_FLAGS].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_SCENERY_WHOS_IN_ME].type = OD_TYPE_HANDLE;
+    object_fields[OBJ_F_SCENERY_RESPAWN_DELAY].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_SCENERY_PAD_I_2].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_SCENERY_PAD_IAS_1].type = OD_TYPE_UINT32_ARRAY;
+    object_fields[OBJ_F_SCENERY_PAD_I64AS_1].type = OD_TYPE_UINT64_ARRAY;
+    object_fields[OBJ_F_SCENERY_END].type = OD_TYPE_END;
+    object_fields[OBJ_F_PROJECTILE_BEGIN].type = OD_TYPE_BEGIN;
+    object_fields[OBJ_F_PROJECTILE_FLAGS_COMBAT].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_PROJECTILE_FLAGS_COMBAT_DAMAGE].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_PROJECTILE_HIT_LOC].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_PROJECTILE_PARENT_WEAPON].type = OD_TYPE_HANDLE;
+    object_fields[OBJ_F_PROJECTILE_PAD_I_1].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_PROJECTILE_PAD_I_2].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_PROJECTILE_PAD_IAS_1].type = OD_TYPE_UINT32_ARRAY;
+    object_fields[OBJ_F_PROJECTILE_PAD_I64AS_1].type = OD_TYPE_UINT64_ARRAY;
+    object_fields[OBJ_F_PROJECTILE_END].type = OD_TYPE_END;
+    object_fields[OBJ_F_ITEM_BEGIN].type = OD_TYPE_BEGIN;
+    object_fields[OBJ_F_ITEM_FLAGS].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_ITEM_PARENT].type = OD_TYPE_HANDLE;
+    object_fields[OBJ_F_ITEM_WEIGHT].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_ITEM_MAGIC_WEIGHT_ADJ].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_ITEM_WORTH].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_ITEM_MANA_STORE].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_ITEM_INV_AID].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_ITEM_INV_LOCATION].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_ITEM_USE_AID_FRAGMENT].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_ITEM_MAGIC_TECH_COMPLEXITY].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_ITEM_DISCIPLINE].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_ITEM_DESCRIPTION_UNKNOWN].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_ITEM_DESCRIPTION_EFFECTS].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_ITEM_SPELL_1].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_ITEM_SPELL_2].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_ITEM_SPELL_3].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_ITEM_SPELL_4].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_ITEM_SPELL_5].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_ITEM_SPELL_MANA_STORE].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_ITEM_AI_ACTION].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_ITEM_PAD_I_1].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_ITEM_PAD_IAS_1].type = OD_TYPE_UINT32_ARRAY;
+    object_fields[OBJ_F_ITEM_PAD_I64AS_1].type = OD_TYPE_UINT64_ARRAY;
+    object_fields[OBJ_F_ITEM_END].type = OD_TYPE_END;
+    object_fields[OBJ_F_WEAPON_BEGIN].type = OD_TYPE_BEGIN;
+    object_fields[OBJ_F_WEAPON_FLAGS].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_WEAPON_PAPER_DOLL_AID].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_WEAPON_BONUS_TO_HIT].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_WEAPON_MAGIC_HIT_ADJ].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_WEAPON_DAMAGE_LOWER_IDX].type = OD_TYPE_INT32_ARRAY;
+    object_fields[OBJ_F_WEAPON_DAMAGE_UPPER_IDX].type = OD_TYPE_INT32_ARRAY;
+    object_fields[OBJ_F_WEAPON_MAGIC_DAMAGE_ADJ_IDX].type = OD_TYPE_INT32_ARRAY;
+    object_fields[OBJ_F_WEAPON_SPEED_FACTOR].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_WEAPON_MAGIC_SPEED_ADJ].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_WEAPON_RANGE].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_WEAPON_MAGIC_RANGE_ADJ].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_WEAPON_MIN_STRENGTH].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_WEAPON_MAGIC_MIN_STRENGTH_ADJ].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_WEAPON_AMMO_TYPE].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_WEAPON_AMMO_CONSUMPTION].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_WEAPON_MISSILE_AID].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_WEAPON_VISUAL_EFFECT_AID].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_WEAPON_CRIT_HIT_CHART].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_WEAPON_MAGIC_CRIT_HIT_CHANCE].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_WEAPON_MAGIC_CRIT_HIT_EFFECT].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_WEAPON_CRIT_MISS_CHART].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_WEAPON_MAGIC_CRIT_MISS_CHANCE].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_WEAPON_MAGIC_CRIT_MISS_EFFECT].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_WEAPON_PAD_I_1].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_WEAPON_PAD_I_2].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_WEAPON_PAD_IAS_1].type = OD_TYPE_UINT32_ARRAY;
+    object_fields[OBJ_F_WEAPON_PAD_I64AS_1].type = OD_TYPE_UINT64_ARRAY;
+    object_fields[OBJ_F_WEAPON_END].type = OD_TYPE_END;
+    object_fields[OBJ_F_AMMO_BEGIN].type = OD_TYPE_BEGIN;
+    object_fields[OBJ_F_AMMO_FLAGS].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_AMMO_QUANTITY].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_AMMO_TYPE].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_AMMO_PAD_I_1].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_AMMO_PAD_I_2].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_AMMO_PAD_IAS_1].type = OD_TYPE_UINT32_ARRAY;
+    object_fields[OBJ_F_AMMO_PAD_I64AS_1].type = OD_TYPE_UINT64_ARRAY;
+    object_fields[OBJ_F_AMMO_END].type = OD_TYPE_END;
+    object_fields[OBJ_F_ARMOR_BEGIN].type = OD_TYPE_BEGIN;
+    object_fields[OBJ_F_ARMOR_FLAGS].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_ARMOR_PAPER_DOLL_AID].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_ARMOR_AC_ADJ].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_ARMOR_MAGIC_AC_ADJ].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_ARMOR_RESISTANCE_ADJ_IDX].type = OD_TYPE_INT32_ARRAY;
+    object_fields[OBJ_F_ARMOR_MAGIC_RESISTANCE_ADJ_IDX].type = OD_TYPE_INT32_ARRAY;
+    object_fields[OBJ_F_ARMOR_SILENT_MOVE_ADJ].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_ARMOR_MAGIC_SILENT_MOVE_ADJ].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_ARMOR_UNARMED_BONUS_DAMAGE].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_ARMOR_PAD_I_2].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_ARMOR_PAD_IAS_1].type = OD_TYPE_UINT32_ARRAY;
+    object_fields[OBJ_F_ARMOR_PAD_I64AS_1].type = OD_TYPE_UINT64_ARRAY;
+    object_fields[OBJ_F_ARMOR_END].type = OD_TYPE_END;
+    object_fields[OBJ_F_GOLD_BEGIN].type = OD_TYPE_BEGIN;
+    object_fields[OBJ_F_GOLD_FLAGS].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_GOLD_QUANTITY].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_GOLD_PAD_I_1].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_GOLD_PAD_I_2].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_GOLD_PAD_IAS_1].type = OD_TYPE_UINT32_ARRAY;
+    object_fields[OBJ_F_GOLD_PAD_I64AS_1].type = OD_TYPE_UINT64_ARRAY;
+    object_fields[OBJ_F_GOLD_END].type = OD_TYPE_END;
+    object_fields[OBJ_F_FOOD_BEGIN].type = OD_TYPE_BEGIN;
+    object_fields[OBJ_F_FOOD_FLAGS].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_FOOD_PAD_I_1].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_FOOD_PAD_I_2].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_FOOD_PAD_IAS_1].type = OD_TYPE_UINT32_ARRAY;
+    object_fields[OBJ_F_FOOD_PAD_I64AS_1].type = OD_TYPE_UINT64_ARRAY;
+    object_fields[OBJ_F_FOOD_END].type = OD_TYPE_END;
+    object_fields[OBJ_F_SCROLL_BEGIN].type = OD_TYPE_BEGIN;
+    object_fields[OBJ_F_SCROLL_FLAGS].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_SCROLL_PAD_I_1].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_SCROLL_PAD_I_2].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_SCROLL_PAD_IAS_1].type = OD_TYPE_UINT32_ARRAY;
+    object_fields[OBJ_F_SCROLL_PAD_I64AS_1].type = OD_TYPE_UINT64_ARRAY;
+    object_fields[OBJ_F_SCROLL_END].type = OD_TYPE_END;
+    object_fields[OBJ_F_KEY_BEGIN].type = OD_TYPE_BEGIN;
+    object_fields[OBJ_F_KEY_KEY_ID].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_KEY_PAD_I_1].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_KEY_PAD_I_2].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_KEY_PAD_IAS_1].type = OD_TYPE_UINT32_ARRAY;
+    object_fields[OBJ_F_KEY_PAD_I64AS_1].type = OD_TYPE_UINT64_ARRAY;
+    object_fields[OBJ_F_KEY_END].type = OD_TYPE_END;
+    object_fields[OBJ_F_KEY_RING_BEGIN].type = OD_TYPE_BEGIN;
+    object_fields[OBJ_F_KEY_RING_FLAGS].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_KEY_RING_LIST_IDX].type = OD_TYPE_UINT32_ARRAY;
+    object_fields[OBJ_F_KEY_RING_PAD_I_1].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_KEY_RING_PAD_I_2].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_KEY_RING_PAD_IAS_1].type = OD_TYPE_UINT32_ARRAY;
+    object_fields[OBJ_F_KEY_RING_PAD_I64AS_1].type = OD_TYPE_UINT64_ARRAY;
+    object_fields[OBJ_F_KEY_RING_END].type = OD_TYPE_END;
+    object_fields[OBJ_F_WRITTEN_BEGIN].type = OD_TYPE_BEGIN;
+    object_fields[OBJ_F_WRITTEN_FLAGS].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_WRITTEN_SUBTYPE].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_WRITTEN_TEXT_START_LINE].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_WRITTEN_TEXT_END_LINE].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_WRITTEN_PAD_I_1].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_WRITTEN_PAD_I_2].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_WRITTEN_PAD_IAS_1].type = OD_TYPE_UINT32_ARRAY;
+    object_fields[OBJ_F_WRITTEN_PAD_I64AS_1].type = OD_TYPE_UINT64_ARRAY;
+    object_fields[OBJ_F_WRITTEN_END].type = OD_TYPE_END;
+    object_fields[OBJ_F_GENERIC_BEGIN].type = OD_TYPE_BEGIN;
+    object_fields[OBJ_F_GENERIC_FLAGS].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_GENERIC_USAGE_BONUS].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_GENERIC_USAGE_COUNT_REMAINING].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_GENERIC_PAD_IAS_1].type = OD_TYPE_UINT32_ARRAY;
+    object_fields[OBJ_F_GENERIC_PAD_I64AS_1].type = OD_TYPE_UINT64_ARRAY;
+    object_fields[OBJ_F_GENERIC_END].type = OD_TYPE_END;
+    object_fields[OBJ_F_CRITTER_BEGIN].type = OD_TYPE_BEGIN;
+    object_fields[OBJ_F_CRITTER_FLAGS].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_CRITTER_FLAGS2].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_CRITTER_STAT_BASE_IDX].type = OD_TYPE_INT32_ARRAY;
+    object_fields[OBJ_F_CRITTER_BASIC_SKILL_IDX].type = OD_TYPE_INT32_ARRAY;
+    object_fields[OBJ_F_CRITTER_TECH_SKILL_IDX].type = OD_TYPE_INT32_ARRAY;
+    object_fields[OBJ_F_CRITTER_SPELL_TECH_IDX].type = OD_TYPE_UINT32_ARRAY;
+    object_fields[OBJ_F_CRITTER_FATIGUE_PTS].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_CRITTER_FATIGUE_ADJ].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_CRITTER_FATIGUE_DAMAGE].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_CRITTER_CRIT_HIT_CHART].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_CRITTER_EFFECTS_IDX].type = OD_TYPE_UINT32_ARRAY;
+    object_fields[OBJ_F_CRITTER_EFFECT_CAUSE_IDX].type = OD_TYPE_UINT32_ARRAY;
+    object_fields[OBJ_F_CRITTER_FLEEING_FROM].type = OD_TYPE_HANDLE;
+    object_fields[OBJ_F_CRITTER_PORTRAIT].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_CRITTER_GOLD].type = OD_TYPE_HANDLE;
+    object_fields[OBJ_F_CRITTER_ARROWS].type = OD_TYPE_HANDLE;
+    object_fields[OBJ_F_CRITTER_BULLETS].type = OD_TYPE_HANDLE;
+    object_fields[OBJ_F_CRITTER_POWER_CELLS].type = OD_TYPE_HANDLE;
+    object_fields[OBJ_F_CRITTER_FUEL].type = OD_TYPE_HANDLE;
+    object_fields[OBJ_F_CRITTER_INVENTORY_NUM].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_CRITTER_INVENTORY_LIST_IDX].type = OD_TYPE_HANDLE_ARRAY;
+    object_fields[OBJ_F_CRITTER_INVENTORY_SOURCE].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_CRITTER_DESCRIPTION_UNKNOWN].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_CRITTER_FOLLOWER_IDX].type = OD_TYPE_HANDLE_ARRAY;
+    object_fields[OBJ_F_CRITTER_TELEPORT_DEST].type = OD_TYPE_INT64;
+    object_fields[OBJ_F_CRITTER_TELEPORT_MAP].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_CRITTER_DEATH_TIME].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_CRITTER_AUTO_LEVEL_SCHEME].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_CRITTER_PAD_I_1].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_CRITTER_PAD_I_2].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_CRITTER_PAD_I_3].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_CRITTER_PAD_IAS_1].type = OD_TYPE_UINT32_ARRAY;
+    object_fields[OBJ_F_CRITTER_PAD_I64AS_1].type = OD_TYPE_UINT64_ARRAY;
+    object_fields[OBJ_F_CRITTER_END].type = OD_TYPE_END;
+    object_fields[OBJ_F_PC_BEGIN].type = OD_TYPE_BEGIN;
+    object_fields[OBJ_F_PC_FLAGS].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_PC_FLAGS_FATE].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_PC_REPUTATION_IDX].type = OD_TYPE_UINT32_ARRAY;
+    object_fields[OBJ_F_PC_BACKGROUND].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_PC_BACKGROUND_TEXT].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_PC_REPUTATION_TS_IDX].type = OD_TYPE_UINT64_ARRAY;
+    object_fields[OBJ_F_PC_BACKGROUND].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_PC_QUEST_IDX].type = OD_TYPE_QUEST_ARRAY;
+    object_fields[OBJ_F_PC_BLESSING_IDX].type = OD_TYPE_UINT32_ARRAY;
+    object_fields[OBJ_F_PC_BLESSING_TS_IDX].type = OD_TYPE_UINT64_ARRAY;
+    object_fields[OBJ_F_PC_CURSE_IDX].type = OD_TYPE_UINT32_ARRAY;
+    object_fields[OBJ_F_PC_CURSE_TS_IDX].type = OD_TYPE_UINT64_ARRAY;
+    object_fields[OBJ_F_PC_PARTY_ID].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_PC_RUMOR_IDX].type = OD_TYPE_UINT64_ARRAY;
+    object_fields[OBJ_F_PC_PAD_IAS_2].type = OD_TYPE_UINT32_ARRAY;
+    object_fields[OBJ_F_PC_SCHEMATICS_FOUND_IDX].type = OD_TYPE_UINT32_ARRAY;
+    object_fields[OBJ_F_PC_LOGBOOK_EGO_IDX].type = OD_TYPE_UINT32_ARRAY;
+    object_fields[OBJ_F_PC_FOG_MASK].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_PC_PLAYER_NAME].type = OD_TYPE_STRING;
+    object_fields[OBJ_F_PC_BANK_MONEY].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_PC_GLOBAL_FLAGS].type = OD_TYPE_UINT32_ARRAY;
+    object_fields[OBJ_F_PC_GLOBAL_VARIABLES].type = OD_TYPE_UINT32_ARRAY;
+    object_fields[OBJ_F_PC_PAD_I_1].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_PC_PAD_I_2].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_PC_PAD_IAS_1].type = OD_TYPE_UINT32_ARRAY;
+    object_fields[OBJ_F_PC_PAD_I64AS_1].type = OD_TYPE_UINT64_ARRAY;
+    object_fields[OBJ_F_PC_END].type = OD_TYPE_END;
+    object_fields[OBJ_F_NPC_BEGIN].type = OD_TYPE_BEGIN;
+    object_fields[OBJ_F_NPC_FLAGS].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_NPC_LEADER].type = OD_TYPE_HANDLE;
+    object_fields[OBJ_F_NPC_AI_DATA].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_NPC_COMBAT_FOCUS].type = OD_TYPE_HANDLE;
+    object_fields[OBJ_F_NPC_WHO_HIT_ME_LAST].type = OD_TYPE_HANDLE;
+    object_fields[OBJ_F_NPC_EXPERIENCE_WORTH].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_NPC_EXPERIENCE_POOL].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_NPC_WAYPOINTS_IDX].type = OD_TYPE_UINT64_ARRAY;
+    object_fields[OBJ_F_NPC_WAYPOINT_CURRENT].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_NPC_STANDPOINT_DAY].type = OD_TYPE_INT64;
+    object_fields[OBJ_F_NPC_STANDPOINT_NIGHT].type = OD_TYPE_INT64;
+    object_fields[OBJ_F_NPC_ORIGIN].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_NPC_FACTION].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_NPC_RETAIL_PRICE_MULTIPLIER].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_NPC_SUBSTITUTE_INVENTORY].type = OD_TYPE_HANDLE;
+    object_fields[OBJ_F_NPC_REACTION_BASE].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_NPC_SOCIAL_CLASS].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_NPC_REACTION_PC_IDX].type = OD_TYPE_HANDLE_ARRAY;
+    object_fields[OBJ_F_NPC_REACTION_LEVEL_IDX].type = OD_TYPE_UINT32_ARRAY;
+    object_fields[OBJ_F_NPC_REACTION_TIME_IDX].type = OD_TYPE_UINT32_ARRAY;
+    object_fields[OBJ_F_NPC_WAIT].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_NPC_GENERATOR_DATA].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_NPC_PAD_I_1].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_NPC_DAMAGE_IDX].type = OD_TYPE_UINT32_ARRAY;
+    object_fields[OBJ_F_NPC_SHIT_LIST_IDX].type = OD_TYPE_HANDLE_ARRAY;
+    object_fields[OBJ_F_NPC_END].type = OD_TYPE_END;
+    object_fields[OBJ_F_TRAP_BEGIN].type = OD_TYPE_BEGIN;
+    object_fields[OBJ_F_TRAP_FLAGS].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_TRAP_DIFFICULTY].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_TRAP_PAD_I_2].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_TRAP_PAD_IAS_1].type = OD_TYPE_UINT32_ARRAY;
+    object_fields[OBJ_F_TRAP_PAD_I64AS_1].type = OD_TYPE_UINT64_ARRAY;
+    object_fields[OBJ_F_TRAP_END].type = OD_TYPE_END;
+    object_fields[OBJ_F_TOTAL_NORMAL].type = OD_TYPE_INVALID;
+    object_fields[OBJ_F_RENDER_COLOR].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_RENDER_COLORS].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_RENDER_PALETTE].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_RENDER_SCALE].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_RENDER_ALPHA].type = OD_TYPE_INT32_ARRAY;
+    object_fields[OBJ_F_RENDER_X].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_RENDER_Y].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_RENDER_WIDTH].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_RENDER_HEIGHT].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_PALETTE].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_COLOR].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_COLORS].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_RENDER_FLAGS].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_TEMP_ID].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_LIGHT_HANDLE].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_OVERLAY_LIGHT_HANDLES].type = OD_TYPE_UINT32_ARRAY;
+    object_fields[OBJ_F_SHADOW_HANDLES].type = OD_TYPE_INT32_ARRAY;
+    object_fields[OBJ_F_INTERNAL_FLAGS].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_FIND_NODE].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_TYPE].type = OD_TYPE_INT32;
+    object_fields[OBJ_F_PROTOTYPE_HANDLE].type = OD_TYPE_HANDLE;
 
     // CE: Special case - designate pointer properties.
-    object_fields[OBJ_F_RENDER_COLORS].type = SA_TYPE_PTR;
-    object_fields[OBJ_F_RENDER_PALETTE].type = SA_TYPE_PTR;
-    object_fields[OBJ_F_PALETTE].type = SA_TYPE_PTR;
-    object_fields[OBJ_F_COLORS].type = SA_TYPE_PTR;
-    object_fields[OBJ_F_LIGHT_HANDLE].type = SA_TYPE_PTR;
-    object_fields[OBJ_F_OVERLAY_LIGHT_HANDLES].type = SA_TYPE_PTR_ARRAY;
-    object_fields[OBJ_F_SHADOW_HANDLES].type = SA_TYPE_PTR_ARRAY;
-    object_fields[OBJ_F_FIND_NODE].type = SA_TYPE_PTR;
+    object_fields[OBJ_F_RENDER_COLORS].type = OD_TYPE_PTR;
+    object_fields[OBJ_F_RENDER_PALETTE].type = OD_TYPE_PTR;
+    object_fields[OBJ_F_PALETTE].type = OD_TYPE_PTR;
+    object_fields[OBJ_F_COLORS].type = OD_TYPE_PTR;
+    object_fields[OBJ_F_LIGHT_HANDLE].type = OD_TYPE_PTR;
+    object_fields[OBJ_F_OVERLAY_LIGHT_HANDLES].type = OD_TYPE_PTR_ARRAY;
+    object_fields[OBJ_F_SHADOW_HANDLES].type = OD_TYPE_PTR_ARRAY;
+    object_fields[OBJ_F_FIND_NODE].type = OD_TYPE_PTR;
 }
 
 // 0x40B8E0
@@ -3895,9 +3895,9 @@ void sub_40BAC0(void)
     dword_5D1134 = 0;
 
     for (fld = 0; fld < OBJ_F_TOTAL_NORMAL; fld++) {
-        if (object_fields[fld].type == SA_TYPE_HANDLE) {
+        if (object_fields[fld].type == OD_TYPE_HANDLE) {
             dword_5D1130++;
-        } else if (object_fields[fld].type == SA_TYPE_HANDLE_ARRAY) {
+        } else if (object_fields[fld].type == OD_TYPE_HANDLE_ARRAY) {
             dword_5D1134++;
         }
     }
@@ -3914,9 +3914,9 @@ void sub_40BAC0(void)
     dword_5D1134 = 0;
 
     for (fld = 0; fld < OBJ_F_TOTAL_NORMAL; fld++) {
-        if (object_fields[fld].type == SA_TYPE_HANDLE) {
+        if (object_fields[fld].type == OD_TYPE_HANDLE) {
             dword_5D1128[dword_5D1130++] = fld;
-        } else if (object_fields[fld].type == SA_TYPE_HANDLE_ARRAY) {
+        } else if (object_fields[fld].type == OD_TYPE_HANDLE_ARRAY) {
             dword_5D112C[dword_5D1134++] = fld;
         }
     }
@@ -4360,11 +4360,11 @@ bool sub_40C6B0(Object* object, int fld)
 // 0x40C6E0
 bool sub_40C6E0(Object* object, int fld)
 {
-    ObjSa v1;
+    ObjDataDescriptor v1;
 
     v1.type = object_fields[fld].type;
     v1.ptr = &(object->data[dword_5D10F4]);
-    sub_4E3FA0(&v1);
+    obj_data_reset(&v1);
     dword_5D10F4++;
 
     return true;
@@ -4373,11 +4373,11 @@ bool sub_40C6E0(Object* object, int fld)
 // 0x40C730
 bool sub_40C730(Object* object, int fld)
 {
-    ObjSa v1;
+    ObjDataDescriptor v1;
 
     v1.type = object_fields[fld].type;
     v1.ptr = &(dword_5D1110->data[dword_5D10F4]);
-    sub_4E4280(&v1, &(object->data[dword_5D10F4]));
+    obj_data_copy(&v1, &(object->data[dword_5D10F4]));
     dword_5D10F4++;
 
     return true;
@@ -4386,11 +4386,11 @@ bool sub_40C730(Object* object, int fld)
 // 0x40C7A0
 bool sub_40C7A0(Object* object, int fld, ObjectFieldInfo* info)
 {
-    ObjSa v1;
+    ObjDataDescriptor v1;
 
     v1.type = info->type;
     v1.ptr = &(dword_5D1108->data[fld]);
-    sub_4E4280(&v1, &(object->data[fld]));
+    obj_data_copy(&v1, &(object->data[fld]));
 
     return true;
 }
@@ -4398,21 +4398,21 @@ bool sub_40C7A0(Object* object, int fld, ObjectFieldInfo* info)
 // 0x40C7F0
 void sub_40C7F0(Object* dst, Object* src, int fld)
 {
-    ObjSa v1;
+    ObjDataDescriptor v1;
 
     v1.type = object_fields[fld].type;
     v1.ptr = &(src->transient_properties[fld - OBJ_F_TRANSIENT_BEGIN - 1]);
-    sub_4E4280(&v1, &(dst->transient_properties[fld - OBJ_F_TRANSIENT_BEGIN - 1]));
+    obj_data_copy(&v1, &(dst->transient_properties[fld - OBJ_F_TRANSIENT_BEGIN - 1]));
 }
 
 // 0x40C840
 void sub_40C840(Object* object, int fld)
 {
-    ObjSa v1;
+    ObjDataDescriptor v1;
 
     v1.type = object_fields[fld].type;
     v1.ptr = &(object->transient_properties[fld - OBJ_F_TRANSIENT_BEGIN - 1]);
-    sub_4E3FA0(&v1);
+    obj_data_reset(&v1);
 }
 
 // 0x40C880
@@ -4580,11 +4580,11 @@ int sub_40CB40(Object* object, int fld)
 // 0x40CB60
 bool sub_40CB60(Object* object, int fld, ObjectFieldInfo* info)
 {
-    ObjSa v1;
+    ObjDataDescriptor v1;
 
     v1.type = info->type;
     v1.ptr = &(object->data[fld]);
-    sub_4E3FA0(&v1);
+    obj_data_reset(&v1);
     return true;
 }
 
@@ -4939,7 +4939,7 @@ int sub_40D230(Object* object, int fld)
 void sub_40D2A0(Object* object, int fld)
 {
     Object* prototype;
-    ObjSa v1;
+    ObjDataDescriptor v1;
     int v2;
     int v3;
 
@@ -4951,7 +4951,7 @@ void sub_40D2A0(Object* object, int fld)
     v1.type = object_fields[fld].type;
     v1.ptr = &(prototype->data[v2]);
     v3 = sub_40D230(object, fld);
-    sub_4E4280(&v1, &(object->data[v3]));
+    obj_data_copy(&v1, &(object->data[v3]));
 }
 
 // 0x40D320
@@ -5023,13 +5023,13 @@ void sub_40D470(Object* object, int fld)
 void sub_40D4D0(Object* object, int fld)
 {
     int v1;
-    ObjSa v2;
+    ObjDataDescriptor v2;
     int index;
 
     v1 = sub_40D230(object, fld);
     v2.type = object_fields[fld].type;
     v2.ptr = &(object->data[v1]);
-    sub_4E3FA0(&v2);
+    obj_data_reset(&v2);
 
     for (index = v1; index < object->num_fields - 1; index++) {
         object->data[index] = object->data[index + 1];
@@ -5075,7 +5075,7 @@ bool obj_version_read_mem(uint8_t** data)
 {
     int version;
 
-    sub_4E4C50(&version, sizeof(version), data);
+    mem_read_advance(&version, sizeof(version), data);
     if (version != OBJ_FILE_VERSION) {
         tig_debug_printf("Object file format version mismatch: (read: %d, expected: %d).\n", version, OBJ_FILE_VERSION);
     }

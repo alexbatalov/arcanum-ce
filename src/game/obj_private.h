@@ -8,24 +8,24 @@
 #include "game/sa.h"
 #include "game/script.h"
 
-typedef enum SaType {
-    SA_TYPE_INVALID = 0,
-    SA_TYPE_BEGIN = 1,
-    SA_TYPE_END = 2,
-    SA_TYPE_INT32 = 3,
-    SA_TYPE_INT64 = 4,
-    SA_TYPE_INT32_ARRAY = 5,
-    SA_TYPE_INT64_ARRAY = 6,
-    SA_TYPE_UINT32_ARRAY = 7,
-    SA_TYPE_UINT64_ARRAY = 8,
-    SA_TYPE_SCRIPT = 9,
-    SA_TYPE_QUEST = 10,
-    SA_TYPE_STRING = 11,
-    SA_TYPE_HANDLE = 12,
-    SA_TYPE_HANDLE_ARRAY = 13,
-    SA_TYPE_PTR = 14,
-    SA_TYPE_PTR_ARRAY = 15,
-} SaType;
+typedef enum ObjDataType {
+    OD_TYPE_INVALID = 0,
+    OD_TYPE_BEGIN = 1,
+    OD_TYPE_END = 2,
+    OD_TYPE_INT32 = 3,
+    OD_TYPE_INT64 = 4,
+    OD_TYPE_INT32_ARRAY = 5,
+    OD_TYPE_INT64_ARRAY = 6,
+    OD_TYPE_UINT32_ARRAY = 7,
+    OD_TYPE_UINT64_ARRAY = 8,
+    OD_TYPE_SCRIPT_ARRAY = 9,
+    OD_TYPE_QUEST_ARRAY = 10,
+    OD_TYPE_STRING = 11,
+    OD_TYPE_HANDLE = 12,
+    OD_TYPE_HANDLE_ARRAY = 13,
+    OD_TYPE_PTR = 14,
+    OD_TYPE_PTR_ARRAY = 15,
+} ObjDataType;
 
 typedef struct WriteBuffer {
     uint8_t* base;
@@ -34,7 +34,7 @@ typedef struct WriteBuffer {
     int remaining;
 } WriteBuffer;
 
-typedef struct ObjSa {
+typedef struct ObjDataDescriptor {
     /* 0000 */ int type;
     /* 0004 */ void* ptr;
     /* 0008 */ int idx;
@@ -48,24 +48,24 @@ typedef struct ObjSa {
         PcQuestState quest;
         intptr_t ptr;
     } storage;
-} ObjSa;
+} ObjDataDescriptor;
 
-void sub_4E3F80(void);
-void sub_4E3F90(void);
-void sub_4E3FA0(ObjSa* a1);
-void sub_4E4000(ObjSa* a1);
-void sub_4E4180(ObjSa* a1);
-void sub_4E4280(ObjSa* a1, void* value);
-bool sub_4E4360(ObjSa* a1, TigFile* stream);
-bool sub_4E44F0(ObjSa* a1, TigFile* stream);
-void sub_4E4660(ObjSa* a1, uint8_t** data);
-bool sub_4E47E0(ObjSa* a1, TigFile* stream);
-void sub_4E4990(ObjSa* a1, WriteBuffer* wb);
-void sub_4E4B70(ObjSa* a1);
-int sub_4E4BA0(ObjSa* a1);
+void obj_data_init(void);
+void obj_data_exit(void);
+void obj_data_reset(ObjDataDescriptor* descr);
+void obj_data_store(ObjDataDescriptor* descr);
+void obj_data_fetch(ObjDataDescriptor* descr);
+void obj_data_copy(ObjDataDescriptor* descr, void* value);
+bool obj_data_read_file_slow(ObjDataDescriptor* descr, TigFile* stream);
+bool obj_data_read_file_fast(ObjDataDescriptor* descr, TigFile* stream);
+void obj_data_read_mem(ObjDataDescriptor* descr, uint8_t** data);
+bool obj_data_write_file(ObjDataDescriptor* descr, TigFile* stream);
+void obj_data_write_mem(ObjDataDescriptor* descr, WriteBuffer* wb);
+void obj_data_remove_idx(ObjDataDescriptor* descr);
+int obj_data_count_idx(ObjDataDescriptor* descr);
 void write_buffer_init(WriteBuffer* wb);
 void write_buffer_append(const void* data, int size, WriteBuffer* wb);
-void sub_4E4C50(void* buffer, int size, uint8_t** data);
+void mem_read_advance(void* buffer, int size, uint8_t** data);
 void bitset_pool_init(void);
 void bitset_pool_exit(void);
 int bitset_alloc(void);

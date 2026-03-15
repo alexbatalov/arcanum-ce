@@ -291,7 +291,7 @@ void sa_read_mem(SizeableArray** sa_ptr, uint8_t** data)
 
     // Read the fixed-size header into a temporary array to we can compute
     // allocation size.
-    sub_4E4C50(&sa, sizeof(sa), data);
+    mem_read_advance(&sa, sizeof(sa), data);
 
     size = sa_byte_size(&sa);
 
@@ -303,7 +303,7 @@ void sa_read_mem(SizeableArray** sa_ptr, uint8_t** data)
 
     // Read element data (if present).
     if (size - sizeof(SizeableArray) != 0) {
-        sub_4E4C50(sa_data(*sa_ptr), size - sizeof(SizeableArray), data);
+        mem_read_advance(sa_data(*sa_ptr), size - sizeof(SizeableArray), data);
     }
 
     // Read the associated bitset.
