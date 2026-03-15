@@ -463,6 +463,8 @@ void written_ui_start_obj(int64_t written_obj, int64_t pc_obj)
  */
 void written_ui_start_type(WrittenType written_type, int num)
 {
+    bool needs_mes_file = true;
+
     if (!written_ui_mod_loaded) {
         return;
     }
@@ -492,11 +494,15 @@ void written_ui_start_type(WrittenType written_type, int num)
         written_ui_mes_file = written_ui_mes_files[WRITTEN_MES_PLAQUE];
         break;
     default:
+        // Other written types do not require .mes files. While this applies to
+        // images and schematics, only the former truly counts, as schematics
+        // are processed differently.
+        needs_mes_file = false;
         written_ui_mes_file = MES_FILE_HANDLE_INVALID;
         break;
     }
 
-    if (written_ui_mes_file == MES_FILE_HANDLE_INVALID) {
+    if (needs_mes_file && written_ui_mes_file == MES_FILE_HANDLE_INVALID) {
         return;
     }
 
