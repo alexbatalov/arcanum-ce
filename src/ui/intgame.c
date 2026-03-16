@@ -4365,6 +4365,8 @@ void intgame_pc_lens_do(PcLensMode mode, PcLens* pc_lens)
     }
 
     switch (intgame_pc_lens_mode) {
+    case PC_LENS_MODE_NONE:
+        break;
     case PC_LENS_MODE_PASSTHROUGH:
         if (tig_video_buffer_destroy(intgame_pc_lens_video_buffer) == TIG_OK) {
             intgame_pc_lens_video_buffer = NULL;
