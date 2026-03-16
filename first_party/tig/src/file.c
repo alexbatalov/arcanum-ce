@@ -1364,12 +1364,6 @@ int tig_file_fprintf(TigFile* stream, const char* format, ...)
     return rc;
 }
 
-// 0x5304B0
-int sub_5304B0(void)
-{
-    return -1;
-}
-
 // 0x5304C0
 int tig_file_vfprintf(TigFile* stream, const char* format, va_list args)
 {
@@ -1583,22 +1577,6 @@ int tig_file_ferror(TigFile* stream)
     return 0;
 }
 
-// 0x5308A0
-void sub_5308A0(int a1, int a2)
-{
-    (void)a1;
-    (void)a2;
-    // tig_database_pack(a1, a2);
-}
-
-// 0x5308C0
-void sub_5308C0(int a1, int a2)
-{
-    (void)a1;
-    (void)a2;
-    // tig_database_unpack(a1, a2);
-}
-
 // 0x5308E0
 bool tig_file_lock(const char* filename, const void* owner, size_t size)
 {
@@ -1701,19 +1679,6 @@ bool tig_file_locked_by(const char* filename, const void* owner, size_t size)
     }
 
     return sub_5310C0(path, owner, size);
-}
-
-// 0x530B90
-bool sub_530B90(const char* pattern)
-{
-    TigFileList list;
-    int count;
-
-    tig_file_list_create(&list, pattern);
-    count = list.count;
-    tig_file_list_destroy(&list);
-
-    return count != 0;
 }
 
 // 0x530BD0
