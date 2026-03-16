@@ -161,32 +161,6 @@ void mp_handle_ui_update_inven(PacketUpdateInven* pkt)
     }
 }
 
-// 0x4EDDE0
-void sub_4EDDE0(int64_t obj)
-{
-    Packet95 pkt;
-
-    if (obj == OBJ_HANDLE_NULL || player_is_local_pc_obj(obj)) {
-        sub_4601C0();
-    }
-
-    if (tig_net_is_active()
-        && tig_net_is_host()) {
-        pkt.type = 95;
-        pkt.oid.type = OID_TYPE_NULL;
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-    }
-}
-
-// 0x4EDE40
-void sub_4EDE40(Packet95* pkt)
-{
-    if (pkt->oid.type == OID_TYPE_NULL
-        || player_is_local_pc_obj(objp_perm_lookup(pkt->oid))) {
-        sub_4601C0();
-    }
-}
-
 // 0x4EDF20
 void sub_4EDF20(int64_t obj, int64_t location, int dx, int dy, bool a7)
 {

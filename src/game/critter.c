@@ -13,9 +13,7 @@
 #include "game/map.h"
 #include "game/mes.h"
 #include "game/monstergen.h"
-#include "game/mp_utils.h"
 #include "game/mt_item.h"
-#include "game/multiplayer.h"
 #include "game/object.h"
 #include "game/object_node.h"
 #include "game/party.h"
@@ -399,20 +397,6 @@ int critter_fatigue_pts_set(int64_t obj, int value)
         return 0;
     }
 
-    if (!multiplayer_is_locked()) {
-        Packet51 pkt;
-
-        pkt.type = 51;
-        pkt.field_4 = 1;
-        pkt.field_8 = obj_get_id(obj);
-        pkt.field_20 = value;
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-
-        if (!tig_net_is_host()) {
-            return value;
-        }
-    }
-
     if (value < 0) {
         value = 0;
     }
@@ -643,20 +627,6 @@ void critter_kill(int64_t obj)
         return;
     }
 
-    if (!multiplayer_is_locked()) {
-        Packet104 pkt;
-
-        if (!tig_net_is_active()) {
-            return;
-        }
-
-        pkt.type = 104;
-        pkt.oid = obj_get_id(obj);
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-    }
-
-    multiplayer_lock();
-
     sub_4B2210(OBJ_HANDLE_NULL, obj, &combat);
     combat.dam_flags |= CDF_DEATH;
     combat_dmg(&combat);
@@ -677,8 +647,6 @@ void critter_kill(int64_t obj)
         object_flags_set(obj, OF_FLAT | OF_NO_BLOCK);
         sub_432D90(obj);
     }
-
-    multiplayer_unlock();
 }
 
 /**
@@ -909,10 +877,6 @@ void critter_leader_set(int64_t follower_obj, int64_t leader_obj)
 bool critter_follow(int64_t follower_obj, int64_t leader_obj, bool force)
 {
     unsigned int flags;
-
-    if (tig_net_is_active() && !tig_net_is_host()) {
-        return true;
-    }
 
     // Validate follower is an NPC.
     if (obj_field_int32_get(follower_obj, OBJ_F_TYPE) != OBJ_TYPE_NPC) {
@@ -1346,12 +1310,6 @@ bool critter_fatigue_timeevent_process(TimeEvent* timeevent)
     int dam;
     int encumbrance_level;
 
-    if (tig_net_is_active()) {
-        if (!tig_net_is_host()) {
-            return true;
-        }
-    }
-
     // Extract event parameters.
     type = timeevent->params[0].integer_value;
     critter_obj = timeevent->params[1].object_value;
@@ -1422,11 +1380,6 @@ bool critter_fatigue_timeevent_schedule(int64_t obj, int type, int delay)
     TimeEvent timeevent;
     DateTime datetime;
 
-    if (tig_net_is_active()
-        && !tig_net_is_host()) {
-        return true;
-    }
-
     if (obj == OBJ_HANDLE_NULL) {
         return true;
     }
@@ -1470,10 +1423,6 @@ void critter_resting_heal(int64_t critter_obj, int hours)
     int dam;
     int heal_rate;
 
-    if (tig_net_is_active() && !tig_net_is_host()) {
-        return;
-    }
-
     if (critter_obj == OBJ_HANDLE_NULL) {
         return;
     }
@@ -1501,15 +1450,6 @@ void critter_resting_heal(int64_t critter_obj, int hours)
             dam = 0;
         }
         critter_fatigue_damage_set(critter_obj, dam);
-    }
-
-    if (tig_net_is_active()) {
-        PacketCritterRestingHeal pkt;
-
-        pkt.type = 34;
-        pkt.hours = hours;
-        pkt.oid = obj_get_id(critter_obj);
-        tig_net_send_app_all(&pkt, sizeof(pkt));
     }
 }
 
@@ -1562,10 +1502,6 @@ bool critter_resting_timeevent_schedule(int64_t obj)
 {
     TimeEvent timeevent;
     DateTime datetime;
-
-    if (tig_net_is_active() && !tig_net_is_host()) {
-        return true;
-    }
 
     if (obj == OBJ_HANDLE_NULL) {
         return true;
@@ -1772,19 +1708,6 @@ void critter_set_concealed_internal(int64_t obj, bool concealed)
     tig_art_id_t new_art_id;
     unsigned int flags;
 
-    if (!multiplayer_is_locked()) {
-        PacketCritterConcealSet pkt;
-
-        if (!tig_net_is_host()) {
-            return;
-        }
-
-        pkt.type = 33;
-        sub_4440E0(obj, &(pkt.field_8));
-        pkt.concealed = concealed;
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-    }
-
     sub_424070(obj, PRIORITY_5, false, false);
 
     // Update animation based on concealed state.
@@ -1907,16 +1830,12 @@ int critter_xp_worth(int64_t obj)
 }
 
 /**
- * Awards XP to a PC and its party members.
+ * Awards XP to a PC.
  *
  * 0x45F110
  */
 void critter_give_xp(int64_t obj, int xp_gain)
 {
-    int player;
-    int cnt;
-    ObjectList objects;
-    ObjectNode* node;
     int xp;
 
     if (obj_field_int32_get(obj, OBJ_F_TYPE) != OBJ_TYPE_PC) {
@@ -1937,57 +1856,14 @@ void critter_give_xp(int64_t obj, int xp_gain)
         break;
     }
 
-    if (tig_net_is_active()) {
-        if (!tig_net_is_host()) {
-            return;
-        }
+    // Single-player game - just give all reward to the local PC.
+    if (!critter_is_dead(obj)) {
+        xp = stat_base_get(obj, STAT_EXPERIENCE_POINTS);
+        xp += effect_adjust_xp_gain(obj, xp_gain);
+        stat_base_set(obj, STAT_EXPERIENCE_POINTS, xp);
 
-        player = party_id_from_obj(obj);
-    } else {
-        player = -1;
-    }
-
-    if (player != -1) {
-        // Count nearby living party members.
-        cnt = 0;
-        object_list_vicinity(obj, OBJ_TM_PC, &objects);
-        node = objects.head;
-        while (node != NULL) {
-            if (!critter_is_dead(node->obj)
-                && node->obj != OBJ_HANDLE_NULL
-                && party_id_from_obj(node->obj) == player) {
-                cnt++;
-            }
-            node = node->next;
-        }
-
-        // Distribute XP among party members.
-        xp_gain /= cnt;
-        if (xp_gain == 0) {
-            xp_gain = 1;
-        }
-
-        node = objects.head;
-        while (node != NULL) {
-            if (!critter_is_dead(node->obj)
-                && node->obj != OBJ_HANDLE_NULL
-                && party_id_from_obj(node->obj) == player) {
-                xp = stat_base_get(node->obj, STAT_EXPERIENCE_POINTS);
-                xp += effect_adjust_xp_gain(node->obj, xp_gain);
-                stat_base_set(node->obj, STAT_EXPERIENCE_POINTS, xp);
-            }
-            node = node->next;
-        }
-
-        object_list_destroy(&objects);
-        sub_4EDDE0(OBJ_HANDLE_NULL);
-    } else {
-        // Single-player game - just give all reward to the local PC.
-        if (!critter_is_dead(obj)) {
-            xp = stat_base_get(obj, STAT_EXPERIENCE_POINTS);
-            xp += effect_adjust_xp_gain(obj, xp_gain);
-            stat_base_set(obj, STAT_EXPERIENCE_POINTS, xp);
-            sub_4EDDE0(obj);
+        if (player_is_local_pc_obj(obj)) {
+            sub_4601C0();
         }
     }
 }
