@@ -57,12 +57,6 @@ static int tig_mouse_cursor_art_frame_height;
 // 0x604648
 static int tig_mouse_cursor_art_frame_width;
 
-// 0x60464C
-static int tig_mouse_max_y;
-
-// 0x604650
-static int tig_mouse_max_x;
-
 // The interval (in milliseconds) to display each animation frame.
 //
 // 0x604654
@@ -126,6 +120,8 @@ static tig_timestamp_t tig_mouse_software_button_timestamps[TIG_MOUSE_BUTTON_COU
 // 0x60470C
 static bool tig_mouse_initialized;
 
+static TigRect tig_mouse_screen_bounds;
+
 // 0x4FF020
 int tig_mouse_init(TigInitInfo* init_info)
 {
@@ -133,8 +129,12 @@ int tig_mouse_init(TigInitInfo* init_info)
         return TIG_ERR_ALREADY_INITIALIZED;
     }
 
-    tig_mouse_max_x = init_info->width - 1;
-    tig_mouse_max_y = init_info->height - 1;
+    // CE: Build screen bounds rect for easier intersection detection in
+    // `tig_mouse_display`.
+    tig_mouse_screen_bounds.x = 0;
+    tig_mouse_screen_bounds.y = 0;
+    tig_mouse_screen_bounds.width = init_info->width;
+    tig_mouse_screen_bounds.height = init_info->height;
 
     tig_mouse_state.frame.x = init_info->width / 2;
     tig_mouse_state.frame.y = init_info->height / 2;
@@ -361,6 +361,9 @@ int tig_mouse_show(void)
 // 0x4FFAB0
 void tig_mouse_display(void)
 {
+    TigRect src_rect;
+    TigRect dst_rect;
+
     // CE: Do not display mouse cursor when its not within the window frame.
     if (!tig_mouse_active) {
         return;
@@ -370,14 +373,30 @@ void tig_mouse_display(void)
         return;
     }
 
+    // CE: There is bug resulting in visual artifacts in windowed mode. When
+    // mouse cursor frame is negative (due to hotspot offset or dragging
+    // inventory item near window border or outside of the window), both src and
+    // dst rects need appropriate adjustments.
+    dst_rect = tig_mouse_state.frame;
+    if (tig_rect_intersection(&dst_rect, &tig_mouse_screen_bounds, &dst_rect) != TIG_OK) {
+        return;
+    }
+
+    // Checking intersection with `tig_mouse_cursor_art_frame_bounds` is not
+    // needed - `tig_mouse_state.frame` always matches the size.
+    src_rect.x = dst_rect.x - tig_mouse_state.frame.x;
+    src_rect.y = dst_rect.y - tig_mouse_state.frame.y;
+    src_rect.width = dst_rect.width;
+    src_rect.height = dst_rect.height;
+
     // CE: The original mouse-rendering code operates on two buffers - a
     // transparent one (the cursor) and an opaque one (with the background).
     // This isn't needed in CE because the mouse cursor is composited directly
     // over the separate offscreen surface, which the window system has already
     // updated by the time this function is called.
     tig_video_blit(tig_mouse_cursor_video_buffer,
-        &tig_mouse_cursor_art_frame_bounds,
-        &(tig_mouse_state.frame));
+        &src_rect,
+        &dst_rect);
 }
 
 // 0x4FFB40
