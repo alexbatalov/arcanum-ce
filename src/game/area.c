@@ -396,8 +396,6 @@ void area_get_wm_offset(int area, int* x, int* y)
  */
 bool area_is_known(int64_t pc_obj, int area)
 {
-    int player;
-
     // Validate the object and ensure it's a player character.
     if (pc_obj == OBJ_HANDLE_NULL
         || obj_field_int32_get(pc_obj, OBJ_F_TYPE) != OBJ_TYPE_PC) {
@@ -446,8 +444,6 @@ bool area_set_known(int64_t pc_obj, int area)
  */
 int area_get_last_known_area(int64_t pc_obj)
 {
-    int player;
-
     // Validate the object and ensure it's a player character.
     if (pc_obj == OBJ_HANDLE_NULL
         || obj_field_int32_get(pc_obj, OBJ_F_TYPE) != OBJ_TYPE_PC) {

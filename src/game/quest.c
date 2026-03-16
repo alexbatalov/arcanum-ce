@@ -366,10 +366,6 @@ int quest_state_get(int64_t pc_obj, int num)
 int quest_state_set(int64_t pc_obj, int num, int state, int64_t npc_obj)
 {
     int old_state;
-    int64_t party_member_obj;
-    int party_member_index;
-    int64_t player_obj;
-    int player;
 
     // Obtain the current quest state.
     old_state = quest_state_get(pc_obj, num);

@@ -2646,8 +2646,6 @@ bool get_follower_skills(int64_t obj)
  */
 void set_follower_skills(bool enabled)
 {
-    int player;
-
     // In single-player mode simply set the value in settings.
     settings_set_value(&settings, FOLLOWER_SKILLS_KEY, enabled);
 }
