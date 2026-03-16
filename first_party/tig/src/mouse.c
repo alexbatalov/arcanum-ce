@@ -361,6 +361,11 @@ int tig_mouse_show(void)
 // 0x4FFAB0
 void tig_mouse_display(void)
 {
+    // CE: Do not display mouse cursor when its not within the window frame.
+    if (!tig_mouse_active) {
+        return;
+    }
+
     if ((tig_mouse_state.flags & TIG_MOUSE_STATE_HIDDEN) != 0) {
         return;
     }
