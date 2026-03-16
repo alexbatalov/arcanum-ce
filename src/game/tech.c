@@ -3,8 +3,6 @@
 #include "game/effect.h"
 #include "game/gamelib.h"
 #include "game/mes.h"
-#include "game/mp_utils.h"
-#include "game/multiplayer.h"
 #include "game/object.h"
 #include "game/player.h"
 #include "game/stat.h"
@@ -249,12 +247,6 @@ int tech_degree_inc(int64_t obj, int tech)
     // Get the current degree.
     degree = tech_degree_get(obj, tech);
 
-    if (tig_net_is_active()
-        && !tig_net_is_host()
-        && !multiplayer_is_locked()) {
-        return degree;
-    }
-
     // Check if the degree can be incremented.
     if (degree + 1 >= DEGREE_COUNT) {
         return degree;
@@ -308,12 +300,6 @@ int tech_degree_dec(int64_t obj, int tech)
 
     // Get the current degree.
     degree = tech_degree_get(obj, tech);
-
-    if (tig_net_is_active()
-        && !tig_net_is_host()
-        && !multiplayer_is_locked()) {
-        return degree;
-    }
 
     // Check if the degree can be decremented.
     if (degree <= 0) {
@@ -384,7 +370,6 @@ void tech_learn_schematic(int64_t pc_obj, int64_t written_obj)
     int index;
     MesFileEntry mes_file_entry;
     UiMessage ui_message;
-    int player;
 
     // Get the schematic ID from the written object.
     schematic = obj_field_int32_get(written_obj, OBJ_F_WRITTEN_TEXT_START_LINE);
@@ -411,18 +396,6 @@ void tech_learn_schematic(int64_t pc_obj, int64_t written_obj)
         ui_message.type = UI_MSG_TYPE_SCHEMATIC;
         ui_message.str = mes_file_entry.str;
         ui_message.field_8 = schematic;
-
-        if (tig_net_is_active()) {
-            player = multiplayer_find_slot_from_obj(pc_obj);
-            if (player == -1) {
-                return;
-            }
-
-            if (player != 0) {
-                sub_4EDA60(&ui_message, player, 0);
-                return;
-            }
-        }
     } else {
         // Set up failure message.
         mes_file_entry.num = 88; // "You already know this schematic."
@@ -431,18 +404,6 @@ void tech_learn_schematic(int64_t pc_obj, int64_t written_obj)
         ui_message.type = UI_MSG_TYPE_SCHEMATIC;
         ui_message.str = mes_file_entry.str;
         ui_message.field_8 = schematic;
-
-        if (tig_net_is_active()) {
-            player = multiplayer_find_slot_from_obj(pc_obj);
-            if (player == -1) {
-                return;
-            }
-
-            if (player != 0) {
-                sub_4EDA60(&ui_message, player, 0);
-                return;
-            }
-        }
     }
 
     sub_460630(&ui_message);
