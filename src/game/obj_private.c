@@ -8,6 +8,13 @@
 #include "game/sector.h"
 
 /**
+ * Initial allocation size for the `WriteBuffer`, and the granularity at which
+ * it is grown when more bytes are appended.
+ */
+#define WRITE_BUFFER_INITIAL_SIZE 256
+#define WRITE_BUFFER_GROWTH_STEP WRITE_BUFFER_INITIAL_SIZE
+
+/**
  * Initial capacity for the `BitsetDescriptor` array, and the granularity at
  * which it is grown when more bitsets are needed.
  */
@@ -1060,16 +1067,26 @@ int obj_data_count_idx(ObjDataDescriptor* descr)
     return 0;
 }
 
-// 0x4E4BD0
+/**
+ * Initializes a `WriteBuffer`.
+ *
+ * The caller is responsible to free `base` when done.
+ *
+ * 0x4E4BD0
+ */
 void write_buffer_init(WriteBuffer* wb)
 {
-    wb->base = (uint8_t*)MALLOC(256);
+    wb->base = (uint8_t*)MALLOC(WRITE_BUFFER_INITIAL_SIZE);
     wb->curr = wb->base;
-    wb->size = 256;
+    wb->size = WRITE_BUFFER_INITIAL_SIZE;
     wb->remaining = wb->size;
 }
 
-// 0x4E4C00
+/**
+ * Appends `size` bytes from `data` to a `WriteBuffer`, growing it if needed.
+ *
+ * 0x4E4C00
+ */
 void write_buffer_append(const void* data, int size, WriteBuffer* wb)
 {
     write_buffer_ensure_size(wb, size);
@@ -1078,26 +1095,46 @@ void write_buffer_append(const void* data, int size, WriteBuffer* wb)
     wb->remaining -= size;
 }
 
-// 0x4E4C50
+/**
+ * Copies `size` bytes from `*data` into `buffer` and advances `*data` by
+ * `size` bytes.
+ *
+ * Acts as a streaming read from a raw byte buffer. This function is used to
+ * read from an arbitrary byte buffer without tracking the read offset manually.
+ * It may overflow, though, and there is no protection against it.
+ *
+ * 0x4E4C50
+ */
 void mem_read_advance(void* buffer, int size, uint8_t** data)
 {
     memcpy(buffer, *data, size);
     (*data) += size;
 }
 
-// 0x4E4C80
+/**
+ * Ensures that a `WriteBuffer` has at least `size` bytes of remaining space.
+ *
+ * If the current remaining capacity is insufficient, the buffer is grown in
+ * multiples of `WRITE_BUFFER_GROWTH_STEP` bytes. After reallocation, base may
+ * point to a new address.
+ *
+ * 0x4E4C80
+ */
 void write_buffer_ensure_size(WriteBuffer* wb, int size)
 {
     int extra_size;
-    int new_size;
+    int growth;
 
     extra_size = size - wb->remaining;
     if (extra_size > 0) {
-        new_size = (extra_size / 256 + 1) * 256;
-        wb->size += new_size;
+        // Round the growth amount up to the nearest `WRITE_BUFFER_GROWTH_STEP`.
+        growth = (extra_size / WRITE_BUFFER_GROWTH_STEP + 1) * WRITE_BUFFER_GROWTH_STEP;
+        wb->size += growth;
         wb->base = (uint8_t*)REALLOC(wb->base, wb->size);
-        wb->curr = wb->base + wb->size - wb->remaining - new_size;
-        wb->remaining += new_size;
+
+        // Recalculate `curr` relative to the possibly relocated `base`.
+        wb->curr = wb->base + wb->size - wb->remaining - growth;
+        wb->remaining += growth;
     }
 }
 
