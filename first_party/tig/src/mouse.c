@@ -68,11 +68,6 @@ static int tig_mouse_max_x;
 // 0x604654
 static tig_duration_t tig_mouse_cursor_art_fps;
 
-// A boolean value indicating mouse is in hardware mode.
-//
-// 0x604658
-static bool tig_mouse_is_hardware;
-
 // The timestamp when animation frame was last updated.
 //
 // 0x60465C
@@ -366,10 +361,6 @@ int tig_mouse_show(void)
 // 0x4FFAB0
 void tig_mouse_display(void)
 {
-    if (tig_mouse_is_hardware) {
-        return;
-    }
-
     if ((tig_mouse_state.flags & TIG_MOUSE_STATE_HIDDEN) != 0) {
         return;
     }
@@ -390,10 +381,6 @@ void tig_mouse_cursor_refresh(void)
     TigRect src_rect;
     TigRect dst_rect;
     TigArtBlitInfo blit_info;
-
-    if (tig_mouse_is_hardware) {
-        return;
-    }
 
     // Clear surface.
     tig_video_buffer_fill(tig_mouse_cursor_video_buffer,
