@@ -507,17 +507,6 @@ typedef struct PacketMagicTechEyeCandy {
 // Serializeable.
 static_assert(sizeof(PacketMagicTechEyeCandy) == 0x28, "wrong size");
 
-typedef struct Packet79 {
-    /* 0000 */ int type;
-    /* 0004 */ int field_4;
-    /* 0008 */ ObjectID field_8;
-    /* 0020 */ ObjectID field_20;
-    /* 0038 */ int field_38;
-    /* 003C */ int field_3C;
-} Packet79;
-
-static_assert(sizeof(Packet79) == 0x40, "wrong size");
-
 typedef struct Packet80 {
     /* 0000 */ int type;
     /* 0008 */ ObjectID item_oid;
@@ -873,7 +862,6 @@ void sub_4EDCE0(int64_t obj, tig_art_id_t art_id);
 void mp_ui_update_inven(int64_t obj);
 void sub_4EDF20(int64_t obj, int64_t location, int dx, int dy, bool a7);
 void mp_item_activate(int64_t owner_obj, int64_t item_obj);
-void mp_ui_schematic_feedback(bool success, int64_t primary_obj, int64_t secondary_obj);
 void mp_ui_written_start_type(int64_t obj, WrittenType written_type, int num);
 void mp_ui_show_inven_loot(int64_t obj, int64_t a2);
 void sub_4EE3A0(int64_t obj, int64_t a2);

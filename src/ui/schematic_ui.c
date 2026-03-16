@@ -6,8 +6,6 @@
 #include "game/gsound.h"
 #include "game/item.h"
 #include "game/mes.h"
-#include "game/mp_utils.h"
-#include "game/multiplayer.h"
 #include "game/obj.h"
 #include "game/object.h"
 #include "game/player.h"
@@ -704,7 +702,6 @@ bool schematic_ui_message_filter(TigMessage* msg)
     MesFileEntry mes_file_entry;
     UiMessage ui_message;
     int tech;
-    Packet79 pkt;
 
     switch (msg->type) {
     case TIG_MESSAGE_MOUSE:
@@ -890,17 +887,8 @@ bool schematic_ui_message_filter(TigMessage* msg)
             if (msg->data.button.button_handle == schematic_ui_buttons[SCHEMATIC_UI_BUTTON_COMBINE].button_handle) {
                 switch (schematic_ui_readiness) {
                 case SCHEMATIC_UI_READINESS_OK:
-                    if (tig_net_is_active() && !tig_net_is_host()) {
-                        pkt.type = 79;
-                        pkt.field_4 = schematic_ui_current_id();
-                        pkt.field_8 = obj_get_id(schematic_ui_primary_obj);
-                        pkt.field_20 = obj_get_id(schematic_ui_secondary_obj);
-                        tig_net_send_app_all(&pkt, sizeof(pkt));
-                        schematic_ui_redraw();
-                    } else {
-                        schematic_ui_process(schematic_ui_current_id(), schematic_ui_primary_obj, schematic_ui_secondary_obj);
-                        schematic_ui_redraw();
-                    }
+                    schematic_ui_process(schematic_ui_current_id(), schematic_ui_primary_obj, schematic_ui_secondary_obj);
+                    schematic_ui_redraw();
                     break;
                 case SCHEMATIC_UI_READINESS_NO_ITEMS:
                     mes_file_entry.num = 0; // "You are missing required item(s)."
@@ -1436,12 +1424,6 @@ bool schematic_ui_process(int schematic, int64_t primary_obj, int64_t secondary_
     int qty;
     int64_t prod_obj;
 
-    if (tig_net_is_active()
-        && !tig_net_is_host()
-        && !multiplayer_is_locked()) {
-        return true;
-    }
-
     // Check for title page.
     if (schematic == -1) {
         return false;
@@ -1506,14 +1488,14 @@ bool schematic_ui_process(int schematic, int64_t primary_obj, int64_t secondary_
 
     // Create final product items.
     for (qty = 0; qty < info.qty; qty++) {
-        if (!mp_object_create(prod, loc, &prod_obj)) {
+        if (!object_create(sub_4685A0(prod), loc, &prod_obj)) {
             return false;
         }
 
         item_transfer(prod_obj, primary_obj);
     }
 
-    mp_ui_schematic_feedback(true, primary_obj, secondary_obj);
+    ui_schematic_feedback(true, primary_obj, secondary_obj);
 
     return true;
 }

@@ -221,24 +221,6 @@ void mp_item_activate(int64_t owner_obj, int64_t item_obj)
     }
 }
 
-// 0x4EE0F0
-void mp_ui_schematic_feedback(bool success, int64_t primary_obj, int64_t secondary_obj)
-{
-    Packet100 pkt;
-
-    ui_schematic_feedback(success, primary_obj, secondary_obj);
-
-    if (tig_net_is_active()
-        && tig_net_is_host()) {
-        pkt.type = 100;
-        pkt.subtype = 4;
-        pkt.d.c.field_8 = success;
-        pkt.d.c.field_10 = obj_get_id(primary_obj);
-        pkt.d.c.field_28 = obj_get_id(secondary_obj);
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-    }
-}
-
 // 0x4EE290
 void mp_ui_written_start_type(int64_t obj, WrittenType written_type, int num)
 {
