@@ -26,7 +26,6 @@
 #include "game/location.h"
 #include "game/magictech.h"
 #include "game/map.h"
-#include "game/multiplayer.h"
 #include "game/name.h"
 #include "game/obj.h"
 #include "game/object.h"
@@ -317,7 +316,6 @@ void main_loop(void)
 {
     int64_t location;
     int64_t pc_obj;
-    int64_t party_member_obj;
     tig_art_id_t art_id;
     bool enable_profiler = false;
     bool disable_profiler = false;
@@ -406,7 +404,6 @@ void main_loop(void)
                     case SDL_SCANCODE_ESCAPE:
                         if (sub_567A10()
                             || wmap_ui_is_created()
-                            || tig_net_is_active()
                             || (combat_turn_based_is_active()
                                 && player_get_local_pc_obj() != combat_turn_based_whos_turn_get())) {
                             mainmenu_ui_start(MM_TYPE_IN_PLAY_LOCKED);
@@ -444,24 +441,20 @@ void main_loop(void)
                             }
 
                             if (!combat_turn_based_is_active() || player_get_local_pc_obj() == combat_turn_based_whos_turn_get()) {
-                                if (!tig_net_is_active()) {
-                                    intgame_mode_set(INTGAME_MODE_MAIN);
-                                    intgame_mode_set(INTGAME_MODE_MAIN);
-                                    mainmenu_ui_feedback_saving();
-                                    gamelib_save("SlotAuto", "Auto-Save");
-                                    mainmenu_ui_feedback_saving_completed();
-                                }
+                                intgame_mode_set(INTGAME_MODE_MAIN);
+                                intgame_mode_set(INTGAME_MODE_MAIN);
+                                mainmenu_ui_feedback_saving();
+                                gamelib_save("SlotAuto", "Auto-Save");
+                                mainmenu_ui_feedback_saving_completed();
                             } else {
                                 mainmenu_ui_feedback_cannot_save_in_tb();
                             }
                         }
                         break;
                     case SDL_SCANCODE_F8:
-                        if (!tig_net_is_active()) {
-                            mainmenu_ui_feedback_loading();
-                            sub_543220();
-                            mainmenu_ui_feedback_loading_completed();
-                        }
+                        mainmenu_ui_feedback_loading();
+                        sub_543220();
+                        mainmenu_ui_feedback_loading_completed();
                         break;
                     case SDL_SCANCODE_F11:
                         if (gamelib_cheat_level_get() >= 3) {
@@ -526,15 +519,7 @@ void main_loop(void)
                                 }
                                 break;
                             case SDL_SCANCODE_Y:
-                                if (!tig_net_is_active()) {
-                                    critter_give_xp(pc_obj, level_experience_points_to_next_level(pc_obj));
-                                } else if (tig_net_is_host()) {
-                                    party_member_obj = multiplayer_player_find_first();
-                                    while (party_member_obj != OBJ_HANDLE_NULL) {
-                                        critter_give_xp(party_member_obj, level_experience_points_to_next_level(party_member_obj));
-                                        party_member_obj = multiplayer_player_find_next();
-                                    }
-                                }
+                                critter_give_xp(pc_obj, level_experience_points_to_next_level(pc_obj));
                                 break;
                             case SDL_SCANCODE_4:
                                 if (tig_kb_get_modifier(SDL_KMOD_SHIFT)) {
