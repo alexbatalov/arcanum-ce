@@ -19,6 +19,7 @@
 #include "game/gamelib.h"
 #include "game/gmovie.h"
 #include "game/gsound.h"
+#include "game/highres_config.h"
 #include "game/hrp.h"
 #include "game/item.h"
 #include "game/level.h"
@@ -67,6 +68,7 @@ int main(int argc, char** argv)
     TigInitInfo init_info;
     TigVideoScreenshotSettings screenshotter;
     GameInitInfo game_init_info;
+    const HighResConfig* highres_config;
     char* pch;
     int value;
     tig_art_id_t cursor_art_id;
@@ -85,9 +87,16 @@ int main(int argc, char** argv)
     char lpCmdLine[260];
     build_cmd_line(lpCmdLine, sizeof(lpCmdLine), argc, argv);
 
+    highres_config_load();
+    highres_config = highres_config_get();
+
     init_info.texture_width = 1024;
     init_info.texture_height = 1024;
     init_info.flags = 0;
+
+    if (highres_config->show_fps) {
+        init_info.flags |= TIG_INITIALIZE_FPS;
+    }
 
     pch = lpCmdLine;
     while (*pch != '\0') {
@@ -165,12 +174,16 @@ int main(int argc, char** argv)
         gamelib_patch_lvl_set(pch + 9);
     }
 
-    init_info.width = 800;
-    init_info.height = 600;
+    init_info.width = highres_config->width;
+    init_info.height = highres_config->height;
     init_info.bpp = 32;
     init_info.art_file_path_resolver = name_resolve_path;
     init_info.art_id_reset_func = name_normalize_aid;
     init_info.sound_file_path_resolver = gsound_resolve_path;
+
+    if (highres_config->windowed) {
+        init_info.flags |= TIG_INITIALIZE_WINDOWED;
+    }
 
     // NOTE: The `window` switch is borrowed from ToEE.
     if (strstr(lpCmdLine, "-window") != NULL) {
@@ -238,7 +251,7 @@ int main(int argc, char** argv)
         value = atoi(pch + 11);
         scroll_fps_set(value);
     } else {
-        scroll_fps_set(35);
+        scroll_fps_set(highres_config->scroll_fps);
     }
 
     pch = strstr(lpCmdLine, "-scrolldist:");
@@ -246,7 +259,7 @@ int main(int argc, char** argv)
         value = atoi(pch + 12);
         scroll_distance_set(value);
     } else {
-        scroll_distance_set(10);
+        scroll_distance_set(highres_config->scroll_dist);
     }
 
     pch = strstr(lpCmdLine, "-mod:");
@@ -277,7 +290,9 @@ int main(int argc, char** argv)
         return EXIT_SUCCESS; // FIXME: Should be `EXIT_FAILURE`.
     }
 
-    gmovie_play(8, GAME_MOVIE_NO_FINAL_FLIP, 0);
+    if (highres_config->intro) {
+        gmovie_play(8, GAME_MOVIE_NO_FINAL_FLIP, 0);
+    }
 
     if (!mainmenu_ui_handle()) {
         gameuilib_exit();
@@ -401,7 +416,14 @@ void main_loop(void)
             if (message.type == TIG_MESSAGE_KEYBOARD) {
                 if (!message.data.keyboard.pressed) {
                     switch (message.data.keyboard.scancode) {
-                    case SDL_SCANCODE_ESCAPE:
+                    case SDL_SCANCODE_ESCAPE: {
+                        IntgameMode esc_mode = intgame_mode_get();
+                        if (esc_mode != INTGAME_MODE_MAIN
+                            && esc_mode != INTGAME_MODE_DIALOG
+                            && esc_mode != INTGAME_MODE_BARTER) {
+                            intgame_mode_set(INTGAME_MODE_MAIN);
+                            break;
+                        }
                         if (sub_567A10()
                             || wmap_ui_is_created()
                             || (combat_turn_based_is_active()
@@ -414,6 +436,7 @@ void main_loop(void)
                             return;
                         }
                         break;
+                    }
                     case SDL_SCANCODE_F10:
                         intgame_toggle_interface();
                         tig_debug_printf("iso_redraw...");
