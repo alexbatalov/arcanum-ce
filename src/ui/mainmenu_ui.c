@@ -1749,6 +1749,13 @@ bool mainmenu_ui_handle(void)
             case TIG_MESSAGE_REDRAW:
                 gamelib_redraw();
                 break;
+            case TIG_MESSAGE_KEYBOARD:
+                if (!msg.data.keyboard.pressed
+                    && msg.data.keyboard.scancode == SDL_SCANCODE_ESCAPE
+                    && mainmenu_ui_window_type != MM_WINDOW_MAINMENU) {
+                    mainmenu_ui_close(true);
+                }
+                break;
             default:
                 break;
             }

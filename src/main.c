@@ -418,7 +418,14 @@ void main_loop(void)
             if (message.type == TIG_MESSAGE_KEYBOARD) {
                 if (!message.data.keyboard.pressed) {
                     switch (message.data.keyboard.scancode) {
-                    case SDL_SCANCODE_ESCAPE:
+                    case SDL_SCANCODE_ESCAPE: {
+                        IntgameMode esc_mode = intgame_mode_get();
+                        if (esc_mode != INTGAME_MODE_MAIN
+                            && esc_mode != INTGAME_MODE_DIALOG
+                            && esc_mode != INTGAME_MODE_BARTER) {
+                            intgame_mode_set(INTGAME_MODE_MAIN);
+                            break;
+                        }
                         if (sub_567A10()
                             || wmap_ui_is_created()
                             || tig_net_is_active()
@@ -432,6 +439,7 @@ void main_loop(void)
                             return;
                         }
                         break;
+                    }
                     case SDL_SCANCODE_F10:
                         intgame_toggle_interface();
                         tig_debug_printf("iso_redraw...");
