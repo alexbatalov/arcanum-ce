@@ -139,7 +139,7 @@ static void intgame_ammo_icon_refresh(tig_art_id_t art_id);
 static bool iso_interface_message_filter(TigMessage* msg);
 static void intgame_secondary_button_toggle(IntgameSecondaryButton btn, RotatingWindowType window_type);
 static bool handle_button_unhover(TigMessage* msg);
-static void sub_54EB60(void);
+static void intgame_center_on_player(void);
 static void intgame_combat_mode_toggle(void);
 static void sub_54ECD0(void);
 static void sub_54ED30(S4F2810* a1);
@@ -2788,7 +2788,7 @@ void intgame_process_event(TigMessage* msg)
                     sub_4C3BE0(msg->data.keyboard.scancode - SDL_SCANCODE_F1, loc);
                     break;
                 case SDL_SCANCODE_HOME:
-                    sub_54EB60();
+                    intgame_center_on_player();
                     break;
                 default:
                     break;
@@ -2852,7 +2852,7 @@ void intgame_process_event(TigMessage* msg)
                         sub_4C3BE0(msg->data.keyboard.scancode - SDL_SCANCODE_F1, loc);
                         break;
                     case SDL_SCANCODE_HOME:
-                        sub_54EB60();
+                        intgame_center_on_player();
                         break;
                     default:
                         break;
@@ -2916,7 +2916,7 @@ void intgame_process_event(TigMessage* msg)
                         sub_4C3BE0(msg->data.keyboard.scancode - SDL_SCANCODE_F1, loc);
                         break;
                     case SDL_SCANCODE_HOME:
-                        sub_54EB60();
+                        intgame_center_on_player();
                         break;
                     default:
                         break;
@@ -3056,7 +3056,7 @@ void intgame_process_event(TigMessage* msg)
                     sub_4C3BE0(msg->data.keyboard.scancode - SDL_SCANCODE_F1, loc);
                     break;
                 case SDL_SCANCODE_HOME:
-                    sub_54EB60();
+                    intgame_center_on_player();
                     break;
                 default:
                     break;
@@ -3126,7 +3126,7 @@ bool sub_54EB50(void)
 }
 
 // 0x54EB60
-void sub_54EB60(void)
+void intgame_center_on_player(void)
 {
     int64_t obj;
     int64_t loc;
