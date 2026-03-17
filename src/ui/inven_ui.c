@@ -2190,7 +2190,7 @@ bool inven_ui_message_filter(TigMessage* msg)
                 return true;
             }
         } else if (msg->data.mouse.event == TIG_MESSAGE_MOUSE_LEFT_BUTTON_UP
-            || (msg->data.mouse.event == TIG_MESSAGE_MOUSE_RIGHT_BUTTON_UP && sub_54EB50())) {
+            || (msg->data.mouse.event == TIG_MESSAGE_MOUSE_RIGHT_BUTTON_UP && intgame_hotkey_is_dragging())) {
             // 0x574559
             if (inven_ui_message_filter_handle_mouse_lbutton_up(msg->data.mouse.x, msg->data.mouse.y, &v45)) {
                 return true;

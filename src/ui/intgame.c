@@ -3120,7 +3120,7 @@ void sub_54EA80(S4F2810* a1)
 }
 
 // 0x54EB50
-bool sub_54EB50(void)
+bool intgame_hotkey_is_dragging(void)
 {
     return hotkey_ui_is_dragging();
 }
