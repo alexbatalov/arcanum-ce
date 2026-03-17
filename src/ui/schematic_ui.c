@@ -738,7 +738,7 @@ bool schematic_ui_message_filter(TigMessage* msg)
                 mes_get_msg(schematic_ui_text_mes_file, &mes_file_entry);
                 ui_message.type = UI_MSG_TYPE_FEEDBACK;
                 ui_message.str = mes_file_entry.str;
-                sub_550750(&ui_message);
+                intgame_message_window_display_msg(&ui_message);
                 return true;
             }
 
@@ -748,7 +748,7 @@ bool schematic_ui_message_filter(TigMessage* msg)
                 mes_get_msg(schematic_ui_text_mes_file, &mes_file_entry);
                 ui_message.type = UI_MSG_TYPE_FEEDBACK;
                 ui_message.str = mes_file_entry.str;
-                sub_550750(&ui_message);
+                intgame_message_window_display_msg(&ui_message);
                 return true;
             }
 
@@ -758,7 +758,7 @@ bool schematic_ui_message_filter(TigMessage* msg)
                 mes_get_msg(schematic_ui_text_mes_file, &mes_file_entry);
                 ui_message.type = UI_MSG_TYPE_FEEDBACK;
                 ui_message.str = mes_file_entry.str;
-                sub_550750(&ui_message);
+                intgame_message_window_display_msg(&ui_message);
                 return true;
             }
 
@@ -767,7 +767,7 @@ bool schematic_ui_message_filter(TigMessage* msg)
                 if (msg->data.button.button_handle == schematic_ui_tabs[tech].button_handle) {
                     ui_message.type = UI_MSG_TYPE_TECH;
                     ui_message.field_8 = tech;
-                    sub_550750(&ui_message);
+                    intgame_message_window_display_msg(&ui_message);
                     return true;
                 }
             }
@@ -895,14 +895,14 @@ bool schematic_ui_message_filter(TigMessage* msg)
                     mes_get_msg(schematic_ui_text_mes_file, &mes_file_entry);
                     ui_message.type = UI_MSG_TYPE_EXCLAMATION;
                     ui_message.str = mes_file_entry.str;
-                    sub_550750(&ui_message);
+                    intgame_message_window_display_msg(&ui_message);
                     break;
                 case SCHEMATIC_UI_READINESS_NO_EXPERTISE:
                     mes_file_entry.num = 1; // "You lack the expertise to combine these items."
                     mes_get_msg(schematic_ui_text_mes_file, &mes_file_entry);
                     ui_message.type = UI_MSG_TYPE_EXCLAMATION;
                     ui_message.str = mes_file_entry.str;
-                    sub_550750(&ui_message);
+                    intgame_message_window_display_msg(&ui_message);
                     break;
                 case SCHEMATIC_UI_READINESS_COUNT:
                     // Should be unreachable.
@@ -1518,7 +1518,7 @@ bool schematic_ui_feedback(bool success, int64_t primary_obj, int64_t secondary_
 
         ui_message.type = UI_MSG_TYPE_EXCLAMATION;
         ui_message.str = mes_file_entry.str;
-        sub_550750(&ui_message);
+        intgame_message_window_display_msg(&ui_message);
 
         schematic_ui_redraw();
 

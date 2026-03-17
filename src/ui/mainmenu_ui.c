@@ -5123,7 +5123,7 @@ bool sub_546EE0(TigMessage* msg)
 
                 ui_message.type = UI_MSG_TYPE_FEEDBACK;
                 ui_message.str = str;
-                sub_550750(&ui_message);
+                intgame_message_window_display_msg(&ui_message);
                 return true;
             }
 
@@ -5803,7 +5803,7 @@ void mainmenu_ui_feedback(int num)
         mes_get_msg(mainmenu_ui_mainmenu_mes_file, &mes_file_entry);
         ui_message.type = UI_MSG_TYPE_FEEDBACK;
         ui_message.str = mes_file_entry.str;
-        sub_550750(&ui_message);
+        intgame_message_window_display_msg(&ui_message);
         tig_window_display();
     }
 }

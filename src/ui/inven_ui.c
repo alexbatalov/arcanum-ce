@@ -574,7 +574,7 @@ bool sub_572370(int64_t pc_obj, int64_t target_obj, int mode)
 
                     ui_message.type = UI_MSG_TYPE_EXCLAMATION;
                     ui_message.str = mes_file_entry.str;
-                    sub_550750(&ui_message);
+                    intgame_message_window_display_msg(&ui_message);
 
                     sound_id = sfx_container_sound(target_obj, CONTAINER_SOUND_LOCKED);
                     gsound_play_sfx(sound_id, 1);
@@ -1093,7 +1093,7 @@ bool inven_ui_create(int64_t pc_obj, int64_t target_obj, int mode)
 
         ui_message.type = UI_MSG_TYPE_EXCLAMATION;
         ui_message.str = mes_file_entry.str;
-        sub_550750(&ui_message);
+        intgame_message_window_display_msg(&ui_message);
     }
 
     inven_ui_arrange_vertical = false;

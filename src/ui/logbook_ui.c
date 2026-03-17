@@ -491,7 +491,7 @@ bool logbook_ui_message_filter(TigMessage* msg)
 
                     ui_message.type = UI_MSG_TYPE_FEEDBACK;
                     ui_message.str = mes_file_entry.str;
-                    sub_550750(&ui_message);
+                    intgame_message_window_display_msg(&ui_message);
 
                     return true;
                 }

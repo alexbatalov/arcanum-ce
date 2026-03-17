@@ -430,7 +430,7 @@ bool sub_57A770(int64_t source_obj, int64_t target_obj, bool success)
 
     ui_message.type = UI_MSG_TYPE_FEEDBACK;
     ui_message.str = mes_file_entry.str;
-    sub_550750(&ui_message);
+    intgame_message_window_display_msg(&ui_message);
 
     tf_add(source_obj, tf_type, mes_file_entry.str);
 
@@ -462,7 +462,7 @@ bool skill_ui_steal_item(int64_t source_obj, int64_t target_obj, int64_t item_ob
     ui_message.str = mes_file_entry.str;
 
     if (player_is_local_pc_obj(source_obj)) {
-        sub_550750(&ui_message);
+        intgame_message_window_display_msg(&ui_message);
     } else {
         client_id = multiplayer_find_slot_from_obj(source_obj);
         if (client_id != -1) {
@@ -502,7 +502,7 @@ bool skill_ui_plant_item(int64_t source_obj, int64_t target_obj, int64_t item_ob
     ui_message.str = mes_file_entry.str;
 
     if (player_is_local_pc_obj(source_obj)) {
-        sub_550750(&ui_message);
+        intgame_message_window_display_msg(&ui_message);
     } else {
         client_id = multiplayer_find_slot_from_obj(source_obj);
         if (client_id != -1) {
@@ -536,7 +536,7 @@ bool sub_57A990(int64_t source_obj, int64_t target_obj, bool success)
 
     ui_message.type = UI_MSG_TYPE_FEEDBACK;
     ui_message.str = mes_file_entry.str;
-    sub_550750(&ui_message);
+    intgame_message_window_display_msg(&ui_message);
 
     tf_add(source_obj, tf_type, mes_file_entry.str);
 
@@ -564,7 +564,7 @@ bool skill_ui_disarm_trap(int64_t source_obj, int64_t target_obj, bool success)
 
     ui_message.type = UI_MSG_TYPE_FEEDBACK;
     ui_message.str = mes_file_entry.str;
-    sub_550750(&ui_message);
+    intgame_message_window_display_msg(&ui_message);
 
     tf_add(source_obj, tf_type, mes_file_entry.str);
 
@@ -592,7 +592,7 @@ bool skill_ui_repair(int64_t source_obj, int64_t target_obj, bool success)
 
     ui_message.type = UI_MSG_TYPE_FEEDBACK;
     ui_message.str = mes_file_entry.str;
-    sub_550750(&ui_message);
+    intgame_message_window_display_msg(&ui_message);
 
     tf_add(source_obj, tf_type, mes_file_entry.str);
 
@@ -613,7 +613,7 @@ bool skill_ui_no_repair(int64_t source_obj, int64_t target_obj, bool success)
 
     ui_message.type = UI_MSG_TYPE_FEEDBACK;
     ui_message.str = mes_file_entry.str;
-    sub_550750(&ui_message);
+    intgame_message_window_display_msg(&ui_message);
 
     tf_add(source_obj, TF_TYPE_RED, mes_file_entry.str);
 
@@ -641,7 +641,7 @@ bool skill_ui_lock(int64_t source_obj, int64_t target_obj, bool success)
 
     ui_message.type = UI_MSG_TYPE_FEEDBACK;
     ui_message.str = mes_file_entry.str;
-    sub_550750(&ui_message);
+    intgame_message_window_display_msg(&ui_message);
 
     tf_add(source_obj, tf_type, mes_file_entry.str);
 
@@ -659,7 +659,7 @@ bool skill_ui_no_lock(int64_t source_obj)
 
     ui_message.type = UI_MSG_TYPE_FEEDBACK;
     ui_message.str = mes_file_entry.str;
-    sub_550750(&ui_message);
+    intgame_message_window_display_msg(&ui_message);
 
     tf_add(source_obj, TF_TYPE_RED, mes_file_entry.str);
 

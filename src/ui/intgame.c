@@ -1879,7 +1879,7 @@ bool sub_54B5D0(TigMessage* msg)
                 ui_message.type = UI_MSG_TYPE_FEEDBACK;
                 if (mes_search(intgame_mes_file, &mes_file_entry)) {
                     ui_message.str = mes_file_entry.str;
-                    sub_550750(&ui_message);
+                    intgame_message_window_display_msg(&ui_message);
                 }
             }
 
@@ -2211,7 +2211,7 @@ bool sub_54B5D0(TigMessage* msg)
 
                 ui_message.type = UI_MSG_TYPE_FEEDBACK;
                 ui_message.str = buffer;
-                sub_550750(&ui_message);
+                intgame_message_window_display_msg(&ui_message);
                 return true;
             }
 
@@ -3178,7 +3178,7 @@ void intgame_combat_mode_toggle(void)
 
             ui_message.type = UI_MSG_TYPE_FEEDBACK;
             ui_message.str = mes_file_entry.str;
-            sub_550750(&ui_message);
+            intgame_message_window_display_msg(&ui_message);
         }
     } else {
         combat_critter_activate_combat_mode(pc_obj);
@@ -3390,7 +3390,7 @@ void sub_54ED30(S4F2810* a1)
                     mes_get_msg(intgame_mes_file, &mes_file_entry);
                     ui_message.type = UI_MSG_TYPE_FEEDBACK;
                     ui_message.str = mes_file_entry.str;
-                    sub_550750(&ui_message);
+                    intgame_message_window_display_msg(&ui_message);
                     return;
                 }
             }
@@ -4057,7 +4057,7 @@ void intgame_message_window_clear(void)
 }
 
 // 0x550750
-void sub_550750(UiMessage* ui_message)
+void intgame_message_window_display_msg(UiMessage* ui_message)
 {
     sub_552770(ui_message);
     if (dword_64C6D4 != NULL) {
@@ -4099,7 +4099,7 @@ void intgame_message_window_display_spell(int spl)
         ui_message.field_8 = spl;
         ui_message.field_C = 0;
         ui_message.field_10 = player_get_local_pc_obj();
-        sub_550750(&ui_message);
+        intgame_message_window_display_msg(&ui_message);
         sub_552770(&ui_message);
     }
 }
@@ -4114,7 +4114,7 @@ void intgame_message_window_display_college(int college)
     } else {
         ui_message.type = UI_MSG_TYPE_COLLEGE;
         ui_message.field_8 = college;
-        sub_550750(&ui_message);
+        intgame_message_window_display_msg(&ui_message);
         sub_552770(&ui_message);
     }
 }
@@ -4130,7 +4130,7 @@ void intgame_message_window_display_skill(int value)
         ui_message.type = UI_MSG_TYPE_SKILL;
         ui_message.field_8 = sub_57A6A0(value);
         ui_message.field_C = 0;
-        sub_550750(&ui_message);
+        intgame_message_window_display_msg(&ui_message);
     }
 }
 
@@ -8285,7 +8285,7 @@ void intgame_there_is_nothing_to_loot(void)
 
     ui_message.type = UI_MSG_TYPE_FEEDBACK;
     ui_message.str = mes_file_entry.str;
-    sub_550750(&ui_message);
+    intgame_message_window_display_msg(&ui_message);
 }
 
 // 0x5576B0
@@ -8321,7 +8321,7 @@ void sub_557730(int index)
 
         ui_message.type = UI_MSG_TYPE_FEEDBACK;
         ui_message.str = mes_file_entry.str;
-        sub_550750(&ui_message);
+        intgame_message_window_display_msg(&ui_message);
     }
 }
 

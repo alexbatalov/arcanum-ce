@@ -1158,7 +1158,7 @@ void wmap_ui_open_internal(void)
 
         ui_message.type = UI_MSG_TYPE_FEEDBACK;
         ui_message.str = mes_file_entry.str;
-        sub_550750(&ui_message);
+        intgame_message_window_display_msg(&ui_message);
 
         return;
     }
@@ -1171,7 +1171,7 @@ void wmap_ui_open_internal(void)
 
         ui_message.type = UI_MSG_TYPE_FEEDBACK;
         ui_message.str = mes_file_entry.str;
-        sub_550750(&ui_message);
+        intgame_message_window_display_msg(&ui_message);
 
         return;
     }
@@ -1183,7 +1183,7 @@ void wmap_ui_open_internal(void)
 
             ui_message.type = UI_MSG_TYPE_FEEDBACK;
             ui_message.str = mes_file_entry.str;
-            sub_550750(&ui_message);
+            intgame_message_window_display_msg(&ui_message);
 
             return;
         }
@@ -1201,7 +1201,7 @@ void wmap_ui_open_internal(void)
 
         ui_message.type = UI_MSG_TYPE_FEEDBACK;
         ui_message.str = mes_file_entry.str;
-        sub_550750(&ui_message);
+        intgame_message_window_display_msg(&ui_message);
 
         return;
     }
@@ -1241,7 +1241,7 @@ void wmap_ui_open_internal(void)
 
         ui_message.type = UI_MSG_TYPE_FEEDBACK;
         ui_message.str = mes_file_entry.str;
-        sub_550750(&ui_message);
+        intgame_message_window_display_msg(&ui_message);
 
         return;
     }
@@ -1488,7 +1488,7 @@ bool wmap_ui_create(void)
             mes_get_msg(wmap_ui_worldmap_mes_file, &mes_file_entry);
             ui_message.type = UI_MSG_TYPE_FEEDBACK;
             ui_message.str = mes_file_entry.str;
-            sub_550750(&ui_message);
+            intgame_message_window_display_msg(&ui_message);
             return false;
         }
 
@@ -2223,7 +2223,7 @@ bool wmap_ui_message_filter(TigMessage* msg)
                 sprintf(str, "%s\n%s", wmap_ui_action, mes_file_entry.str);
                 ui_message.type = UI_MSG_TYPE_FEEDBACK;
                 ui_message.str = str;
-                sub_550750(&ui_message);
+                intgame_message_window_display_msg(&ui_message);
             } else {
                 tig_debug_printf("WmapUI: ERROR: Hover Text for button is Unreachable!\n");
             }
@@ -2515,7 +2515,7 @@ void wmap_ui_mode_set(WmapUiMode mode)
 
             ui_message.type = UI_MSG_TYPE_FEEDBACK;
             ui_message.str = mes_file_entry.str;
-            sub_550750(&ui_message);
+            intgame_message_window_display_msg(&ui_message);
             return;
         }
         break;
@@ -3604,7 +3604,7 @@ bool sub_5643E0(WmapCoords* coords)
             mes_get_msg(wmap_ui_worldmap_mes_file, &mes_file_entry);
             ui_message.type = UI_MSG_TYPE_FEEDBACK;
             ui_message.str = mes_file_entry.str;
-            sub_550750(&ui_message);
+            intgame_message_window_display_msg(&ui_message);
             return false;
         }
 
@@ -3618,7 +3618,7 @@ bool sub_5643E0(WmapCoords* coords)
             mes_get_msg(wmap_ui_worldmap_mes_file, &mes_file_entry);
             ui_message.type = UI_MSG_TYPE_FEEDBACK;
             ui_message.str = mes_file_entry.str;
-            sub_550750(&ui_message);
+            intgame_message_window_display_msg(&ui_message);
             return false;
         }
     } else {
@@ -3644,7 +3644,7 @@ bool sub_5643E0(WmapCoords* coords)
             mes_get_msg(wmap_ui_worldmap_mes_file, &mes_file_entry);
             ui_message.type = UI_MSG_TYPE_FEEDBACK;
             ui_message.str = mes_file_entry.str;
-            sub_550750(&ui_message);
+            intgame_message_window_display_msg(&ui_message);
             return false;
         }
     }

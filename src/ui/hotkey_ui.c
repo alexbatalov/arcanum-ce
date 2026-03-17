@@ -860,7 +860,7 @@ bool sub_57E8D0(TigMessageMouseEvent mouse_event)
 
             ui_message.type = UI_MSG_TYPE_FEEDBACK;
             ui_message.str = mes_file_entry.str;
-            sub_550750(&ui_message);
+            intgame_message_window_display_msg(&ui_message);
 
             hotkey_ui_dragging = false;
             sub_575770();

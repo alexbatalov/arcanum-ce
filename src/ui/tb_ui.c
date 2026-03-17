@@ -64,7 +64,7 @@ bool tb_ui_init(GameInitInfo* init_info)
     (void)init_info;
 
     callbacks.field_7C = sub_57CBE0;
-    callbacks.field_80 = sub_550750;
+    callbacks.field_80 = intgame_message_window_display_msg;
     callbacks.field_58 = sub_57CCF0;
     callbacks.spell_add = spell_ui_add;
     callbacks.spell_maintain_add = spell_ui_maintain_add;
@@ -231,7 +231,7 @@ void sub_57CBE0(char* str)
 
     ui_message.type = UI_MSG_TYPE_EXCLAMATION;
     ui_message.str = str;
-    sub_550750(&ui_message);
+    intgame_message_window_display_msg(&ui_message);
 }
 
 // 0x57CC10

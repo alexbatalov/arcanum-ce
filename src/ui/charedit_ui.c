@@ -1408,7 +1408,7 @@ bool charedit_window_message_filter(TigMessage* msg)
                         stat = charedit_stat_map_to_critter_stat(param);
                         if (stat_level_get(charedit_obj, stat) >= stat_level_max(charedit_obj, stat)) {
                             charedit_error_msg.str = charedit_errors[CHAREDIT_ERR_STAT_AT_MAX];
-                            sub_550750(&charedit_error_msg);
+                            intgame_message_window_display_msg(&charedit_error_msg);
                             return true;
                         }
                         cost = stat_cost(value);
@@ -1417,7 +1417,7 @@ bool charedit_window_message_filter(TigMessage* msg)
                     unspent_points = stat_level_get(charedit_obj, STAT_UNSPENT_POINTS);
                     if (cost > unspent_points) {
                         charedit_error_msg.str = charedit_errors[CHAREDIT_ERR_NOT_ENOUGH_CHARACTER_POINTS];
-                        sub_550750(&charedit_error_msg);
+                        intgame_message_window_display_msg(&charedit_error_msg);
                         return true;
                     }
 
@@ -1439,7 +1439,7 @@ bool charedit_window_message_filter(TigMessage* msg)
 
                     if (charedit_stat_value_get(charedit_obj, param) < value) {
                         charedit_error_msg.str = charedit_errors[CHAREDIT_ERR_STAT_AT_MAX];
-                        sub_550750(&charedit_error_msg);
+                        intgame_message_window_display_msg(&charedit_error_msg);
                         return true;
                     }
 
@@ -1454,7 +1454,7 @@ bool charedit_window_message_filter(TigMessage* msg)
                     value = charedit_stat_value_get(charedit_obj, param);
                     if (value == dword_64D304[param]) {
                         charedit_error_msg.str = charedit_errors[CHAREDIT_ERR_STAT_AT_ACCEPTED_LEVEL];
-                        sub_550750(&charedit_error_msg);
+                        intgame_message_window_display_msg(&charedit_error_msg);
                         return true;
                     }
 
@@ -1485,35 +1485,35 @@ bool charedit_window_message_filter(TigMessage* msg)
                     if (charedit_stat_value_get(charedit_obj, param) > value) {
                         if (value == 0) {
                             charedit_error_msg.str = charedit_errors[CHAREDIT_ERR_STAT_AT_MIN];
-                            sub_550750(&charedit_error_msg);
+                            intgame_message_window_display_msg(&charedit_error_msg);
                             return true;
                         }
 
                         if (dword_5C8124[index] != -1
                             && !skill_check_stat(charedit_obj, dword_5C8124[index], value - 1)) {
                             charedit_error_msg.str = charedit_errors[CHAREDIT_ERR_STAT_SKILL_PREREQUISITE];
-                            sub_550750(&charedit_error_msg);
+                            intgame_message_window_display_msg(&charedit_error_msg);
                             return true;
                         }
 
                         if (param == CHAREDIT_STAT_INTELLIGENCE_BASE
                             && !spell_check_intelligence(charedit_obj, value - 1)) {
                             charedit_error_msg.str = charedit_errors[CHAREDIT_ERR_INTELLIGENCE_SPELL_PREREQUISITE];
-                            sub_550750(&charedit_error_msg);
+                            intgame_message_window_display_msg(&charedit_error_msg);
                             return true;
                         }
 
                         if (param == CHAREDIT_STAT_INTELLIGENCE_BASE
                             && !tech_check_intelligence(charedit_obj, value - 1)) {
                             charedit_error_msg.str = charedit_errors[CHAREDIT_ERR_INTELLIGENCE_TECH_PREREQUISITE];
-                            sub_550750(&charedit_error_msg);
+                            intgame_message_window_display_msg(&charedit_error_msg);
                             return true;
                         }
 
                         if (param == CHAREDIT_STAT_WILLPOWER_BASE
                             && !spell_check_willpower(charedit_obj, value - 1)) {
                             charedit_error_msg.str = charedit_errors[CHAREDIT_ERR_WILLPOWER_SPELL_PREREQUISITE];
-                            sub_550750(&charedit_error_msg);
+                            intgame_message_window_display_msg(&charedit_error_msg);
                             return true;
                         }
 
@@ -1652,7 +1652,7 @@ void charedit_show_hint(int hint)
         mes_file_entry.num = hint;
         if (mes_search(charedit_mes_file, &mes_file_entry)) {
             ui_message.str = mes_file_entry.str;
-            sub_550750(&ui_message);
+            intgame_message_window_display_msg(&ui_message);
         }
     } else if (hint >= 1000 && hint < 1999) {
         ui_message.type = UI_MSG_TYPE_SKILL;
@@ -1662,32 +1662,32 @@ void charedit_show_hint(int hint)
         } else {
             ui_message.field_C = basic_skill_min_stat_level_required(basic_skill_base(charedit_obj, GET_BASIC_SKILL(ui_message.field_8)) + 4);
         }
-        sub_550750(&ui_message);
+        intgame_message_window_display_msg(&ui_message);
     } else if (hint >= 2000 && hint < 2999) {
         ui_message.type = UI_MSG_TYPE_SPELL;
         ui_message.field_8 = hint - 2000;
         ui_message.field_C = spell_cost(hint - 2000);
         ui_message.field_10 = charedit_obj;
-        sub_550750(&ui_message);
+        intgame_message_window_display_msg(&ui_message);
     } else if (hint >= 3000 && hint < 3999) {
         ui_message.type = UI_MSG_TYPE_COLLEGE;
         ui_message.field_8 = hint - 3000;
-        sub_550750(&ui_message);
+        intgame_message_window_display_msg(&ui_message);
     } else if (hint >= 4000 && hint < 4999) {
         ui_message.type = UI_MSG_TYPE_TECH;
         ui_message.field_8 = hint - 4000;
-        sub_550750(&ui_message);
+        intgame_message_window_display_msg(&ui_message);
     } else if (hint >= 5000 && hint < 5999) {
         ui_message.type = UI_MSG_TYPE_DEGREE;
         ui_message.field_8 = hint - 5000;
         ui_message.field_C = tech_degree_cost_get(ui_message.field_8 % DEGREE_COUNT);
-        sub_550750(&ui_message);
+        intgame_message_window_display_msg(&ui_message);
     } else {
         ui_message.type = UI_MSG_TYPE_FEEDBACK;
         mes_file_entry.num = hint;
         if (mes_search(charedit_mes_file, &mes_file_entry)) {
             ui_message.str = mes_file_entry.str;
-            sub_550750(&ui_message);
+            intgame_message_window_display_msg(&ui_message);
         }
     }
 }
@@ -3042,7 +3042,7 @@ bool charedit_skills_win_message_filter(TigMessage* msg)
 
                     if (basic_skill_points_get(charedit_obj, charedit_skills_minus_buttons[index].art_num) == dword_64C7B8[charedit_skills_minus_buttons[index].art_num]) {
                         charedit_error_msg.str = charedit_errors[CHAREDIT_ERR_SKILL_AT_ACCEPTED_LEVEL];
-                        sub_550750(&charedit_error_msg);
+                        intgame_message_window_display_msg(&charedit_error_msg);
                     } else {
                         skill_ui_dec_skill(charedit_obj, charedit_skills_minus_buttons[index].art_num);
                     }
@@ -3133,7 +3133,7 @@ bool sub_55D6F0(TigMessage* msg)
                         || multiplayer_is_locked()) {
                         if (tech_skill_points_get(charedit_obj, charedit_skills_minus_buttons[BASIC_SKILL_COUNT + index].art_num) == dword_64C82C[charedit_skills_minus_buttons[BASIC_SKILL_COUNT + index].art_num]) {
                             charedit_error_msg.str = charedit_errors[CHAREDIT_ERR_SKILL_AT_ACCEPTED_LEVEL];
-                            sub_550750(&charedit_error_msg);
+                            intgame_message_window_display_msg(&charedit_error_msg);
                         } else {
                             skill_ui_dec_skill(charedit_obj, charedit_skills_minus_buttons[BASIC_SKILL_COUNT + index].art_num + 12);
                         }
@@ -3401,7 +3401,7 @@ bool charedit_spells_win_message_filter(TigMessage* msg)
                     v1 = spell_college_level_get(charedit_obj, dword_64E024);
                     if (v1 == dword_64D364[dword_64E024]) {
                         charedit_error_msg.str = charedit_errors[CHAREDIT_ERR_SPELL_AT_ACCEPTED_LEVEL];
-                        sub_550750(&charedit_error_msg);
+                        intgame_message_window_display_msg(&charedit_error_msg);
                     } else {
                         spell_ui_remove(charedit_obj, 5 * dword_64E024 + v1 - 1);
                     }
@@ -3914,7 +3914,7 @@ void charedit_error_not_enough_character_points(void)
     }
 
     charedit_error_msg.str = charedit_errors[CHAREDIT_ERR_NOT_ENOUGH_CHARACTER_POINTS];
-    sub_550750(&charedit_error_msg);
+    intgame_message_window_display_msg(&charedit_error_msg);
 }
 
 // 0x55F180
@@ -3925,7 +3925,7 @@ void charedit_error_not_enough_level(void)
     }
 
     charedit_error_msg.str = charedit_errors[CHAREDIT_ERR_NOT_ENOUGH_LEVEL];
-    sub_550750(&charedit_error_msg);
+    intgame_message_window_display_msg(&charedit_error_msg);
 }
 
 // 0x55F1A0
@@ -3936,7 +3936,7 @@ void charedit_error_not_enough_intelligence(void)
     }
 
     charedit_error_msg.str = charedit_errors[CHAREDIT_ERR_NOT_ENOUGH_INTELLIGENCE];
-    sub_550750(&charedit_error_msg);
+    intgame_message_window_display_msg(&charedit_error_msg);
 }
 
 // 0x55F1C0
@@ -3947,7 +3947,7 @@ void charedit_error_not_enough_willpower(void)
     }
 
     charedit_error_msg.str = charedit_errors[CHAREDIT_ERR_NOT_ENOUGH_WILLPOWER];
-    sub_550750(&charedit_error_msg);
+    intgame_message_window_display_msg(&charedit_error_msg);
 }
 
 // 0x55F1E0
@@ -3958,7 +3958,7 @@ void charedit_error_skill_at_max(void)
     }
 
     charedit_error_msg.str = charedit_errors[CHAREDIT_ERR_SKILL_AT_MAX];
-    sub_550750(&charedit_error_msg);
+    intgame_message_window_display_msg(&charedit_error_msg);
 }
 
 // 0x55F200
@@ -3971,39 +3971,39 @@ void charedit_error_not_enough_stat(int stat)
     switch (stat) {
     case STAT_STRENGTH:
         charedit_error_msg.str = charedit_errors[CHAREDIT_ERR_NOT_ENOUGH_STRENGTH];
-        sub_550750(&charedit_error_msg);
+        intgame_message_window_display_msg(&charedit_error_msg);
         break;
     case STAT_DEXTERITY:
         charedit_error_msg.str = charedit_errors[CHAREDIT_ERR_NOT_ENOUGH_DEXTERITY];
-        sub_550750(&charedit_error_msg);
+        intgame_message_window_display_msg(&charedit_error_msg);
         break;
     case STAT_CONSTITUTION:
         charedit_error_msg.str = charedit_errors[CHAREDIT_ERR_NOT_ENOUGH_CONSTITUTION];
-        sub_550750(&charedit_error_msg);
+        intgame_message_window_display_msg(&charedit_error_msg);
         break;
     case STAT_BEAUTY:
         charedit_error_msg.str = charedit_errors[CHAREDIT_ERR_NOT_ENOUGH_BEAUTY];
-        sub_550750(&charedit_error_msg);
+        intgame_message_window_display_msg(&charedit_error_msg);
         break;
     case STAT_INTELLIGENCE:
         charedit_error_msg.str = charedit_errors[CHAREDIT_ERR_NOT_ENOUGH_INTELLIGENCE];
-        sub_550750(&charedit_error_msg);
+        intgame_message_window_display_msg(&charedit_error_msg);
         break;
     case STAT_PERCEPTION:
         charedit_error_msg.str = charedit_errors[CHAREDIT_ERR_NOT_ENOUGH_PERCEPTION];
-        sub_550750(&charedit_error_msg);
+        intgame_message_window_display_msg(&charedit_error_msg);
         break;
     case STAT_WILLPOWER:
         charedit_error_msg.str = charedit_errors[CHAREDIT_ERR_NOT_ENOUGH_WILLPOWER];
-        sub_550750(&charedit_error_msg);
+        intgame_message_window_display_msg(&charedit_error_msg);
         break;
     case STAT_CHARISMA:
         charedit_error_msg.str = charedit_errors[CHAREDIT_ERR_NOT_ENOUGH_CHARISMA];
-        sub_550750(&charedit_error_msg);
+        intgame_message_window_display_msg(&charedit_error_msg);
         break;
     default:
         charedit_error_msg.str = charedit_errors[CHAREDIT_ERR_NOT_ENOUGH_STATS];
-        sub_550750(&charedit_error_msg);
+        intgame_message_window_display_msg(&charedit_error_msg);
         break;
     }
 }
@@ -4016,7 +4016,7 @@ void charedit_error_skill_is_zero(void)
     }
 
     charedit_error_msg.str = charedit_errors[CHAREDIT_ERR_NO_POINTS_IN_SKILL];
-    sub_550750(&charedit_error_msg);
+    intgame_message_window_display_msg(&charedit_error_msg);
 }
 
 // 0x55F340
@@ -4027,7 +4027,7 @@ void charedit_error_skill_at_min(void)
     }
 
     charedit_error_msg.str = charedit_errors[CHAREDIT_ERR_SKILL_AT_MIN];
-    sub_550750(&charedit_error_msg);
+    intgame_message_window_display_msg(&charedit_error_msg);
 }
 
 // 0x55F360

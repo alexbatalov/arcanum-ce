@@ -92,7 +92,7 @@ void intgame_hotkey_activate(Hotkey* hotkey);
 void intgame_hotkey_highlight(Hotkey* hotkey);
 void iso_interface_window_set(RotatingWindowType window_type);
 void intgame_message_window_clear(void);
-void sub_550750(UiMessage* ui_message);
+void intgame_message_window_display_msg(UiMessage* ui_message);
 void sub_550770(int a1, char* str);
 void sub_5507D0(void (*func)(UiMessage* ui_message));
 void intgame_message_window_display_spell(int spl);
