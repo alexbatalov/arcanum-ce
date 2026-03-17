@@ -1315,7 +1315,7 @@ void wmap_rnd_encounter_spawn(WmapRndEncounterTableEntry* entry)
             // tile (range 6). Destroy the monster if none can be found.
             if (tile_is_blocking(loc, 0)) {
                 pc_obj = player_get_local_pc_obj();
-                if (!sub_4F4E40(pc_obj, 6, &loc) || tile_is_blocking(loc, false)) {
+                if (!target_find_displacement_loc(pc_obj, 6, &loc) || tile_is_blocking(loc, false)) {
                     object_destroy(obj);
                     obj = OBJ_HANDLE_NULL;
                 } else {

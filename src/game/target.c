@@ -15,26 +15,52 @@ static void target_list_add_obj_unless_off(TargetList* list, int64_t obj);
 static void target_list_add_obj_unless_destroyed(TargetList* list, int64_t obj);
 static void target_list_add_loc(TargetList* list, int64_t loc);
 
-// 0x603B88
-static PathCreateInfo stru_603B88;
+/**
+ * Scratch path-finding state reused across targeting operations that require
+ * path computation.
+ *
+ * 0x603B88
+ */
+static PathCreateInfo target_path_create_info;
 
 // 0x603BB0
 static TigRect target_iso_content_rect;
 
-// 0x603BC4
-static int8_t byte_603BC4[200];
+/**
+ * Array of directions filled by the pathfinder.
+ *
+ * 0x603BC4
+ */
+static int8_t target_path_rotations[200];
 
-// 0x603C94
-static int dword_603C94;
+/**
+ * The current step index while walking `target_path_rotations` after a
+ * successful pathfinding call.
+ *
+ * 0x603C94
+ */
+static int target_path_step;
 
-// 0x603C98
-static int dword_603C98;
+/**
+ * The number of valid steps computed by the most recent pathfinding call.
+ *
+ * 0x603C98
+ */
+static int target_path_length;
 
-// 0x603CA8
-static int64_t qword_603CA8;
+/**
+ * The starting tile location of the most recently computed path.
+ *
+ * 0x603CA8
+ */
+static int64_t target_path_from;
 
-// 0x603CB0
-static int64_t qword_603CB0;
+/**
+ * The ending tile location of the most recently computed path.
+ *
+ * 0x603CB0
+ */
+static int64_t target_path_to;
 
 // 0x603CB8
 static S603CB8 stru_603CB8;
@@ -879,18 +905,18 @@ bool sub_4F2D20(S603CB8* a1)
 
     if ((tgt & 0x20000) != 0
         && a1->source_obj != OBJ_HANDLE_NULL) {
-        stru_603B88.obj = a1->source_obj;
-        stru_603B88.from = obj_field_int64_get(a1->source_obj, OBJ_F_LOCATION);
-        stru_603B88.to = a1->field_28;
-        stru_603B88.max_rotations = sizeof(byte_603BC4);
-        stru_603B88.rotations = byte_603BC4;
-        stru_603B88.flags = PATH_FLAG_0x0010;
+        target_path_create_info.obj = a1->source_obj;
+        target_path_create_info.from = obj_field_int64_get(a1->source_obj, OBJ_F_LOCATION);
+        target_path_create_info.to = a1->field_28;
+        target_path_create_info.max_rotations = sizeof(target_path_rotations);
+        target_path_create_info.rotations = target_path_rotations;
+        target_path_create_info.flags = PATH_FLAG_0x0010;
 
-        dword_603C98 = path_make(&stru_603B88);
-        qword_603CA8 = stru_603B88.from;
-        qword_603CB0 = stru_603B88.to;
+        target_path_length = path_make(&target_path_create_info);
+        target_path_from = target_path_create_info.from;
+        target_path_to = target_path_create_info.to;
 
-        if (dword_603C98 == 0) {
+        if (target_path_length == 0) {
             return false;
         }
     }
@@ -1480,8 +1506,15 @@ void sub_4F40B0(S603CB8* a1)
     }
 }
 
-// 0x4F4E40
-bool sub_4F4E40(int64_t obj, int distance, int64_t* loc_ptr)
+/**
+ * Finds a valid landing tile for `obj` at approximately `distance` steps away
+ * in a random direction.
+ *
+ * Returns `true` if a valid location was found, `false` otherwise.
+ *
+ * 0x4F4E40
+ */
+bool target_find_displacement_loc(int64_t obj, int distance, int64_t* loc_ptr)
 {
     int64_t from;
     int64_t to;
@@ -1495,52 +1528,65 @@ bool sub_4F4E40(int64_t obj, int distance, int64_t* loc_ptr)
     obj_type = obj_field_int32_get(obj, OBJ_F_TYPE);
     *loc_ptr = 0;
     to = from;
+
+    // Pick random direction.
     rotation = random_between(0, 8);
 
+    // "Walk" distance steps in that direction.
     for (idx = 0; idx < distance; idx++) {
         if (!location_in_dir(to, rotation, &to)) {
             return false;
         }
     }
 
-    stru_603B88.obj = obj;
-    stru_603B88.from = from;
-    stru_603B88.to = to;
-    stru_603B88.max_rotations = sizeof(byte_603BC4);
-    stru_603B88.rotations = byte_603BC4;
-    stru_603B88.flags = PATH_FLAG_0x0010;
+    // Setup path info.
+    target_path_create_info.obj = obj;
+    target_path_create_info.from = from;
+    target_path_create_info.to = to;
+    target_path_create_info.max_rotations = sizeof(target_path_rotations);
+    target_path_create_info.rotations = target_path_rotations;
+    target_path_create_info.flags = PATH_FLAG_0x0010;
 
-    dword_603C98 = path_make(&stru_603B88);
-    qword_603CB0 = stru_603B88.to;
-    qword_603CA8 = stru_603B88.from;
+    target_path_length = path_make(&target_path_create_info);
+    target_path_to = target_path_create_info.to;
+    target_path_from = target_path_create_info.from;
 
-    if ((dword_603C98 > 0 || stru_603B88.field_24 > 0)
-        && dword_603C98 < distance + 2) {
-        if (stru_603B88.field_24 == 0) {
-            stru_603B88.field_24 = dword_603C98;
+    if ((target_path_length > 0 || target_path_create_info.field_24 > 0)
+        && target_path_length < distance + 2) {
+        if (target_path_create_info.field_24 == 0) {
+            target_path_create_info.field_24 = target_path_length;
         }
 
+        // Start with current location.
         to = from;
 
-        dword_603C94 = 0;
-        while (dword_603C94 < stru_603B88.field_24) {
+        // Advance along the path.
+        target_path_step = 0;
+        while (target_path_step < target_path_create_info.field_24) {
             if (obj_type_is_critter(obj_type)) {
+                // Check if there are no critters on candidate loc.
                 object_list_location(to, OBJ_TM_CRITTER, &critters);
                 node = critters.head;
                 object_list_destroy(&critters);
                 if (node == NULL) {
+                    // No critters, location found.
                     break;
                 }
             }
 
-            if (!location_in_dir(to, byte_603BC4[dword_603C94], &to)) {
+            // Retrieve next location.
+            if (!location_in_dir(to, target_path_rotations[target_path_step], &to)) {
                 return false;
             }
+
+            target_path_step++;
         }
+
         *loc_ptr = to;
         return true;
-    } else {
-        *loc_ptr = from;
-        return true;
     }
+
+    // Cannot plot path, return current location as result.
+    *loc_ptr = from;
+    return true;
 }

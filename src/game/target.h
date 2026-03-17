@@ -187,6 +187,6 @@ bool sub_4F2CB0(int x, int y, TargetDescriptor* td, uint64_t tgt, bool fullscree
 int64_t sub_4F2D10(void);
 bool sub_4F2D20(S603CB8* a1);
 void sub_4F40B0(S603CB8* a1);
-bool sub_4F4E40(int64_t obj, int distance, int64_t* loc_ptr);
+bool target_find_displacement_loc(int64_t obj, int distance, int64_t* loc_ptr);
 
 #endif /* ARCANUM_GAME_TARGET_H_ */

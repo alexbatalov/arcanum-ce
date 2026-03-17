@@ -1953,7 +1953,7 @@ int script_execute_action(ScriptAction* action, int line, ScriptState* state)
         int64_t near_obj = script_get_obj(action->op_type[1], action->op_value[1], state);
         int64_t loc = -1;
         for (int attempt = 0; attempt < 10; attempt++) {
-            if (sub_4F4E40(near_obj, random_between(1, 3), &loc)) {
+            if (target_find_displacement_loc(near_obj, random_between(1, 3), &loc)) {
                 break;
             }
         }

@@ -2660,7 +2660,7 @@ void MTComponentMovement_ProcFunc(void)
             loc = magictech_cur_run_info->target_obj.loc;
             break;
         case 1:
-            sub_4F4E40(magictech_cur_run_info->target_obj.obj, magictech_cur_component->data.movement.tile_radius, &loc);
+            target_find_displacement_loc(magictech_cur_run_info->target_obj.obj, magictech_cur_component->data.movement.tile_radius, &loc);
             break;
         case 2:
             if (antiteleport_check(magictech_cur_run_info->parent_obj.obj, 0)) {

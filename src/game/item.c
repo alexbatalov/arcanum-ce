@@ -741,7 +741,7 @@ bool item_drop_ex(int64_t item_obj, int distance)
 
     if (distance > 0) {
         for (attempt = 0; attempt < 10; attempt++) {
-            if (sub_4F4E40(parent_obj, distance, &candidate_loc)) {
+            if (target_find_displacement_loc(parent_obj, distance, &candidate_loc)) {
                 loc = candidate_loc;
                 break;
             }
