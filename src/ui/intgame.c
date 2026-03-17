@@ -185,7 +185,7 @@ static void sub_554830(int64_t a1, int64_t a2);
 static void sub_554B00(tig_window_handle_t window_handle, int art_num, int x, int y);
 static int intgame_item_icon_get(int64_t item_obj);
 static void intgame_examine_item(int64_t pc_obj, int64_t item_obj, char* str);
-static void sub_555780(char* buffer, int num, int min, int max, int a5, bool a6);
+static void append_stat(char* buffer, int num, int min, int max, int a5, bool is_modifier);
 static void format_weapon_stats(int64_t weapon_obj, char* buffer);
 static void format_armor_stats(int64_t armor_obj, char* buffer);
 static void intgame_examine_scenery(int64_t pc_obj, int64_t scenery_obj, char* str);
@@ -7198,7 +7198,7 @@ void intgame_examine_item(int64_t pc_obj, int64_t item_obj, char* str)
 }
 
 // 0x555780
-void sub_555780(char* buffer, int num, int min, int max, int adj, bool a6)
+void append_stat(char* buffer, int num, int min, int max, int adj, bool is_modifier)
 {
     MesFileEntry mes_file_entry;
     char tmp[80];
@@ -7217,7 +7217,7 @@ void sub_555780(char* buffer, int num, int min, int max, int adj, bool a6)
         sprintf(tmp, "%d-%d", min, max);
         strcat(buffer, tmp);
     } else if (min != 0) {
-        if (a6) {
+        if (is_modifier) {
             sprintf(tmp, "%+d", min);
         } else {
             sprintf(tmp, "%d", min);
@@ -7253,7 +7253,7 @@ void format_weapon_stats(int64_t weapon_obj, char* buffer)
     } else {
         adj = 0;
     }
-    sub_555780(buffer, 43, min, max, adj, false);
+    append_stat(buffer, 43, min, max, adj, false);
 
     // FT
     min = obj_arrayfield_int32_get(weapon_obj, OBJ_F_WEAPON_DAMAGE_LOWER_IDX, 4);
@@ -7263,7 +7263,7 @@ void format_weapon_stats(int64_t weapon_obj, char* buffer)
     } else {
         adj = 0;
     }
-    sub_555780(buffer, 44, min, max, adj, false);
+    append_stat(buffer, 44, min, max, adj, false);
 
     // TH
     min = obj_field_int32_get(weapon_obj, OBJ_F_WEAPON_BONUS_TO_HIT);
@@ -7272,7 +7272,7 @@ void format_weapon_stats(int64_t weapon_obj, char* buffer)
     } else {
         adj = 0;
     }
-    sub_555780(buffer, 45, min, 0, adj, true);
+    append_stat(buffer, 45, min, 0, adj, true);
 
     // RNG
     min = obj_field_int32_get(weapon_obj, OBJ_F_WEAPON_RANGE);
@@ -7284,7 +7284,7 @@ void format_weapon_stats(int64_t weapon_obj, char* buffer)
     } else {
         adj = 0;
     }
-    sub_555780(buffer, 46, min, 0, adj, false);
+    append_stat(buffer, 46, min, 0, adj, false);
 
     // PD
     min = obj_arrayfield_int32_get(weapon_obj, OBJ_F_WEAPON_DAMAGE_LOWER_IDX, 1);
@@ -7294,7 +7294,7 @@ void format_weapon_stats(int64_t weapon_obj, char* buffer)
     } else {
         adj = 0;
     }
-    sub_555780(buffer, 47, min, max, adj, false);
+    append_stat(buffer, 47, min, max, adj, false);
 
     // FD
     min = obj_arrayfield_int32_get(weapon_obj, OBJ_F_WEAPON_DAMAGE_LOWER_IDX, 3);
@@ -7304,7 +7304,7 @@ void format_weapon_stats(int64_t weapon_obj, char* buffer)
     } else {
         adj = 0;
     }
-    sub_555780(buffer, 48, min, max, adj, false);
+    append_stat(buffer, 48, min, max, adj, false);
 
     // ED
     min = obj_arrayfield_int32_get(weapon_obj, OBJ_F_WEAPON_DAMAGE_LOWER_IDX, 2);
@@ -7314,7 +7314,7 @@ void format_weapon_stats(int64_t weapon_obj, char* buffer)
     } else {
         adj = 0;
     }
-    sub_555780(buffer, 49, min, max, adj, false);
+    append_stat(buffer, 49, min, max, adj, false);
 }
 
 // 0x555B50
@@ -7335,7 +7335,7 @@ void format_armor_stats(int64_t armor_obj, char* buffer)
     } else {
         adj = 0;
     }
-    sub_555780(buffer, 50, value, 0, adj, false);
+    append_stat(buffer, 50, value, 0, adj, false);
 
     // DR
     value = obj_arrayfield_int32_get(armor_obj, OBJ_F_ARMOR_RESISTANCE_ADJ_IDX, RESISTANCE_TYPE_NORMAL);
@@ -7344,7 +7344,7 @@ void format_armor_stats(int64_t armor_obj, char* buffer)
     } else {
         adj = 0;
     }
-    sub_555780(buffer, 51, value, 0, adj, true);
+    append_stat(buffer, 51, value, 0, adj, true);
 
     // PR
     value = obj_arrayfield_int32_get(armor_obj, OBJ_F_ARMOR_RESISTANCE_ADJ_IDX, RESISTANCE_TYPE_POISON);
@@ -7353,7 +7353,7 @@ void format_armor_stats(int64_t armor_obj, char* buffer)
     } else {
         adj = 0;
     }
-    sub_555780(buffer, 52, value, 0, adj, true);
+    append_stat(buffer, 52, value, 0, adj, true);
 
     // FR
     value = obj_arrayfield_int32_get(armor_obj, OBJ_F_ARMOR_RESISTANCE_ADJ_IDX, RESISTANCE_TYPE_FIRE);
@@ -7362,7 +7362,7 @@ void format_armor_stats(int64_t armor_obj, char* buffer)
     } else {
         adj = 0;
     }
-    sub_555780(buffer, 53, value, 0, adj, true);
+    append_stat(buffer, 53, value, 0, adj, true);
 
     // ER
     value = obj_arrayfield_int32_get(armor_obj, OBJ_F_ARMOR_RESISTANCE_ADJ_IDX, RESISTANCE_TYPE_ELECTRICAL);
@@ -7371,7 +7371,7 @@ void format_armor_stats(int64_t armor_obj, char* buffer)
     } else {
         adj = 0;
     }
-    sub_555780(buffer, 54, value, 0, adj, true);
+    append_stat(buffer, 54, value, 0, adj, true);
 
     // MR
     value = obj_arrayfield_int32_get(armor_obj, OBJ_F_ARMOR_RESISTANCE_ADJ_IDX, RESISTANCE_TYPE_MAGIC);
@@ -7380,7 +7380,7 @@ void format_armor_stats(int64_t armor_obj, char* buffer)
     } else {
         adj = 0;
     }
-    sub_555780(buffer, 55, value, 0, adj, true);
+    append_stat(buffer, 55, value, 0, adj, true);
 
     // NP
     value = obj_field_int32_get(armor_obj, OBJ_F_ARMOR_SILENT_MOVE_ADJ);
@@ -7389,7 +7389,7 @@ void format_armor_stats(int64_t armor_obj, char* buffer)
     } else {
         adj = 0;
     }
-    sub_555780(buffer, 56, value, 0, adj, true);
+    append_stat(buffer, 56, value, 0, adj, true);
 
     // D
     if (item_armor_coverage(armor_obj) == TIG_ART_ARMOR_COVERAGE_GAUNTLETS) {
@@ -7397,7 +7397,7 @@ void format_armor_stats(int64_t armor_obj, char* buffer)
     } else {
         value = 0;
     }
-    sub_555780(buffer, 43, value, 0, 0, true);
+    append_stat(buffer, 43, value, 0, 0, true);
 }
 
 // 0x555D80
