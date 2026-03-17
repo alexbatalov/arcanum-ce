@@ -3827,7 +3827,7 @@ void sub_550000(int64_t critter_obj, Hotkey* hotkey, int inventory_location)
 }
 
 // 0x550150
-void sub_550150(Hotkey* hotkey)
+void intgame_hotkey_highlight(Hotkey* hotkey)
 {
     if ((hotkey->flags & HOTKEY_DRAGGED) != 0) {
         return;

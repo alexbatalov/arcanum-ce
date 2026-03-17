@@ -340,16 +340,16 @@ bool hotkey_ui_process_event(TigMessage* msg)
             return false;
         case TIG_BUTTON_STATE_MOUSE_INSIDE:
             if (msg->data.button.button_handle == intgame_recent_action_button_get(0)->button_handle) {
-                sub_550150(&(stru_683518[0]));
+                intgame_hotkey_highlight(&(stru_683518[0]));
                 return true;
             }
             if (msg->data.button.button_handle == intgame_recent_action_button_get(1)->button_handle) {
-                sub_550150(&(stru_683518[1]));
+                intgame_hotkey_highlight(&(stru_683518[1]));
                 return true;
             }
             index = sub_57E460();
             if (index < 10 && stru_6835E0[index].type) {
-                sub_550150(&(stru_6835E0[index]));
+                intgame_hotkey_highlight(&(stru_6835E0[index]));
                 return true;
             }
             return false;

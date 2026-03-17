@@ -89,7 +89,7 @@ void intgame_process_event(TigMessage* msg);
 void sub_54EA80(S4F2810* a1);
 bool intgame_hotkey_is_dragging(void);
 void intgame_hotkey_activate(Hotkey* hotkey);
-void sub_550150(Hotkey* hotkey);
+void intgame_hotkey_highlight(Hotkey* hotkey);
 void iso_interface_window_set(RotatingWindowType window_type);
 void sub_550720(void);
 void sub_550750(UiMessage* ui_message);
