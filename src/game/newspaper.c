@@ -229,10 +229,6 @@ bool newspaper_timeevent_process(TimeEvent* timeevent)
 
     (void)timeevent;
 
-    if (tig_net_is_active() && !tig_net_is_host()) {
-        return true;
-    }
-
     rotate_newspapers();
 
     // Schedule the next rotation event in 24 hours.
