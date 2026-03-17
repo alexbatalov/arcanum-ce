@@ -137,7 +137,7 @@ static void intgame_draw_counter(int counter, int value, int digits);
 static void intgame_draw_bar_rect(TigRect* rect);
 static void intgame_ammo_icon_refresh(tig_art_id_t art_id);
 static bool iso_interface_message_filter(TigMessage* msg);
-static void sub_54DBF0(IntgameSecondaryButton btn, RotatingWindowType window_type);
+static void intgame_secondary_button_toggle(IntgameSecondaryButton btn, RotatingWindowType window_type);
 static bool handle_button_unhover(TigMessage* msg);
 static void sub_54EB60(void);
 static void intgame_combat_mode_toggle(void);
@@ -2467,12 +2467,12 @@ bool sub_54B5D0(TigMessage* msg)
             switch (msg->data.keyboard.scancode) {
             case SDL_SCANCODE_K:
                 if (!mainmenu_ui_is_active()) {
-                    sub_54DBF0(INTGAME_SECONDARY_BUTTON_SKILLS, ROTWIN_TYPE_SKILLS);
+                    intgame_secondary_button_toggle(INTGAME_SECONDARY_BUTTON_SKILLS, ROTWIN_TYPE_SKILLS);
                 }
                 return true;
             case SDL_SCANCODE_M:
                 if (!mainmenu_ui_is_active()) {
-                    sub_54DBF0(INTGAME_SECONDARY_BUTTON_SPELLS, ROTWIN_TYPE_SPELLS);
+                    intgame_secondary_button_toggle(INTGAME_SECONDARY_BUTTON_SPELLS, ROTWIN_TYPE_SPELLS);
                 }
                 return true;
             case SDL_SCANCODE_COMMA:
@@ -2551,7 +2551,7 @@ bool iso_interface_message_filter(TigMessage* msg)
 }
 
 // 0x54DBF0
-void sub_54DBF0(IntgameSecondaryButton btn, RotatingWindowType window_type)
+void intgame_secondary_button_toggle(IntgameSecondaryButton btn, RotatingWindowType window_type)
 {
     TigButtonState state;
     int opposite_btn;
