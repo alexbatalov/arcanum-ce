@@ -604,18 +604,18 @@ void convert_screen_to_world_coords(int64_t sx, int64_t sy, int64_t* wx, int64_t
 // 0x4B99C0
 bool sub_4B99C0(int64_t from, int64_t* to)
 {
-    S603D20 v1;
+    TargetParams target_params;
     PathCreateInfo path_create_info;
     S603CB8 v2;
     S603CB8_F50 v3;
     int idx;
 
-    sub_4F25E0(&v1);
-    v1.aoe_flags = Tgt_Tile_Empty;
-    v1.radius = 3;
+    target_params_init(&target_params);
+    target_params.tgt = Tgt_Tile_Empty;
+    target_params.radius = 3;
     sub_4F2600(&v2, NULL, OBJ_HANDLE_NULL);
 
-    v2.field_0 = &v1;
+    v2.params = &target_params;
     v2.field_18 = from;
     v2.field_28 = from;
     v2.field_38 = from;
@@ -627,7 +627,7 @@ bool sub_4B99C0(int64_t from, int64_t* to)
     }
 
     v2.field_50 = &v3;
-    v1.aoe_flags |= Tgt_Tile_Radius_Naked;
+    target_params.tgt |= Tgt_Tile_Radius_Naked;
     sub_4F40B0(&v2);
 
     for (idx = 0; idx < v3.cnt; idx++) {

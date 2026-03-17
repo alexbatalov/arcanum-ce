@@ -20,13 +20,13 @@ typedef struct TargetDescriptor {
 // Serializeable.
 static_assert(sizeof(TargetDescriptor) == 0x10, "wrong size");
 
-typedef struct S603D20 {
-    /* 0000 */ uint64_t aoe_flags;
-    /* 0008 */ unsigned int aoe_spell_flags;
-    /* 000C */ unsigned int aoe_no_spell_flags;
+typedef struct TargetParams {
+    /* 0000 */ uint64_t tgt;
+    /* 0008 */ unsigned int spell_flags;
+    /* 000C */ unsigned int no_spell_flags;
     /* 0010 */ int radius;
     /* 0014 */ int count;
-} S603D20;
+} TargetParams;
 
 typedef struct S603CB8_F50_Entry {
     /* 0000 */ int64_t obj;
@@ -50,7 +50,7 @@ typedef struct S603CB8_F50 {
 } S603CB8_F50;
 
 typedef struct S603CB8 {
-    /* 0000 */ S603D20* field_0;
+    /* 0000 */ TargetParams* params;
     /* 0004 */ int field_4;
     /* 0008 */ int64_t self_obj;
     /* 0010 */ int64_t source_obj;
@@ -163,8 +163,8 @@ void target_reset(void);
 void target_resize(GameResizeInfo* resize_info);
 void sub_4F25B0(uint64_t flags);
 uint64_t sub_4F25D0(void);
-void sub_4F25E0(S603D20* a1);
-void sub_4F2600(S603CB8* a1, S603D20* a2, int64_t a3);
+void target_params_init(TargetParams* params);
+void sub_4F2600(S603CB8* a1, TargetParams* params, int64_t a3);
 bool sub_4F2680(S4F2680* a1);
 int sub_4F2C60(int64_t* obj_ptr);
 void target_descriptor_set_loc(TargetDescriptor* td, int64_t loc);

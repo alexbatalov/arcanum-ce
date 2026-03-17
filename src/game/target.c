@@ -40,7 +40,7 @@ static int64_t qword_603CB0;
 static S603CB8 stru_603CB8;
 
 // 0x603D20
-static S603D20 stru_603D20;
+static TargetParams stru_603D20;
 
 // 0x603D38
 static bool target_initialized;
@@ -85,34 +85,34 @@ void target_resize(GameResizeInfo* resize_info)
 // 0x4F25B0
 void sub_4F25B0(uint64_t flags)
 {
-    stru_603D20.aoe_flags = flags;
+    stru_603D20.tgt = flags;
 }
 
 // 0x4F25D0
 uint64_t sub_4F25D0(void)
 {
-    return stru_603D20.aoe_flags;
+    return stru_603D20.tgt;
 }
 
 // 0x4F25E0
-void sub_4F25E0(S603D20* a1)
+void target_params_init(TargetParams* params)
 {
-    a1->aoe_flags = Tgt_None;
-    a1->aoe_spell_flags = 0;
-    a1->aoe_no_spell_flags = 0;
-    a1->radius = 0;
-    a1->count = 0;
+    params->tgt = Tgt_None;
+    params->spell_flags = 0;
+    params->no_spell_flags = 0;
+    params->radius = 0;
+    params->count = 0;
 }
 
 // 0x4F2600
-void sub_4F2600(S603CB8* a1, S603D20* a2, int64_t a3)
+void sub_4F2600(S603CB8* a1, TargetParams* params, int64_t a3)
 {
     a1->field_38 = 0;
     a1->field_30 = 0;
     a1->field_40 = 0;
     a1->source_obj = a3;
     a1->self_obj = a3;
-    a1->field_0 = a2;
+    a1->params = params;
     a1->field_54 = 0;
     a1->field_58 = 0;
     a1->field_50 = 0;
@@ -124,8 +124,8 @@ void sub_4F2600(S603CB8* a1, S603D20* a2, int64_t a3)
     a1->field_20 = 0;
     a1->field_60 = 0;
 
-    if (a2 != NULL) {
-        sub_4F25E0(a2);
+    if (params != NULL) {
+        target_params_init(params);
     }
 }
 
@@ -153,7 +153,7 @@ bool sub_4F2680(S4F2680* a1)
     stru_603CB8.self_obj = a1->field_8;
 
     if (sub_4F2D20(&stru_603CB8)) {
-        if (stru_603D20.aoe_flags) {
+        if (stru_603D20.tgt) {
             return true;
         }
         return false;
@@ -164,7 +164,7 @@ bool sub_4F2680(S4F2680* a1)
             stru_603CB8.field_28 = obj_field_int64_get(a1->td->obj, OBJ_F_LOCATION);
             stru_603CB8.field_38 = stru_603CB8.field_28;
         }
-        if (sub_4F2D20(&stru_603CB8) && stru_603D20.aoe_flags) {
+        if (sub_4F2D20(&stru_603CB8) && stru_603D20.tgt) {
             target_descriptor_set_loc(a1->td, stru_603CB8.field_28);
             return true;
         }
@@ -245,11 +245,11 @@ bool sub_4F28A0(int x, int y, TargetDescriptor* td)
     v1.field_8 = pc_obj;
     v1.td = td;
 
-    if ((stru_603D20.aoe_flags & Tgt_No_Self) != 0) {
+    if ((stru_603D20.tgt & Tgt_No_Self) != 0) {
         object_flags_set(pc_obj, OF_CLICK_THROUGH);
     }
 
-    if ((stru_603D20.aoe_flags & Tgt_Non_Party) != 0) {
+    if ((stru_603D20.tgt & Tgt_Non_Party) != 0) {
         object_list_all_followers(pc_obj, &party_members);
         node = party_members.head;
         while (node != NULL) {
@@ -267,7 +267,7 @@ bool sub_4F28A0(int x, int y, TargetDescriptor* td)
         }
     }
 
-    if ((stru_603D20.aoe_flags & Tgt_No_ST_Critter_Dead) != 0) {
+    if ((stru_603D20.tgt & Tgt_No_ST_Critter_Dead) != 0) {
         object_list_vicinity(pc_obj, OBJ_TM_PC | OBJ_TM_NPC, &dead_critters);
         node = mp_party_members.head;
         while (node != NULL) {
@@ -311,11 +311,11 @@ bool sub_4F28A0(int x, int y, TargetDescriptor* td)
         }
     }
 
-    if ((stru_603D20.aoe_flags & Tgt_No_Self) != 0) {
+    if ((stru_603D20.tgt & Tgt_No_Self) != 0) {
         object_flags_unset(pc_obj, OF_CLICK_THROUGH);
     }
 
-    if ((stru_603D20.aoe_flags & Tgt_Non_Party) != 0) {
+    if ((stru_603D20.tgt & Tgt_Non_Party) != 0) {
         node = party_members.head;
         while (node != NULL) {
             object_flags_unset(node->obj, OF_CLICK_THROUGH);
@@ -331,7 +331,7 @@ bool sub_4F28A0(int x, int y, TargetDescriptor* td)
         }
     }
 
-    if ((stru_603D20.aoe_flags & Tgt_No_ST_Critter_Dead) != 0) {
+    if ((stru_603D20.tgt & Tgt_No_ST_Critter_Dead) != 0) {
         node = mp_party_members.head;
         while (node != NULL) {
             if (critter_is_dead(node->obj)) {
@@ -402,7 +402,7 @@ bool sub_4F2D20(S603CB8* a1)
     unsigned int spell_flags;
     unsigned int critter_flags;
 
-    tgt = a1->field_0->aoe_flags;
+    tgt = a1->params->tgt;
 
     if (tgt == 0) {
         return true;
@@ -435,11 +435,11 @@ bool sub_4F2D20(S603CB8* a1)
 
             spell_flags = obj_field_int32_get(a1->field_20, OBJ_F_SPELL_FLAGS);
 
-            if ((spell_flags & a1->field_0->aoe_spell_flags) != a1->field_0->aoe_spell_flags) {
+            if ((spell_flags & a1->params->spell_flags) != a1->params->spell_flags) {
                 return false;
             }
 
-            if ((spell_flags & a1->field_0->aoe_no_spell_flags) != 0) {
+            if ((spell_flags & a1->params->no_spell_flags) != 0) {
                 return false;
             }
 
@@ -821,7 +821,7 @@ bool sub_4F2D20(S603CB8* a1)
                 }
 
                 loc2 = obj_field_int64_get(a1->field_20, OBJ_F_LOCATION);
-                if (location_dist(loc1, loc2) > a1->field_0->radius) {
+                if (location_dist(loc1, loc2) > a1->params->radius) {
                     return false;
                 }
             }
@@ -949,7 +949,7 @@ bool sub_4F2D20(S603CB8* a1)
 
     if ((tgt & 0x20000000000000) != 0
         // TODO: Sames args looks wrong, check.
-        && location_dist(a1->field_38, a1->field_38) > a1->field_0->radius) {
+        && location_dist(a1->field_38, a1->field_38) > a1->params->radius) {
         return false;
     }
 
@@ -1038,9 +1038,9 @@ void sub_4F4050(S603CB8_F50* a1, int64_t loc)
 void sub_4F40B0(S603CB8* a1)
 {
     S603CB8_F50* v1;
-    S603D20* v2;
+    TargetParams* target_params;
     S603CB8 v3;
-    S603D20 v4;
+    TargetParams tmp_target_params;
     ObjectList objects;
     ObjectNode* obj_node;
     MagicTechObjectNode* mt_obj_node;
@@ -1053,23 +1053,23 @@ void sub_4F40B0(S603CB8* a1)
     }
 
     v1->cnt = 0;
-    v2 = a1->field_0;
+    target_params = a1->params;
 
-    if ((v2->aoe_flags & Tgt_Self) != 0
-        && (v2->aoe_flags & Tgt_No_Self) == 0) {
+    if ((target_params->tgt & Tgt_Self) != 0
+        && (target_params->tgt & Tgt_No_Self) == 0) {
         sub_4F3F10(v1, a1->self_obj);
     }
 
-    if ((v2->aoe_flags & Tgt_Source) != 0
-        && (v2->aoe_flags & Tgt_No_Self) == 0) {
+    if ((target_params->tgt & Tgt_Source) != 0
+        && (target_params->tgt & Tgt_No_Self) == 0) {
         sub_4F3F10(v1, a1->source_obj);
     }
 
-    if ((v2->aoe_flags & Tgt_Object) != 0 && a1->field_30 != OBJ_HANDLE_NULL) {
+    if ((target_params->tgt & Tgt_Object) != 0 && a1->field_30 != OBJ_HANDLE_NULL) {
         sub_4F3FD0(v1, a1->field_30);
     }
 
-    if ((v2->aoe_flags & Tgt_Summoned_No_Obj) != 0) {
+    if ((target_params->tgt & Tgt_Summoned_No_Obj) != 0) {
         if (a1->field_48 != OBJ_HANDLE_NULL) {
             sub_4F3FD0(v1, a1->field_48);
         }
@@ -1083,60 +1083,60 @@ void sub_4F40B0(S603CB8* a1)
         }
     }
 
-    if ((v2->aoe_flags & Tgt_Tile) != 0 && a1->field_38 != 0) {
+    if ((target_params->tgt & Tgt_Tile) != 0 && a1->field_38 != 0) {
         sub_4F4050(v1, a1->field_38);
     }
 
-    if ((v2->aoe_flags & Tgt_Tile_Self) != 0 && a1->source_obj != OBJ_HANDLE_NULL) {
+    if ((target_params->tgt & Tgt_Tile_Self) != 0 && a1->source_obj != OBJ_HANDLE_NULL) {
         sub_4F4050(v1, obj_field_int64_get(a1->source_obj, OBJ_F_LOCATION));
     }
 
-    if ((v2->aoe_flags & Tgt_Obj_Radius) != 0) {
+    if ((target_params->tgt & Tgt_Obj_Radius) != 0) {
         LocRect loc_rect;
         unsigned int obj_type_mask;
         bool all;
 
-        sub_4F2600(&v3, &v4, a1->source_obj);
+        sub_4F2600(&v3, &tmp_target_params, a1->source_obj);
         origin = a1->field_38;
         v3.field_38 = a1->field_38;
         v3.field_40 = a1->field_40;
 
-        v4.aoe_flags = v2->aoe_flags & ~Tgt_Tile;
-        v4.aoe_spell_flags = v2->aoe_spell_flags;
-        v4.aoe_no_spell_flags = v2->aoe_no_spell_flags;
-        v4.radius = v2->radius;
-        v4.count = v2->count;
+        tmp_target_params.tgt = target_params->tgt & ~Tgt_Tile;
+        tmp_target_params.spell_flags = target_params->spell_flags;
+        tmp_target_params.no_spell_flags = target_params->no_spell_flags;
+        tmp_target_params.radius = target_params->radius;
+        tmp_target_params.count = target_params->count;
 
         if (a1->field_30 != OBJ_HANDLE_NULL) {
             origin = obj_field_int64_get(a1->field_30, OBJ_F_LOCATION);
         }
 
-        loc_rect.x1 = location_get_x(origin) - v2->radius;
-        loc_rect.y1 = location_get_y(origin) - v2->radius;
-        loc_rect.x2 = location_get_x(origin) + v2->radius;
-        loc_rect.y2 = location_get_y(origin) + v2->radius;
+        loc_rect.x1 = location_get_x(origin) - target_params->radius;
+        loc_rect.y1 = location_get_y(origin) - target_params->radius;
+        loc_rect.x2 = location_get_x(origin) + target_params->radius;
+        loc_rect.y2 = location_get_y(origin) + target_params->radius;
 
         obj_type_mask = OBJ_TM_SCENERY;
         all = false;
 
-        if ((v2->aoe_flags & Tgt_Obj_T_Critter_Naked) != 0) {
+        if ((target_params->tgt & Tgt_Obj_T_Critter_Naked) != 0) {
             obj_type_mask |= OBJ_TM_CRITTER;
         }
 
-        if ((v2->aoe_flags & Tgt_Obj_T_Portal_Naked) != 0) {
+        if ((target_params->tgt & Tgt_Obj_T_Portal_Naked) != 0) {
             obj_type_mask |= OBJ_TM_PORTAL;
         }
 
-        if ((v2->aoe_flags & Tgt_Obj_T_Container_Naked) != 0) {
+        if ((target_params->tgt & Tgt_Obj_T_Container_Naked) != 0) {
             obj_type_mask |= OBJ_TM_CONTAINER;
         }
 
-        if ((v2->aoe_flags & Tgt_Obj_T_Wall_Naked) != 0) {
+        if ((target_params->tgt & Tgt_Obj_T_Wall_Naked) != 0) {
             obj_type_mask |= OBJ_TM_WALL;
         }
 
         if (obj_type_mask == OBJ_TM_SCENERY
-            && (v2->aoe_flags & (Tgt_Obj_Radius | Tgt_Object)) != 0) {
+            && (target_params->tgt & (Tgt_Obj_Radius | Tgt_Object)) != 0) {
             obj_type_mask = OBJ_TM_ALL & ~OBJ_TM_PROJECTILE;
             all = true;
         }
@@ -1150,8 +1150,8 @@ void sub_4F40B0(S603CB8* a1)
                 if (sub_4F2D20(&v3)) {
                     sub_4F3F10(v1, tmp_obj);
 
-                    if (v4.count > 0) {
-                        if (--v4.count == 0) {
+                    if (tmp_target_params.count > 0) {
+                        if (--tmp_target_params.count == 0) {
                             break;
                         }
                     }
@@ -1162,15 +1162,15 @@ void sub_4F40B0(S603CB8* a1)
         object_list_destroy(&objects);
     }
 
-    if ((v2->aoe_flags & Tgt_Tile_Radius_Naked) != 0) {
+    if ((target_params->tgt & Tgt_Tile_Radius_Naked) != 0) {
         int x;
         int y;
         bool done;
 
-        sub_4F2600(&v3, &v4, a1->source_obj);
-        v4.aoe_flags = v2->aoe_flags & ~Tgt_Object;
-        v4.radius = v2->radius;
-        v4.count = v2->count;
+        sub_4F2600(&v3, &tmp_target_params, a1->source_obj);
+        tmp_target_params.tgt = target_params->tgt & ~Tgt_Object;
+        tmp_target_params.radius = target_params->radius;
+        tmp_target_params.count = target_params->count;
 
         origin = a1->field_38;
         if (origin == 0) {
@@ -1178,14 +1178,14 @@ void sub_4F40B0(S603CB8* a1)
         }
 
         done = false;
-        for (y = -v2->radius; y <= v2->radius; y++) {
-            for (x = -v2->radius; x <= v2->radius; x++) {
+        for (y = -target_params->radius; y <= target_params->radius; y++) {
+            for (x = -target_params->radius; x <= target_params->radius; x++) {
                 v3.field_28 = location_make(location_get_x(origin) + x, location_get_y(origin) + y);
                 if (sub_4F2D20(&v3)) {
                     sub_4F4050(v1, v3.field_28);
 
-                    if (v4.count > 0) {
-                        if (--v4.count == 0) {
+                    if (tmp_target_params.count > 0) {
+                        if (--tmp_target_params.count == 0) {
                             // To break out of the outer loop.
                             done = true;
                             break;
@@ -1203,7 +1203,7 @@ void sub_4F40B0(S603CB8* a1)
         }
     }
 
-    if ((v2->aoe_flags & Tgt_Tile_Radius_Wall_Naked) != 0) {
+    if ((target_params->tgt & Tgt_Tile_Radius_Wall_Naked) != 0) {
         int rot;
         int sx;
         int sy;
@@ -1213,11 +1213,11 @@ void sub_4F40B0(S603CB8* a1)
         int dx2;
         int dy2;
 
-        sub_4F2600(&v3, &v4, a1->source_obj);
+        sub_4F2600(&v3, &tmp_target_params, a1->source_obj);
         v3.field_40 = a1->field_40;
-        v4.aoe_flags = v2->aoe_flags & ~Tgt_Object;
-        v4.radius = v2->radius;
-        v4.count = v2->count;
+        tmp_target_params.tgt = target_params->tgt & ~Tgt_Object;
+        tmp_target_params.radius = target_params->radius;
+        tmp_target_params.count = target_params->count;
 
         origin = a1->field_38;
         if (origin == 0) {
@@ -1269,12 +1269,12 @@ void sub_4F40B0(S603CB8* a1)
         dy1 = 0;
         dx2 = 0;
         dy2 = 0;
-        for (range = 0; range < v2->radius; range++) {
+        for (range = 0; range < target_params->radius; range++) {
             v3.field_28 = location_make(location_get_x(origin) + dx1, location_get_y(origin) + dy1);
             if (sub_4F2D20(&v3)) {
                 sub_4F4050(v1, v3.field_28);
-                if (v4.count > 0) {
-                    if (--v4.count == 0) {
+                if (tmp_target_params.count > 0) {
+                    if (--tmp_target_params.count == 0) {
                         break;
                     }
                 }
@@ -1283,8 +1283,8 @@ void sub_4F40B0(S603CB8* a1)
             v3.field_28 = location_make(location_get_x(origin) + dx2, location_get_y(origin) + dy2);
             if (sub_4F2D20(&v3)) {
                 sub_4F4050(v1, v3.field_28);
-                if (v4.count > 0) {
-                    if (--v4.count == 0) {
+                if (tmp_target_params.count > 0) {
+                    if (--tmp_target_params.count == 0) {
                         break;
                     }
                 }
@@ -1297,17 +1297,17 @@ void sub_4F40B0(S603CB8* a1)
         }
     }
 
-    if ((v2->aoe_flags & Tgt_Tile_Offscreen_Naked) != 0 && a1->field_20 != OBJ_HANDLE_NULL) {
+    if ((target_params->tgt & Tgt_Tile_Offscreen_Naked) != 0 && a1->field_20 != OBJ_HANDLE_NULL) {
         sub_4F4050(v1, obj_field_int64_get(a1->field_20, OBJ_F_LOCATION));
     }
 
     // FIXME: The code below does not look like implementation of cone.
-    if ((v2->aoe_flags & Tgt_Cone) != 0) {
-        sub_4F2600(&v3, &v4, a1->source_obj);
+    if ((target_params->tgt & Tgt_Cone) != 0) {
+        sub_4F2600(&v3, &tmp_target_params, a1->source_obj);
         v3.field_40 = a1->field_40;
-        v4.aoe_flags = v2->aoe_flags & ~Tgt_Object;
-        v4.radius = v2->radius;
-        v4.count = v2->count;
+        tmp_target_params.tgt = target_params->tgt & ~Tgt_Object;
+        tmp_target_params.radius = target_params->radius;
+        tmp_target_params.count = target_params->count;
 
         if (a1->source_obj != OBJ_HANDLE_NULL) {
             origin = a1->field_38;
@@ -1315,7 +1315,7 @@ void sub_4F40B0(S603CB8* a1)
                 origin = obj_field_int64_get(a1->source_obj, OBJ_F_LOCATION);
             }
 
-            if ((v2->aoe_flags & Tgt_Self) != 0) {
+            if ((target_params->tgt & Tgt_Self) != 0) {
                 unsigned int obj_type_mask;
                 bool all;
                 int x;
@@ -1326,31 +1326,31 @@ void sub_4F40B0(S603CB8* a1)
                 obj_type_mask = OBJ_TM_SCENERY;
                 all = false;
 
-                if ((v2->aoe_flags & Tgt_Obj_T_Critter_Naked) != 0) {
+                if ((target_params->tgt & Tgt_Obj_T_Critter_Naked) != 0) {
                     obj_type_mask |= OBJ_TM_CRITTER;
                 }
 
-                if ((v2->aoe_flags & Tgt_Obj_T_Portal_Naked) != 0) {
+                if ((target_params->tgt & Tgt_Obj_T_Portal_Naked) != 0) {
                     obj_type_mask |= OBJ_TM_PORTAL;
                 }
 
-                if ((v2->aoe_flags & Tgt_Obj_T_Container_Naked) != 0) {
+                if ((target_params->tgt & Tgt_Obj_T_Container_Naked) != 0) {
                     obj_type_mask |= OBJ_TM_CONTAINER;
                 }
 
-                if ((v2->aoe_flags & Tgt_Obj_T_Wall_Naked) != 0) {
+                if ((target_params->tgt & Tgt_Obj_T_Wall_Naked) != 0) {
                     obj_type_mask |= OBJ_TM_WALL;
                 }
 
                 if (obj_type_mask == OBJ_TM_SCENERY
-                    && (v2->aoe_flags & Tgt_Object) != 0) {
+                    && (target_params->tgt & Tgt_Object) != 0) {
                     obj_type_mask = OBJ_TM_ALL & ~OBJ_TM_PROJECTILE;
                     all = true;
                 }
 
                 done = false;
-                for (y = -v2->radius; y <= v2->radius; y++) {
-                    for (x = -v2->radius; x <= v2->radius; x++) {
+                for (y = -target_params->radius; y <= target_params->radius; y++) {
+                    for (x = -target_params->radius; x <= target_params->radius; x++) {
                         loc = location_make(location_get_x(origin) + x, location_get_y(origin) + y);
                         object_list_location(loc, obj_type_mask, &objects);
                         obj_node = objects.head;
@@ -1361,8 +1361,8 @@ void sub_4F40B0(S603CB8* a1)
                                 v3.field_20 = tmp_obj;
                                 if (sub_4F2D20(&v3)) {
                                     sub_4F3F10(v1, tmp_obj);
-                                    if (v4.count > 0) {
-                                        if (--v4.count == 0) {
+                                    if (tmp_target_params.count > 0) {
+                                        if (--tmp_target_params.count == 0) {
                                             done = true;
                                             break;
                                         }
@@ -1385,8 +1385,8 @@ void sub_4F40B0(S603CB8* a1)
                 int x;
                 int y;
 
-                for (y = -v2->radius; y <= v2->radius; y++) {
-                    for (x = -v2->radius; x <= v2->radius; x++) {
+                for (y = -target_params->radius; y <= target_params->radius; y++) {
+                    for (x = -target_params->radius; x <= target_params->radius; x++) {
                         v3.field_28 = location_make(location_get_x(origin) + x, location_get_y(origin) + y);
                         if (sub_4F2D20(&v3)) {
                             sub_4F4050(v1, v3.field_28);
@@ -1399,7 +1399,7 @@ void sub_4F40B0(S603CB8* a1)
         }
     }
 
-    if ((v2->aoe_flags & Tgt_List) != 0 && a1->field_54 != NULL) {
+    if ((target_params->tgt & Tgt_List) != 0 && a1->field_54 != NULL) {
         mt_obj_node = *a1->field_54;
         if (mt_obj_node != NULL) {
             while (mt_obj_node != NULL) {
@@ -1426,7 +1426,7 @@ void sub_4F40B0(S603CB8* a1)
         }
     }
 
-    if ((v2->aoe_flags & Tgt_All_Party_Critters_Naked) != 0 && a1->source_obj != OBJ_HANDLE_NULL) {
+    if ((target_params->tgt & Tgt_All_Party_Critters_Naked) != 0 && a1->source_obj != OBJ_HANDLE_NULL) {
         object_list_team(a1->source_obj, &objects);
         obj_node = objects.head;
         while (obj_node != NULL) {
@@ -1447,7 +1447,7 @@ void sub_4F40B0(S603CB8* a1)
         }
     }
 
-    if ((v2->aoe_flags & Tgt_Parent) != 0
+    if ((target_params->tgt & Tgt_Parent) != 0
         && obj_type_is_item(obj_field_int32_get(a1->source_obj, OBJ_F_TYPE))) {
         int64_t parent_obj = obj_field_handle_get(a1->source_obj, OBJ_F_ITEM_PARENT);
         if (parent_obj != OBJ_HANDLE_NULL) {

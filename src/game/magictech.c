@@ -2030,7 +2030,7 @@ void magictech_process(void)
     }
 
     if (magictech_cur_component_list->cnt > 0) {
-        stru_5E6D28.field_0 = &(magictech_cur_spell_info->field_70[magictech_cur_run_info->action]);
+        stru_5E6D28.params = &(magictech_cur_spell_info->field_70[magictech_cur_run_info->action]);
         sub_4F40B0(&stru_5E6D28);
 
         if (magictech_cur_run_info->source_obj.obj != OBJ_HANDLE_NULL
@@ -2058,7 +2058,7 @@ void magictech_process(void)
                 if (sub_4537B0()) {
                     for (comp = 0; comp < magictech_cur_component_list->cnt; comp++) {
                         magictech_cur_component = &(magictech_cur_component_list->entries[comp]);
-                        stru_5E6D28.field_0 = &(magictech_cur_component->aoe);
+                        stru_5E6D28.params = &(magictech_cur_component->aoe);
 
                         if (sub_4F2D20(&stru_5E6D28)) {
                             sub_453D40();
@@ -4959,16 +4959,16 @@ bool magictech_invocation_check(MagicTechInvocation* mt_invocation)
     }
 
     if (!player_is_pc_obj(mt_invocation->parent_obj.obj)) {
-        S603D20 v1;
+        TargetParams target_params;
         S603CB8 v2;
         S603CB8_F50 v3;
         int idx;
         uint64_t* tgt;
 
-        sub_4F25E0(&v1);
+        target_params_init(&target_params);
         sub_459F20(mt_invocation->spell, &tgt);
-        v1.aoe_flags = *tgt;
-        v1.radius = 2;
+        target_params.tgt = *tgt;
+        target_params.radius = 2;
 
         sub_4F2600(&v2, NULL, mt_invocation->source_obj.obj);
         v2.field_38 = mt_invocation->target_loc;
@@ -4977,14 +4977,14 @@ bool magictech_invocation_check(MagicTechInvocation* mt_invocation)
         v2.field_30 = mt_invocation->target_obj.obj;
         v2.field_20 = mt_invocation->target_obj.obj;
         v2.field_48 = 0;
-        v2.field_0 = &v1;
+        v2.params = &target_params;
 
         if (!sub_4F2D20(&v2)) {
             if (mt_invocation->target_obj.obj == OBJ_HANDLE_NULL) {
                 return false;
             }
 
-            if ((v1.aoe_flags & 0x800000000000) == 0) {
+            if ((target_params.tgt & 0x800000000000) == 0) {
                 return false;
             }
 
