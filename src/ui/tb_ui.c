@@ -270,7 +270,7 @@ void sub_57CCF0(int64_t source_obj, int64_t target_obj)
     char buffer[2000];
 
     if (sub_57CD60(source_obj, target_obj, buffer)) {
-        sub_553BE0(source_obj, target_obj, buffer);
+        intgame_examine_object(source_obj, target_obj, buffer);
         sub_557370(source_obj, target_obj);
     }
 }

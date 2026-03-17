@@ -124,7 +124,7 @@ void intgame_spell_maintain_art_set(int slot, tig_art_id_t art_id);
 void intgame_spell_maintain_refresh(int slot, bool active);
 void intgame_refresh_cursor(void);
 void sub_553A60(int art_num);
-void sub_553BE0(int64_t a1, int64_t a2, char* str);
+void intgame_examine_object(int64_t pc_obj, int64_t target_obj, char* str);
 bool intgame_examine_portrait(int64_t pc_obj, int64_t target_obj, int* portrait_ptr);
 tig_art_id_t sub_554BE0(int64_t obj);
 void intgame_message_window_display_attack(int64_t obj);

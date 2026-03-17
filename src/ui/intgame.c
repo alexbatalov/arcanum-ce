@@ -6199,7 +6199,7 @@ void sub_553A70(TigMessage* msg)
 }
 
 // 0x553BE0
-void sub_553BE0(int64_t a1, int64_t a2, char* str)
+void intgame_examine_object(int64_t pc_obj, int64_t target_obj, char* str)
 {
     int type;
 
@@ -6207,18 +6207,18 @@ void sub_553BE0(int64_t a1, int64_t a2, char* str)
         if (intgame_iso_window_type != ROTWIN_TYPE_MSG) {
             sub_550770(-1, str);
         } else {
-            type = obj_field_int32_get(a2, OBJ_F_TYPE);
+            type = obj_field_int32_get(target_obj, OBJ_F_TYPE);
             switch (type) {
             case OBJ_TYPE_WALL:
                 break;
             case OBJ_TYPE_PORTAL:
-                intgame_examine_portal(a1, a2, str);
+                intgame_examine_portal(pc_obj, target_obj, str);
                 break;
             case OBJ_TYPE_CONTAINER:
-                intgame_examine_container(a1, a2, str);
+                intgame_examine_container(pc_obj, target_obj, str);
                 break;
             case OBJ_TYPE_SCENERY:
-                intgame_examine_scenery(a1, a2, str);
+                intgame_examine_scenery(pc_obj, target_obj, str);
                 break;
             case OBJ_TYPE_PROJECTILE:
                 break;
@@ -6232,11 +6232,11 @@ void sub_553BE0(int64_t a1, int64_t a2, char* str)
             case OBJ_TYPE_KEY_RING:
             case OBJ_TYPE_WRITTEN:
             case OBJ_TYPE_GENERIC:
-                intgame_examine_item(a1, a2, str);
+                intgame_examine_item(pc_obj, target_obj, str);
                 break;
             case OBJ_TYPE_PC:
             case OBJ_TYPE_NPC:
-                intgame_examine_critter(a1, a2, str);
+                intgame_examine_critter(pc_obj, target_obj, str);
                 break;
             default:
                 sub_550770(-1, str);

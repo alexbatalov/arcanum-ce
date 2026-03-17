@@ -205,7 +205,7 @@ void dialog_ui_start_dialog(int64_t pc_obj, int64_t npc_obj, int script_num, int
 
                 if (!intgame_is_compact_interface()) {
                     sub_57CD60(pc_obj, npc_obj, str);
-                    sub_553BE0(pc_obj, npc_obj, str);
+                    intgame_examine_object(pc_obj, npc_obj, str);
                     object_hover_obj_set(npc_obj);
                 }
             }
