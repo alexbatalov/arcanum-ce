@@ -6,11 +6,10 @@
 #include "game/fate.h"
 #include "game/magictech.h"
 #include "game/mes.h"
-#include "game/mp_utils.h"
-#include "game/multiplayer.h"
 #include "game/obj.h"
 #include "game/reputation.h"
 #include "game/stat.h"
+#include "game/ui.h"
 
 static int sub_4C0D00(int64_t a1, int64_t a2, unsigned int flags);
 static int sub_4C1290(int64_t a1, int64_t a2);
@@ -241,14 +240,6 @@ void reaction_adj(int64_t npc_obj, int64_t pc_obj, int value)
     int base;
     int adjusted_value;
     unsigned int flags;
-
-    if (!multiplayer_is_locked()) {
-        if (!tig_net_is_host()) {
-            return;
-        }
-
-        mp_reaction_adj(npc_obj, pc_obj, value);
-    }
 
     if (value == 0) {
         return;

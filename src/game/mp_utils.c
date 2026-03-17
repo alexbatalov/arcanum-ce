@@ -93,18 +93,6 @@ void sub_4EDA60(UiMessage* ui_message, int player, int a3)
     FREE(pkt);
 }
 
-// 0x4EDC00
-void mp_reaction_adj(int64_t npc_obj, int64_t pc_obj, int value)
-{
-    PacketReactionAdj pkt;
-
-    pkt.type = 87;
-    pkt.npc_oid = obj_get_id(npc_obj);
-    pkt.pc_oid = obj_get_id(pc_obj);
-    pkt.value = value;
-    tig_net_send_app_all(&pkt, sizeof(pkt));
-}
-
 // 0x4EDC70
 void mp_trap_mark_known(int64_t pc_obj, int64_t trap_obj, int reason)
 {

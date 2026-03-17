@@ -571,18 +571,6 @@ typedef struct Packet84 {
 static_assert(sizeof(Packet84) == 0x28, "wrong size");
 #endif
 
-typedef struct PacketReactionAdj {
-    /* 0000 */ int type;
-    /* 0004 */ int padding_4;
-    /* 0008 */ ObjectID npc_oid;
-    /* 0020 */ ObjectID pc_oid;
-    /* 0038 */ int value;
-    /* 003C */ int padding_3C;
-} PacketReactionAdj;
-
-// Serializeable.
-static_assert(sizeof(PacketReactionAdj) == 0x40, "wrong size");
-
 typedef struct PacketTrapMarkKnown {
     /* 0000 */ int type;
     /* 0004 */ int padding_4;
@@ -842,7 +830,6 @@ bool sub_4ED6C0(int64_t obj);
 bool mp_object_create(int name, int64_t loc, int64_t* obj_ptr);
 void mp_object_destroy(int64_t obj);
 void sub_4EDA60(UiMessage* ui_message, int player, int a3);
-void mp_reaction_adj(int64_t npc_obj, int64_t pc_obj, int value);
 void mp_trap_mark_known(int64_t pc_obj, int64_t trap_obj, int reason);
 void sub_4EDCE0(int64_t obj, tig_art_id_t art_id);
 void mp_ui_update_inven(int64_t obj);
