@@ -7,6 +7,7 @@
 #include "game/mt_obj_node.h"
 #include "game/obj.h"
 #include "game/object.h"
+#include "game/target.h"
 #include "game/timeevent.h"
 
 #define MT_80 80
@@ -64,14 +65,6 @@ typedef enum MagicTechComponent {
     MTC_USE,
 } MagicTechComponent;
 
-typedef struct MagicTechAoe {
-    /* 0000 */ uint64_t flags;
-    /* 0008 */ unsigned int spell_flags;
-    /* 000C */ unsigned int no_spell_flags;
-    /* 0010 */ int radius;
-    /* 0014 */ int count;
-} MagicTechAoe;
-
 typedef struct MagicTechComponentTrait {
     /* 0004 */ int fld;
     /* 0004 */ int field_4;
@@ -83,8 +76,8 @@ typedef struct MagicTechComponentTrait {
 
 typedef struct MagicTechComponentInfo {
     /* 0000 */ int type;
-    /* 0008 */ MagicTechAoe aoe;
-    /* 0020 */ MagicTechAoe apply_aoe;
+    /* 0008 */ TargetParams aoe;
+    /* 0020 */ TargetParams apply_aoe;
     /* 0038 */ unsigned int item_triggers;
     /* 003C */ int field_3C;
     union {
@@ -247,7 +240,7 @@ typedef struct MagicTechInfo {
     /* 0064 */ int missile;
     /* 0068 */ int casting_anim;
     /* 006C */ int field_6C;
-    /* 0070 */ MagicTechAoe field_70[MAGICTECH_ACTION_COUNT];
+    /* 0070 */ TargetParams target_params[MAGICTECH_ACTION_COUNT];
     /* 00E8 */ MagicTechComponentList components[MAGICTECH_ACTION_COUNT];
     /* 0110 */ int no_stack;
     /* 0114 */ int field_114;
