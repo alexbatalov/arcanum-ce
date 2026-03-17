@@ -176,7 +176,7 @@ void tb_inven_ui_update(int64_t obj)
     inven_ui_update(obj);
     if (player_is_local_pc_obj(obj)) {
         sub_556E60();
-        sub_54B3C0();
+        intgame_counters_refresh();
     }
 }
 
@@ -312,7 +312,7 @@ void sub_57CDF0(int a1)
 // 0x57CE00
 void sub_57CE00(void)
 {
-    sub_54B3C0();
+    intgame_counters_refresh();
 }
 
 // 0x57CE10

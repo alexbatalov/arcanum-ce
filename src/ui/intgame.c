@@ -1155,7 +1155,7 @@ bool intgame_load(GameLoadInfo* load_info)
         intgame_refresh_primary_button(btn);
     }
 
-    sub_54B3C0();
+    intgame_counters_refresh();
     intgame_refresh_cursor();
     intgame_mt_button_enable();
 
@@ -1338,7 +1338,7 @@ void iso_interface_create(tig_window_handle_t window_handle)
     font_desc.flags = ~TIG_FONT_SHADOW;
     tig_art_interface_id_create(230, 0, 0, 0, &(font_desc.art_id));
 
-    sub_54B3C0();
+    intgame_counters_refresh();
 
     for (index = 0; index < MAX_MESSAGE_HISTORY_ITEMS; index++) {
         intgame_message_history[index].str = (char*)MALLOC(MAX_MESSAGE_HISTORY_STRING_SIZE);
@@ -1733,7 +1733,7 @@ void intgame_draw_bars(void)
 }
 
 // 0x54B3C0
-void sub_54B3C0(void)
+void intgame_counters_refresh(void)
 {
     int qty;
     int art_num;
@@ -4702,7 +4702,7 @@ void intgame_mt_spells_enable(void)
         }
     }
 
-    sub_54B3C0();
+    intgame_counters_refresh();
 }
 
 // 0x551740

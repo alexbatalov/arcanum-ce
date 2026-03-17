@@ -83,7 +83,7 @@ bool intgame_button_create(UiButtonInfo* button_info);
 void intgame_button_destroy(UiButtonInfo* button_info);
 void intgame_draw_bar(int bar);
 void intgame_draw_bars(void);
-void sub_54B3C0(void);
+void intgame_counters_refresh(void);
 bool sub_54B5D0(TigMessage* msg);
 void intgame_process_event(TigMessage* msg);
 void sub_54EA80(S4F2810* a1);
