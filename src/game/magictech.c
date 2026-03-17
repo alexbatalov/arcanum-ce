@@ -611,7 +611,7 @@ const char* off_5BBD70[] = {
 static bool magictech_editor;
 
 // 0x5E3518
-static S603CB8_F50 stru_5E3518;
+static TargetList stru_5E3518;
 
 // 0x5E6D20
 static mes_file_handle_t dword_5E6D20;
@@ -3290,7 +3290,7 @@ void sub_4534E0(MagicTechRunInfo* run_info)
 void sub_453630(void)
 {
     sub_4F2600(&stru_5E6D28, 0, magictech_cur_run_info->source_obj.obj);
-    stru_5E6D28.field_50 = &stru_5E3518;
+    stru_5E6D28.targets = &stru_5E3518;
     stru_5E6D28.field_54 = &magictech_cur_run_info->objlist;
     stru_5E6D28.field_58 = &magictech_cur_run_info->summoned_obj;
     stru_5E6D28.field_30 = magictech_cur_run_info->target_obj.obj;
@@ -4961,7 +4961,7 @@ bool magictech_invocation_check(MagicTechInvocation* mt_invocation)
     if (!player_is_pc_obj(mt_invocation->parent_obj.obj)) {
         TargetParams target_params;
         S603CB8 v2;
-        S603CB8_F50 v3;
+        TargetList targets;
         int idx;
         uint64_t* tgt;
 
@@ -4990,19 +4990,19 @@ bool magictech_invocation_check(MagicTechInvocation* mt_invocation)
 
             v2.field_38 = obj_field_int64_get(mt_invocation->target_obj.obj, OBJ_F_LOCATION);
             v2.field_28 = obj_field_int64_get(mt_invocation->target_obj.obj, OBJ_F_LOCATION);
-            v2.field_50 = &v3;
+            v2.targets = &targets;
             sub_4F40B0(&v2);
 
-            for (idx = 0; idx < v2.field_50->cnt; idx++) {
-                if (v2.field_50->entries[idx].loc != 0) {
-                    v2.field_28 = v2.field_50->entries[idx].loc;
+            for (idx = 0; idx < v2.targets->cnt; idx++) {
+                if (v2.targets->entries[idx].loc != 0) {
+                    v2.field_28 = v2.targets->entries[idx].loc;
                     if (sub_4F2D20(&v2)) {
                         break;
                     }
                 }
             }
 
-            if (idx >= v2.field_50->cnt) {
+            if (idx >= v2.targets->cnt) {
                 return false;
             }
 

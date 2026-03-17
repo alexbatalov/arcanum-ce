@@ -607,7 +607,7 @@ bool sub_4B99C0(int64_t from, int64_t* to)
     TargetParams target_params;
     PathCreateInfo path_create_info;
     S603CB8 v2;
-    S603CB8_F50 v3;
+    TargetList targets;
     int idx;
 
     target_params_init(&target_params);
@@ -626,23 +626,23 @@ bool sub_4B99C0(int64_t from, int64_t* to)
         return true;
     }
 
-    v2.field_50 = &v3;
+    v2.targets = &targets;
     target_params.tgt |= Tgt_Tile_Radius_Naked;
     sub_4F40B0(&v2);
 
-    for (idx = 0; idx < v3.cnt; idx++) {
-        if (v3.entries[idx].loc != 0) {
-            v2.field_28 = v3.entries[idx].loc;
+    for (idx = 0; idx < targets.cnt; idx++) {
+        if (targets.entries[idx].loc != 0) {
+            v2.field_28 = targets.entries[idx].loc;
             if (sub_4F2D20(&v2)) {
                 path_create_info.obj = OBJ_HANDLE_NULL;
                 path_create_info.from = from;
-                path_create_info.to = v3.entries[idx].loc;
+                path_create_info.to = targets.entries[idx].loc;
                 path_create_info.max_rotations = sizeof(byte_5FC2A8);
                 path_create_info.rotations = byte_5FC2A8;
                 path_create_info.flags = PATH_FLAG_0x0010 | PATH_FLAG_0x0004 | PATH_FLAG_0x0002;
                 if (path_make(&path_create_info)) {
                     if (to != NULL) {
-                        *to = v3.entries[idx].loc;
+                        *to = targets.entries[idx].loc;
                     }
                     return true;
                 }

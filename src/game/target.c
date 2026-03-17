@@ -11,9 +11,9 @@
 #include "game/tile.h"
 
 static bool sub_4F28A0(int x, int y, TargetDescriptor* td);
-static void sub_4F3F10(S603CB8_F50* a1, int64_t obj);
-static void sub_4F3FD0(S603CB8_F50* a1, int64_t obj);
-static void sub_4F4050(S603CB8_F50* a1, int64_t loc);
+static void target_list_add_obj_unless_off(TargetList* list, int64_t obj);
+static void target_list_add_obj_unless_destroyed(TargetList* list, int64_t obj);
+static void target_list_add_loc(TargetList* list, int64_t loc);
 
 // 0x603B88
 static PathCreateInfo stru_603B88;
@@ -115,7 +115,7 @@ void sub_4F2600(S603CB8* a1, TargetParams* params, int64_t a3)
     a1->params = params;
     a1->field_54 = 0;
     a1->field_58 = 0;
-    a1->field_50 = 0;
+    a1->targets = 0;
     if (a3 != OBJ_HANDLE_NULL) {
         a1->field_18 = obj_field_int64_get(a3, OBJ_F_LOCATION);
     }
@@ -964,15 +964,23 @@ bool sub_4F2D20(S603CB8* a1)
     return true;
 }
 
-// 0x4F3F10
-void sub_4F3F10(S603CB8_F50* a1, int64_t obj)
+/**
+ * Adds an object to the target list, unless the object is destroyed or switched
+ * off.
+ *
+ * 0x4F3F10
+ */
+void target_list_add_obj_unless_off(TargetList* list, int64_t obj)
 {
     int idx;
 
+    // Reject null handles.
     if (obj == OBJ_HANDLE_NULL) {
         return;
     }
 
+    // Reject objects that are destroyed or switched off (unless the object is
+    // a critter marked with `OCF2_SAFE_OFF`).
     if ((obj_field_int32_get(obj, OBJ_F_FLAGS) & (OF_DESTROYED | OF_OFF)) != 0) {
         if (!obj_type_is_critter(obj_field_int32_get(obj, OBJ_F_TYPE))) {
             return;
@@ -983,61 +991,77 @@ void sub_4F3F10(S603CB8_F50* a1, int64_t obj)
         }
     }
 
-    for (idx = 0; idx < a1->cnt; idx++) {
-        if (a1->entries[idx].obj == obj) {
+    // Check if this object is already on the list.
+    for (idx = 0; idx < list->cnt; idx++) {
+        if (list->entries[idx].obj == obj) {
             return;
         }
     }
 
-    a1->entries[a1->cnt].obj = obj;
-    a1->entries[a1->cnt].loc = 0;
-    a1->cnt++;
+    // Append object to the list.
+    list->entries[list->cnt].obj = obj;
+    list->entries[list->cnt].loc = 0;
+    list->cnt++;
 }
 
-// 0x4F3FD0
-void sub_4F3FD0(S603CB8_F50* a1, int64_t obj)
+/**
+ * Adds an object to the target list, unless the object is destroyed.
+ *
+ * 0x4F3FD0
+ */
+void target_list_add_obj_unless_destroyed(TargetList* list, int64_t obj)
 {
     int idx;
 
+    // Reject null handles.
     if (obj == OBJ_HANDLE_NULL) {
         return;
     }
 
+    // Reject objects that are destroyed.
     if ((obj_field_int32_get(obj, OBJ_F_FLAGS) & OF_DESTROYED) != 0) {
         return;
     }
 
-    for (idx = 0; idx < a1->cnt; idx++) {
-        if (a1->entries[idx].obj == obj) {
+    // Check if this object is already on the list.
+    for (idx = 0; idx < list->cnt; idx++) {
+        if (list->entries[idx].obj == obj) {
             return;
         }
     }
 
-    a1->entries[a1->cnt].obj = obj;
-    a1->entries[a1->cnt].loc = 0;
-    a1->cnt++;
+    // Append object to the list.
+    list->entries[list->cnt].obj = obj;
+    list->entries[list->cnt].loc = 0;
+    list->cnt++;
 }
 
-// 0x4F4050
-void sub_4F4050(S603CB8_F50* a1, int64_t loc)
+/**
+ * Adds a world location to the target list (unless it's already in the list).
+ *
+ * 0x4F4050
+ */
+void target_list_add_loc(TargetList* list, int64_t loc)
 {
     int idx;
 
-    for (idx = 0; idx < a1->cnt; idx++) {
-        if (a1->entries[idx].loc == loc) {
+    // Check if this location is already on the list.
+    for (idx = 0; idx < list->cnt; idx++) {
+        if (list->entries[idx].loc == loc) {
             return;
         }
     }
 
-    a1->entries[a1->cnt].obj = OBJ_HANDLE_NULL;
-    a1->entries[a1->cnt].loc = loc;
-    a1->cnt++;
+    // Append location to the list.
+    list->entries[list->cnt].obj = OBJ_HANDLE_NULL;
+    list->entries[list->cnt].loc = loc;
+    list->cnt++;
 }
 
 // 0x4F40B0
 void sub_4F40B0(S603CB8* a1)
 {
-    S603CB8_F50* v1;
+    TargetList* targets;
     TargetParams* target_params;
     S603CB8 v3;
     TargetParams tmp_target_params;
@@ -1047,48 +1071,48 @@ void sub_4F40B0(S603CB8* a1)
     int idx;
     int64_t origin;
 
-    v1 = a1->field_50;
-    if (v1 == NULL) {
+    targets = a1->targets;
+    if (targets == NULL) {
         return;
     }
 
-    v1->cnt = 0;
+    targets->cnt = 0;
     target_params = a1->params;
 
     if ((target_params->tgt & Tgt_Self) != 0
         && (target_params->tgt & Tgt_No_Self) == 0) {
-        sub_4F3F10(v1, a1->self_obj);
+        target_list_add_obj_unless_off(targets, a1->self_obj);
     }
 
     if ((target_params->tgt & Tgt_Source) != 0
         && (target_params->tgt & Tgt_No_Self) == 0) {
-        sub_4F3F10(v1, a1->source_obj);
+        target_list_add_obj_unless_off(targets, a1->source_obj);
     }
 
     if ((target_params->tgt & Tgt_Object) != 0 && a1->field_30 != OBJ_HANDLE_NULL) {
-        sub_4F3FD0(v1, a1->field_30);
+        target_list_add_obj_unless_destroyed(targets, a1->field_30);
     }
 
     if ((target_params->tgt & Tgt_Summoned_No_Obj) != 0) {
         if (a1->field_48 != OBJ_HANDLE_NULL) {
-            sub_4F3FD0(v1, a1->field_48);
+            target_list_add_obj_unless_destroyed(targets, a1->field_48);
         }
 
         if (a1->field_58 != NULL) {
             mt_obj_node = *a1->field_58;
             while (mt_obj_node != NULL) {
-                sub_4F3FD0(v1, mt_obj_node->obj);
+                target_list_add_obj_unless_destroyed(targets, mt_obj_node->obj);
                 mt_obj_node = mt_obj_node->next;
             }
         }
     }
 
     if ((target_params->tgt & Tgt_Tile) != 0 && a1->field_38 != 0) {
-        sub_4F4050(v1, a1->field_38);
+        target_list_add_loc(targets, a1->field_38);
     }
 
     if ((target_params->tgt & Tgt_Tile_Self) != 0 && a1->source_obj != OBJ_HANDLE_NULL) {
-        sub_4F4050(v1, obj_field_int64_get(a1->source_obj, OBJ_F_LOCATION));
+        target_list_add_loc(targets, obj_field_int64_get(a1->source_obj, OBJ_F_LOCATION));
     }
 
     if ((target_params->tgt & Tgt_Obj_Radius) != 0) {
@@ -1148,7 +1172,7 @@ void sub_4F40B0(S603CB8* a1)
             if (sub_4F2C60(&tmp_obj) != OBJ_TYPE_SCENERY || all) {
                 v3.field_20 = tmp_obj;
                 if (sub_4F2D20(&v3)) {
-                    sub_4F3F10(v1, tmp_obj);
+                    target_list_add_obj_unless_off(targets, tmp_obj);
 
                     if (tmp_target_params.count > 0) {
                         if (--tmp_target_params.count == 0) {
@@ -1182,7 +1206,7 @@ void sub_4F40B0(S603CB8* a1)
             for (x = -target_params->radius; x <= target_params->radius; x++) {
                 v3.field_28 = location_make(location_get_x(origin) + x, location_get_y(origin) + y);
                 if (sub_4F2D20(&v3)) {
-                    sub_4F4050(v1, v3.field_28);
+                    target_list_add_loc(targets, v3.field_28);
 
                     if (tmp_target_params.count > 0) {
                         if (--tmp_target_params.count == 0) {
@@ -1272,7 +1296,7 @@ void sub_4F40B0(S603CB8* a1)
         for (range = 0; range < target_params->radius; range++) {
             v3.field_28 = location_make(location_get_x(origin) + dx1, location_get_y(origin) + dy1);
             if (sub_4F2D20(&v3)) {
-                sub_4F4050(v1, v3.field_28);
+                target_list_add_loc(targets, v3.field_28);
                 if (tmp_target_params.count > 0) {
                     if (--tmp_target_params.count == 0) {
                         break;
@@ -1282,7 +1306,7 @@ void sub_4F40B0(S603CB8* a1)
 
             v3.field_28 = location_make(location_get_x(origin) + dx2, location_get_y(origin) + dy2);
             if (sub_4F2D20(&v3)) {
-                sub_4F4050(v1, v3.field_28);
+                target_list_add_loc(targets, v3.field_28);
                 if (tmp_target_params.count > 0) {
                     if (--tmp_target_params.count == 0) {
                         break;
@@ -1298,7 +1322,7 @@ void sub_4F40B0(S603CB8* a1)
     }
 
     if ((target_params->tgt & Tgt_Tile_Offscreen_Naked) != 0 && a1->field_20 != OBJ_HANDLE_NULL) {
-        sub_4F4050(v1, obj_field_int64_get(a1->field_20, OBJ_F_LOCATION));
+        target_list_add_loc(targets, obj_field_int64_get(a1->field_20, OBJ_F_LOCATION));
     }
 
     // FIXME: The code below does not look like implementation of cone.
@@ -1360,7 +1384,7 @@ void sub_4F40B0(S603CB8* a1)
                                 || all) {
                                 v3.field_20 = tmp_obj;
                                 if (sub_4F2D20(&v3)) {
-                                    sub_4F3F10(v1, tmp_obj);
+                                    target_list_add_obj_unless_off(targets, tmp_obj);
                                     if (tmp_target_params.count > 0) {
                                         if (--tmp_target_params.count == 0) {
                                             done = true;
@@ -1389,7 +1413,7 @@ void sub_4F40B0(S603CB8* a1)
                     for (x = -target_params->radius; x <= target_params->radius; x++) {
                         v3.field_28 = location_make(location_get_x(origin) + x, location_get_y(origin) + y);
                         if (sub_4F2D20(&v3)) {
-                            sub_4F4050(v1, v3.field_28);
+                            target_list_add_loc(targets, v3.field_28);
 
                             // FIXME: Missing count tracking.
                         }
@@ -1403,15 +1427,15 @@ void sub_4F40B0(S603CB8* a1)
         mt_obj_node = *a1->field_54;
         if (mt_obj_node != NULL) {
             while (mt_obj_node != NULL) {
-                sub_4F3FD0(v1, mt_obj_node->obj);
+                target_list_add_obj_unless_destroyed(targets, mt_obj_node->obj);
                 mt_obj_node = mt_obj_node->next;
             }
         } else {
-            for (idx = 0; idx < v1->cnt; idx++) {
+            for (idx = 0; idx < targets->cnt; idx++) {
                 // FIXME: Leaking node when object handle is null.
                 mt_obj_node = mt_obj_node_create();
-                if (v1->entries[idx].obj != OBJ_HANDLE_NULL) {
-                    mt_obj_node->obj = v1->entries[idx].obj;
+                if (targets->entries[idx].obj != OBJ_HANDLE_NULL) {
+                    mt_obj_node->obj = targets->entries[idx].obj;
                     mt_obj_node->next = *a1->field_54;
                     sub_443EB0(mt_obj_node->obj, &(mt_obj_node->field_8));
                     if (mt_obj_node->obj != OBJ_HANDLE_NULL) {
@@ -1430,7 +1454,7 @@ void sub_4F40B0(S603CB8* a1)
         object_list_team(a1->source_obj, &objects);
         obj_node = objects.head;
         while (obj_node != NULL) {
-            sub_4F3FD0(v1, obj_node->obj);
+            target_list_add_obj_unless_destroyed(targets, obj_node->obj);
             obj_node = obj_node->next;
         }
         object_list_destroy(&objects);
@@ -1440,7 +1464,7 @@ void sub_4F40B0(S603CB8* a1)
             object_list_party(a1->source_obj, &objects);
             obj_node = objects.head;
             while (obj_node != NULL) {
-                sub_4F3FD0(v1, obj_node->obj);
+                target_list_add_obj_unless_destroyed(targets, obj_node->obj);
                 obj_node = obj_node->next;
             }
             object_list_destroy(&objects);
@@ -1451,7 +1475,7 @@ void sub_4F40B0(S603CB8* a1)
         && obj_type_is_item(obj_field_int32_get(a1->source_obj, OBJ_F_TYPE))) {
         int64_t parent_obj = obj_field_handle_get(a1->source_obj, OBJ_F_ITEM_PARENT);
         if (parent_obj != OBJ_HANDLE_NULL) {
-            sub_4F3FD0(v1, parent_obj);
+            target_list_add_obj_unless_destroyed(targets, parent_obj);
         }
     }
 }

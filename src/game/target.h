@@ -28,7 +28,16 @@ typedef struct TargetParams {
     /* 0014 */ int count;
 } TargetParams;
 
-typedef struct S603CB8_F50_Entry {
+/**
+ * A single entry in a collected target list. Stores either the object handle or
+ * the world location of a resolved target, but not both.
+ *
+ * NOTE: For unknown reason the majority of fields are not used. `obj` and `loc`
+ * are separate fields instead of relying on `TargetDescriptor`. I would say
+ * targeting system underwent some serious refactorings back in a day, with some
+ * things left behind.
+ */
+typedef struct TargetListEntry {
     /* 0000 */ int64_t obj;
     /* 0008 */ int64_t loc;
     /* 0010 */ int field_10;
@@ -41,13 +50,17 @@ typedef struct S603CB8_F50_Entry {
     /* 002C */ int field_2C;
     /* 0030 */ int field_30;
     /* 0034 */ int field_34;
-} S603CB8_F50_Entry;
+} TargetListEntry;
 
-typedef struct S603CB8_F50 {
+/**
+ * A list of collected targeting results. Holds up to 256 entries, although this
+ * limit is never validated in the code.
+ */
+typedef struct TargetList {
     /* 0000 */ int cnt;
-    /* 0004 */ int field_4;
-    /* 0008 */ S603CB8_F50_Entry entries[256];
-} S603CB8_F50;
+    /* 0004 */ int padding_4;
+    /* 0008 */ TargetListEntry entries[256];
+} TargetList;
 
 typedef struct S603CB8 {
     /* 0000 */ TargetParams* params;
@@ -61,7 +74,7 @@ typedef struct S603CB8 {
     /* 0038 */ int64_t field_38;
     /* 0040 */ int64_t field_40;
     /* 0048 */ int64_t field_48;
-    /* 0050 */ S603CB8_F50* field_50;
+    /* 0050 */ TargetList* targets;
     /* 0054 */ MagicTechObjectNode** field_54;
     /* 0058 */ MagicTechObjectNode** field_58;
     /* 005C */ int field_5C;
