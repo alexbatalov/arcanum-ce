@@ -877,7 +877,7 @@ static UiMessage intgame_message_history[MAX_MESSAGE_HISTORY_ITEMS];
 static bool intgame_big_window_locked;
 
 // 0x64C634
-static IntgameMode dword_64C634[11];
+static IntgameMode intgame_mode_stack[11];
 
 // 0x64C660
 static TigRect intgame_pc_lens_src_rect;
@@ -919,7 +919,7 @@ static bool dword_64C6B0;
 static bool intgame_iso_interface_created;
 
 // 0x64C6B8
-static int dword_64C6B8;
+static int intgame_mode_stack_size;
 
 // 0x64C6BC
 static PcLensMode intgame_pc_lens_mode;
@@ -1300,8 +1300,8 @@ void iso_interface_create(tig_window_handle_t window_handle)
     intgame_button_create(&intgame_mt_button_info);
     intgame_mt_button_disable();
 
-    dword_64C6B8 = 0;
-    dword_64C634[0] = INTGAME_MODE_MAIN;
+    intgame_mode_stack_size = 0;
+    intgame_mode_stack[0] = INTGAME_MODE_MAIN;
     sub_4F25B0(Tgt_Obj_No_T_Wall | Tgt_Tile);
     intgame_pc_lens_mode = PC_LENS_MODE_NONE;
 
@@ -1413,8 +1413,8 @@ void iso_interface_destroy(void)
 // 0x54AA30
 void sub_54AA30(void)
 {
-    dword_64C6B8 = 0;
-    dword_64C634[0] = INTGAME_MODE_MAIN;
+    intgame_mode_stack_size = 0;
+    intgame_mode_stack[intgame_mode_stack_size] = INTGAME_MODE_MAIN;
     intgame_message_history_size = 0;
     intgame_message_history_end = 0;
     intgame_message_history_curr = 0;
@@ -4820,7 +4820,7 @@ void sub_551910(TigMessage* msg)
 // 0x551A00
 IntgameMode intgame_mode_get(void)
 {
-    return dword_64C634[dword_64C6B8];
+    return intgame_mode_stack[intgame_mode_stack_size];
 }
 
 // 0x551A10
@@ -4858,14 +4858,14 @@ bool intgame_mode_set(IntgameMode mode)
     while (1) {
         dword_64C6E8 = true;
         pc_obj = player_get_local_pc_obj();
-        prev_mode = dword_64C634[dword_64C6B8];
+        prev_mode = intgame_mode_stack[intgame_mode_stack_size];
 
         if (mode != INTGAME_MODE_MAIN) {
-            dword_64C6B8++;
+            intgame_mode_stack_size++;
             v18 = true;
         } else {
-            if (dword_64C6B8 > 0) {
-                mode = dword_64C634[--dword_64C6B8];
+            if (intgame_mode_stack_size > 0) {
+                mode = intgame_mode_stack[--intgame_mode_stack_size];
                 v2 = true;
             }
             if (inven_ui_drag_item_obj_get() == OBJ_HANDLE_NULL) {
@@ -5044,7 +5044,7 @@ bool intgame_mode_set(IntgameMode mode)
             }
         }
 
-        dword_64C634[dword_64C6B8] = mode;
+        intgame_mode_stack[intgame_mode_stack_size] = mode;
         intgame_refresh_cursor();
 
         v1 = false;
