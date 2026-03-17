@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clone
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: clang-format
         run: find src -type f -name \*.c -o -name \*.h | xargs clang-format --dry-run --Werror
@@ -30,7 +30,7 @@ jobs:
 
     steps:
       - name: Clone
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Java
         uses: actions/setup-java@v3
@@ -40,7 +40,7 @@ jobs:
           cache: gradle
 
       - name: Cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: android/app/.cxx
           key: android-cmake-v4
@@ -61,7 +61,7 @@ jobs:
           ./gradlew assembleDebug
 
       - name: Upload
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: arcanum-ce-debug.apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
@@ -73,10 +73,10 @@ jobs:
 
     steps:
       - name: Clone
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: out/build/ios
           key: ios-cmake-v4
@@ -91,7 +91,7 @@ jobs:
         run: cpack --config out/build/ios/CPackConfig.cmake -C Debug -B out/build/ios
 
       - name: Upload
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: arcanum-ce.ipa
           path: out/build/ios/arcanum-ce.ipa
@@ -150,10 +150,10 @@ jobs:
             ${NULL+}
 
       - name: Clone
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: out/build/linux-${{ matrix.arch }}-debug
           key: linux-${{ matrix.arch }}-debug-cmake-v4
@@ -165,7 +165,7 @@ jobs:
         run: cmake --build --preset linux-${{ matrix.arch }}-debug
 
       - name: Upload
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: arcanum-ce-linux-${{ matrix.arch }}
           path:  out/build/linux-${{ matrix.arch }}-debug/arcanum-ce
@@ -177,10 +177,10 @@ jobs:
 
     steps:
       - name: Clone
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: out/build/macos
           key: macos-cmake-v4
@@ -195,7 +195,7 @@ jobs:
         run: cpack --config out/build/macos/CPackConfig.cmake -C Debug -B out/build/macos
 
       - name: Upload
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: arcanum-ce-macos.dmg
           path: out/build/macos/Arcanum Community Edition.dmg
@@ -218,10 +218,10 @@ jobs:
 
     steps:
       - name: Clone
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: out/build/windows-${{ matrix.arch }}
           key: windows-${{ matrix.arch }}-cmake-v4
@@ -233,7 +233,7 @@ jobs:
         run: cmake --build --preset windows-${{ matrix.arch }}-debug
 
       - name: Upload
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: arcanum-ce-windows-${{ matrix.arch }}
           path:  out/build/windows-${{ matrix.arch }}/Debug/arcanum-ce.exe
