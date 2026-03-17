@@ -551,8 +551,8 @@ void intgame_hotkey_refresh(int index)
         if (hotkey->type == HOTKEY_ITEM) {
             inv_art_id = obj_field_int32_get(hotkey->item_obj.obj, OBJ_F_ITEM_INV_AID);
             if (tig_art_frame_data(inv_art_id, &art_frame_data) == TIG_OK
-                && art_frame_data.width < 32
-                && art_frame_data.height < 32) {
+                && art_frame_data.width <= 32
+                && art_frame_data.height <= 32) {
                 art_id = inv_art_id;
             }
         }
