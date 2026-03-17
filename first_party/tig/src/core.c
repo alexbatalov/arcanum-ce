@@ -25,6 +25,18 @@
 typedef int (*TigInitFunc)(TigInitInfo* init_info);
 typedef void (*TigExitFunc)(void);
 
+static void tig_native_cursor_apply(void);
+static void tig_native_cursor_refresh(bool force);
+
+#ifdef __APPLE__
+/* macOS Game Overlay can restore the native arrow without a focus change
+ * when its launch banner dismisses, so we periodically ask SDL to redraw the
+ * currently selected cursor while the game is active. */
+enum {
+    TIG_MACOS_NATIVE_CURSOR_REFRESH_INTERVAL_MS = 100,
+};
+#endif
+
 typedef struct TigModule {
     const char* name;
     TigInitFunc init_func;
@@ -67,6 +79,9 @@ static bool in_tig_exit;
 // 0x60F244
 static bool tig_active;
 
+static SDL_Cursor* tig_blank_cursor;
+static tig_timestamp_t tig_native_cursor_refresh_timestamp;
+
 // 0x739F34
 tig_timestamp_t tig_ping_timestamp;
 
@@ -75,6 +90,7 @@ int tig_init(TigInitInfo* init_info)
 {
     size_t index;
     int rc;
+    SDL_Surface* blank_cursor_surface;
 
     if (tig_initialized) {
         return TIG_ERR_ALREADY_INITIALIZED;
@@ -83,6 +99,15 @@ int tig_init(TigInitInfo* init_info)
     if (!SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
         tig_debug_printf("Error initializing SDL: %s\n", SDL_GetError());
         return TIG_ERR_GENERIC;
+    }
+
+    blank_cursor_surface = SDL_CreateSurface(1, 1, SDL_PIXELFORMAT_RGBA32);
+    if (blank_cursor_surface != NULL) {
+        SDL_FillSurfaceRect(blank_cursor_surface,
+            NULL,
+            SDL_MapSurfaceRGBA(blank_cursor_surface, 0, 0, 0, 0));
+        tig_blank_cursor = SDL_CreateColorCursor(blank_cursor_surface, 0, 0);
+        SDL_DestroySurface(blank_cursor_surface);
     }
 
     atexit(SDL_Quit);
@@ -104,12 +129,18 @@ int tig_init(TigInitInfo* init_info)
                 modules[--index].exit_func();
             }
 
+            if (tig_blank_cursor != NULL) {
+                SDL_DestroyCursor(tig_blank_cursor);
+                tig_blank_cursor = NULL;
+            }
+
             return rc;
         }
     }
 
     atexit(tig_exit);
 
+    tig_set_active(true);
     tig_initialized = true;
 
     return TIG_OK;
@@ -132,6 +163,11 @@ void tig_exit(void)
             modules[--index].exit_func();
         }
 
+        if (tig_blank_cursor != NULL) {
+            SDL_DestroyCursor(tig_blank_cursor);
+            tig_blank_cursor = NULL;
+        }
+
         tig_initialized = false;
 
         in_tig_exit = false;
@@ -143,6 +179,7 @@ void tig_ping(void)
 {
     tig_timer_now(&tig_ping_timestamp);
 
+    tig_native_cursor_refresh(false);
     tig_mouse_ping();
     tig_message_ping();
     tig_sound_ping();
@@ -155,10 +192,58 @@ void tig_set_active(bool is_active)
     tig_active = is_active;
     tig_mouse_set_active(is_active);
     tig_sound_set_active(is_active);
+    tig_native_cursor_refresh(true);
 }
 
 // 0x51F320
 bool tig_get_active(void)
 {
     return tig_active;
+}
+
+void tig_native_cursor_apply(void)
+{
+    if (tig_active) {
+        if (tig_blank_cursor != NULL) {
+            SDL_SetCursor(tig_blank_cursor);
+            SDL_ShowCursor();
+        } else {
+            SDL_HideCursor();
+        }
+    } else {
+        SDL_SetCursor(SDL_GetDefaultCursor());
+        SDL_ShowCursor();
+    }
+}
+
+void tig_native_cursor_refresh(bool force)
+{
+    if (!tig_initialized && !force) {
+        return;
+    }
+
+    if (tig_active) {
+#ifdef __APPLE__
+        if (!force
+            && tig_timer_between(tig_native_cursor_refresh_timestamp, tig_ping_timestamp) < TIG_MACOS_NATIVE_CURSOR_REFRESH_INTERVAL_MS) {
+            return;
+        }
+
+        tig_native_cursor_apply();
+
+        /* SDL_SetCursor(NULL) forces a Cocoa cursor redraw without changing the
+         * currently selected cursor object. This helps recover when macOS
+         * overlays restore the native arrow behind SDL's back. */
+        SDL_SetCursor(NULL);
+        tig_native_cursor_refresh_timestamp = tig_ping_timestamp;
+#else
+        if (force) {
+            tig_native_cursor_apply();
+            tig_native_cursor_refresh_timestamp = tig_ping_timestamp;
+        }
+#endif
+    } else if (force) {
+        tig_native_cursor_apply();
+        tig_native_cursor_refresh_timestamp = tig_ping_timestamp;
+    }
 }

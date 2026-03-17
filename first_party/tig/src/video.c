@@ -105,8 +105,6 @@ int tig_video_init(TigInitInfo* init_info)
     tig_video_show_fps = (init_info->flags & TIG_INITIALIZE_FPS) != 0;
     tig_video_bpp = init_info->bpp;
 
-    SDL_HideCursor();
-
     tig_video_screenshot_key = -1;
     dword_6103A4 = 0;
 
