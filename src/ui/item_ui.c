@@ -115,7 +115,7 @@ void item_ui_activate(int64_t owner_obj, int64_t item_obj)
         if (intgame_mode_set(INTGAME_MODE_ITEM)) {
             sub_4F25B0(*tgt_ptr);
             if (obj_field_int32_get(qword_6810D8, OBJ_F_ITEM_MAGIC_TECH_COMPLEXITY) < 0) {
-                sub_553A60(620);
+                intgame_item_mode_cursor_set(620);
                 intgame_refresh_cursor();
             }
 
@@ -133,7 +133,7 @@ void item_ui_deactivate(void)
 {
     intgame_mode_set(INTGAME_MODE_MAIN);
     qword_6810D8 = OBJ_HANDLE_NULL;
-    sub_553A60(21);
+    intgame_item_mode_cursor_set(21);
 }
 
 // 0x571CB0

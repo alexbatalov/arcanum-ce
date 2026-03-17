@@ -6153,7 +6153,7 @@ void intgame_refresh_cursor(void)
 }
 
 // 0x553A60
-void sub_553A60(int art_num)
+void intgame_item_mode_cursor_set(int art_num)
 {
     intgame_mode_cursors[INTGAME_MODE_ITEM] = art_num;
 }
