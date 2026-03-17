@@ -3672,7 +3672,7 @@ void sub_54ED30(S4F2810* a1)
 }
 
 // 0x54FCF0
-void sub_54FCF0(Hotkey* hotkey)
+void intgame_hotkey_activate(Hotkey* hotkey)
 {
     int64_t pc_obj;
     int64_t weapon_obj;

@@ -320,7 +320,7 @@ bool hotkey_ui_process_event(TigMessage* msg)
         case TIG_BUTTON_STATE_RELEASED:
             for (index = 0; index < 2; index++) {
                 if (msg->data.button.button_handle == intgame_recent_action_button_get(index)->button_handle) {
-                    sub_54FCF0(&(stru_683518[index]));
+                    intgame_hotkey_activate(&(stru_683518[index]));
                     return true;
                 }
             }
@@ -332,7 +332,7 @@ bool hotkey_ui_process_event(TigMessage* msg)
                         }
                         sub_57E8D0(TIG_MESSAGE_MOUSE_LEFT_BUTTON_UP);
                     } else {
-                        sub_54FCF0(&(stru_6835E0[index]));
+                        intgame_hotkey_activate(&(stru_6835E0[index]));
                     }
                     return true;
                 }
@@ -361,7 +361,7 @@ bool hotkey_ui_process_event(TigMessage* msg)
             && !mainmenu_ui_is_active()
             && msg->data.keyboard.key == SDLK_A
             && msg->data.keyboard.pressed) {
-            sub_54FCF0(stru_683518);
+            intgame_hotkey_activate(stru_683518);
             gsound_play_sfx(0, 1);
             return true;
         }
@@ -1185,7 +1185,7 @@ void sub_57F1D0(int index)
     }
 
     gsound_play_sfx(0, 1);
-    sub_54FCF0(hotkey);
+    intgame_hotkey_activate(hotkey);
 }
 
 // 0x57F210
