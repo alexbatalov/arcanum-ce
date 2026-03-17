@@ -39,7 +39,7 @@ void tech_ui_inc_degree(int64_t obj, int tech)
             // Update UI.
             if (is_pc) {
                 charedit_refresh();
-                sub_550720();
+                intgame_message_window_clear();
             }
         } else {
             // Notify player of insufficient intelligence.
@@ -80,7 +80,7 @@ void tech_ui_dec_degree(int64_t obj, int tech)
         // Update UI.
         if (is_pc) {
             charedit_refresh();
-            sub_550720();
+            intgame_message_window_clear();
         }
     }
 }

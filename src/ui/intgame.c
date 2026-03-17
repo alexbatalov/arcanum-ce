@@ -2596,7 +2596,7 @@ bool handle_button_unhover(TigMessage* msg)
         || msg->data.button.button_handle == intgame_primary_buttons[INTGAME_PRIMARY_BUTTON_FATE].button_handle
         || msg->data.button.button_handle == intgame_sleep_button_info.button_handle) {
         dword_64C674 = -1;
-        sub_550720();
+        intgame_message_window_clear();
         return true;
     }
 
@@ -2610,13 +2610,13 @@ bool handle_button_unhover(TigMessage* msg)
             return true;
         }
         if (msg->data.button.button_handle == intgame_clock_button_info.button_handle) {
-            intgame_message_window_clear();
+            intgame_message_window_clear_internal();
         }
         break;
     case ROTWIN_TYPE_SPELLS:
     case ROTWIN_TYPE_SKILLS:
     case ROTWIN_TYPE_MAGICTECH:
-        intgame_message_window_clear();
+        intgame_message_window_clear_internal();
         break;
     default:
         break;
@@ -2624,14 +2624,14 @@ bool handle_button_unhover(TigMessage* msg)
 
     for (index = 0; index < 5; index++) {
         if (msg->data.button.button_handle == intgame_maintain_buttons[index].button_handle) {
-            intgame_message_window_clear();
+            intgame_message_window_clear_internal();
             return true;
         }
     }
 
     for (index = 0; index < 5; index++) {
         if (msg->data.button.button_handle == intgame_maintain_fs_buttons[index].button_handle) {
-            intgame_message_window_clear();
+            intgame_message_window_clear_internal();
             return true;
         }
     }
@@ -4039,7 +4039,7 @@ void iso_interface_window_set(RotatingWindowType window_type)
 }
 
 // 0x550720
-void sub_550720(void)
+void intgame_message_window_clear(void)
 {
     if (!intgame_iso_interface_created) {
         return;
@@ -4052,7 +4052,7 @@ void sub_550720(void)
     if (dword_64C6D4 != NULL) {
         dword_64C6D4(0);
     } else {
-        intgame_message_window_clear();
+        intgame_message_window_clear_internal();
     }
 }
 
@@ -4135,7 +4135,7 @@ void intgame_message_window_display_skill(int value)
 }
 
 // 0x550930
-void intgame_message_window_clear(void)
+void intgame_message_window_clear_internal(void)
 {
     if (!intgame_iso_interface_created) {
         return;
@@ -4162,7 +4162,7 @@ void intgame_message_window_write_text_centered(char* str, TigRect* rect)
         return;
     }
 
-    intgame_message_window_clear();
+    intgame_message_window_clear_internal();
     intgame_message_window_write_text(intgame_rotwin_text_frame[intgame_iso_window_type].window_handle,
         str,
         rect,
@@ -5404,7 +5404,7 @@ void sub_552770(UiMessage* ui_message)
     if (ui_message->type >= 6 && ui_message->type <= 12) {
         if (tig_timer_elapsed(dword_64C6EC) > 3000
             && intgame_iso_window_type == ROTWIN_TYPE_MSG) {
-            intgame_message_window_clear();
+            intgame_message_window_clear_internal();
             intgame_message_draw(intgame_rotwin_text_frame[intgame_iso_window_type].window_handle,
                 ui_message,
                 true);
@@ -5482,7 +5482,7 @@ void intgame_message_refresh(bool play_sound)
 
     if (intgame_iso_window_type == ROTWIN_TYPE_MSG) {
         if (intgame_message_history_size > 0) {
-            intgame_message_window_clear();
+            intgame_message_window_clear_internal();
             intgame_message_draw(intgame_rotwin_text_frame[intgame_iso_window_type].window_handle,
                 &(intgame_message_history[intgame_message_history_curr]),
                 play_sound);
@@ -5636,7 +5636,7 @@ void intgame_message_draw(tig_window_handle_t window_handle, UiMessage* ui_messa
         }
 
         if (!rc) {
-            intgame_message_window_clear();
+            intgame_message_window_clear_internal();
             if (ui_message->str[pos] == '\n') {
                 ui_message->str[pos] = '\0';
                 intgame_message_window_write_text(window_handle, ui_message->str,
@@ -6358,7 +6358,7 @@ void intgame_examine_critter(int64_t pc_obj, int64_t critter_obj, char* str)
     int64_t leader_obj;
 
     obj_type = obj_field_int32_get(critter_obj, OBJ_F_TYPE);
-    intgame_message_window_clear();
+    intgame_message_window_clear_internal();
 
     leader_obj = critter_pc_leader_get(critter_obj);
 
@@ -6955,7 +6955,7 @@ void intgame_examine_item(int64_t pc_obj, int64_t item_obj, char* str)
 
     obj_type = obj_field_int32_get(item_obj, OBJ_F_TYPE);
 
-    intgame_message_window_clear();
+    intgame_message_window_clear_internal();
 
     if (item_parent(item_obj, &parent_obj)
         && parent_obj != OBJ_HANDLE_NULL
@@ -7410,7 +7410,7 @@ void intgame_examine_scenery(int64_t pc_obj, int64_t scenery_obj, char* str)
         return;
     }
 
-    intgame_message_window_clear();
+    intgame_message_window_clear_internal();
 
     if (intgame_examine_portrait(pc_obj, scenery_obj, &portrait)) {
         intgame_draw_portrait(scenery_obj, portrait, intgame_rotwin_text_frame[intgame_iso_window_type].window_handle, 217, 69);
@@ -7446,7 +7446,7 @@ void intgame_examine_portal(int64_t pc_obj, int64_t portal_obj, char* str)
     MesFileEntry mes_file_entry;
     char buffer[MAX_STRING];
 
-    intgame_message_window_clear();
+    intgame_message_window_clear_internal();
 
     if (intgame_examine_portrait(pc_obj, portal_obj, &portrait)) {
         intgame_draw_portrait(portal_obj, portrait, intgame_rotwin_text_frame[intgame_iso_window_type].window_handle, 217, 69);
@@ -7493,7 +7493,7 @@ void intgame_examine_container(int64_t pc_obj, int64_t container_obj, char* str)
     MesFileEntry mes_file_entry;
     char buffer[MAX_STRING];
 
-    intgame_message_window_clear();
+    intgame_message_window_clear_internal();
 
     if (intgame_examine_portrait(pc_obj, container_obj, &portrait)) {
         intgame_draw_portrait(container_obj, portrait, intgame_rotwin_text_frame[intgame_iso_window_type].window_handle, 217, 69);
@@ -7567,7 +7567,7 @@ void intgame_message_window_display_attack(int64_t obj)
         return;
     }
 
-    intgame_message_window_clear();
+    intgame_message_window_clear_internal();
 
     intgame_message_window_draw_image(intgame_rotwin_text_frame[intgame_iso_window_type].window_handle, 675);
     intgame_message_window_write_text(intgame_rotwin_text_frame[intgame_iso_window_type].window_handle,
@@ -7691,7 +7691,7 @@ void intgame_message_window_display_defense(int64_t obj)
         return;
     }
 
-    intgame_message_window_clear();
+    intgame_message_window_clear_internal();
 
     intgame_message_window_draw_image(intgame_rotwin_text_frame[intgame_iso_window_type].window_handle, 674);
     intgame_message_window_write_text(intgame_rotwin_text_frame[intgame_iso_window_type].window_handle,

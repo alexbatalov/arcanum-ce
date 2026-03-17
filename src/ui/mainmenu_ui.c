@@ -5160,7 +5160,7 @@ bool sub_546EE0(TigMessage* msg)
             }
 
             if (v2 > 0) {
-                sub_550720();
+                intgame_message_window_clear();
                 return true;
             }
 

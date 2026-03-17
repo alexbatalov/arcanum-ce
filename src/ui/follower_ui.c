@@ -754,7 +754,7 @@ bool follower_ui_message_filter(TigMessage* msg)
             // Clear the message window when the cursor leaves any button.
             for (index = 0; index < FOLLOWER_UI_BUTTON_COUNT; index++) {
                 if (msg->data.button.button_handle == follower_ui_buttons[index]) {
-                    sub_550720();
+                    intgame_message_window_clear();
                     object_hover_obj_set(OBJ_HANDLE_NULL);
                     return true;
                 }

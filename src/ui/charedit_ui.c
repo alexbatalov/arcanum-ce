@@ -1363,14 +1363,14 @@ bool charedit_window_message_filter(TigMessage* msg)
                 || msg->data.button.button_handle == dword_64D3B8
                 || msg->data.button.button_handle == dword_64CA54) {
                 charedit_hint = -1;
-                sub_550720();
+                intgame_message_window_clear();
                 return true;
             }
 
             for (index = 0; index < 32; index++) {
                 if (msg->data.button.button_handle == stru_5C89A8[index].button_handle) {
                     charedit_hint = -1;
-                    sub_550720();
+                    intgame_message_window_clear();
                     return true;
                 }
             }
@@ -1379,7 +1379,7 @@ bool charedit_window_message_filter(TigMessage* msg)
                 if (msg->data.button.button_handle == stru_5C7F88[index].button_handle
                     || msg->data.button.button_handle == stru_5C8028[index].button_handle) {
                     charedit_hint = -1;
-                    sub_550720();
+                    intgame_message_window_clear();
                     return true;
                 }
             }
@@ -1445,7 +1445,7 @@ bool charedit_window_message_filter(TigMessage* msg)
 
                     stat_base_set(charedit_obj, STAT_UNSPENT_POINTS, unspent_points - cost);
                     charedit_refresh_internal();
-                    sub_550720();
+                    intgame_message_window_clear();
                     return true;
                 }
 
@@ -1524,7 +1524,7 @@ bool charedit_window_message_filter(TigMessage* msg)
                     unspent_points = stat_level_get(charedit_obj, STAT_UNSPENT_POINTS);
                     stat_base_set(charedit_obj, STAT_UNSPENT_POINTS, unspent_points + cost);
                     charedit_refresh_internal();
-                    sub_550720();
+                    intgame_message_window_clear();
                     return true;
                 }
             }
@@ -2974,7 +2974,7 @@ bool charedit_skills_win_message_filter(TigMessage* msg)
             for (index = 0; index < CHAREDIT_SKILL_GROUP_COUNT; index++) {
                 if (msg->data.button.button_handle == charedit_skill_group_buttons[index].button_handle) {
                     charedit_skills_hint = -1;
-                    sub_550720();
+                    intgame_message_window_clear();
                     return true;
                 }
             }
@@ -2982,7 +2982,7 @@ bool charedit_skills_win_message_filter(TigMessage* msg)
             for (index = 0; index < CHAREDIT_SKILLS_PER_GROUP; index++) {
                 if (msg->data.button.button_handle == charedit_skills_hover_areas[index].button_handle) {
                     charedit_skills_hint = -1;
-                    sub_550720();
+                    intgame_message_window_clear();
                     return true;
                 }
             }
@@ -2990,13 +2990,13 @@ bool charedit_skills_win_message_filter(TigMessage* msg)
             for (index = 0; index < BASIC_SKILL_COUNT; index++) {
                 if (msg->data.button.button_handle == charedit_skills_plus_buttons[index].button_handle) {
                     charedit_skills_hint = -1;
-                    sub_550720();
+                    intgame_message_window_clear();
                     return true;
                 }
 
                 if (msg->data.button.button_handle == charedit_skills_minus_buttons[index].button_handle) {
                     charedit_skills_hint = -1;
-                    sub_550720();
+                    intgame_message_window_clear();
                     return true;
                 }
             }
@@ -3095,13 +3095,13 @@ bool sub_55D6F0(TigMessage* msg)
             for (index = 0; index < TECH_SKILL_COUNT; index++) {
                 if (msg->data.button.button_handle == charedit_skills_plus_buttons[BASIC_SKILL_COUNT + index].button_handle) {
                     charedit_skills_hint = -1;
-                    sub_550720();
+                    intgame_message_window_clear();
                     return true;
                 }
 
                 if (msg->data.button.button_handle == charedit_skills_minus_buttons[BASIC_SKILL_COUNT + index].button_handle) {
                     charedit_skills_hint = -1;
-                    sub_550720();
+                    intgame_message_window_clear();
                     return true;
                 }
             }
@@ -3212,7 +3212,7 @@ bool charedit_tech_win_message_filter(TigMessage* msg)
             for (index = 0; index < TECH_COUNT; index++) {
                 if (msg->data.button.button_handle == charedit_tech_buttons[index].button_handle) {
                     charedit_tech_hint = -1;
-                    sub_550720();
+                    intgame_message_window_clear();
                     return true;
                 }
             }
@@ -3220,20 +3220,20 @@ bool charedit_tech_win_message_filter(TigMessage* msg)
             for (index = 0; index < DEGREE_COUNT; index++) {
                 if (msg->data.button.button_handle == charedit_tech_degree_buttons[index].button_handle) {
                     charedit_tech_hint = -1;
-                    sub_550720();
+                    intgame_message_window_clear();
                     return true;
                 }
             }
 
             if (msg->data.button.button_handle == charedit_inc_tech_degree_btn) {
                 charedit_tech_hint = -1;
-                sub_550720();
+                intgame_message_window_clear();
                 return true;
             }
 
             if (msg->data.button.button_handle == charedit_dec_tech_degree_btn) {
                 charedit_tech_hint = -1;
-                sub_550720();
+                intgame_message_window_clear();
                 return true;
             }
 
@@ -3337,7 +3337,7 @@ bool charedit_spells_win_message_filter(TigMessage* msg)
             for (index = 0; index < COLLEGE_COUNT; index++) {
                 if (msg->data.button.button_handle == charedit_college_buttons[index].button_handle) {
                     charedit_spells_hint = -1;
-                    sub_550720();
+                    intgame_message_window_clear();
                     return true;
                 }
             }
@@ -3345,20 +3345,20 @@ bool charedit_spells_win_message_filter(TigMessage* msg)
             for (index = 0; index < 5; index++) {
                 if (msg->data.button.button_handle == stru_5C8DC8[index].button_handle) {
                     charedit_spells_hint = -1;
-                    sub_550720();
+                    intgame_message_window_clear();
                     return true;
                 }
             }
 
             if (msg->data.button.button_handle == spell_plus_bid) {
                 charedit_spells_hint = -1;
-                sub_550720();
+                intgame_message_window_clear();
                 return true;
             }
 
             if (msg->data.button.button_handle == spell_minus_bid) {
                 charedit_spells_hint = -1;
-                sub_550720();
+                intgame_message_window_clear();
                 return true;
             }
 

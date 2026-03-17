@@ -728,7 +728,7 @@ void skill_ui_inc_skill(int64_t obj, int skill)
         stat_base_set(obj, STAT_UNSPENT_POINTS, points - cost);
         if (is_pc && charedit_is_created()) {
             charedit_refresh();
-            sub_550720();
+            intgame_message_window_clear();
         }
     } else {
         skill = GET_BASIC_SKILL(skill);
@@ -759,7 +759,7 @@ void skill_ui_inc_skill(int64_t obj, int skill)
         stat_base_set(obj, STAT_UNSPENT_POINTS, points - cost);
         if (is_pc && charedit_is_created()) {
             charedit_refresh();
-            sub_550720();
+            intgame_message_window_clear();
         }
     }
 }
@@ -797,7 +797,7 @@ void skill_ui_dec_skill(int64_t obj, int skill)
         stat_base_set(obj, STAT_UNSPENT_POINTS, points + cost);
         if (is_pc && charedit_is_created()) {
             charedit_refresh();
-            sub_550720();
+            intgame_message_window_clear();
         }
     } else {
         skill = GET_BASIC_SKILL(skill);
@@ -822,7 +822,7 @@ void skill_ui_dec_skill(int64_t obj, int skill)
             points = stat_base_set(obj, STAT_UNSPENT_POINTS, points + cost);
             if (is_pc && charedit_is_created()) {
                 charedit_refresh();
-                sub_550720();
+                intgame_message_window_clear();
             }
         }
     }

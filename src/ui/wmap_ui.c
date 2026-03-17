@@ -2034,7 +2034,7 @@ bool wmap_ui_message_filter(TigMessage* msg)
 
                     if (wmap_info->field_198 != -1) {
                         wmap_info->field_198 = -1;
-                        sub_550720();
+                        intgame_message_window_clear();
                     }
 
                     return true;
@@ -2066,7 +2066,7 @@ bool wmap_ui_message_filter(TigMessage* msg)
                     } else {
                         if (wmap_info->field_198 != -1) {
                             wmap_info->field_198 = -1;
-                            sub_550720();
+                            intgame_message_window_clear();
                         }
                     }
                 }
@@ -2089,7 +2089,7 @@ bool wmap_ui_message_filter(TigMessage* msg)
                     } else {
                         if (wmap_info->field_198 != -1) {
                             wmap_info->field_198 = -1;
-                            sub_550720();
+                            intgame_message_window_clear();
                         }
                     }
 
@@ -2233,25 +2233,25 @@ bool wmap_ui_message_filter(TigMessage* msg)
 
             if (msg->data.button.button_handle == wmap_ui_zoom_button_info[0].button_handle) {
                 mes_file_entry.num = 501;
-                sub_550720();
+                intgame_message_window_clear();
                 return true;
             }
 
             if (msg->data.button.button_handle == wmap_ui_zoom_button_info[1].button_handle) {
                 mes_file_entry.num = 502;
-                sub_550720();
+                intgame_message_window_clear();
                 return true;
             }
 
             if (msg->data.button.button_handle == wmap_ui_navigate_button_info.button_handle) {
                 mes_file_entry.num = 510;
-                sub_550720();
+                intgame_message_window_clear();
                 return true;
             }
 
             if (msg->data.button.button_handle == wmap_ui_travel_button_info.button_handle) {
                 mes_file_entry.num = 512;
-                sub_550720();
+                intgame_message_window_clear();
                 return true;
             }
 

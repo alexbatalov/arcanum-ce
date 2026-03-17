@@ -500,7 +500,7 @@ bool logbook_ui_message_filter(TigMessage* msg)
         case TIG_BUTTON_STATE_MOUSE_OUTSIDE:
             for (index = 0; index < LOGBOOK_UI_TAB_COUNT; index++) {
                 if (logbook_ui_tab_buttons[index].button_handle == msg->data.button.button_handle) {
-                    sub_550720();
+                    intgame_message_window_clear();
                     return true;
                 }
             }

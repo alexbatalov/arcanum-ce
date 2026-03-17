@@ -780,13 +780,13 @@ bool schematic_ui_message_filter(TigMessage* msg)
                 || msg->data.button.button_handle == schematic_ui_buttons[SCHEMATIC_UI_BUTTON_COMBINE].button_handle
                 || msg->data.button.button_handle == schematic_ui_buttons[SCHEMATIC_UI_BUTTON_LEARNED].button_handle
                 || msg->data.button.button_handle == schematic_ui_buttons[SCHEMATIC_UI_BUTTON_FOUND].button_handle) {
-                sub_550720();
+                intgame_message_window_clear();
                 return true;
             }
 
             for (tech = 0; tech < TECH_COUNT; tech++) {
                 if (msg->data.button.button_handle == schematic_ui_tabs[tech].button_handle) {
-                    sub_550720();
+                    intgame_message_window_clear();
                     return true;
                 }
             }
