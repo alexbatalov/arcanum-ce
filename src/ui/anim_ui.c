@@ -4,7 +4,6 @@
 #include "game/gamelib.h"
 #include "game/gfade.h"
 #include "game/light_scheme.h"
-#include "game/multiplayer.h"
 #include "game/player.h"
 #include "game/timeevent.h"
 #include "game/ui.h"
@@ -189,17 +188,6 @@ bool anim_ui_bkg_process_callback(TimeEvent* timeevent)
             anim_ui_event_add_delay(ANIM_UI_EVENT_TYPE_END_GAME, -1, 300);
         } else {
             slide_ui_start(SLIDE_UI_TYPE_END_GAME);
-
-            if (tig_net_is_active()) {
-                fade_data.flags = FADE_IN;
-                fade_data.duration = 2.0f;
-                fade_data.steps = 48;
-                gfade_run(&fade_data);
-
-                if (sub_460BB0()) {
-                    sub_4A4320();
-                }
-            }
 
             tig_debug_printf("EndGame: Resetting game!\n");
             gamelib_reset();
