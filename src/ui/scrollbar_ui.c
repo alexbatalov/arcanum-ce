@@ -653,7 +653,7 @@ bool scrollbar_ui_process_event(TigMessage* msg)
                 } else if (remainder < -thumb_height && ctrl->info.value + scrollbar_ui_drag_delta > ctrl->info.min_value) {
                     // Accumulate whole `line_step` decrements when moving up.
                     do {
-                        remainder += -thumb_height;
+                        remainder += thumb_height;
                         scrollbar_ui_drag_delta -= ctrl->info.line_step;
                     } while (remainder < -thumb_height && ctrl->info.value + scrollbar_ui_drag_delta > ctrl->info.min_value);
                 } else {
