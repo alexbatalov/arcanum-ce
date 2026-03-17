@@ -191,12 +191,6 @@ void handle_item_event_func(int64_t item_obj, int64_t parent_obj, int64_t extra_
     unsigned int trig;
     MagicTechInvocation mt_invocation;
 
-    if (tig_net_is_active()
-        && !tig_net_is_host()) {
-        qword_5FF618 = OBJ_HANDLE_NULL;
-        return;
-    }
-
     for (slot = 0; slot < 5; slot++) {
         spell = obj_field_int32_get(item_obj, OBJ_F_ITEM_SPELL_1 + slot);
         if (spell == 10000) {
@@ -555,11 +549,6 @@ void handle_item_unwear_drop(int64_t item_obj, int64_t parent_obj, unsigned int 
     int slot;
     int spell;
     MagicTechInvocation mt_invocation;
-
-    if (tig_net_is_active()
-        && !tig_net_is_host()) {
-        return;
-    }
 
     if (item_obj == OBJ_HANDLE_NULL) {
         return;
