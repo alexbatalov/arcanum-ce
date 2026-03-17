@@ -187,7 +187,7 @@ static int intgame_item_icon_get(int64_t item_obj);
 static void intgame_examine_item(int64_t pc_obj, int64_t item_obj, char* str);
 static void sub_555780(char* buffer, int num, int min, int max, int a5, bool a6);
 static void format_weapon_stats(int64_t weapon_obj, char* buffer);
-static void sub_555B50(int64_t obj, char* buffer);
+static void format_armor_stats(int64_t armor_obj, char* buffer);
 static void intgame_examine_scenery(int64_t pc_obj, int64_t scenery_obj, char* str);
 static void intgame_examine_portal(int64_t pc_obj, int64_t portal_obj, char* str);
 static void intgame_examine_container(int64_t pc_obj, int64_t container_obj, char* str);
@@ -7028,7 +7028,7 @@ void intgame_examine_item(int64_t pc_obj, int64_t item_obj, char* str)
             && (complexity <= 0 || is_identified)) {
             strcpy(buffer, mes_file_entry.str);
         } else {
-            sub_555B50(item_obj, buffer);
+            format_armor_stats(item_obj, buffer);
         }
         break;
     case OBJ_TYPE_FOOD:
@@ -7318,82 +7318,82 @@ void format_weapon_stats(int64_t weapon_obj, char* buffer)
 }
 
 // 0x555B50
-void sub_555B50(int64_t obj, char* buffer)
+void format_armor_stats(int64_t armor_obj, char* buffer)
 {
     bool identified;
     int value;
     int adj;
 
-    identified = obj_field_int32_get(obj, OBJ_F_ITEM_MAGIC_TECH_COMPLEXITY) > 0
-        && item_is_identified(obj);
+    identified = obj_field_int32_get(armor_obj, OBJ_F_ITEM_MAGIC_TECH_COMPLEXITY) > 0
+        && item_is_identified(armor_obj);
     buffer[0] = '\0';
 
     // AC
-    value = obj_field_int32_get(obj, OBJ_F_ARMOR_AC_ADJ);
+    value = obj_field_int32_get(armor_obj, OBJ_F_ARMOR_AC_ADJ);
     if (identified) {
-        adj = obj_field_int32_get(obj, OBJ_F_ARMOR_MAGIC_AC_ADJ);
+        adj = obj_field_int32_get(armor_obj, OBJ_F_ARMOR_MAGIC_AC_ADJ);
     } else {
         adj = 0;
     }
     sub_555780(buffer, 50, value, 0, adj, false);
 
     // DR
-    value = obj_arrayfield_int32_get(obj, OBJ_F_ARMOR_RESISTANCE_ADJ_IDX, RESISTANCE_TYPE_NORMAL);
+    value = obj_arrayfield_int32_get(armor_obj, OBJ_F_ARMOR_RESISTANCE_ADJ_IDX, RESISTANCE_TYPE_NORMAL);
     if (identified) {
-        adj = obj_arrayfield_int32_get(obj, OBJ_F_ARMOR_MAGIC_RESISTANCE_ADJ_IDX, RESISTANCE_TYPE_NORMAL);
+        adj = obj_arrayfield_int32_get(armor_obj, OBJ_F_ARMOR_MAGIC_RESISTANCE_ADJ_IDX, RESISTANCE_TYPE_NORMAL);
     } else {
         adj = 0;
     }
     sub_555780(buffer, 51, value, 0, adj, true);
 
     // PR
-    value = obj_arrayfield_int32_get(obj, OBJ_F_ARMOR_RESISTANCE_ADJ_IDX, RESISTANCE_TYPE_POISON);
+    value = obj_arrayfield_int32_get(armor_obj, OBJ_F_ARMOR_RESISTANCE_ADJ_IDX, RESISTANCE_TYPE_POISON);
     if (identified) {
-        adj = obj_arrayfield_int32_get(obj, OBJ_F_ARMOR_MAGIC_RESISTANCE_ADJ_IDX, RESISTANCE_TYPE_POISON);
+        adj = obj_arrayfield_int32_get(armor_obj, OBJ_F_ARMOR_MAGIC_RESISTANCE_ADJ_IDX, RESISTANCE_TYPE_POISON);
     } else {
         adj = 0;
     }
     sub_555780(buffer, 52, value, 0, adj, true);
 
     // FR
-    value = obj_arrayfield_int32_get(obj, OBJ_F_ARMOR_RESISTANCE_ADJ_IDX, RESISTANCE_TYPE_FIRE);
+    value = obj_arrayfield_int32_get(armor_obj, OBJ_F_ARMOR_RESISTANCE_ADJ_IDX, RESISTANCE_TYPE_FIRE);
     if (identified) {
-        adj = obj_arrayfield_int32_get(obj, OBJ_F_ARMOR_MAGIC_RESISTANCE_ADJ_IDX, RESISTANCE_TYPE_FIRE);
+        adj = obj_arrayfield_int32_get(armor_obj, OBJ_F_ARMOR_MAGIC_RESISTANCE_ADJ_IDX, RESISTANCE_TYPE_FIRE);
     } else {
         adj = 0;
     }
     sub_555780(buffer, 53, value, 0, adj, true);
 
     // ER
-    value = obj_arrayfield_int32_get(obj, OBJ_F_ARMOR_RESISTANCE_ADJ_IDX, RESISTANCE_TYPE_ELECTRICAL);
+    value = obj_arrayfield_int32_get(armor_obj, OBJ_F_ARMOR_RESISTANCE_ADJ_IDX, RESISTANCE_TYPE_ELECTRICAL);
     if (identified) {
-        adj = obj_arrayfield_int32_get(obj, OBJ_F_ARMOR_MAGIC_RESISTANCE_ADJ_IDX, RESISTANCE_TYPE_ELECTRICAL);
+        adj = obj_arrayfield_int32_get(armor_obj, OBJ_F_ARMOR_MAGIC_RESISTANCE_ADJ_IDX, RESISTANCE_TYPE_ELECTRICAL);
     } else {
         adj = 0;
     }
     sub_555780(buffer, 54, value, 0, adj, true);
 
     // MR
-    value = obj_arrayfield_int32_get(obj, OBJ_F_ARMOR_RESISTANCE_ADJ_IDX, RESISTANCE_TYPE_MAGIC);
+    value = obj_arrayfield_int32_get(armor_obj, OBJ_F_ARMOR_RESISTANCE_ADJ_IDX, RESISTANCE_TYPE_MAGIC);
     if (identified) {
-        adj = obj_arrayfield_int32_get(obj, OBJ_F_ARMOR_MAGIC_RESISTANCE_ADJ_IDX, RESISTANCE_TYPE_MAGIC);
+        adj = obj_arrayfield_int32_get(armor_obj, OBJ_F_ARMOR_MAGIC_RESISTANCE_ADJ_IDX, RESISTANCE_TYPE_MAGIC);
     } else {
         adj = 0;
     }
     sub_555780(buffer, 55, value, 0, adj, true);
 
     // NP
-    value = obj_field_int32_get(obj, OBJ_F_ARMOR_SILENT_MOVE_ADJ);
+    value = obj_field_int32_get(armor_obj, OBJ_F_ARMOR_SILENT_MOVE_ADJ);
     if (identified) {
-        adj = obj_field_int32_get(obj, OBJ_F_ARMOR_MAGIC_SILENT_MOVE_ADJ);
+        adj = obj_field_int32_get(armor_obj, OBJ_F_ARMOR_MAGIC_SILENT_MOVE_ADJ);
     } else {
         adj = 0;
     }
     sub_555780(buffer, 56, value, 0, adj, true);
 
     // D
-    if (item_armor_coverage(obj) == TIG_ART_ARMOR_COVERAGE_GAUNTLETS) {
-        value = obj_field_int32_get(obj, OBJ_F_ARMOR_UNARMED_BONUS_DAMAGE);
+    if (item_armor_coverage(armor_obj) == TIG_ART_ARMOR_COVERAGE_GAUNTLETS) {
+        value = obj_field_int32_get(armor_obj, OBJ_F_ARMOR_UNARMED_BONUS_DAMAGE);
     } else {
         value = 0;
     }
