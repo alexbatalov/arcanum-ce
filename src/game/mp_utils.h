@@ -228,7 +228,7 @@ typedef struct Packet31 {
     /* 0008 */ FollowerInfo field_8;
     /* 0038 */ int field_38;
     /* 003C */ int field_3C;
-    /* 0040 */ S4F2810 field_40;
+    /* 0040 */ TargetDescriptor td;
     /* 0050 */ ObjectID field_50;
 } Packet31;
 

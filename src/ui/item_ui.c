@@ -72,7 +72,7 @@ void sub_5719F0(int64_t item_obj, uint64_t** tgt_ptr)
 void item_ui_activate(int64_t owner_obj, int64_t item_obj)
 {
     uint64_t* tgt_ptr;
-    S4F2810 v1;
+    TargetDescriptor td;
 
     if (item_obj == OBJ_HANDLE_NULL) {
         return;
@@ -105,8 +105,8 @@ void item_ui_activate(int64_t owner_obj, int64_t item_obj)
         || ((*tgt_ptr & Tgt_Self) != 0
             && (*tgt_ptr & Tgt_Tile) == 0)
         || *tgt_ptr == Tgt_Obj_Radius) {
-        sub_4F27F0(&v1, obj_field_int64_get(owner_obj, OBJ_F_LOCATION));
-        spell_ui_apply(&v1);
+        target_descriptor_set_loc(&td, obj_field_int64_get(owner_obj, OBJ_F_LOCATION));
+        spell_ui_apply(&td);
         return;
     }
 
@@ -121,8 +121,8 @@ void item_ui_activate(int64_t owner_obj, int64_t item_obj)
 
             if ((*tgt_ptr & Tgt_Object) != 0
                 && tig_kb_get_modifier(SDL_KMOD_SHIFT)) {
-                sub_4F2810(&v1, player_get_local_pc_obj());
-                item_ui_apply(&v1);
+                target_descriptor_set_obj(&td, player_get_local_pc_obj());
+                item_ui_apply(&td);
             }
         }
     }
@@ -137,7 +137,7 @@ void item_ui_deactivate(void)
 }
 
 // 0x571CB0
-void item_ui_apply(S4F2810* a1)
+void item_ui_apply(TargetDescriptor* td)
 {
     int64_t pc_obj;
     SkillInvocation skill_invocation;
@@ -162,8 +162,8 @@ void item_ui_apply(S4F2810* a1)
         && (obj_field_int32_get(qword_6810D8, OBJ_F_GENERIC_FLAGS) & OGF_IS_LOCKPICK) != 0) {
         skill_invocation_init(&skill_invocation);
         sub_4440E0(pc_obj, &(skill_invocation.source));
-        if (!a1->is_loc) {
-            sub_4440E0(a1->obj, &(skill_invocation.target));
+        if (!td->is_loc) {
+            sub_4440E0(td->obj, &(skill_invocation.target));
         }
         skill_invocation.skill = SKILL_PICK_LOCKS;
         skill_invocation.item.obj = item_find_first_generic(skill_invocation.source.obj, OGF_IS_LOCKPICK);
@@ -194,18 +194,18 @@ void item_ui_apply(S4F2810* a1)
         item_flags = obj_field_int32_get(item_obj, OBJ_F_ITEM_FLAGS);
     }
 
-    if (a1->is_loc) {
+    if (td->is_loc) {
         if (spell_mana_store != 0 || (item_flags & OIF_IS_MAGICAL) != 0) {
-            item_use_on_loc(pc_obj, item_obj, a1->loc);
+            item_use_on_loc(pc_obj, item_obj, td->loc);
         } else if (trap_is_trap_device(item_obj)) {
-            anim_goal_use_item_on_loc(pc_obj, a1->loc, item_obj, 0);
+            anim_goal_use_item_on_loc(pc_obj, td->loc, item_obj, 0);
         } else {
-            anim_goal_throw_item(pc_obj, item_obj, a1->loc);
+            anim_goal_throw_item(pc_obj, item_obj, td->loc);
         }
     } else {
         if (spell_mana_store != 0 || (item_flags & OIF_IS_MAGICAL) != 0) {
             range = magictech_get_range(obj_field_int32_get(item_obj, OBJ_F_ITEM_SPELL_1));
-            if (range < object_dist(pc_obj, a1->obj)) {
+            if (range < object_dist(pc_obj, td->obj)) {
                 range = -1;
             }
         }
@@ -220,12 +220,12 @@ void item_ui_apply(S4F2810* a1)
             || ((item_flags & OIF_IS_MAGICAL) != 0
                 && range != -1
                 && (item_flags & OIF_NO_RANGED_USE) == 0)) {
-            item_use_on_obj(pc_obj, item_obj, a1->obj);
+            item_use_on_obj(pc_obj, item_obj, td->obj);
             item_ui_deactivate();
             return;
         }
 
-        anim_goal_use_item_on_obj(pc_obj, a1->obj, item_obj, 0);
+        anim_goal_use_item_on_obj(pc_obj, td->obj, item_obj, 0);
         if (tig_kb_get_modifier(SDL_KMOD_LSHIFT)) {
             sub_436C80();
             item_ui_deactivate();

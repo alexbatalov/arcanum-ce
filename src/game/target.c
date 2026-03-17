@@ -10,7 +10,7 @@
 #include "game/stat.h"
 #include "game/tile.h"
 
-static bool sub_4F28A0(int x, int y, S4F2810* a3);
+static bool sub_4F28A0(int x, int y, TargetDescriptor* td);
 static void sub_4F3F10(S603CB8_F50* a1, int64_t obj);
 static void sub_4F3FD0(S603CB8_F50* a1, int64_t obj);
 static void sub_4F4050(S603CB8_F50* a1, int64_t loc);
@@ -134,18 +134,18 @@ bool sub_4F2680(S4F2680* a1)
 {
     stru_603CB8.source_obj = a1->field_0;
 
-    if (a1->field_10->is_loc) {
-        stru_603CB8.field_38 = a1->field_10->loc;
-        stru_603CB8.field_28 = a1->field_10->loc;
+    if (a1->td->is_loc) {
+        stru_603CB8.field_38 = a1->td->loc;
+        stru_603CB8.field_28 = a1->td->loc;
         stru_603CB8.field_20 = 0;
         stru_603CB8.field_30 = 0;
     } else {
-        if ((obj_field_int32_get(a1->field_10->obj, OBJ_F_FLAGS) & OF_CLICK_THROUGH) != 0) {
+        if ((obj_field_int32_get(a1->td->obj, OBJ_F_FLAGS) & OF_CLICK_THROUGH) != 0) {
             return false;
         }
 
-        stru_603CB8.field_30 = a1->field_10->obj;
-        stru_603CB8.field_20 = a1->field_10->obj;
+        stru_603CB8.field_30 = a1->td->obj;
+        stru_603CB8.field_20 = a1->td->obj;
         stru_603CB8.field_28 = OBJ_HANDLE_NULL;
         stru_603CB8.field_38 = OBJ_HANDLE_NULL;
     }
@@ -159,13 +159,13 @@ bool sub_4F2680(S4F2680* a1)
         return false;
     }
 
-    if (!a1->field_10->is_loc) {
-        if (a1->field_10->obj != OBJ_HANDLE_NULL) {
-            stru_603CB8.field_28 = obj_field_int64_get(a1->field_10->obj, OBJ_F_LOCATION);
+    if (!a1->td->is_loc) {
+        if (a1->td->obj != OBJ_HANDLE_NULL) {
+            stru_603CB8.field_28 = obj_field_int64_get(a1->td->obj, OBJ_F_LOCATION);
             stru_603CB8.field_38 = stru_603CB8.field_28;
         }
         if (sub_4F2D20(&stru_603CB8) && stru_603D20.aoe_flags) {
-            sub_4F27F0(a1->field_10, stru_603CB8.field_28);
+            target_descriptor_set_loc(a1->td, stru_603CB8.field_28);
             return true;
         }
     }
@@ -173,22 +173,30 @@ bool sub_4F2680(S4F2680* a1)
     return false;
 }
 
-// 0x4F27F0
-void sub_4F27F0(S4F2810* a1, int64_t loc)
+/**
+ * Sets a `TargetDescriptor` to reference a world location.
+ *
+ * 0x4F27F0
+ */
+void target_descriptor_set_loc(TargetDescriptor* td, int64_t loc)
 {
-    a1->loc = loc;
-    a1->is_loc = 1;
+    td->loc = loc;
+    td->is_loc = 1;
 }
 
-// 0x4F2810
-void sub_4F2810(S4F2810* a1, int64_t obj)
+/**
+ * Sets a `TargetDescriptor` to reference a game object.
+ *
+ * 0x4F2810
+ */
+void target_descriptor_set_obj(TargetDescriptor* td, int64_t obj)
 {
-    a1->obj = obj;
-    a1->is_loc = 0;
+    td->obj = obj;
+    td->is_loc = 0;
 }
 
 // 0x4F2830
-bool sub_4F2830(TigMouseMessageData* mouse, S4F2810* a2, bool fullscreen)
+bool sub_4F2830(TigMouseMessageData* mouse, TargetDescriptor* td, bool fullscreen)
 {
     int x;
     int y;
@@ -208,11 +216,11 @@ bool sub_4F2830(TigMouseMessageData* mouse, S4F2810* a2, bool fullscreen)
         y -= target_iso_content_rect.y;
     }
 
-    return sub_4F28A0(x, y, a2);
+    return sub_4F28A0(x, y, td);
 }
 
 // 0x4F28A0
-bool sub_4F28A0(int x, int y, S4F2810* a3)
+bool sub_4F28A0(int x, int y, TargetDescriptor* td)
 {
     int64_t pc_obj;
     S4F2680 v1;
@@ -235,7 +243,7 @@ bool sub_4F28A0(int x, int y, S4F2810* a3)
 
     v1.field_0 = pc_obj;
     v1.field_8 = pc_obj;
-    v1.field_10 = a3;
+    v1.td = td;
 
     if ((stru_603D20.aoe_flags & Tgt_No_Self) != 0) {
         object_flags_set(pc_obj, OF_CLICK_THROUGH);
@@ -272,7 +280,7 @@ bool sub_4F28A0(int x, int y, S4F2810* a3)
 
     if (sub_43D9F0(x, y, &v2, 0x3)) {
         sub_4F2C60(&v2);
-        sub_4F2810(a3, v2);
+        target_descriptor_set_obj(td, v2);
         if (sub_4F2680(&v1)) {
             ret = true;
         }
@@ -285,7 +293,7 @@ bool sub_4F28A0(int x, int y, S4F2810* a3)
             while (node != NULL) {
                 v2 = node->obj;
                 sub_4F2C60(&v2);
-                sub_4F2810(a3, v2);
+                target_descriptor_set_obj(td, v2);
                 if (sub_4F2680(&v1)) {
                     ret = true;
                     break;
@@ -295,7 +303,7 @@ bool sub_4F28A0(int x, int y, S4F2810* a3)
             object_list_destroy(&objects);
 
             if (!ret) {
-                sub_4F27F0(a3, loc);
+                target_descriptor_set_loc(td, loc);
                 if (sub_4F2680(&v1)) {
                     ret = true;
                 }
@@ -334,7 +342,7 @@ bool sub_4F28A0(int x, int y, S4F2810* a3)
     }
 
     if (!ret) {
-        sub_4F2810(a3, OBJ_HANDLE_NULL);
+        target_descriptor_set_obj(td, OBJ_HANDLE_NULL);
         return false;
     }
 
@@ -360,7 +368,7 @@ int sub_4F2C60(int64_t* obj_ptr)
 }
 
 // 0x4F2CB0
-bool sub_4F2CB0(int x, int y, S4F2810* a3, uint64_t tgt, bool fullscreen)
+bool sub_4F2CB0(int x, int y, TargetDescriptor* a3, uint64_t tgt, bool fullscreen)
 {
     uint64_t old_tgt;
     bool rc;

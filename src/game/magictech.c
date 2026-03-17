@@ -5097,7 +5097,7 @@ bool sub_456A90(int mt_id)
     MagicTechRunInfo* run_info;
     uint64_t* tgt_ptr;
     uint64_t prev_tgt;
-    S4F2810 v2;
+    TargetDescriptor td;
     S4F2680 v3;
     bool rc;
 
@@ -5122,14 +5122,14 @@ bool sub_456A90(int mt_id)
     prev_tgt = sub_4F25D0();
     sub_4F25B0(*tgt_ptr);
     if (run_info->target_obj.obj != OBJ_HANDLE_NULL) {
-        sub_4F2810(&v2, run_info->target_obj.obj);
+        target_descriptor_set_obj(&td, run_info->target_obj.obj);
     } else {
-        sub_4F27F0(&v2, run_info->target_obj.loc);
+        target_descriptor_set_loc(&td, run_info->target_obj.loc);
     }
 
     v3.field_0 = run_info->source_obj.obj;
     v3.field_8 = run_info->parent_obj.obj;
-    v3.field_10 = &v2;
+    v3.td = &td;
     rc = sub_4F2680(&v3);
     sub_4F25B0(prev_tgt);
 

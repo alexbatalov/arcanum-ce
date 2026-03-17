@@ -1529,7 +1529,7 @@ static inline bool inven_ui_message_filter_handle_mouse_lbutton_down(int x, int 
 {
     int64_t v1;
     int64_t v2;
-    S4F2810 v3;
+    TargetDescriptor td;
 
     switch (intgame_mode_get()) {
     case INTGAME_MODE_INVEN:
@@ -1551,8 +1551,8 @@ static inline bool inven_ui_message_filter_handle_mouse_lbutton_down(int x, int 
     case INTGAME_MODE_SKILL:
         v1 = sub_575FA0(x, y, &qword_681450);
         if (v1 != OBJ_HANDLE_NULL) {
-            sub_4F2810(&v3, v1);
-            sub_57A1F0(&v3);
+            target_descriptor_set_obj(&td, v1);
+            sub_57A1F0(&td);
             skill_ui_cancel();
             return true;
         }
@@ -1560,16 +1560,16 @@ static inline bool inven_ui_message_filter_handle_mouse_lbutton_down(int x, int 
     case INTGAME_MODE_SPELL:
         v1 = sub_575FA0(x, y, &qword_681450);
         if (v1 != OBJ_HANDLE_NULL) {
-            sub_4F2810(&v3, v1);
-            spell_ui_apply(&v3);
+            target_descriptor_set_obj(&td, v1);
+            spell_ui_apply(&td);
             return true;
         }
         break;
     case 16:
         v1 = sub_575FA0(x, y, &qword_681450);
         if (v1 != OBJ_HANDLE_NULL) {
-            sub_4F2810(&v3, v1);
-            item_ui_apply(&v3);
+            target_descriptor_set_obj(&td, v1);
+            item_ui_apply(&td);
             return true;
         }
         break;

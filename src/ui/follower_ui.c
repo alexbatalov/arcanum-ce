@@ -636,7 +636,7 @@ bool follower_ui_message_filter(TigMessage* msg)
     MesFileEntry mes_file_entry;
     char str[MAX_STRING];
     Broadcast bcast;
-    S4F2810 v1;
+    TargetDescriptor td;
 
     pc_obj = player_get_local_pc_obj();
     if (sub_567400(pc_obj)) {
@@ -788,8 +788,8 @@ bool follower_ui_message_filter(TigMessage* msg)
             for (index = 0; index < FOLLOWER_UI_BUTTON_COUNT; index++) {
                 if (msg->data.button.button_handle == follower_ui_buttons[index]) {
                     sub_444130(&follower_ui_followers[follower_ui_top_index + index]);
-                    sub_4F2810(&v1, follower_ui_followers[follower_ui_top_index + index].obj);
-                    sub_54EA80(&v1);
+                    target_descriptor_set_obj(&td, follower_ui_followers[follower_ui_top_index + index].obj);
+                    sub_54EA80(&td);
                     return true;
                 }
             }
@@ -928,7 +928,7 @@ void follower_ui_begin_order_mode(int cmd)
  *
  * 0x56B180
  */
-void follower_ui_execute_order(S4F2810* a1)
+void follower_ui_execute_order(TargetDescriptor* td)
 {
     int num;
     Broadcast bcast;
@@ -938,14 +938,14 @@ void follower_ui_execute_order(S4F2810* a1)
     follower_ui_end_order_mode();
 
     if (!critter_is_dead(follower_ui_commander_obj) && !critter_is_unconscious(follower_ui_commander_obj)) {
-        if (a1->is_loc) {
+        if (td->is_loc) {
             // Walk
             num = FOLLOWER_UI_COMMAND_WALK;
-            bcast.loc = a1->loc;
+            bcast.loc = td->loc;
         } else {
             // Attack
             num = FOLLOWER_UI_COMMAND_ATTACK;
-            bcast.loc = obj_field_int64_get(a1->obj, OBJ_F_LOCATION);
+            bcast.loc = obj_field_int64_get(td->obj, OBJ_F_LOCATION);
         }
 
         mes_file_entry.num = num;

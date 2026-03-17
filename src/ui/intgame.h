@@ -86,7 +86,7 @@ void intgame_draw_bars(void);
 void intgame_counters_refresh(void);
 bool sub_54B5D0(TigMessage* msg);
 void intgame_process_event(TigMessage* msg);
-void sub_54EA80(S4F2810* a1);
+void sub_54EA80(TargetDescriptor* td);
 bool intgame_hotkey_is_dragging(void);
 void intgame_hotkey_activate(Hotkey* hotkey);
 void intgame_hotkey_highlight(Hotkey* hotkey);

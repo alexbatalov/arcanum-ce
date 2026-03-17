@@ -4,17 +4,21 @@
 #include "game/context.h"
 #include "game/mt_obj_node.h"
 
-typedef struct S4F2810 {
+/**
+ * Represents a target that can reference either a game object or a world
+ * location. The `is_loc` flag distinguishes which union member is active.
+ */
+typedef struct TargetDescriptor {
     union {
         /* 0000 */ int64_t obj;
         /* 0000 */ int64_t loc;
     };
     /* 0008 */ int is_loc;
     /* 000C */ int padding_C;
-} S4F2810;
+} TargetDescriptor;
 
 // Serializeable.
-static_assert(sizeof(S4F2810) == 0x10, "wrong size");
+static_assert(sizeof(TargetDescriptor) == 0x10, "wrong size");
 
 typedef struct S603D20 {
     /* 0000 */ uint64_t aoe_flags;
@@ -68,7 +72,7 @@ typedef struct S603CB8 {
 typedef struct S4F2680 {
     /* 0000 */ int64_t field_0;
     /* 0008 */ int64_t field_8;
-    /* 0010 */ S4F2810* field_10;
+    /* 0010 */ TargetDescriptor* td;
     /* 0014 */ int field_14;
 } S4F2680;
 
@@ -163,10 +167,10 @@ void sub_4F25E0(S603D20* a1);
 void sub_4F2600(S603CB8* a1, S603D20* a2, int64_t a3);
 bool sub_4F2680(S4F2680* a1);
 int sub_4F2C60(int64_t* obj_ptr);
-void sub_4F27F0(S4F2810* a1, int64_t loc);
-void sub_4F2810(S4F2810* a1, int64_t obj);
-bool sub_4F2830(TigMouseMessageData* mouse, S4F2810* a2, bool fullscreen);
-bool sub_4F2CB0(int x, int y, S4F2810* a3, uint64_t tgt, bool fullscreen);
+void target_descriptor_set_loc(TargetDescriptor* td, int64_t loc);
+void target_descriptor_set_obj(TargetDescriptor* td, int64_t obj);
+bool sub_4F2830(TigMouseMessageData* mouse, TargetDescriptor* td, bool fullscreen);
+bool sub_4F2CB0(int x, int y, TargetDescriptor* td, uint64_t tgt, bool fullscreen);
 int64_t sub_4F2D10(void);
 bool sub_4F2D20(S603CB8* a1);
 void sub_4F40B0(S603CB8* a1);

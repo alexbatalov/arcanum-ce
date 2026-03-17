@@ -234,7 +234,7 @@ void skill_ui_cancel(void)
 }
 
 // 0x57A1F0
-void sub_57A1F0(S4F2810* a1)
+void sub_57A1F0(TargetDescriptor* td)
 {
     int64_t pc_obj;
     Packet31 pkt;
@@ -245,9 +245,9 @@ void sub_57A1F0(S4F2810* a1)
         pkt.type = 31;
         sub_4440E0(qword_683490, &(pkt.field_8));
         pkt.field_38 = dword_5CB270;
-        pkt.field_40 = *a1;
-        if (!a1->is_loc) {
-            pkt.field_50 = obj_get_id(a1->obj);
+        pkt.td = *td;
+        if (!td->is_loc) {
+            pkt.field_50 = obj_get_id(td->obj);
         }
 
         if (!tig_net_is_host()) {
@@ -257,12 +257,12 @@ void sub_57A1F0(S4F2810* a1)
 
     if ((pc_obj == qword_683490 || !critter_is_unconscious(pc_obj))
         && !critter_is_unconscious(qword_683490)) {
-        skill_ui_activate(a1, qword_683490, dword_5CB270);
+        skill_ui_activate(td, qword_683490, dword_5CB270);
     }
 }
 
 // 0x57A320
-void skill_ui_activate(S4F2810* a1, int64_t obj, int a3)
+void skill_ui_activate(TargetDescriptor* td, int64_t obj, int a3)
 {
     bool is_pc;
     int skill;
@@ -275,41 +275,41 @@ void skill_ui_activate(S4F2810* a1, int64_t obj, int a3)
     }
 
     is_pc = player_is_local_pc_obj(obj);
-    skill = sub_57A6C0(a3, a1);
+    skill = sub_57A6C0(a3, td);
 
     switch (skill) {
     case SKILL_PICK_POCKET:
-        if (!a1->is_loc
+        if (!td->is_loc
             && is_pc
             && obj_field_int32_get(obj, OBJ_F_TYPE) == OBJ_TYPE_PC) {
             skill_ui_cancel();
 
             spell_flags = obj_field_int32_get(obj, OBJ_F_SPELL_FLAGS);
 
-            if ((obj_field_int32_get(a1->obj, OBJ_F_SPELL_FLAGS) & OSF_STONED) == 0) {
-                if (sub_57A5E0(a1->obj)) {
+            if ((obj_field_int32_get(td->obj, OBJ_F_SPELL_FLAGS) & OSF_STONED) == 0) {
+                if (sub_57A5E0(td->obj)) {
                     if (player_is_local_pc_obj(obj)) {
                         mes_file_entry.num = 525; // "You cannot pickpocket this creature."
                         mes_get_msg(skill_ui_mes_file, &mes_file_entry);
                         tf_add(obj, TF_TYPE_WHITE, mes_file_entry.str);
                     }
-                } else if (critter_is_dead(a1->obj)) {
-                    if (object_script_execute(obj, a1->obj, obj, SAP_USE, 0)
+                } else if (critter_is_dead(td->obj)) {
+                    if (object_script_execute(obj, td->obj, obj, SAP_USE, 0)
                         && (spell_flags & OSF_POLYMORPHED) == 0
-                        && !sub_423300(a1->obj, 0)) {
-                        ui_show_inven_loot(obj, a1->obj);
+                        && !sub_423300(td->obj, 0)) {
+                        ui_show_inven_loot(obj, td->obj);
                     }
                 } else {
-                    sub_57A710(obj, a1->obj);
+                    sub_57A710(obj, td->obj);
                 }
             }
         }
         return;
     case SKILL_REPAIR:
-        if (!a1->is_loc) {
+        if (!td->is_loc) {
             skill_invocation_init(&skill_invocation);
             sub_4440E0(obj, &(skill_invocation.source));
-            sub_4440E0(a1->obj, &(skill_invocation.target));
+            sub_4440E0(td->obj, &(skill_invocation.target));
             sub_4440E0(OBJ_HANDLE_NULL, &(skill_invocation.item));
             skill_invocation.flags = 0;
             skill_invocation.skill = SKILL_REPAIR;
@@ -317,10 +317,10 @@ void skill_ui_activate(S4F2810* a1, int64_t obj, int a3)
         }
         return;
     case SKILL_DISARM_TRAPS:
-        if (!a1->is_loc && combat_consume_action_points(obj, 4)) {
+        if (!td->is_loc && combat_consume_action_points(obj, 4)) {
             skill_invocation_init(&skill_invocation);
             sub_4440E0(obj, &(skill_invocation.source));
-            sub_4440E0(a1->obj, &(skill_invocation.target));
+            sub_4440E0(td->obj, &(skill_invocation.target));
             sub_4440E0(OBJ_HANDLE_NULL, &(skill_invocation.item));
             skill_invocation.flags = SKILL_INVOCATION_0x04;
             skill_invocation.skill = SKILL_DISARM_TRAPS;
@@ -329,8 +329,8 @@ void skill_ui_activate(S4F2810* a1, int64_t obj, int a3)
         }
         return;
     default:
-        if (!a1->is_loc) {
-            skill_use(obj, skill, a1->obj, 0);
+        if (!td->is_loc) {
+            skill_use(obj, skill, td->obj, 0);
         }
         return;
     }
@@ -372,14 +372,14 @@ void sub_57A6B0(SkillInvocation* skill_invocation)
 }
 
 // 0x57A6C0
-int sub_57A6C0(int a1, S4F2810* a2)
+int sub_57A6C0(int a1, TargetDescriptor* td)
 {
     int v1;
     int complexity;
 
     v1 = dword_5CB240[a1];
     if (v1 == -1) {
-        complexity = obj_field_int32_get(a2->obj, OBJ_F_ITEM_MAGIC_TECH_COMPLEXITY);
+        complexity = obj_field_int32_get(td->obj, OBJ_F_ITEM_MAGIC_TECH_COMPLEXITY);
         if (a1 == 3 && complexity >= 20) {
             v1 = SKILL_REPAIR;
         }

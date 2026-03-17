@@ -44,7 +44,7 @@ typedef enum UiPrimaryButton {
 // TODO: Remove forward declarations.
 typedef struct Packet81 Packet81;
 typedef struct DialogSerializedData DialogSerializedData;
-typedef struct S4F2810 S4F2810;
+typedef struct TargetDescriptor TargetDescriptor;
 
 typedef void(UI_CALLBACKS_FUNC_0)(void);
 typedef void(UI_CALLBACKS_FUNC_4)(int64_t obj);
@@ -58,7 +58,7 @@ typedef void(UiShowInvenLoot)(int64_t pc_obj, int64_t target_obj);
 typedef void(UiShowInvenIdentify)(int64_t pc_obj, int64_t target_obj);
 typedef void(UiTechAdjustDegree)(int64_t obj, int tech, int action);
 typedef void(UiSkillPreprocess)(int64_t obj, int type);
-typedef void(UiSkillActivate)(S4F2810* a1, int64_t obj, int a3);
+typedef void(UiSkillActivate)(TargetDescriptor* td, int64_t obj, int a3);
 typedef void(UiAdjustSkillFunc)(int64_t obj, int skill, int action);
 typedef void(UiSetSkillTrainingFunc)(int64_t obj, int skill, int training);
 typedef void(UI_CALLBACKS_FUNC_3C)(int64_t a1, int64_t a2);
@@ -111,7 +111,7 @@ typedef void(UI_CALLBACKS_FUNC_F4)(DialogSerializedData* serialized_data, int a2
 typedef void(UI_CALLBACKS_FUNC_F8)(int a1, int a2, void* a3);
 typedef bool(UI_CALLBACKS_FUNC_FC)(tig_button_handle_t button_handle);
 typedef void(UiRefreshCursor)(void);
-typedef int(UI_CALLBACKS_FUNC_104)(int a1, S4F2810* a2);
+typedef int(UI_CALLBACKS_FUNC_104)(int a1, TargetDescriptor* td);
 typedef void(UI_CALLBACKS_FUNC_108)(void);
 typedef bool(UiWmapRndTimeEventProcess)(TimeEvent* timeevent);
 typedef void(UI_CALLBACKS_FUNC_110)(int64_t a1, int64_t a2);
@@ -248,7 +248,7 @@ void ui_show_inven_loot(int64_t pc_obj, int64_t target_obj);
 void ui_show_inven_identify(int64_t pc_obj, int64_t target_obj);
 void ui_tech_adjust_degree(int64_t obj, int tech, int action);
 void ui_skill_preprocess(int64_t obj, int type);
-void ui_skill_activate(S4F2810* a1, int64_t obj, int a3);
+void ui_skill_activate(TargetDescriptor* td, int64_t obj, int a3);
 void ui_adjust_skill(int64_t obj, int skill, int action);
 void ui_set_skill_training(int64_t obj, int skill, int training);
 void sub_460410(int64_t a1, int64_t a2);
@@ -300,7 +300,7 @@ void sub_460A80(DialogSerializedData* a1, int a2, int a3, int a4, int a5, char* 
 void sub_460AB0(int a1, int a2, void* a3);
 void sub_460AD0(int a1);
 void ui_refresh_cursor(void);
-int sub_460B00(int a1, S4F2810* a2);
+int sub_460B00(int a1, TargetDescriptor* td);
 void sub_460B20(void);
 bool ui_wmap_rnd_timeevent_process(TimeEvent* timeevent);
 void sub_460B50(int64_t a1, int64_t a2);

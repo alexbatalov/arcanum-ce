@@ -8,6 +8,6 @@ bool item_ui_init(GameInitInfo* init_info);
 void item_ui_exit(void);
 void item_ui_activate(int64_t owner_obj, int64_t item_obj);
 void item_ui_deactivate(void);
-void item_ui_apply(S4F2810* a1);
+void item_ui_apply(TargetDescriptor* td);
 
 #endif /* ARCANUM_UI_ITEM_UI_H_ */

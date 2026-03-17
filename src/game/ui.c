@@ -131,10 +131,10 @@ void ui_skill_preprocess(int64_t obj, int type)
 }
 
 // 0x460380
-void ui_skill_activate(S4F2810* a1, int64_t obj, int a3)
+void ui_skill_activate(TargetDescriptor* td, int64_t obj, int a3)
 {
     if (ui_callbacks.skill_activate != NULL) {
-        ui_callbacks.skill_activate(a1, obj, a3);
+        ui_callbacks.skill_activate(td, obj, a3);
     }
 }
 
@@ -563,10 +563,10 @@ void ui_refresh_cursor(void)
 }
 
 // 0x460B00
-int sub_460B00(int a1, S4F2810* a2)
+int sub_460B00(int a1, TargetDescriptor* td)
 {
     if (ui_callbacks.field_104 != NULL) {
-        return ui_callbacks.field_104(a1, a2);
+        return ui_callbacks.field_104(a1, td);
     } else {
         return 0;
     }

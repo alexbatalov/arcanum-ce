@@ -119,7 +119,7 @@ SpellUiActivate spell_ui_activate(int64_t obj, int spl)
     uint64_t* tgt_ptr;
     uint64_t tgt;
     bool v1 = false;
-    S4F2810 v2;
+    TargetDescriptor td;
 
     if (obj == OBJ_HANDLE_NULL) {
         return SPELL_UI_ACTIVATE_ERR;
@@ -199,8 +199,8 @@ SpellUiActivate spell_ui_activate(int64_t obj, int spl)
         || ((*tgt_ptr & Tgt_Self) != 0
             && (*tgt_ptr & Tgt_Tile) == 0)
         || *tgt_ptr == Tgt_Obj_Radius) {
-        sub_4F27F0(&v2, obj_field_int64_get(qword_683500, OBJ_F_LOCATION));
-        spell_ui_apply(&v2);
+        target_descriptor_set_loc(&td, obj_field_int64_get(qword_683500, OBJ_F_LOCATION));
+        spell_ui_apply(&td);
         dword_683508 = false;
         return SPELL_UI_ACTIVATE_ERR;
     }
@@ -216,10 +216,10 @@ SpellUiActivate spell_ui_activate(int64_t obj, int spl)
 
         if ((*tgt_ptr & Tgt_Object) != 0
             && tig_kb_get_modifier(SDL_KMOD_SHIFT)) {
-            sub_4F2810(&v2, player_get_local_pc_obj());
+            target_descriptor_set_obj(&td, player_get_local_pc_obj());
             // FIXME: Odd.
             if ((*tgt_ptr & (Tgt_Obj_No_Self & ~Tgt_Object)) == 0) {
-                spell_ui_apply(&v2);
+                spell_ui_apply(&td);
                 dword_683508 = false;
                 return SPELL_UI_ACTIVATE_ERR;
             }
@@ -292,7 +292,7 @@ void spell_ui_aggressive_mode_on(void)
 }
 
 // 0x57C110
-void spell_ui_apply(S4F2810* a1)
+void spell_ui_apply(TargetDescriptor* td)
 {
     MesFileEntry mes_file_entry;
     UiMessage ui_message;
@@ -313,10 +313,10 @@ void spell_ui_apply(S4F2810* a1)
     }
 
     magictech_invocation_init(&mt_invocation, qword_6834F8, dword_5CB3A0);
-    if (a1->is_loc) {
-        mt_invocation.target_loc = a1->loc;
+    if (td->is_loc) {
+        mt_invocation.target_loc = td->loc;
     } else {
-        sub_4440E0(a1->obj, &(mt_invocation.target_obj));
+        sub_4440E0(td->obj, &(mt_invocation.target_obj));
     }
 
     if (!magictech_check_los(&mt_invocation)) {

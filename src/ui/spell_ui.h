@@ -21,7 +21,7 @@ void sub_57C040(int64_t obj, int index);
 void sub_57C080(int64_t obj, int spl);
 void spell_ui_aggressive_mode_off(void);
 void spell_ui_aggressive_mode_on(void);
-void spell_ui_apply(S4F2810* a1);
+void spell_ui_apply(TargetDescriptor* td);
 bool spell_ui_maintain_add(int mt_id);
 void spell_ui_maintain_end(int mt_id);
 void spell_ui_maintain_click(int slot);
