@@ -61,7 +61,7 @@ jobs:
           ./gradlew assembleDebug
 
       - name: Upload
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: arcanum-ce-debug.apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
@@ -91,7 +91,7 @@ jobs:
         run: cpack --config out/build/ios/CPackConfig.cmake -C Debug -B out/build/ios
 
       - name: Upload
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: arcanum-ce.ipa
           path: out/build/ios/arcanum-ce.ipa
@@ -165,7 +165,7 @@ jobs:
         run: cmake --build --preset linux-${{ matrix.arch }}-debug
 
       - name: Upload
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: arcanum-ce-linux-${{ matrix.arch }}
           path:  out/build/linux-${{ matrix.arch }}-debug/arcanum-ce
@@ -195,7 +195,7 @@ jobs:
         run: cpack --config out/build/macos/CPackConfig.cmake -C Debug -B out/build/macos
 
       - name: Upload
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: arcanum-ce-macos.dmg
           path: out/build/macos/Arcanum Community Edition.dmg
@@ -233,7 +233,7 @@ jobs:
         run: cmake --build --preset windows-${{ matrix.arch }}-debug
 
       - name: Upload
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: arcanum-ce-windows-${{ matrix.arch }}
           path:  out/build/windows-${{ matrix.arch }}/Debug/arcanum-ce.exe
