@@ -4135,7 +4135,7 @@ bool mainmenu_ui_new_char_execute(int btn)
     if (strcmp(mainmenu_ui_textedit_buffer, mes_file_entry.str) == 0) {
         mes_file_entry.num = 506; // "You must choose a name."
         mes_get_msg(mainmenu_ui_mainmenu_mes_file, &mes_file_entry);
-        sub_550770(-1, mes_file_entry.str);
+        intgame_message_window_display_str(-1, mes_file_entry.str);
         return false;
     }
 

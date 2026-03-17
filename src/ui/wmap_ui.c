@@ -2025,7 +2025,7 @@ bool wmap_ui_message_filter(TigMessage* msg)
                                 WmapNote* note = sub_563D90(id);
                                 if (note->id < 200) {
                                     wmap_info->field_198 = id;
-                                    sub_550770(-1, area_get_description(note->id));
+                                    intgame_message_window_display_str(-1, area_get_description(note->id));
                                 }
                             }
                             return true;
@@ -2060,7 +2060,7 @@ bool wmap_ui_message_filter(TigMessage* msg)
                             WmapNote* note = sub_563D90(id);
                             if (note->id < 200) {
                                 wmap_info->field_198 = id;
-                                sub_550770(-1, area_get_description(note->id));
+                                intgame_message_window_display_str(-1, area_get_description(note->id));
                             }
                         }
                     } else {
@@ -2083,7 +2083,7 @@ bool wmap_ui_message_filter(TigMessage* msg)
                         if (find_note_by_coords(&stru_64E7E8, &id)) {
                             if (wmap_info->field_198 != id) {
                                 WmapNote* note = sub_563D90(id);
-                                sub_550770(-1, note->str);
+                                intgame_message_window_display_str(-1, note->str);
                             }
                         }
                     } else {

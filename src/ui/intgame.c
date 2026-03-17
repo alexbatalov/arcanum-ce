@@ -4066,7 +4066,7 @@ void intgame_message_window_display_msg(UiMessage* ui_message)
 }
 
 // 0x550770
-void sub_550770(int a1, char* str)
+void intgame_message_window_display_str(int a1, char* str)
 {
     UiMessage ui_message;
 
@@ -6190,7 +6190,7 @@ void sub_553A70(TigMessage* msg)
             }
         } else {
             if (intgame_iso_window_type != ROTWIN_TYPE_CHAT) {
-                sub_550770(-1, "");
+                intgame_message_window_display_str(-1, "");
                 compact_ui_message_window_release();
             }
             object_hover_obj_set(OBJ_HANDLE_NULL);
@@ -6205,7 +6205,7 @@ void intgame_examine_object(int64_t pc_obj, int64_t target_obj, char* str)
 
     if (intgame_iso_window_type != ROTWIN_TYPE_CHAT) {
         if (intgame_iso_window_type != ROTWIN_TYPE_MSG) {
-            sub_550770(-1, str);
+            intgame_message_window_display_str(-1, str);
         } else {
             type = obj_field_int32_get(target_obj, OBJ_F_TYPE);
             switch (type) {
@@ -6239,7 +6239,7 @@ void intgame_examine_object(int64_t pc_obj, int64_t target_obj, char* str)
                 intgame_examine_critter(pc_obj, target_obj, str);
                 break;
             default:
-                sub_550770(-1, str);
+                intgame_message_window_display_str(-1, str);
                 break;
             }
         }
@@ -7563,7 +7563,7 @@ void intgame_message_window_display_attack(int64_t obj)
     sprintf(str, "%s: %d", mes_file_entry.str, item_total_attack(obj));
 
     if (intgame_iso_window_type != ROTWIN_TYPE_MSG) {
-        sub_550770(-1, str);
+        intgame_message_window_display_str(-1, str);
         return;
     }
 
@@ -7687,7 +7687,7 @@ void intgame_message_window_display_defense(int64_t obj)
         value);
 
     if (intgame_iso_window_type != ROTWIN_TYPE_MSG) {
-        sub_550770(-1, buffer);
+        intgame_message_window_display_str(-1, buffer);
         return;
     }
 

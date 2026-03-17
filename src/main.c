@@ -368,17 +368,17 @@ void main_loop(void)
 
     while (1) {
         if (enable_profiler) {
-            sub_550770(-1, "Enabling profiler...\n");
+            intgame_message_window_display_str(-1, "Enabling profiler...\n");
             enable_profiler = false;
         }
 
         if (disable_profiler) {
-            sub_550770(-1, "Disabling profiler...\n");
+            intgame_message_window_display_str(-1, "Disabling profiler...\n");
             disable_profiler = false;
         }
 
         if (output_profile_data) {
-            sub_550770(-1, "Outputing profile data...\n");
+            intgame_message_window_display_str(-1, "Outputing profile data...\n");
             output_profile_data = false;
         }
 
@@ -581,7 +581,7 @@ void main_loop(void)
                                 } else {
                                     strcat(version_str, " without gamma support]");
                                 }
-                                sub_550770(-1, version_str);
+                                intgame_message_window_display_str(-1, version_str);
                                 break;
                             case SDL_SCANCODE_E:
                                 critter_debug_obj(player_get_local_pc_obj());
@@ -596,11 +596,11 @@ void main_loop(void)
                                     (int)LOCATION_GET_X(mouse_loc),
                                     (int)LOCATION_GET_Y(mouse_loc));
                                 tig_debug_printf("%s\n", mouse_state_str);
-                                sub_550770(-1, mouse_state_str);
+                                intgame_message_window_display_str(-1, mouse_state_str);
                                 break;
                             case SDL_SCANCODE_U:
                                 sprintf(story_state_str, "Current Story State: %d", script_story_state_get());
-                                sub_550770(-1, story_state_str);
+                                intgame_message_window_display_str(-1, story_state_str);
                                 break;
                             case SDL_SCANCODE_LEFTBRACKET:
                                 switch (object_blit_flags_get()) {
