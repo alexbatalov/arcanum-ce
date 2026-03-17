@@ -4,13 +4,12 @@
 
 #include "game/critter.h"
 #include "game/mes.h"
-#include "game/mp_utils.h"
-#include "game/multiplayer.h"
 #include "game/obj.h"
 #include "game/player.h"
 #include "game/random.h"
 #include "game/reaction.h"
 #include "game/stat.h"
+#include "game/ui.h"
 
 /**
  * The maximum number of reputations the engine supports.
@@ -453,21 +452,6 @@ void reputation_add(int64_t pc_obj, int reputation)
         return;
     }
 
-    if (!multiplayer_is_locked()) {
-        PacketChangeReputation pkt;
-
-        // Only host can send reputation changes.
-        if (!tig_net_is_host()) {
-            return;
-        }
-
-        pkt.type = 105;
-        pkt.pc_oid = obj_get_id(pc_obj);
-        pkt.reputation = reputation;
-        pkt.action = CHANGE_REPUTATION_ACTION_ADD;
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-    }
-
     // Append reputation and current time to the reputation field arrays.
     index = obj_arrayfield_length_get(pc_obj, OBJ_F_PC_REPUTATION_IDX);
     obj_arrayfield_uint32_set(pc_obj, OBJ_F_PC_REPUTATION_IDX, index, reputation);
@@ -494,21 +478,6 @@ void reputation_remove(int64_t pc_obj, int reputation)
     // Make sure `pc_obj` is PC.
     if (obj_field_int32_get(pc_obj, OBJ_F_TYPE) != OBJ_TYPE_PC) {
         return;
-    }
-
-    if (!multiplayer_is_locked()) {
-        PacketChangeReputation pkt;
-
-        // Only host can send reputation changes.
-        if (!tig_net_is_host()) {
-            return;
-        }
-
-        pkt.type = 105;
-        pkt.pc_oid = obj_get_id(pc_obj);
-        pkt.reputation = reputation;
-        pkt.action = CHANGE_REPUTATION_ACTION_REMOVE;
-        tig_net_send_app_all(&pkt, sizeof(pkt));
     }
 
     // Find index of the reputation in the reputation array.

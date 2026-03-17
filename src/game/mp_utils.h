@@ -775,20 +775,6 @@ typedef struct Packet123 {
 // Serializeable.
 static_assert(sizeof(Packet123) == 0x14, "wrong size");
 
-#define CHANGE_REPUTATION_ACTION_ADD 0
-#define CHANGE_REPUTATION_ACTION_REMOVE 1
-
-typedef struct PacketChangeReputation {
-    /* 0000 */ int type;
-    /* 0004 */ int padding_4;
-    /* 0008 */ ObjectID pc_oid;
-    /* 0020 */ int reputation;
-    /* 0024 */ int action;
-} PacketChangeReputation;
-
-// Serializeable.
-static_assert(sizeof(PacketChangeReputation) == 0x28, "wrong size");
-
 typedef struct PacketPerformIdentifyService {
     /* 0000 */ int type;
     /* 0004 */ int padding_4;
