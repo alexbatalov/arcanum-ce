@@ -5,7 +5,6 @@
 #include "game/background.h"
 #include "game/critter.h"
 #include "game/mes.h"
-#include "game/multiplayer.h"
 #include "game/obj.h"
 #include "game/object.h"
 #include "game/player.h"
@@ -775,7 +774,6 @@ bool auto_level_apply(int64_t obj, char* str)
     int scheme;
     MesFileEntry mes_file_entry;
     int type;
-    char buffer[MAX_STRING];
     const char* rule;
     int index;
     bool ret;
@@ -796,19 +794,11 @@ bool auto_level_apply(int64_t obj, char* str)
         auto_level_log_size = -1;
     }
 
-    // Check if the object is a PC with alternate data (in multiplayer).
     type = obj_field_int32_get(obj, OBJ_F_TYPE);
-    if (type == OBJ_TYPE_PC
-        && (obj_field_int32_get(obj, OBJ_F_PC_FLAGS) & OPCF_USE_ALT_DATA) != 0) {
-        if (!multiplayer_level_scheme_rule(obj, buffer)) {
-            return false;
-        }
-        rule = buffer;
-    } else {
-        // A PC in single-player mode or a NPC - retrieve the standard rule for
-        // the scheme.
-        rule = auto_level_scheme_rule(scheme);
-    }
+
+    // There is no longer multiplayer mode, retrieve the standard rule for the
+    // scheme.
+    rule = auto_level_scheme_rule(scheme);
 
     // Validate the rule string.
     if (rule == NULL) {
@@ -868,11 +858,6 @@ bool auto_level_process_rule(int64_t obj, const char* str)
     char* tok;
     int score;
     int index;
-
-    if (tig_net_is_active()
-        && !tig_net_is_host()) {
-        return false;
-    }
 
     // Copy the rule string to a modifiable buffer.
     strcpy(buffer, str);
