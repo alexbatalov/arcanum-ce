@@ -2,11 +2,10 @@
 
 #include "game/magictech.h"
 #include "game/mes.h"
-#include "game/mp_utils.h"
-#include "game/multiplayer.h"
 #include "game/object.h"
 #include "game/player.h"
 #include "game/stat.h"
+#include "game/ui.h"
 
 #define FIRST_COLLEGE_NAME_ID 500
 #define FIRST_SPELL_DESCRIPTION_ID 700
@@ -470,25 +469,6 @@ bool spell_add(int64_t obj, int spell, bool force)
     int spell_level;
     int magic_points;
     int cost;
-
-    if (!multiplayer_is_locked() && player_is_pc_obj(obj)) {
-        PlayerBuySpellPacket pkt;
-
-        if (!tig_net_is_host()) {
-            pkt.type = 48;
-            pkt.player = multiplayer_find_slot_from_obj(obj);
-            pkt.spell = spell;
-            pkt.force = force;
-            tig_net_send_app_all(&pkt, sizeof(pkt));
-            return true;
-        }
-
-        pkt.type = 49;
-        pkt.player = multiplayer_find_slot_from_obj(obj);
-        pkt.spell = spell;
-        pkt.force = force;
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-    }
 
     college = COLLEGE_FROM_SPELL(spell);
     new_spell_level = LEVEL_FROM_SPELL(spell) + 1;

@@ -282,16 +282,6 @@ typedef struct Packet46 {
 
 static_assert(sizeof(Packet46) == 0x20, "wrong size");
 
-typedef struct PlayerBuySpellPacket {
-    /* 0000 */ int type;
-    /* 0004 */ int player;
-    /* 0008 */ int spell;
-    /* 000C */ bool force;
-} PlayerBuySpellPacket;
-
-// Serializeable.
-static_assert(sizeof(PlayerBuySpellPacket) == 0x10, "wrong size");
-
 typedef struct Packet51 {
     /* 0000 */ int type;
     /* 0004 */ int field_4;
