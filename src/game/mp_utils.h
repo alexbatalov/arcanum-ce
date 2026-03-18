@@ -294,14 +294,6 @@ typedef struct PacketPlayerCastSpell {
 
 static_assert(sizeof(PacketPlayerCastSpell) == 0xE8, "wrong size");
 
-typedef struct PacketPlayerInterruptSpell {
-    /* 0000 */ int type;
-    /* 0004 */ int mt_id;
-} PacketPlayerInterruptSpell;
-
-// Serializeable.
-static_assert(sizeof(PacketPlayerInterruptSpell) == 0x08, "wrong size");
-
 typedef struct PacketPlayerSpellMaintainAdd {
     /* 0000 */ int type;
     /* 0004 */ int mt_id;

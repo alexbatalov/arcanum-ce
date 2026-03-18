@@ -3,9 +3,7 @@
 #include "game/critter.h"
 #include "game/item.h"
 #include "game/magictech.h"
-#include "game/mp_utils.h"
 #include "game/mt_item.h"
-#include "game/multiplayer.h"
 #include "game/obj.h"
 #include "game/player.h"
 #include "game/spell.h"
@@ -405,20 +403,6 @@ void spell_ui_maintain_click(int slot)
 
     stru_5CB3A8[slot].field_4 = 2;
 
-    if (tig_net_is_active()) {
-        PacketPlayerInterruptSpell pkt;
-
-        pkt.type = 59;
-        pkt.mt_id = stru_5CB3A8[slot].mt_id;
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-
-        if (tig_net_is_host()) {
-            magictech_interrupt(stru_5CB3A8[slot].mt_id);
-        }
-
-        return;
-    }
-
     magictech_interrupt(stru_5CB3A8[slot].mt_id);
 }
 
@@ -518,41 +502,19 @@ void spell_ui_add(int64_t obj, int spell)
         return;
     }
 
-    if (!tig_net_is_active() || multiplayer_is_locked()) {
-        if (!spell_add(obj, spell, false)) {
-            if (spell_min_level(spell) > stat_level_get(obj, STAT_LEVEL)) {
-                charedit_error_not_enough_level();
-                return;
-            }
-
-            if (spell_min_intelligence(spell) > stat_level_get(obj, STAT_INTELLIGENCE)) {
-                charedit_error_not_enough_intelligence();
-            } else {
-                charedit_error_not_enough_stat(6);
-            }
-
-            return;
-        }
-    } else {
-        if (!tig_net_is_host()) {
-            spell_add(obj, spell, false);
+    if (!spell_add(obj, spell, false)) {
+        if (spell_min_level(spell) > stat_level_get(obj, STAT_LEVEL)) {
+            charedit_error_not_enough_level();
             return;
         }
 
-        if (!spell_add(obj, spell, false)) {
-            if (spell_min_level(spell) > stat_level_get(obj, STAT_LEVEL)) {
-                charedit_error_not_enough_level();
-                return;
-            }
-
-            if (spell_min_intelligence(spell) > stat_level_get(obj, STAT_INTELLIGENCE)) {
-                charedit_error_not_enough_intelligence();
-            } else {
-                charedit_error_not_enough_stat(6);
-            }
-
-            return;
+        if (spell_min_intelligence(spell) > stat_level_get(obj, STAT_INTELLIGENCE)) {
+            charedit_error_not_enough_intelligence();
+        } else {
+            charedit_error_not_enough_stat(6);
         }
+
+        return;
     }
 
     stat_base_set(obj, STAT_UNSPENT_POINTS, unspent_points - cost);
