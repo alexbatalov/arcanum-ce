@@ -3296,7 +3296,7 @@ void sub_453630(void)
     stru_5E6D28.orig_target_obj = magictech_cur_run_info->target_obj.obj;
     stru_5E6D28.orig_target_loc = magictech_cur_run_info->target_obj.loc;
     stru_5E6D28.field_40 = magictech_cur_run_info->field_E8.obj;
-    stru_5E6D28.summoned_obj = NULL;
+    stru_5E6D28.summoned_obj = OBJ_HANDLE_NULL;
     stru_5E6D28.self_obj = magictech_cur_run_info->parent_obj.obj;
     qword_5E75B0 = magictech_cur_run_info->source_obj.obj;
 
@@ -4976,7 +4976,7 @@ bool magictech_invocation_check(MagicTechInvocation* mt_invocation)
         target_ctx.source_loc = mt_invocation->loc;
         target_ctx.orig_target_obj = mt_invocation->target_obj.obj;
         target_ctx.target_obj = mt_invocation->target_obj.obj;
-        target_ctx.summoned_obj = NULL;
+        target_ctx.summoned_obj = OBJ_HANDLE_NULL;
         target_ctx.params = &target_params;
 
         if (!target_context_evaluate(&target_ctx)) {
