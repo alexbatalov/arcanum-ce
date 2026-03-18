@@ -115,7 +115,7 @@ static bool sub_4551C0(int64_t a1, int64_t a2, int64_t a3);
 static void sub_455250(MagicTechRunInfo* run_info, DateTime* datetime);
 static void sub_455350(int64_t obj, int64_t target_loc);
 static void sub_4554B0(MagicTechRunInfo* run_info, int64_t obj);
-static bool sub_455550(S603CB8* a1, MagicTechRunInfo* run_info);
+static bool sub_455550(TargetContext* target_ctx, MagicTechRunInfo* run_info);
 static void sub_455710(void);
 static void magictech_id_new_lock(MagicTechRunInfo** lock_ptr);
 static bool sub_455820(MagicTechRunInfo* run_info);
@@ -620,7 +620,7 @@ static mes_file_handle_t dword_5E6D20;
 static IsoInvalidateRectFunc* dword_5E6D24;
 
 // 0x5E6D28
-static S603CB8 stru_5E6D28;
+static TargetContext stru_5E6D28;
 
 // 0x5E6D90
 static int dword_5E6D90;
@@ -2031,7 +2031,7 @@ void magictech_process(void)
 
     if (magictech_cur_component_list->cnt > 0) {
         stru_5E6D28.params = &(magictech_cur_spell_info->target_params[magictech_cur_run_info->action]);
-        sub_4F40B0(&stru_5E6D28);
+        target_context_build_list(&stru_5E6D28);
 
         if (magictech_cur_run_info->source_obj.obj != OBJ_HANDLE_NULL
             && obj_field_int32_get(magictech_cur_run_info->source_obj.obj, OBJ_F_TYPE) == OBJ_TYPE_PC
@@ -2048,10 +2048,10 @@ void magictech_process(void)
         }
 
         for (idx = 0; idx < stru_5E3518.cnt; idx++) {
-            stru_5E6D28.field_20 = stru_5E3518.entries[idx].obj;
-            stru_5E6D28.field_28 = stru_5E3518.entries[idx].loc;
-            if (stru_5E6D28.field_20 != OBJ_HANDLE_NULL) {
-                magictech_cur_target_obj_type = obj_field_int32_get(stru_5E6D28.field_20, OBJ_F_TYPE);
+            stru_5E6D28.target_obj = stru_5E3518.entries[idx].obj;
+            stru_5E6D28.target_loc = stru_5E3518.entries[idx].loc;
+            if (stru_5E6D28.target_obj != OBJ_HANDLE_NULL) {
+                magictech_cur_target_obj_type = obj_field_int32_get(stru_5E6D28.target_obj, OBJ_F_TYPE);
             }
 
             if (sub_455550(&stru_5E6D28, magictech_cur_run_info)) {
@@ -2060,7 +2060,7 @@ void magictech_process(void)
                         magictech_cur_component = &(magictech_cur_component_list->entries[comp]);
                         stru_5E6D28.params = &(magictech_cur_component->aoe);
 
-                        if (sub_4F2D20(&stru_5E6D28)) {
+                        if (target_context_evaluate(&stru_5E6D28)) {
                             sub_453D40();
 
                             if (magictech_cur_spell_info->item_triggers == 0
@@ -2082,14 +2082,14 @@ void magictech_process(void)
 
                     if (magictech_cur_run_info->source_obj.obj != qword_5E75B0) {
                         qword_5E75B8 = magictech_cur_run_info->source_obj.obj;
-                        magictech_cur_run_info->source_obj.obj = stru_5E6D28.field_20;
-                        stru_5E6D28.field_20 = qword_5E75B8;
+                        magictech_cur_run_info->source_obj.obj = stru_5E6D28.target_obj;
+                        stru_5E6D28.target_obj = qword_5E75B8;
                         if (qword_5E75B8 != OBJ_HANDLE_NULL) {
                             magictech_cur_target_obj_type = obj_field_int32_get(qword_5E75B8, OBJ_F_TYPE);
                         }
                     }
                 } else {
-                    sub_45A520(magictech_cur_run_info->parent_obj.obj, stru_5E6D28.field_20);
+                    sub_45A520(magictech_cur_run_info->parent_obj.obj, stru_5E6D28.target_obj);
                 }
             }
         }
@@ -2115,19 +2115,19 @@ void MTComponentAGoal_ProcFunc(void)
         if (magictech_cur_run_info->parent_obj.obj != OBJ_HANDLE_NULL) {
             loc = obj_field_int64_get(magictech_cur_run_info->parent_obj.obj, OBJ_F_LOCATION);
         } else {
-            loc = stru_5E6D28.field_18;
+            loc = stru_5E6D28.source_loc;
         }
 
         if (loc != 0) {
-            new_loc = obj_field_int64_get(stru_5E6D28.field_20, OBJ_F_LOCATION);
+            new_loc = obj_field_int64_get(stru_5E6D28.target_obj, OBJ_F_LOCATION);
             if (loc == new_loc) {
-                art_id = obj_field_int32_get(stru_5E6D28.field_20, OBJ_F_CURRENT_AID);
+                art_id = obj_field_int32_get(stru_5E6D28.target_obj, OBJ_F_CURRENT_AID);
                 rot = (tig_art_id_rotation_get(art_id) + 4) % 8;
             } else {
                 rot = location_rot(loc, new_loc);
             }
 
-            anim_goal_knockback(stru_5E6D28.field_20, rot, 4, magictech_cur_run_info->parent_obj.obj);
+            anim_goal_knockback(stru_5E6D28.target_obj, rot, 4, magictech_cur_run_info->parent_obj.obj);
         }
         break;
     case AG_FOLLOW:
@@ -2136,11 +2136,11 @@ void MTComponentAGoal_ProcFunc(void)
         }
         break;
     case AG_KNOCK_DOWN:
-        anim_goal_knockdown(stru_5E6D28.field_20);
+        anim_goal_knockdown(stru_5E6D28.target_obj);
         break;
     default:
         if (magictech_cur_run_info->parent_obj.obj != OBJ_HANDLE_NULL
-            && sub_44D500(&goal_data, stru_5E6D28.field_20, magictech_cur_component->data.agoal.goal)) {
+            && sub_44D500(&goal_data, stru_5E6D28.target_obj, magictech_cur_component->data.agoal.goal)) {
             goal_data.params[AGDATA_TARGET_OBJ].obj = magictech_cur_run_info->parent_obj.obj;
             if ((magictech_cur_component->data.agoal.subgoal & 1) != 0) {
                 // __FILE__: "C:\Troika\Code\Game\GameLibX\MagicTech.c"
@@ -2157,8 +2157,8 @@ void MTComponentAGoal_ProcFunc(void)
 // 0x4516D0
 void MTComponentAGoalTerminate_ProcFunc(void)
 {
-    if (stru_5E6D28.field_20 != OBJ_HANDLE_NULL) {
-        sub_44E4D0(stru_5E6D28.field_20, magictech_cur_component->data.agoal_terminate.goal, -1);
+    if (stru_5E6D28.target_obj != OBJ_HANDLE_NULL) {
+        sub_44E4D0(stru_5E6D28.target_obj, magictech_cur_component->data.agoal_terminate.goal, -1);
     }
 }
 
@@ -2167,7 +2167,7 @@ void MTComponentAIRedirect_ProcFunc(void)
 {
     AiRedirect ai_redirect;
 
-    ai_redirect_init(&ai_redirect, stru_5E6D28.field_20, stru_5E6D28.field_20);
+    ai_redirect_init(&ai_redirect, stru_5E6D28.target_obj, stru_5E6D28.target_obj);
     ai_redirect.critter_flags = magictech_cur_component->data.ai_redirect.critter_flags;
     ai_redirect.min_iq = magictech_cur_component->data.ai_redirect.min_iq;
     ai_redirect_perform(&ai_redirect);
@@ -2179,10 +2179,10 @@ void MTComponentCast_ProcFunc(void)
     MagicTechInvocation mt_invocation;
 
     magictech_invocation_init(&mt_invocation, OBJ_HANDLE_NULL, magictech_cur_component->data.cast.spell);
-    sub_4440E0(stru_5E6D28.field_20, &(mt_invocation.target_obj));
+    sub_4440E0(stru_5E6D28.target_obj, &(mt_invocation.target_obj));
     sub_4440E0(magictech_cur_run_info->parent_obj.obj, &(mt_invocation.parent_obj));
     mt_invocation.flags |= MAGICTECH_INVOCATION_FRIENDLY;
-    mt_invocation.target_loc = stru_5E6D28.field_28;
+    mt_invocation.target_loc = stru_5E6D28.target_loc;
 
     if (mt_invocation.parent_obj.obj != OBJ_HANDLE_NULL) {
         mt_invocation.loc = obj_field_int64_get(mt_invocation.parent_obj.obj, OBJ_F_LOCATION);
@@ -2223,15 +2223,15 @@ void MTComponentDamage_ProcFunc(void)
     int dam_min;
     int dam_max;
 
-    if (stru_5E6D28.field_20 == OBJ_HANDLE_NULL) {
+    if (stru_5E6D28.target_obj == OBJ_HANDLE_NULL) {
         return;
     }
 
-    sub_4B2210(magictech_cur_run_info->parent_obj.obj, stru_5E6D28.field_20, &combat);
+    sub_4B2210(magictech_cur_run_info->parent_obj.obj, stru_5E6D28.target_obj, &combat);
 
     combat.dam_flags |= magictech_cur_component->data.damage.damage_flags;
 
-    sub_453F20(magictech_cur_run_info->parent_obj.obj, stru_5E6D28.field_20);
+    sub_453F20(magictech_cur_run_info->parent_obj.obj, stru_5E6D28.target_obj);
 
     if (magictech_cur_run_info->field_E8.obj != OBJ_HANDLE_NULL) {
         combat.field_30 = magictech_cur_run_info->field_E8.obj;
@@ -2256,7 +2256,7 @@ void MTComponentDamage_ProcFunc(void)
 
     if ((combat.dam_flags & CDF_FULL) != 0) {
         if (magictech_cur_component->data.damage.damage_type == DAMAGE_TYPE_FATIGUE) {
-            combat.dam[DAMAGE_TYPE_FATIGUE] = critter_fatigue_current(stru_5E6D28.field_20) + 10;
+            combat.dam[DAMAGE_TYPE_FATIGUE] = critter_fatigue_current(stru_5E6D28.target_obj) + 10;
             combat.dam_flags &= ~CDF_FULL;
         }
     } else {
@@ -2299,20 +2299,20 @@ void MTComponentDestroy_ProcFunc(void)
 {
     unsigned int spell_flags;
 
-    if (stru_5E6D28.field_20 == OBJ_HANDLE_NULL) {
+    if (stru_5E6D28.target_obj == OBJ_HANDLE_NULL) {
         return;
     }
 
-    spell_flags = obj_field_int32_get(stru_5E6D28.field_20, OBJ_F_SPELL_FLAGS);
+    spell_flags = obj_field_int32_get(stru_5E6D28.target_obj, OBJ_F_SPELL_FLAGS);
     if (!magictech_cur_run_info->field_144 || (spell_flags & OSF_SUMMONED) != 0) {
-        object_destroy(stru_5E6D28.field_20);
+        object_destroy(stru_5E6D28.target_obj);
 
         if (tig_net_is_active()
             && tig_net_is_host()) {
             PacketObjectDestroy pkt;
 
             pkt.type = 72;
-            pkt.oid = obj_get_id(stru_5E6D28.field_20);
+            pkt.oid = obj_get_id(stru_5E6D28.target_obj);
             tig_net_send_app_all(&pkt, sizeof(pkt));
         }
     }
@@ -2321,7 +2321,7 @@ void MTComponentDestroy_ProcFunc(void)
 // 0x451B90
 void MTComponentDispel_ProcFunc(void)
 {
-    magictech_component_dispel(stru_5E6D28.field_20, magictech_cur_run_info->id);
+    magictech_component_dispel(stru_5E6D28.target_obj, magictech_cur_run_info->id);
 }
 
 // 0x451BB0
@@ -2457,7 +2457,7 @@ void MTComponentEffect_ProcFunc(void)
     int scale;
     int cnt;
 
-    if (stru_5E6D28.field_20 == OBJ_HANDLE_NULL) {
+    if (stru_5E6D28.target_obj == OBJ_HANDLE_NULL) {
         return;
     }
 
@@ -2472,12 +2472,12 @@ void MTComponentEffect_ProcFunc(void)
 
     if (magictech_cur_component->data.effect.add_remove == 0) {
         while (cnt > 0) {
-            effect_remove_one_typed(stru_5E6D28.field_20, magictech_cur_component->data.effect.num);
+            effect_remove_one_typed(stru_5E6D28.target_obj, magictech_cur_component->data.effect.num);
             cnt--;
         }
     } else {
         while (cnt > 0) {
-            effect_add(stru_5E6D28.field_20,
+            effect_add(stru_5E6D28.target_obj,
                 magictech_cur_component->data.effect.num,
                 magictech_cur_component->data.effect.cause);
             cnt--;
@@ -2490,7 +2490,7 @@ void MTComponentEyeCandy_ProcFunc(void)
 {
     int mt_id;
 
-    if (stru_5E6D28.field_20 == OBJ_HANDLE_NULL) {
+    if (stru_5E6D28.target_obj == OBJ_HANDLE_NULL) {
         return;
     }
 
@@ -2501,7 +2501,7 @@ void MTComponentEyeCandy_ProcFunc(void)
                 ? magictech_cur_run_info->id
                 : -1;
             animfx_remove(&spell_eye_candies,
-                stru_5E6D28.field_20,
+                stru_5E6D28.target_obj,
                 magictech_cur_component->data.eye_candy.num + 6 * magictech_cur_run_info->spell,
                 mt_id);
 
@@ -2510,7 +2510,7 @@ void MTComponentEyeCandy_ProcFunc(void)
 
                 pkt.type = 77;
                 pkt.subtype = 0;
-                pkt.oid = obj_get_id(stru_5E6D28.field_20);
+                pkt.oid = obj_get_id(stru_5E6D28.target_obj);
                 pkt.fx_id = magictech_cur_component->data.eye_candy.num + 6 * magictech_cur_run_info->spell;
                 pkt.mt_id = mt_id;
                 tig_net_send_app_all(&pkt, sizeof(pkt));
@@ -2521,12 +2521,12 @@ void MTComponentEyeCandy_ProcFunc(void)
 
         sub_4CCD20(&spell_eye_candies,
             &node,
-            stru_5E6D28.field_20,
+            stru_5E6D28.target_obj,
             magictech_cur_run_info->id,
             magictech_cur_component->data.eye_candy.num + 6 * magictech_cur_run_info->spell);
 
-        if (stru_5E6D28.field_20 != OBJ_HANDLE_NULL) {
-            node.rotation = tig_art_id_rotation_get(obj_field_int32_get(stru_5E6D28.field_20, OBJ_F_CURRENT_AID));
+        if (stru_5E6D28.target_obj != OBJ_HANDLE_NULL) {
+            node.rotation = tig_art_id_rotation_get(obj_field_int32_get(stru_5E6D28.target_obj, OBJ_F_CURRENT_AID));
         }
 
         node.animate = true;
@@ -2558,8 +2558,8 @@ void MTComponentHeal_ProcFunc(void)
     int heal_min;
     int heal_max;
 
-    if (stru_5E6D28.field_20 != OBJ_HANDLE_NULL) {
-        sub_4B2210(magictech_cur_run_info->parent_obj.obj, stru_5E6D28.field_20, &combat);
+    if (stru_5E6D28.target_obj != OBJ_HANDLE_NULL) {
+        sub_4B2210(magictech_cur_run_info->parent_obj.obj, stru_5E6D28.target_obj, &combat);
         combat.dam_flags |= magictech_cur_component->data.heal.damage_flags;
         if ((combat.dam_flags & CDF_FULL) == 0) {
             heal_min = magictech_cur_component->data.heal.damage_min;
@@ -2591,13 +2591,13 @@ void MTComponentHeal_ProcFunc(void)
 // 0x4522A0
 void MTComponentIdentify_ProcFunc(void)
 {
-    if (stru_5E6D28.field_20 != OBJ_HANDLE_NULL) {
+    if (stru_5E6D28.target_obj != OBJ_HANDLE_NULL) {
         if (obj_type_is_critter(magictech_cur_target_obj_type)) {
-            sub_4EE4C0(magictech_cur_run_info->parent_obj.obj, stru_5E6D28.field_20);
+            sub_4EE4C0(magictech_cur_run_info->parent_obj.obj, stru_5E6D28.target_obj);
         } else if (magictech_cur_target_obj_type == OBJ_TYPE_CONTAINER) {
-            mp_ui_show_inven_identify(magictech_cur_run_info->parent_obj.obj, stru_5E6D28.field_20);
+            mp_ui_show_inven_identify(magictech_cur_run_info->parent_obj.obj, stru_5E6D28.target_obj);
         } else {
-            sub_4EE3A0(magictech_cur_run_info->parent_obj.obj, stru_5E6D28.field_20);
+            sub_4EE3A0(magictech_cur_run_info->parent_obj.obj, stru_5E6D28.target_obj);
         }
     }
 }
@@ -2608,8 +2608,8 @@ void MTComponentInterrupt_ProcFunc(void)
     MagicTechInvocation mt_invocation;
 
     magictech_invocation_init(&mt_invocation, OBJ_HANDLE_NULL, magictech_cur_component->data.interrupt.magictech);
-    sub_4440E0(stru_5E6D28.field_20, &(mt_invocation.target_obj));
-    mt_invocation.target_loc = stru_5E6D28.field_28;
+    sub_4440E0(stru_5E6D28.target_obj, &(mt_invocation.target_obj));
+    mt_invocation.target_loc = stru_5E6D28.target_loc;
     if (mt_invocation.target_obj.obj != OBJ_HANDLE_NULL || mt_invocation.target_loc != OBJ_HANDLE_NULL) {
         sub_4573D0(&mt_invocation);
     }
@@ -2624,7 +2624,7 @@ void MTComponentObjFlag_ProcFunc(void)
         magictech_cur_run_info->field_138 &= ~magictech_cur_component->data.obj_flag.value;
     }
 
-    magictech_component_obj_flag(stru_5E6D28.field_20,
+    magictech_component_obj_flag(stru_5E6D28.target_obj,
         stru_5E6D28.self_obj,
         magictech_cur_component->data.obj_flag.flags_fld,
         magictech_cur_component->data.obj_flag.value,
@@ -2636,7 +2636,7 @@ void MTComponentObjFlag_ProcFunc(void)
         && tig_net_is_host()) {
         PacketMagicTechObjFlag pkt;
 
-        sub_4F0640(stru_5E6D28.field_20, &(pkt.field_8));
+        sub_4F0640(stru_5E6D28.target_obj, &(pkt.field_8));
         sub_4F0640(stru_5E6D28.self_obj, &(pkt.self_oid));
         pkt.fld = magictech_cur_component->data.obj_flag.flags_fld;
         pkt.value = magictech_cur_component->data.obj_flag.value;
@@ -2653,7 +2653,7 @@ void MTComponentMovement_ProcFunc(void)
 {
     int64_t loc = 0;
 
-    if (stru_5E6D28.field_20 != OBJ_HANDLE_NULL
+    if (stru_5E6D28.target_obj != OBJ_HANDLE_NULL
         && !magictech_cur_run_info->field_144) {
         switch (magictech_cur_component->data.movement.move_location) {
         case 0:
@@ -2672,7 +2672,7 @@ void MTComponentMovement_ProcFunc(void)
                     teleport_data.loc = loc;
                     teleport_data.map = map_current_map();
                     teleport_data.flags = TELEPORT_RENDER_LOCK | TELEPORT_SKIP_FOLLOWERS;
-                    teleport_data.obj = stru_5E6D28.field_20;
+                    teleport_data.obj = stru_5E6D28.target_obj;
                     teleport_do(&teleport_data);
                     return;
                 }
@@ -2688,12 +2688,12 @@ void MTComponentMovement_ProcFunc(void)
             }
             break;
         case 3:
-            sub_452650(stru_5E6D28.field_20);
+            sub_452650(stru_5E6D28.target_obj);
             break;
         }
 
         if (loc != 0) {
-            sub_455350(stru_5E6D28.field_20, loc);
+            sub_455350(stru_5E6D28.target_obj, loc);
         }
     }
 }
@@ -2719,7 +2719,7 @@ void sub_452650(int64_t obj)
         }
     }
 
-    if (area > 0 && antiteleport_check(stru_5E6D28.field_20, 0)) {
+    if (area > 0 && antiteleport_check(stru_5E6D28.target_obj, 0)) {
         loc = area_get_location(area);
 
         if (tig_net_is_active()) {
@@ -2751,7 +2751,7 @@ void sub_452650(int64_t obj)
 // 0x452800
 void MTComponentRecharge_ProcFunc(void)
 {
-    magictech_component_recharge(stru_5E6D28.field_20,
+    magictech_component_recharge(stru_5E6D28.target_obj,
         magictech_cur_component->data.recharge.num,
         magictech_cur_component->data.recharge.max);
 }
@@ -2763,7 +2763,7 @@ void MTComponentSummon_ProcFunc(void)
 
     summon_info.field_0.obj = magictech_cur_run_info->parent_obj.obj;
     summon_info.field_30.obj = magictech_cur_run_info->target_obj.obj;
-    summon_info.loc = stru_5E6D28.field_28;
+    summon_info.loc = stru_5E6D28.target_loc;
     summon_info.summoned_obj_ptr = &qword_5E75B8;
     summon_info.palette = magictech_cur_component->data.summon.palette;
     summon_info.field_C8 = magictech_cur_component->data.summon.list;
@@ -2776,7 +2776,7 @@ void MTComponentSummon_ProcFunc(void)
 
     magictech_effect_summon(&summon_info);
 
-    stru_5E6D28.field_48 = qword_5E75B8;
+    stru_5E6D28.summoned_obj = qword_5E75B8;
     sub_4554B0(magictech_cur_run_info, qword_5E75B8);
 }
 
@@ -2825,8 +2825,8 @@ void MTComponentTestNBranch_ProcFunc(void)
 {
     int value;
 
-    if (stru_5E6D28.field_20 != OBJ_HANDLE_NULL && obj_type_is_critter(magictech_cur_target_obj_type)) {
-        value = obj_field_int32_get(stru_5E6D28.field_20, magictech_cur_component->data.test_in_branch.field_40);
+    if (stru_5E6D28.target_obj != OBJ_HANDLE_NULL && obj_type_is_critter(magictech_cur_target_obj_type)) {
+        value = obj_field_int32_get(stru_5E6D28.target_obj, magictech_cur_component->data.test_in_branch.field_40);
         switch (magictech_cur_component->data.test_in_branch.field_44) {
         case 0:
             if (value == magictech_cur_component->data.test_in_branch.field_48) {
@@ -2873,7 +2873,7 @@ void MTComponentTestNBranch_ProcFunc(void)
 // 0x452AD0
 void MTComponentTrait_ProcFunc(void)
 {
-    magictech_component_trait(stru_5E6D28.field_20, &(magictech_cur_component->data.trait), magictech_cur_target_obj_type);
+    magictech_component_trait(stru_5E6D28.target_obj, &(magictech_cur_component->data.trait), magictech_cur_target_obj_type);
 }
 
 // 0x452B00
@@ -2977,12 +2977,12 @@ void MTComponentTraitIdx_ProcFunc(void)
 {
     int value;
 
-    if (stru_5E6D28.field_20 != OBJ_HANDLE_NULL && obj_type_is_critter(magictech_cur_target_obj_type)) {
+    if (stru_5E6D28.target_obj != OBJ_HANDLE_NULL && obj_type_is_critter(magictech_cur_target_obj_type)) {
         if (magictech_cur_component->data.trait_idx.field_44 == OBJ_F_CRITTER_STAT_BASE_IDX) {
-            value = stat_base_get(stru_5E6D28.field_20,
+            value = stat_base_get(stru_5E6D28.target_obj,
                 magictech_cur_component->data.trait_idx.field_40);
         } else {
-            value = obj_arrayfield_int32_get(stru_5E6D28.field_20,
+            value = obj_arrayfield_int32_get(stru_5E6D28.target_obj,
                 magictech_cur_component->data.trait_idx.field_44,
                 magictech_cur_component->data.trait_idx.field_40);
         }
@@ -2990,11 +2990,11 @@ void MTComponentTraitIdx_ProcFunc(void)
         if (magictech_cur_component->data.trait_idx.field_48 == 0) {
             value = value * magictech_cur_component->data.trait_idx.field_4C / magictech_cur_component->data.trait_idx.field_50 + magictech_cur_component->data.trait_idx.field_54;
             if (magictech_cur_component->data.trait_idx.field_44 == OBJ_F_CRITTER_STAT_BASE_IDX) {
-                stat_base_set(stru_5E6D28.field_20,
+                stat_base_set(stru_5E6D28.target_obj,
                     magictech_cur_component->data.trait_idx.field_40,
                     value);
             } else {
-                obj_arrayfield_int32_set(stru_5E6D28.field_20,
+                obj_arrayfield_int32_set(stru_5E6D28.target_obj,
                     magictech_cur_component->data.trait_idx.field_44,
                     magictech_cur_component->data.trait_idx.field_40, value);
             }
@@ -3007,13 +3007,13 @@ void MTComponentTrait64_ProcFunc(void)
 {
     switch (magictech_cur_component->data.trait64.field_44) {
     case 0:
-        obj_field_int64_set(stru_5E6D28.field_20, magictech_cur_component->data.trait64.field_40, stru_5E6D28.field_28);
-        obj_field_int32_set(stru_5E6D28.field_20, OBJ_F_CRITTER_TELEPORT_MAP, map_current_map());
+        obj_field_int64_set(stru_5E6D28.target_obj, magictech_cur_component->data.trait64.field_40, stru_5E6D28.target_loc);
+        obj_field_int32_set(stru_5E6D28.target_obj, OBJ_F_CRITTER_TELEPORT_MAP, map_current_map());
         break;
     case 1:
     case 2:
         qword_5E75B8 = magictech_cur_run_info->parent_obj.obj;
-        obj_field_handle_set(stru_5E6D28.field_20, magictech_cur_component->data.trait64.field_40, qword_5E75B8);
+        obj_field_handle_set(stru_5E6D28.target_obj, magictech_cur_component->data.trait64.field_40, qword_5E75B8);
         break;
     }
 }
@@ -3021,10 +3021,10 @@ void MTComponentTrait64_ProcFunc(void)
 // 0x452ED0
 void MTComponentUse_ProcFunc(void)
 {
-    if (stru_5E6D28.field_20 != OBJ_HANDLE_NULL) {
-        object_script_execute(stru_5E6D28.field_20,
-            stru_5E6D28.field_20,
-            stru_5E6D28.field_20,
+    if (stru_5E6D28.target_obj != OBJ_HANDLE_NULL) {
+        object_script_execute(stru_5E6D28.target_obj,
+            stru_5E6D28.target_obj,
+            stru_5E6D28.target_obj,
             SAP_USE,
             0);
     }
@@ -3289,19 +3289,19 @@ void sub_4534E0(MagicTechRunInfo* run_info)
 // 0x453630
 void sub_453630(void)
 {
-    sub_4F2600(&stru_5E6D28, 0, magictech_cur_run_info->source_obj.obj);
+    target_context_init(&stru_5E6D28, 0, magictech_cur_run_info->source_obj.obj);
     stru_5E6D28.targets = &stru_5E3518;
-    stru_5E6D28.field_54 = &magictech_cur_run_info->objlist;
-    stru_5E6D28.field_58 = &magictech_cur_run_info->summoned_obj;
-    stru_5E6D28.field_30 = magictech_cur_run_info->target_obj.obj;
-    stru_5E6D28.field_38 = magictech_cur_run_info->target_obj.loc;
+    stru_5E6D28.obj_list = &magictech_cur_run_info->objlist;
+    stru_5E6D28.summoned_obj_list = &magictech_cur_run_info->summoned_obj;
+    stru_5E6D28.orig_target_obj = magictech_cur_run_info->target_obj.obj;
+    stru_5E6D28.orig_target_loc = magictech_cur_run_info->target_obj.loc;
     stru_5E6D28.field_40 = magictech_cur_run_info->field_E8.obj;
-    stru_5E6D28.field_48 = 0;
+    stru_5E6D28.summoned_obj = NULL;
     stru_5E6D28.self_obj = magictech_cur_run_info->parent_obj.obj;
     qword_5E75B0 = magictech_cur_run_info->source_obj.obj;
 
     if (magictech_cur_run_info->source_obj.obj == OBJ_HANDLE_NULL) {
-        stru_5E6D28.field_18 = magictech_cur_run_info->source_obj.loc;
+        stru_5E6D28.source_loc = magictech_cur_run_info->source_obj.loc;
     }
 }
 
@@ -3318,8 +3318,8 @@ bool sub_453710(void)
         return true;
     }
 
-    stru_5E6D28.field_5C = obj_field_int32_get(magictech_cur_run_info->source_obj.obj, OBJ_F_SPELL_FLAGS);
-    if ((stru_5E6D28.field_5C & OSF_ANTI_MAGIC_SHELL) == 0
+    stru_5E6D28.source_spell_flags = obj_field_int32_get(magictech_cur_run_info->source_obj.obj, OBJ_F_SPELL_FLAGS);
+    if ((stru_5E6D28.source_spell_flags & OSF_ANTI_MAGIC_SHELL) == 0
         || (magictech_cur_run_info->field_138 & 0x800) != 0) {
         return true;
     }
@@ -3354,25 +3354,25 @@ bool sub_4537B0(void)
     dword_5E75A0 = 0;
     magictech_cur_run_info->field_144 = 0;
 
-    if (stru_5E6D28.field_20 == OBJ_HANDLE_NULL) {
+    if (stru_5E6D28.target_obj == OBJ_HANDLE_NULL) {
         return true;
     }
 
     if (magictech_cur_run_info->spell == SPELL_DISINTEGRATE
-        && obj_type_is_critter(obj_field_int32_get(stru_5E6D28.field_20, OBJ_F_TYPE))
-        && (obj_field_int32_get(stru_5E6D28.field_20, OBJ_F_CRITTER_FLAGS2) & OCF2_NO_DISINTEGRATE) != 0) {
+        && obj_type_is_critter(obj_field_int32_get(stru_5E6D28.target_obj, OBJ_F_TYPE))
+        && (obj_field_int32_get(stru_5E6D28.target_obj, OBJ_F_CRITTER_FLAGS2) & OCF2_NO_DISINTEGRATE) != 0) {
         return false;
     }
 
-    if (magictech_cur_run_info->parent_obj.obj != stru_5E6D28.field_20) {
-        if (obj_field_int32_get(stru_5E6D28.field_20, OBJ_F_TYPE) == OBJ_TYPE_PC
-            && fate_resolve(stru_5E6D28.field_20, FATE_SAVE_AGAINST_MAGICK)) {
+    if (magictech_cur_run_info->parent_obj.obj != stru_5E6D28.target_obj) {
+        if (obj_field_int32_get(stru_5E6D28.target_obj, OBJ_F_TYPE) == OBJ_TYPE_PC
+            && fate_resolve(stru_5E6D28.target_obj, FATE_SAVE_AGAINST_MAGICK)) {
             dword_5E75A0 = 100;
             magictech_cur_run_info->field_144 = 10;
         } else {
-            int resistance = obj_arrayfield_int32_get(stru_5E6D28.field_20, OBJ_F_RESISTANCE_IDX, RESISTANCE_TYPE_MAGIC);
+            int resistance = obj_arrayfield_int32_get(stru_5E6D28.target_obj, OBJ_F_RESISTANCE_IDX, RESISTANCE_TYPE_MAGIC);
             if (!magictech_cur_is_fate_maximized) {
-                int aptitude = stat_level_get(stru_5E6D28.field_20, STAT_MAGICK_TECH_APTITUDE);
+                int aptitude = stat_level_get(stru_5E6D28.target_obj, STAT_MAGICK_TECH_APTITUDE);
                 if (aptitude < 0) {
                     resistance = 100 - (100 - resistance) * (aptitude + 100) / 100;
                 }
@@ -3398,23 +3398,23 @@ bool sub_4537B0(void)
         }
     }
 
-    if (stru_5E6D28.field_20 == OBJ_HANDLE_NULL
-        || magictech_cur_run_info->parent_obj.obj == stru_5E6D28.field_20
+    if (stru_5E6D28.target_obj == OBJ_HANDLE_NULL
+        || magictech_cur_run_info->parent_obj.obj == stru_5E6D28.target_obj
         || magictech_cur_resistance->stat == -1
         || !obj_type_is_critter(magictech_cur_target_obj_type)) {
         return true;
     }
 
     if (magictech_cur_resistance->stat == STAT_WILLPOWER
-        && stat_is_extraordinary(stru_5E6D28.field_20, STAT_WILLPOWER)) {
+        && stat_is_extraordinary(stru_5E6D28.target_obj, STAT_WILLPOWER)) {
         if ((magictech_cur_spell_info->flags & MAGICTECH_AGGRESSIVE) != 0
             && magictech_cur_run_info->action != MAGICTECH_ACTION_END) {
-            sub_453F20(magictech_cur_run_info->parent_obj.obj, stru_5E6D28.field_20);
+            sub_453F20(magictech_cur_run_info->parent_obj.obj, stru_5E6D28.target_obj);
         }
         return false;
     }
 
-    int v2 = magictech_cur_resistance->value + stat_level_get(stru_5E6D28.field_20, magictech_cur_resistance->stat) - v1;
+    int v2 = magictech_cur_resistance->value + stat_level_get(stru_5E6D28.target_obj, magictech_cur_resistance->stat) - v1;
     if (v2 > 0) {
         int v3 = random_between(1, 20);
         if (v3 <= v2) {
@@ -3573,36 +3573,36 @@ void sub_453D40(void)
     }
 
     if ((magictech_cur_component->apply_aoe.tgt & Tgt_Self) != 0) {
-        stru_5E6D28.field_20 = magictech_cur_run_info->parent_obj.obj;
-        if (stru_5E6D28.field_20 != OBJ_HANDLE_NULL) {
-            magictech_cur_target_obj_type = obj_field_int32_get(stru_5E6D28.field_20, OBJ_F_TYPE);
+        stru_5E6D28.target_obj = magictech_cur_run_info->parent_obj.obj;
+        if (stru_5E6D28.target_obj != OBJ_HANDLE_NULL) {
+            magictech_cur_target_obj_type = obj_field_int32_get(stru_5E6D28.target_obj, OBJ_F_TYPE);
         }
     }
 
     if ((magictech_cur_component->apply_aoe.tgt & Tgt_Source) != 0) {
-        stru_5E6D28.field_20 = magictech_cur_run_info->source_obj.obj;
-        if (stru_5E6D28.field_20 != OBJ_HANDLE_NULL) {
-            magictech_cur_target_obj_type = obj_field_int32_get(stru_5E6D28.field_20, OBJ_F_TYPE);
+        stru_5E6D28.target_obj = magictech_cur_run_info->source_obj.obj;
+        if (stru_5E6D28.target_obj != OBJ_HANDLE_NULL) {
+            magictech_cur_target_obj_type = obj_field_int32_get(stru_5E6D28.target_obj, OBJ_F_TYPE);
         }
     }
 
     if ((magictech_cur_component->apply_aoe.tgt & 0x400000000000) != 0) {
-        stru_5E6D28.field_20 = stru_5E6D28.field_48;
-        if (stru_5E6D28.field_20 != OBJ_HANDLE_NULL) {
-            magictech_cur_target_obj_type = obj_field_int32_get(stru_5E6D28.field_20, OBJ_F_TYPE);
+        stru_5E6D28.target_obj = stru_5E6D28.summoned_obj;
+        if (stru_5E6D28.target_obj != OBJ_HANDLE_NULL) {
+            magictech_cur_target_obj_type = obj_field_int32_get(stru_5E6D28.target_obj, OBJ_F_TYPE);
         }
     }
 
     if ((magictech_cur_component->apply_aoe.tgt & 0x800000000000) != 0) {
         if ((magictech_cur_component->apply_aoe.tgt & 0x80000000000000) != 0) {
-            if (stru_5E6D28.field_20 != OBJ_HANDLE_NULL) {
-                stru_5E6D28.field_28 = obj_field_int64_get(stru_5E6D28.field_20, OBJ_F_LOCATION);
+            if (stru_5E6D28.target_obj != OBJ_HANDLE_NULL) {
+                stru_5E6D28.target_loc = obj_field_int64_get(stru_5E6D28.target_obj, OBJ_F_LOCATION);
             }
         } else {
             if (magictech_cur_run_info->target_obj.loc != 0) {
-                stru_5E6D28.field_28 = magictech_cur_run_info->target_obj.loc;
+                stru_5E6D28.target_loc = magictech_cur_run_info->target_obj.loc;
             } else {
-                stru_5E6D28.field_28 = obj_field_int64_get(magictech_cur_run_info->target_obj.obj, OBJ_F_LOCATION);
+                stru_5E6D28.target_loc = obj_field_int64_get(magictech_cur_run_info->target_obj.obj, OBJ_F_LOCATION);
             }
         }
     }
@@ -3612,9 +3612,9 @@ void sub_453D40(void)
 void sub_453EE0(void)
 {
     if ((magictech_cur_spell_info->flags & MAGICTECH_AGGRESSIVE) != 0
-        && stru_5E6D28.field_20 != OBJ_HANDLE_NULL
+        && stru_5E6D28.target_obj != OBJ_HANDLE_NULL
         && magictech_cur_run_info->action != MAGICTECH_ACTION_END) {
-        sub_453F20(magictech_cur_run_info->parent_obj.obj, stru_5E6D28.field_20);
+        sub_453F20(magictech_cur_run_info->parent_obj.obj, stru_5E6D28.target_obj);
     }
 }
 
@@ -4402,24 +4402,24 @@ void sub_4554B0(MagicTechRunInfo* run_info, int64_t obj)
 }
 
 // 0x455550
-bool sub_455550(S603CB8* a1, MagicTechRunInfo* run_info)
+bool sub_455550(TargetContext* target_ctx, MagicTechRunInfo* run_info)
 {
     MesFileEntry mes_file_entry;
     int64_t parent_obj;
 
-    a1->field_60 = 0;
+    target_ctx->target_spell_flags = 0;
 
     // FIX: Move the self-targeting spell check below, after handling the
     // effects of the "Dweomer Shield". This prevents the execution of end
     // actions for spells that didn't even have a chance to begin (the result of
     // interrupting a spell during the initial processing).
-    if (a1->field_20 == OBJ_HANDLE_NULL) {
+    if (target_ctx->target_obj == OBJ_HANDLE_NULL) {
         return true;
     }
 
-    a1->field_60 = obj_field_int32_get(a1->field_20, OBJ_F_SPELL_FLAGS);
+    target_ctx->target_spell_flags = obj_field_int32_get(target_ctx->target_obj, OBJ_F_SPELL_FLAGS);
 
-    if ((a1->field_60 & OSF_ANTI_MAGIC_SHELL) != 0
+    if ((target_ctx->target_spell_flags & OSF_ANTI_MAGIC_SHELL) != 0
         && (run_info->field_138 & 0x800) == 0) {
         // FIX: Gracefully complete spells when dispelled by the "Dweomer
         // Shield".
@@ -4437,11 +4437,11 @@ bool sub_455550(S603CB8* a1, MagicTechRunInfo* run_info)
         return false;
     }
 
-    if (a1->field_20 == magictech_cur_run_info->parent_obj.obj) {
+    if (target_ctx->target_obj == magictech_cur_run_info->parent_obj.obj) {
         return true;
     }
 
-    if (((a1->field_60 & OSF_FULL_REFLECTION) == 0
+    if (((target_ctx->target_spell_flags & OSF_FULL_REFLECTION) == 0
             && (run_info->flags & MAGICTECH_RUN_REFLECTED) == 0)
         || (magictech_cur_spell_info->flags & MAGICTECH_NO_REFLECT) != 0) {
         return true;
@@ -4457,11 +4457,11 @@ bool sub_455550(S603CB8* a1, MagicTechRunInfo* run_info)
     run_info->flags |= MAGICTECH_RUN_REFLECTED;
 
     if ((run_info->field_138 & 0x2000) == 0
-        && sub_459040(a1->field_20, OSF_FULL_REFLECTION, &parent_obj)) {
+        && sub_459040(target_ctx->target_obj, OSF_FULL_REFLECTION, &parent_obj)) {
         sub_450420(parent_obj, dword_5E762C, true, 10000);
     }
 
-    if (a1->field_20 == run_info->source_obj.obj) {
+    if (target_ctx->target_obj == run_info->source_obj.obj) {
         return true;
     }
 
@@ -4469,10 +4469,10 @@ bool sub_455550(S603CB8* a1, MagicTechRunInfo* run_info)
         return true;
     }
 
-    if ((a1->field_5C & 0x2000) == 0) {
+    if ((target_ctx->source_spell_flags & 0x2000) == 0) {
         int64_t source_obj = run_info->source_obj.obj;
-        run_info->source_obj.obj = a1->field_20;
-        a1->field_20 = source_obj;
+        run_info->source_obj.obj = target_ctx->target_obj;
+        target_ctx->target_obj = source_obj;
         return true;
     }
 
@@ -4960,7 +4960,7 @@ bool magictech_invocation_check(MagicTechInvocation* mt_invocation)
 
     if (!player_is_pc_obj(mt_invocation->parent_obj.obj)) {
         TargetParams target_params;
-        S603CB8 v2;
+        TargetContext target_ctx;
         TargetList targets;
         int idx;
         uint64_t* tgt;
@@ -4970,16 +4970,16 @@ bool magictech_invocation_check(MagicTechInvocation* mt_invocation)
         target_params.tgt = *tgt;
         target_params.radius = 2;
 
-        sub_4F2600(&v2, NULL, mt_invocation->source_obj.obj);
-        v2.field_38 = mt_invocation->target_loc;
-        v2.field_28 = mt_invocation->target_loc;
-        v2.field_18 = mt_invocation->loc;
-        v2.field_30 = mt_invocation->target_obj.obj;
-        v2.field_20 = mt_invocation->target_obj.obj;
-        v2.field_48 = 0;
-        v2.params = &target_params;
+        target_context_init(&target_ctx, NULL, mt_invocation->source_obj.obj);
+        target_ctx.orig_target_loc = mt_invocation->target_loc;
+        target_ctx.target_loc = mt_invocation->target_loc;
+        target_ctx.source_loc = mt_invocation->loc;
+        target_ctx.orig_target_obj = mt_invocation->target_obj.obj;
+        target_ctx.target_obj = mt_invocation->target_obj.obj;
+        target_ctx.summoned_obj = NULL;
+        target_ctx.params = &target_params;
 
-        if (!sub_4F2D20(&v2)) {
+        if (!target_context_evaluate(&target_ctx)) {
             if (mt_invocation->target_obj.obj == OBJ_HANDLE_NULL) {
                 return false;
             }
@@ -4988,25 +4988,25 @@ bool magictech_invocation_check(MagicTechInvocation* mt_invocation)
                 return false;
             }
 
-            v2.field_38 = obj_field_int64_get(mt_invocation->target_obj.obj, OBJ_F_LOCATION);
-            v2.field_28 = obj_field_int64_get(mt_invocation->target_obj.obj, OBJ_F_LOCATION);
-            v2.targets = &targets;
-            sub_4F40B0(&v2);
+            target_ctx.orig_target_loc = obj_field_int64_get(mt_invocation->target_obj.obj, OBJ_F_LOCATION);
+            target_ctx.target_loc = obj_field_int64_get(mt_invocation->target_obj.obj, OBJ_F_LOCATION);
+            target_ctx.targets = &targets;
+            target_context_build_list(&target_ctx);
 
-            for (idx = 0; idx < v2.targets->cnt; idx++) {
-                if (v2.targets->entries[idx].loc != 0) {
-                    v2.field_28 = v2.targets->entries[idx].loc;
-                    if (sub_4F2D20(&v2)) {
+            for (idx = 0; idx < target_ctx.targets->cnt; idx++) {
+                if (target_ctx.targets->entries[idx].loc != 0) {
+                    target_ctx.target_loc = target_ctx.targets->entries[idx].loc;
+                    if (target_context_evaluate(&target_ctx)) {
                         break;
                     }
                 }
             }
 
-            if (idx >= v2.targets->cnt) {
+            if (idx >= target_ctx.targets->cnt) {
                 return false;
             }
 
-            mt_invocation->target_loc = v2.field_28;
+            mt_invocation->target_loc = target_ctx.target_loc;
             mt_invocation->target_obj.obj = OBJ_HANDLE_NULL;
             mt_invocation->target_obj.field_8.objid.type = OID_TYPE_NULL;
         }

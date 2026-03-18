@@ -62,25 +62,46 @@ typedef struct TargetList {
     /* 0008 */ TargetListEntry entries[256];
 } TargetList;
 
-typedef struct S603CB8 {
+/**
+ * The targeting evaluation context. Holds all inputs and intermediate state
+ * used when testing whether a candidate object or location is a valid target.
+ *
+ * `source_obj` and `source_loc` are the object and location that activate
+ * targeting.
+ *
+ * `target_obj` and `target_loc` are the candidate target object and location
+ * currently being evaluated.
+ *
+ * `orig_target_obj` and `orig_target_loc` are used during building of the list
+ * of target candidates to preserve the original target intent during nested
+ * evaluations.
+ *
+ * `summoned_obj` is probably some kind of leftover, which was later replaced
+ * with `summoned_obj_list`. The latter is guaranteed to have a list item with
+ * `summoned_obj` included.
+ *
+ * `source_spell_flags` and `target_spell_flags` are used during magictech
+ * action resolution. Strictly speaking, they do not belong to targeting.
+ */
+typedef struct TargetContext {
     /* 0000 */ TargetParams* params;
-    /* 0004 */ int field_4;
+    /* 0004 */ int padding_4;
     /* 0008 */ int64_t self_obj;
     /* 0010 */ int64_t source_obj;
-    /* 0018 */ int64_t field_18;
-    /* 0020 */ int64_t field_20;
-    /* 0028 */ int64_t field_28;
-    /* 0030 */ int64_t field_30;
-    /* 0038 */ int64_t field_38;
+    /* 0018 */ int64_t source_loc;
+    /* 0020 */ int64_t target_obj;
+    /* 0028 */ int64_t target_loc;
+    /* 0030 */ int64_t orig_target_obj;
+    /* 0038 */ int64_t orig_target_loc;
     /* 0040 */ int64_t field_40;
-    /* 0048 */ int64_t field_48;
+    /* 0048 */ int64_t summoned_obj;
     /* 0050 */ TargetList* targets;
-    /* 0054 */ MagicTechObjectNode** field_54;
-    /* 0058 */ MagicTechObjectNode** field_58;
-    /* 005C */ int field_5C;
-    /* 0060 */ int field_60;
-    /* 0064 */ int field_64;
-} S603CB8;
+    /* 0054 */ MagicTechObjectNode** obj_list;
+    /* 0058 */ MagicTechObjectNode** summoned_obj_list;
+    /* 005C */ ObjectSpellFlags source_spell_flags;
+    /* 0060 */ ObjectSpellFlags target_spell_flags;
+    /* 0064 */ int padding_64;
+} TargetContext;
 
 typedef struct S4F2680 {
     /* 0000 */ int64_t field_0;
@@ -177,7 +198,7 @@ void target_resize(GameResizeInfo* resize_info);
 void sub_4F25B0(uint64_t flags);
 uint64_t sub_4F25D0(void);
 void target_params_init(TargetParams* params);
-void sub_4F2600(S603CB8* a1, TargetParams* params, int64_t a3);
+void target_context_init(TargetContext* ctx, TargetParams* params, int64_t source_obj);
 bool sub_4F2680(S4F2680* a1);
 int sub_4F2C60(int64_t* obj_ptr);
 void target_descriptor_set_loc(TargetDescriptor* td, int64_t loc);
@@ -185,8 +206,8 @@ void target_descriptor_set_obj(TargetDescriptor* td, int64_t obj);
 bool sub_4F2830(TigMouseMessageData* mouse, TargetDescriptor* td, bool fullscreen);
 bool sub_4F2CB0(int x, int y, TargetDescriptor* td, uint64_t tgt, bool fullscreen);
 int64_t sub_4F2D10(void);
-bool sub_4F2D20(S603CB8* a1);
-void sub_4F40B0(S603CB8* a1);
+bool target_context_evaluate(TargetContext* ctx);
+void target_context_build_list(TargetContext* ctx);
 bool target_find_displacement_loc(int64_t obj, int distance, int64_t* loc_ptr);
 
 #endif /* ARCANUM_GAME_TARGET_H_ */

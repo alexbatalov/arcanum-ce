@@ -606,34 +606,35 @@ bool sub_4B99C0(int64_t from, int64_t* to)
 {
     TargetParams target_params;
     PathCreateInfo path_create_info;
-    S603CB8 v2;
+    TargetContext target_ctx;
     TargetList targets;
     int idx;
 
     target_params_init(&target_params);
     target_params.tgt = Tgt_Tile_Empty;
     target_params.radius = 3;
-    sub_4F2600(&v2, NULL, OBJ_HANDLE_NULL);
 
-    v2.params = &target_params;
-    v2.field_18 = from;
-    v2.field_28 = from;
-    v2.field_38 = from;
-    if (sub_4F2D20(&v2)) {
+    target_context_init(&target_ctx, NULL, OBJ_HANDLE_NULL);
+    target_ctx.params = &target_params;
+    target_ctx.source_loc = from;
+    target_ctx.target_loc = from;
+    target_ctx.orig_target_loc = from;
+
+    if (target_context_evaluate(&target_ctx)) {
         if (to != NULL) {
             *to = from;
         }
         return true;
     }
 
-    v2.targets = &targets;
+    target_ctx.targets = &targets;
     target_params.tgt |= Tgt_Tile_Radius_Naked;
-    sub_4F40B0(&v2);
+    target_context_build_list(&target_ctx);
 
     for (idx = 0; idx < targets.cnt; idx++) {
         if (targets.entries[idx].loc != 0) {
-            v2.field_28 = targets.entries[idx].loc;
-            if (sub_4F2D20(&v2)) {
+            target_ctx.target_loc = targets.entries[idx].loc;
+            if (target_context_evaluate(&target_ctx)) {
                 path_create_info.obj = OBJ_HANDLE_NULL;
                 path_create_info.from = from;
                 path_create_info.to = targets.entries[idx].loc;

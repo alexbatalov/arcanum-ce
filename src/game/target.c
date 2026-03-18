@@ -63,7 +63,7 @@ static int64_t target_path_from;
 static int64_t target_path_to;
 
 // 0x603CB8
-static S603CB8 stru_603CB8;
+static TargetContext stru_603CB8;
 
 // 0x603D20
 static TargetParams stru_603D20;
@@ -84,7 +84,7 @@ bool target_init(GameInitInfo* init_info)
     }
 
     target_iso_content_rect = window_data.rect;
-    sub_4F2600(&stru_603CB8, &stru_603D20, OBJ_HANDLE_NULL);
+    target_context_init(&stru_603CB8, &stru_603D20, OBJ_HANDLE_NULL);
     target_initialized = true;
 
     return true;
@@ -131,24 +131,24 @@ void target_params_init(TargetParams* params)
 }
 
 // 0x4F2600
-void sub_4F2600(S603CB8* a1, TargetParams* params, int64_t a3)
+void target_context_init(TargetContext* ctx, TargetParams* params, int64_t source_obj)
 {
-    a1->field_38 = 0;
-    a1->field_30 = 0;
-    a1->field_40 = 0;
-    a1->source_obj = a3;
-    a1->self_obj = a3;
-    a1->params = params;
-    a1->field_54 = 0;
-    a1->field_58 = 0;
-    a1->targets = 0;
-    if (a3 != OBJ_HANDLE_NULL) {
-        a1->field_18 = obj_field_int64_get(a3, OBJ_F_LOCATION);
+    ctx->orig_target_loc = 0;
+    ctx->orig_target_obj = OBJ_HANDLE_NULL;
+    ctx->field_40 = OBJ_HANDLE_NULL;
+    ctx->source_obj = source_obj;
+    ctx->self_obj = source_obj;
+    ctx->params = params;
+    ctx->obj_list = NULL;
+    ctx->summoned_obj_list = NULL;
+    ctx->targets = NULL;
+    if (source_obj != OBJ_HANDLE_NULL) {
+        ctx->source_loc = obj_field_int64_get(source_obj, OBJ_F_LOCATION);
     }
-    a1->field_48 = 0;
-    a1->field_28 = 0;
-    a1->field_20 = 0;
-    a1->field_60 = 0;
+    ctx->summoned_obj = OBJ_HANDLE_NULL;
+    ctx->target_loc = 0;
+    ctx->target_obj = OBJ_HANDLE_NULL;
+    ctx->target_spell_flags = 0;
 
     if (params != NULL) {
         target_params_init(params);
@@ -161,24 +161,24 @@ bool sub_4F2680(S4F2680* a1)
     stru_603CB8.source_obj = a1->field_0;
 
     if (a1->td->is_loc) {
-        stru_603CB8.field_38 = a1->td->loc;
-        stru_603CB8.field_28 = a1->td->loc;
-        stru_603CB8.field_20 = 0;
-        stru_603CB8.field_30 = 0;
+        stru_603CB8.orig_target_loc = a1->td->loc;
+        stru_603CB8.target_loc = a1->td->loc;
+        stru_603CB8.target_obj = OBJ_HANDLE_NULL;
+        stru_603CB8.orig_target_obj = OBJ_HANDLE_NULL;
     } else {
         if ((obj_field_int32_get(a1->td->obj, OBJ_F_FLAGS) & OF_CLICK_THROUGH) != 0) {
             return false;
         }
 
-        stru_603CB8.field_30 = a1->td->obj;
-        stru_603CB8.field_20 = a1->td->obj;
-        stru_603CB8.field_28 = OBJ_HANDLE_NULL;
-        stru_603CB8.field_38 = OBJ_HANDLE_NULL;
+        stru_603CB8.orig_target_obj = a1->td->obj;
+        stru_603CB8.target_obj = a1->td->obj;
+        stru_603CB8.target_loc = OBJ_HANDLE_NULL;
+        stru_603CB8.orig_target_loc = OBJ_HANDLE_NULL;
     }
 
     stru_603CB8.self_obj = a1->field_8;
 
-    if (sub_4F2D20(&stru_603CB8)) {
+    if (target_context_evaluate(&stru_603CB8)) {
         if (stru_603D20.tgt) {
             return true;
         }
@@ -187,11 +187,11 @@ bool sub_4F2680(S4F2680* a1)
 
     if (!a1->td->is_loc) {
         if (a1->td->obj != OBJ_HANDLE_NULL) {
-            stru_603CB8.field_28 = obj_field_int64_get(a1->td->obj, OBJ_F_LOCATION);
-            stru_603CB8.field_38 = stru_603CB8.field_28;
+            stru_603CB8.target_loc = obj_field_int64_get(a1->td->obj, OBJ_F_LOCATION);
+            stru_603CB8.orig_target_loc = stru_603CB8.target_loc;
         }
-        if (sub_4F2D20(&stru_603CB8) && stru_603D20.tgt) {
-            target_descriptor_set_loc(a1->td, stru_603CB8.field_28);
+        if (target_context_evaluate(&stru_603CB8) && stru_603D20.tgt) {
+            target_descriptor_set_loc(a1->td, stru_603CB8.target_loc);
             return true;
         }
     }
@@ -417,8 +417,16 @@ int64_t sub_4F2D10(void)
     return qword_603D40;
 }
 
-// 0x4F2D20
-bool sub_4F2D20(S603CB8* a1)
+/**
+ * Tests whether the candidate described by `ctx` satisfies all targeting
+ * constraints.
+ *
+ * Returns `true` if the candidate passes all applicable checks, `false`
+ * otherwise.
+ *
+ * 0x4F2D20
+ */
+bool target_context_evaluate(TargetContext* ctx)
 {
     uint64_t tgt;
     ObjectList objects;
@@ -428,62 +436,70 @@ bool sub_4F2D20(S603CB8* a1)
     unsigned int spell_flags;
     unsigned int critter_flags;
 
-    tgt = a1->params->tgt;
+    tgt = ctx->params->tgt;
 
-    if (tgt == 0) {
+    if (tgt == Tgt_None) {
+        // No constraints: everything is a valid target.
         return true;
     }
 
+    // Object validation pass.
     if ((tgt & (Tgt_Obj_Radius | Tgt_Object | Tgt_Self)) != 0) {
-        if (a1->field_20 != OBJ_HANDLE_NULL) {
-            obj_type = obj_field_int32_get(a1->field_20, OBJ_F_TYPE);
-            flags = obj_field_int32_get(a1->field_20, OBJ_F_FLAGS);
+        if (ctx->target_obj != OBJ_HANDLE_NULL) {
+            obj_type = obj_field_int32_get(ctx->target_obj, OBJ_F_TYPE);
+            flags = obj_field_int32_get(ctx->target_obj, OBJ_F_FLAGS);
 
+            // Reject objects that are destroyed or switched off (unless the
+            // objects is a critter marked with `OCF2_SAFE_OFF`).
             if ((flags & (OF_DESTROYED | OF_OFF)) != 0) {
                 if (!obj_type_is_critter(obj_type)) {
                     return false;
                 }
 
-                if ((obj_field_int32_get(a1->field_20, OBJ_F_CRITTER_FLAGS2) & OCF2_SAFE_OFF) == 0) {
+                if ((obj_field_int32_get(ctx->target_obj, OBJ_F_CRITTER_FLAGS2) & OCF2_SAFE_OFF) == 0) {
                     return false;
                 }
             }
 
+            // Reject objects that are drawn (unless they are sleeping
+            // critters).
             if ((flags & OF_DONTDRAW) != 0) {
                 if (!obj_type_is_critter(obj_type)) {
                     return false;
                 }
 
-                if (!critter_is_sleeping(a1->field_20)) {
+                if (!critter_is_sleeping(ctx->target_obj)) {
                     return false;
                 }
             }
 
-            spell_flags = obj_field_int32_get(a1->field_20, OBJ_F_SPELL_FLAGS);
+            spell_flags = obj_field_int32_get(ctx->target_obj, OBJ_F_SPELL_FLAGS);
 
-            if ((spell_flags & a1->params->spell_flags) != a1->params->spell_flags) {
+            // Enforce required spell effects to be present on target.
+            if ((spell_flags & ctx->params->spell_flags) != ctx->params->spell_flags) {
                 return false;
             }
 
-            if ((spell_flags & a1->params->no_spell_flags) != 0) {
+            // Enforce forbidden spell effects not to be present on target.
+            if ((spell_flags & ctx->params->no_spell_flags) != 0) {
                 return false;
             }
 
             if ((tgt & 0x9) != 0) {
                 if ((tgt & 0x10000000) == 0
-                    && a1->field_20 != a1->self_obj) {
+                    && ctx->target_obj != ctx->self_obj) {
                     return false;
                 }
             } else {
                 if ((tgt & 0x10000000) != 0
-                    && a1->field_20 == a1->self_obj) {
+                    && ctx->target_obj == ctx->self_obj) {
                     return false;
                 }
             }
 
             if ((tgt & Tgt_Source) != 0
                 && (tgt & 0x10000000) == 0
-                && a1->field_20 != a1->source_obj) {
+                && ctx->target_obj != ctx->source_obj) {
                 return false;
             }
 
@@ -503,16 +519,16 @@ bool sub_4F2D20(S603CB8* a1)
                 }
 
                 if ((tgt & 0x100) != 0) {
-                    if (!critter_is_dead(a1->field_20)) {
+                    if (!critter_is_dead(ctx->target_obj)) {
                         return false;
                     }
                 } else if ((tgt & 0x80000000) != 0) {
-                    if (critter_is_dead(a1->field_20)) {
+                    if (critter_is_dead(ctx->target_obj)) {
                         return false;
                     }
                 }
 
-                critter_flags = obj_field_int32_get(a1->field_20, OBJ_F_CRITTER_FLAGS);
+                critter_flags = obj_field_int32_get(ctx->target_obj, OBJ_F_CRITTER_FLAGS);
                 if ((tgt & 0x80) != 0) {
                     if ((critter_flags & OCF_ANIMAL) == 0) {
                         return false;
@@ -539,11 +555,11 @@ bool sub_4F2D20(S603CB8* a1)
                 }
 
                 if ((tgt & 0x1000) != 0) {
-                    if (stat_level_get(a1->field_20, STAT_ALIGNMENT) < 0) {
+                    if (stat_level_get(ctx->target_obj, STAT_ALIGNMENT) < 0) {
                         return false;
                     }
                 } else if ((tgt & 0x2000) != 0) {
-                    if (stat_level_get(a1->field_20, STAT_ALIGNMENT) >= 0) {
+                    if (stat_level_get(ctx->target_obj, STAT_ALIGNMENT) >= 0) {
                         return false;
                     }
                 }
@@ -574,11 +590,11 @@ bool sub_4F2D20(S603CB8* a1)
                 }
 
                 if ((tgt & 0x800000000) != 0) {
-                    if (stat_level_get(a1->field_20, STAT_ALIGNMENT) >= 0) {
+                    if (stat_level_get(ctx->target_obj, STAT_ALIGNMENT) >= 0) {
                         return false;
                     }
                 } else if ((tgt & 0x1000000000) != 0) {
-                    if (stat_level_get(a1->field_20, STAT_ALIGNMENT) < 0) {
+                    if (stat_level_get(ctx->target_obj, STAT_ALIGNMENT) < 0) {
                         return false;
                     }
                 }
@@ -594,38 +610,38 @@ bool sub_4F2D20(S603CB8* a1)
                 }
 
                 if ((tgt & 0x400000) != 0) {
-                    if (stat_level_get(a1->field_20, STAT_POISON_LEVEL) <= 0) {
+                    if (stat_level_get(ctx->target_obj, STAT_POISON_LEVEL) <= 0) {
                         return false;
                     }
                 }
 
                 if ((tgt & 0xC00000000000000) != 0) {
-                    if (critter_pc_leader_get(a1->field_20) == OBJ_HANDLE_NULL
-                        && !player_is_pc_obj(a1->field_20)) {
+                    if (critter_pc_leader_get(ctx->target_obj) == OBJ_HANDLE_NULL
+                        && !player_is_pc_obj(ctx->target_obj)) {
                         return false;
                     }
                 } else if ((tgt & 0x1000000000000000) != 0) {
                     // TODO: Looks the same as the code below, probably one of
                     // it should be inverted, check.
-                    if (a1->self_obj != OBJ_HANDLE_NULL) {
+                    if (ctx->self_obj != OBJ_HANDLE_NULL) {
                         int64_t v1;
                         int64_t v2;
 
-                        v1 = critter_pc_leader_get(a1->field_20);
-                        v2 = critter_pc_leader_get(a1->self_obj);
-                        if (v1 == a1->self_obj
+                        v1 = critter_pc_leader_get(ctx->target_obj);
+                        v2 = critter_pc_leader_get(ctx->self_obj);
+                        if (v1 == ctx->self_obj
                             || (v1 == v2 && v1 != OBJ_HANDLE_NULL)
-                            || v2 == a1->field_20) {
+                            || v2 == ctx->target_obj) {
                             return false;
                         }
 
                         if (tig_net_is_active()
                             && obj_field_int32_get(v2, OBJ_F_TYPE) == OBJ_TYPE_PC) {
-                            object_list_party(a1->self_obj, &objects);
+                            object_list_party(ctx->self_obj, &objects);
                             node = objects.head;
                             while (node != NULL) {
                                 if (node->obj == v1
-                                    || node->obj == a1->field_20) {
+                                    || node->obj == ctx->target_obj) {
                                     break;
                                 }
                                 node = node->next;
@@ -638,25 +654,25 @@ bool sub_4F2D20(S603CB8* a1)
                         }
                     }
 
-                    if (a1->field_40 != OBJ_HANDLE_NULL) {
+                    if (ctx->field_40 != OBJ_HANDLE_NULL) {
                         int64_t v1;
                         int64_t v2;
 
-                        v1 = critter_pc_leader_get(a1->field_20);
-                        v2 = critter_pc_leader_get(a1->field_40);
-                        if (v1 == a1->field_40
+                        v1 = critter_pc_leader_get(ctx->target_obj);
+                        v2 = critter_pc_leader_get(ctx->field_40);
+                        if (v1 == ctx->field_40
                             || (v1 == v2 && v1 != OBJ_HANDLE_NULL)
-                            || v2 == a1->field_20) {
+                            || v2 == ctx->target_obj) {
                             return false;
                         }
 
                         if (tig_net_is_active()
                             && obj_field_int32_get(v2, OBJ_F_TYPE) == OBJ_TYPE_PC) {
-                            object_list_party(a1->field_40, &objects);
+                            object_list_party(ctx->field_40, &objects);
                             node = objects.head;
                             while (node != NULL) {
                                 if (node->obj == v1
-                                    || node->obj == a1->field_20) {
+                                    || node->obj == ctx->target_obj) {
                                     break;
                                 }
                                 node = node->next;
@@ -695,7 +711,7 @@ bool sub_4F2D20(S603CB8* a1)
 
             if ((tgt & 0x40) == 0) {
                 if ((tgt & 0x80000000) != 0
-                    && critter_is_dead(a1->field_20)) {
+                    && critter_is_dead(ctx->target_obj)) {
                     return false;
                 }
 
@@ -703,25 +719,25 @@ bool sub_4F2D20(S603CB8* a1)
                     && obj_type_is_critter(obj_type)) {
                     // TODO: Looks the same as the code above, probably one of
                     // it should be inverted, check.
-                    if (a1->self_obj != OBJ_HANDLE_NULL) {
+                    if (ctx->self_obj != OBJ_HANDLE_NULL) {
                         int64_t v1;
                         int64_t v2;
 
-                        v1 = critter_pc_leader_get(a1->field_20);
-                        v2 = critter_pc_leader_get(a1->self_obj);
-                        if (v1 == a1->self_obj
+                        v1 = critter_pc_leader_get(ctx->target_obj);
+                        v2 = critter_pc_leader_get(ctx->self_obj);
+                        if (v1 == ctx->self_obj
                             || (v1 == v2 && v1 != OBJ_HANDLE_NULL)
-                            || v2 == a1->field_20) {
+                            || v2 == ctx->target_obj) {
                             return false;
                         }
 
                         if (tig_net_is_active()
                             && obj_field_int32_get(v2, OBJ_F_TYPE) == OBJ_TYPE_PC) {
-                            object_list_party(a1->self_obj, &objects);
+                            object_list_party(ctx->self_obj, &objects);
                             node = objects.head;
                             while (node != NULL) {
                                 if (node->obj == v1
-                                    || node->obj == a1->field_20) {
+                                    || node->obj == ctx->target_obj) {
                                     break;
                                 }
                                 node = node->next;
@@ -734,25 +750,25 @@ bool sub_4F2D20(S603CB8* a1)
                         }
                     }
 
-                    if (a1->field_40 != OBJ_HANDLE_NULL) {
+                    if (ctx->field_40 != OBJ_HANDLE_NULL) {
                         int64_t v1;
                         int64_t v2;
 
-                        v1 = critter_pc_leader_get(a1->field_20);
-                        v2 = critter_pc_leader_get(a1->field_40);
-                        if (v1 == a1->field_40
+                        v1 = critter_pc_leader_get(ctx->target_obj);
+                        v2 = critter_pc_leader_get(ctx->field_40);
+                        if (v1 == ctx->field_40
                             || (v1 == v2 && v1 != OBJ_HANDLE_NULL)
-                            || v2 == a1->field_20) {
+                            || v2 == ctx->target_obj) {
                             return false;
                         }
 
                         if (tig_net_is_active()
                             && obj_field_int32_get(v2, OBJ_F_TYPE) == OBJ_TYPE_PC) {
-                            object_list_party(a1->field_40, &objects);
+                            object_list_party(ctx->field_40, &objects);
                             node = objects.head;
                             while (node != NULL) {
                                 if (node->obj == v1
-                                    || node->obj == a1->field_20) {
+                                    || node->obj == ctx->target_obj) {
                                     break;
                                 }
                                 node = node->next;
@@ -768,16 +784,16 @@ bool sub_4F2D20(S603CB8* a1)
             }
 
             if ((tgt & 0x100000) != 0) {
-                if (object_hp_damage_get(a1->field_20) <= 0
+                if (object_hp_damage_get(ctx->target_obj) <= 0
                     && (!obj_type_is_critter(obj_type)
-                        || (obj_field_int32_get(a1->field_20, OBJ_F_CRITTER_FLAGS) & OCF_INJURED) == 0)) {
+                        || (obj_field_int32_get(ctx->target_obj, OBJ_F_CRITTER_FLAGS) & OCF_INJURED) == 0)) {
                     qword_603D40 = 0x100000;
                     return false;
                 }
             } else if ((tgt & 0x40000000000) != 0) {
-                if (object_hp_damage_get(a1->field_20) > 0
+                if (object_hp_damage_get(ctx->target_obj) > 0
                     && (!obj_type_is_critter(obj_type)
-                        || (obj_field_int32_get(a1->field_20, OBJ_F_CRITTER_FLAGS) & OCF_INJURED) != 0)) {
+                        || (obj_field_int32_get(ctx->target_obj, OBJ_F_CRITTER_FLAGS) & OCF_INJURED) != 0)) {
                     qword_603D40 = 0x40000000000;
                     return false;
                 }
@@ -785,21 +801,21 @@ bool sub_4F2D20(S603CB8* a1)
 
             if ((tgt & 0x40000) != 0) {
                 if (obj_type == OBJ_TYPE_PORTAL) {
-                    if ((obj_field_int32_get(a1->field_20, OBJ_F_PORTAL_FLAGS) & OPF_LOCKED) == 0) {
+                    if ((obj_field_int32_get(ctx->target_obj, OBJ_F_PORTAL_FLAGS) & OPF_LOCKED) == 0) {
                         return false;
                     }
                 } else if (obj_type == OBJ_TYPE_CONTAINER) {
-                    if ((obj_field_int32_get(a1->field_20, OBJ_F_CONTAINER_FLAGS) & OCOF_LOCKED) == 0) {
+                    if ((obj_field_int32_get(ctx->target_obj, OBJ_F_CONTAINER_FLAGS) & OCOF_LOCKED) == 0) {
                         return false;
                     }
                 }
             } else if ((tgt & 0x8000000000) != 0) {
                 if (obj_type == OBJ_TYPE_PORTAL) {
-                    if ((obj_field_int32_get(a1->field_20, OBJ_F_PORTAL_FLAGS) & OPF_LOCKED) != 0) {
+                    if ((obj_field_int32_get(ctx->target_obj, OBJ_F_PORTAL_FLAGS) & OPF_LOCKED) != 0) {
                         return false;
                     }
                 } else if (obj_type == OBJ_TYPE_CONTAINER) {
-                    if ((obj_field_int32_get(a1->field_20, OBJ_F_CONTAINER_FLAGS) & OCOF_LOCKED) != 0) {
+                    if ((obj_field_int32_get(ctx->target_obj, OBJ_F_CONTAINER_FLAGS) & OCOF_LOCKED) != 0) {
                         return false;
                     }
                 }
@@ -807,47 +823,47 @@ bool sub_4F2D20(S603CB8* a1)
 
             if ((tgt & 0x10000000000) != 0) {
                 if (obj_type == OBJ_TYPE_PORTAL) {
-                    if ((obj_field_int32_get(a1->field_20, OBJ_F_PORTAL_FLAGS) & OPF_MAGICALLY_HELD) != 0) {
+                    if ((obj_field_int32_get(ctx->target_obj, OBJ_F_PORTAL_FLAGS) & OPF_MAGICALLY_HELD) != 0) {
                         return false;
                     }
                 } else if (obj_type == OBJ_TYPE_CONTAINER) {
-                    if ((obj_field_int32_get(a1->field_20, OBJ_F_CONTAINER_FLAGS) & OCOF_MAGICALLY_HELD) != 0) {
+                    if ((obj_field_int32_get(ctx->target_obj, OBJ_F_CONTAINER_FLAGS) & OCOF_MAGICALLY_HELD) != 0) {
                         return false;
                     }
                 }
             }
 
             if ((tgt & 0x200000) != 0
-                && object_hp_damage_get(a1->field_20) <= 0) {
+                && object_hp_damage_get(ctx->target_obj) <= 0) {
                 if (!obj_type_is_critter(obj_type)) {
                     return false;
                 }
-                if (stat_level_get(a1->field_20, STAT_POISON_LEVEL) <= 0) {
+                if (stat_level_get(ctx->target_obj, STAT_POISON_LEVEL) <= 0) {
                     return false;
                 }
             }
 
             if ((tgt & 0x1000000) != 0
-                && obj_field_int32_get(a1->field_20, OBJ_F_MATERIAL) != MATERIAL_FLESH) {
+                && obj_field_int32_get(ctx->target_obj, OBJ_F_MATERIAL) != MATERIAL_FLESH) {
                 return false;
             }
 
             if ((tgt & 0x10) != 0
-                && a1->field_20 != OBJ_HANDLE_NULL) {
+                && ctx->target_obj != OBJ_HANDLE_NULL) {
                 int64_t loc1;
                 int64_t loc2;
 
-                loc1 = a1->field_38;
+                loc1 = ctx->orig_target_loc;
                 if (loc1 == 0) {
-                    if (a1->source_obj == OBJ_HANDLE_NULL) {
+                    if (ctx->source_obj == OBJ_HANDLE_NULL) {
                         return false;
                     }
 
-                    loc1 = obj_field_int64_get(a1->source_obj, OBJ_F_LOCATION);
+                    loc1 = obj_field_int64_get(ctx->source_obj, OBJ_F_LOCATION);
                 }
 
-                loc2 = obj_field_int64_get(a1->field_20, OBJ_F_LOCATION);
-                if (location_dist(loc1, loc2) > a1->params->radius) {
+                loc2 = obj_field_int64_get(ctx->target_obj, OBJ_F_LOCATION);
+                if (location_dist(loc1, loc2) > ctx->params->radius) {
                     return false;
                 }
             }
@@ -876,7 +892,7 @@ bool sub_4F2D20(S603CB8* a1)
 
             if ((tgt & 0x4000000) != 0) {
                 return obj_type_is_item(obj_type)
-                    ? obj_field_int32_get(a1->field_20, OBJ_F_ITEM_WEIGHT) < 5
+                    ? obj_field_int32_get(ctx->target_obj, OBJ_F_ITEM_WEIGHT) < 5
                     : false;
             }
 
@@ -892,22 +908,22 @@ bool sub_4F2D20(S603CB8* a1)
         return true;
     }
 
-    if (a1->field_28 == 0) {
+    if (ctx->target_loc == 0) {
         return (tgt & 0x8000000000000000) != 0;
     }
 
     if ((tgt & 0x1000000000000) != 0) {
-        if (a1->source_obj == OBJ_HANDLE_NULL
-            || a1->field_28 != obj_field_int64_get(a1->field_20, OBJ_F_LOCATION)) {
+        if (ctx->source_obj == OBJ_HANDLE_NULL
+            || ctx->target_loc != obj_field_int64_get(ctx->target_obj, OBJ_F_LOCATION)) {
             return false;
         }
     }
 
     if ((tgt & 0x20000) != 0
-        && a1->source_obj != OBJ_HANDLE_NULL) {
-        target_path_create_info.obj = a1->source_obj;
-        target_path_create_info.from = obj_field_int64_get(a1->source_obj, OBJ_F_LOCATION);
-        target_path_create_info.to = a1->field_28;
+        && ctx->source_obj != OBJ_HANDLE_NULL) {
+        target_path_create_info.obj = ctx->source_obj;
+        target_path_create_info.from = obj_field_int64_get(ctx->source_obj, OBJ_F_LOCATION);
+        target_path_create_info.to = ctx->target_loc;
         target_path_create_info.max_rotations = sizeof(target_path_rotations);
         target_path_create_info.rotations = target_path_rotations;
         target_path_create_info.flags = PATH_FLAG_0x0010;
@@ -924,11 +940,11 @@ bool sub_4F2D20(S603CB8* a1)
     if ((tgt & 0x4000000000000) != 0) {
         bool v51 = true;
 
-        if (tile_is_blocking(a1->field_28, false)) {
+        if (tile_is_blocking(ctx->target_loc, false)) {
             return false;
         }
 
-        object_list_location(a1->field_28, OBJ_TM_ALL & ~OBJ_TM_PROJECTILE, &objects);
+        object_list_location(ctx->target_loc, OBJ_TM_ALL & ~OBJ_TM_PROJECTILE, &objects);
         node = objects.head;
         while (node != NULL) {
             if (node->obj != OBJ_HANDLE_NULL) {
@@ -950,11 +966,11 @@ bool sub_4F2D20(S603CB8* a1)
     if ((tgt & 0x8000000000000) != 0) {
         bool v54 = true;
 
-        if (tile_is_blocking(a1->field_28, false)) {
+        if (tile_is_blocking(ctx->target_loc, false)) {
             return false;
         }
 
-        object_list_location(a1->field_28, OBJ_TM_TRAP | OBJ_TM_SCENERY | OBJ_TM_PORTAL | OBJ_TM_WALL, &objects);
+        object_list_location(ctx->target_loc, OBJ_TM_TRAP | OBJ_TM_SCENERY | OBJ_TM_PORTAL | OBJ_TM_WALL, &objects);
         node = objects.head;
         while (node != NULL) {
             if (node->obj != OBJ_HANDLE_NULL) {
@@ -975,14 +991,14 @@ bool sub_4F2D20(S603CB8* a1)
 
     if ((tgt & 0x20000000000000) != 0
         // TODO: Sames args looks wrong, check.
-        && location_dist(a1->field_38, a1->field_38) > a1->params->radius) {
+        && location_dist(ctx->orig_target_loc, ctx->orig_target_loc) > ctx->params->radius) {
         return false;
     }
 
     if ((tgt & 0x100000000000000) != 0
-        && a1->field_18 != 0
-        && a1->field_28 != 0) {
-        if (tig_art_tile_id_type_get(tile_art_id_at(a1->field_28)) != tig_art_tile_id_type_get(tile_art_id_at(a1->field_18))) {
+        && ctx->source_loc != 0
+        && ctx->target_loc != 0) {
+        if (tig_art_tile_id_type_get(tile_art_id_at(ctx->target_loc)) != tig_art_tile_id_type_get(tile_art_id_at(ctx->source_loc))) {
             return false;
         }
     }
@@ -1084,12 +1100,16 @@ void target_list_add_loc(TargetList* list, int64_t loc)
     list->cnt++;
 }
 
-// 0x4F40B0
-void sub_4F40B0(S603CB8* a1)
+/**
+ * Collects all valid targets into `ctx->targets`.
+ *
+ * 0x4F40B0
+ */
+void target_context_build_list(TargetContext* ctx)
 {
     TargetList* targets;
     TargetParams* target_params;
-    S603CB8 v3;
+    TargetContext tmp_target_ctx;
     TargetParams tmp_target_params;
     ObjectList objects;
     ObjectNode* obj_node;
@@ -1097,35 +1117,35 @@ void sub_4F40B0(S603CB8* a1)
     int idx;
     int64_t origin;
 
-    targets = a1->targets;
+    targets = ctx->targets;
     if (targets == NULL) {
         return;
     }
 
     targets->cnt = 0;
-    target_params = a1->params;
+    target_params = ctx->params;
 
     if ((target_params->tgt & Tgt_Self) != 0
         && (target_params->tgt & Tgt_No_Self) == 0) {
-        target_list_add_obj_unless_off(targets, a1->self_obj);
+        target_list_add_obj_unless_off(targets, ctx->self_obj);
     }
 
     if ((target_params->tgt & Tgt_Source) != 0
         && (target_params->tgt & Tgt_No_Self) == 0) {
-        target_list_add_obj_unless_off(targets, a1->source_obj);
+        target_list_add_obj_unless_off(targets, ctx->source_obj);
     }
 
-    if ((target_params->tgt & Tgt_Object) != 0 && a1->field_30 != OBJ_HANDLE_NULL) {
-        target_list_add_obj_unless_destroyed(targets, a1->field_30);
+    if ((target_params->tgt & Tgt_Object) != 0 && ctx->orig_target_obj != OBJ_HANDLE_NULL) {
+        target_list_add_obj_unless_destroyed(targets, ctx->orig_target_obj);
     }
 
     if ((target_params->tgt & Tgt_Summoned_No_Obj) != 0) {
-        if (a1->field_48 != OBJ_HANDLE_NULL) {
-            target_list_add_obj_unless_destroyed(targets, a1->field_48);
+        if (ctx->summoned_obj != OBJ_HANDLE_NULL) {
+            target_list_add_obj_unless_destroyed(targets, ctx->summoned_obj);
         }
 
-        if (a1->field_58 != NULL) {
-            mt_obj_node = *a1->field_58;
+        if (ctx->summoned_obj_list != NULL) {
+            mt_obj_node = *ctx->summoned_obj_list;
             while (mt_obj_node != NULL) {
                 target_list_add_obj_unless_destroyed(targets, mt_obj_node->obj);
                 mt_obj_node = mt_obj_node->next;
@@ -1133,12 +1153,12 @@ void sub_4F40B0(S603CB8* a1)
         }
     }
 
-    if ((target_params->tgt & Tgt_Tile) != 0 && a1->field_38 != 0) {
-        target_list_add_loc(targets, a1->field_38);
+    if ((target_params->tgt & Tgt_Tile) != 0 && ctx->orig_target_loc != 0) {
+        target_list_add_loc(targets, ctx->orig_target_loc);
     }
 
-    if ((target_params->tgt & Tgt_Tile_Self) != 0 && a1->source_obj != OBJ_HANDLE_NULL) {
-        target_list_add_loc(targets, obj_field_int64_get(a1->source_obj, OBJ_F_LOCATION));
+    if ((target_params->tgt & Tgt_Tile_Self) != 0 && ctx->source_obj != OBJ_HANDLE_NULL) {
+        target_list_add_loc(targets, obj_field_int64_get(ctx->source_obj, OBJ_F_LOCATION));
     }
 
     if ((target_params->tgt & Tgt_Obj_Radius) != 0) {
@@ -1146,10 +1166,10 @@ void sub_4F40B0(S603CB8* a1)
         unsigned int obj_type_mask;
         bool all;
 
-        sub_4F2600(&v3, &tmp_target_params, a1->source_obj);
-        origin = a1->field_38;
-        v3.field_38 = a1->field_38;
-        v3.field_40 = a1->field_40;
+        target_context_init(&tmp_target_ctx, &tmp_target_params, ctx->source_obj);
+        origin = ctx->orig_target_loc;
+        tmp_target_ctx.orig_target_loc = ctx->orig_target_loc;
+        tmp_target_ctx.field_40 = ctx->field_40;
 
         tmp_target_params.tgt = target_params->tgt & ~Tgt_Tile;
         tmp_target_params.spell_flags = target_params->spell_flags;
@@ -1157,8 +1177,8 @@ void sub_4F40B0(S603CB8* a1)
         tmp_target_params.radius = target_params->radius;
         tmp_target_params.count = target_params->count;
 
-        if (a1->field_30 != OBJ_HANDLE_NULL) {
-            origin = obj_field_int64_get(a1->field_30, OBJ_F_LOCATION);
+        if (ctx->orig_target_obj != OBJ_HANDLE_NULL) {
+            origin = obj_field_int64_get(ctx->orig_target_obj, OBJ_F_LOCATION);
         }
 
         loc_rect.x1 = location_get_x(origin) - target_params->radius;
@@ -1196,8 +1216,8 @@ void sub_4F40B0(S603CB8* a1)
         while (obj_node != NULL) {
             int64_t tmp_obj = obj_node->obj;
             if (sub_4F2C60(&tmp_obj) != OBJ_TYPE_SCENERY || all) {
-                v3.field_20 = tmp_obj;
-                if (sub_4F2D20(&v3)) {
+                tmp_target_ctx.target_obj = tmp_obj;
+                if (target_context_evaluate(&tmp_target_ctx)) {
                     target_list_add_obj_unless_off(targets, tmp_obj);
 
                     if (tmp_target_params.count > 0) {
@@ -1217,22 +1237,22 @@ void sub_4F40B0(S603CB8* a1)
         int y;
         bool done;
 
-        sub_4F2600(&v3, &tmp_target_params, a1->source_obj);
+        target_context_init(&tmp_target_ctx, &tmp_target_params, ctx->source_obj);
         tmp_target_params.tgt = target_params->tgt & ~Tgt_Object;
         tmp_target_params.radius = target_params->radius;
         tmp_target_params.count = target_params->count;
 
-        origin = a1->field_38;
+        origin = ctx->orig_target_loc;
         if (origin == 0) {
-            origin = obj_field_int64_get(a1->field_30, OBJ_F_LOCATION);
+            origin = obj_field_int64_get(ctx->orig_target_obj, OBJ_F_LOCATION);
         }
 
         done = false;
         for (y = -target_params->radius; y <= target_params->radius; y++) {
             for (x = -target_params->radius; x <= target_params->radius; x++) {
-                v3.field_28 = location_make(location_get_x(origin) + x, location_get_y(origin) + y);
-                if (sub_4F2D20(&v3)) {
-                    target_list_add_loc(targets, v3.field_28);
+                tmp_target_ctx.target_loc = location_make(location_get_x(origin) + x, location_get_y(origin) + y);
+                if (target_context_evaluate(&tmp_target_ctx)) {
+                    target_list_add_loc(targets, tmp_target_ctx.target_loc);
 
                     if (tmp_target_params.count > 0) {
                         if (--tmp_target_params.count == 0) {
@@ -1263,19 +1283,19 @@ void sub_4F40B0(S603CB8* a1)
         int dx2;
         int dy2;
 
-        sub_4F2600(&v3, &tmp_target_params, a1->source_obj);
-        v3.field_40 = a1->field_40;
+        target_context_init(&tmp_target_ctx, &tmp_target_params, ctx->source_obj);
+        tmp_target_ctx.field_40 = ctx->field_40;
         tmp_target_params.tgt = target_params->tgt & ~Tgt_Object;
         tmp_target_params.radius = target_params->radius;
         tmp_target_params.count = target_params->count;
 
-        origin = a1->field_38;
+        origin = ctx->orig_target_loc;
         if (origin == 0) {
-            origin = obj_field_int64_get(a1->field_30, OBJ_F_LOCATION);
+            origin = obj_field_int64_get(ctx->orig_target_obj, OBJ_F_LOCATION);
         }
 
-        if (a1->field_18 != 0 && a1->field_38 != 0) {
-            rot = location_rot(a1->field_18, a1->field_38);
+        if (ctx->source_loc != 0 && ctx->orig_target_loc != 0) {
+            rot = location_rot(ctx->source_loc, ctx->orig_target_loc);
         } else {
             rot = 0;
         }
@@ -1320,9 +1340,9 @@ void sub_4F40B0(S603CB8* a1)
         dx2 = 0;
         dy2 = 0;
         for (range = 0; range < target_params->radius; range++) {
-            v3.field_28 = location_make(location_get_x(origin) + dx1, location_get_y(origin) + dy1);
-            if (sub_4F2D20(&v3)) {
-                target_list_add_loc(targets, v3.field_28);
+            tmp_target_ctx.target_loc = location_make(location_get_x(origin) + dx1, location_get_y(origin) + dy1);
+            if (target_context_evaluate(&tmp_target_ctx)) {
+                target_list_add_loc(targets, tmp_target_ctx.target_loc);
                 if (tmp_target_params.count > 0) {
                     if (--tmp_target_params.count == 0) {
                         break;
@@ -1330,9 +1350,9 @@ void sub_4F40B0(S603CB8* a1)
                 }
             }
 
-            v3.field_28 = location_make(location_get_x(origin) + dx2, location_get_y(origin) + dy2);
-            if (sub_4F2D20(&v3)) {
-                target_list_add_loc(targets, v3.field_28);
+            tmp_target_ctx.target_loc = location_make(location_get_x(origin) + dx2, location_get_y(origin) + dy2);
+            if (target_context_evaluate(&tmp_target_ctx)) {
+                target_list_add_loc(targets, tmp_target_ctx.target_loc);
                 if (tmp_target_params.count > 0) {
                     if (--tmp_target_params.count == 0) {
                         break;
@@ -1347,22 +1367,22 @@ void sub_4F40B0(S603CB8* a1)
         }
     }
 
-    if ((target_params->tgt & Tgt_Tile_Offscreen_Naked) != 0 && a1->field_20 != OBJ_HANDLE_NULL) {
-        target_list_add_loc(targets, obj_field_int64_get(a1->field_20, OBJ_F_LOCATION));
+    if ((target_params->tgt & Tgt_Tile_Offscreen_Naked) != 0 && ctx->target_obj != OBJ_HANDLE_NULL) {
+        target_list_add_loc(targets, obj_field_int64_get(ctx->target_obj, OBJ_F_LOCATION));
     }
 
     // FIXME: The code below does not look like implementation of cone.
     if ((target_params->tgt & Tgt_Cone) != 0) {
-        sub_4F2600(&v3, &tmp_target_params, a1->source_obj);
-        v3.field_40 = a1->field_40;
+        target_context_init(&tmp_target_ctx, &tmp_target_params, ctx->source_obj);
+        tmp_target_ctx.field_40 = ctx->field_40;
         tmp_target_params.tgt = target_params->tgt & ~Tgt_Object;
         tmp_target_params.radius = target_params->radius;
         tmp_target_params.count = target_params->count;
 
-        if (a1->source_obj != OBJ_HANDLE_NULL) {
-            origin = a1->field_38;
+        if (ctx->source_obj != OBJ_HANDLE_NULL) {
+            origin = ctx->orig_target_loc;
             if (origin == 0) {
-                origin = obj_field_int64_get(a1->source_obj, OBJ_F_LOCATION);
+                origin = obj_field_int64_get(ctx->source_obj, OBJ_F_LOCATION);
             }
 
             if ((target_params->tgt & Tgt_Self) != 0) {
@@ -1408,8 +1428,8 @@ void sub_4F40B0(S603CB8* a1)
                             int64_t tmp_obj = obj_node->obj;
                             if (sub_4F2C60(&tmp_obj) != OBJ_TYPE_SCENERY
                                 || all) {
-                                v3.field_20 = tmp_obj;
-                                if (sub_4F2D20(&v3)) {
+                                tmp_target_ctx.target_obj = tmp_obj;
+                                if (target_context_evaluate(&tmp_target_ctx)) {
                                     target_list_add_obj_unless_off(targets, tmp_obj);
                                     if (tmp_target_params.count > 0) {
                                         if (--tmp_target_params.count == 0) {
@@ -1437,9 +1457,9 @@ void sub_4F40B0(S603CB8* a1)
 
                 for (y = -target_params->radius; y <= target_params->radius; y++) {
                     for (x = -target_params->radius; x <= target_params->radius; x++) {
-                        v3.field_28 = location_make(location_get_x(origin) + x, location_get_y(origin) + y);
-                        if (sub_4F2D20(&v3)) {
-                            target_list_add_loc(targets, v3.field_28);
+                        tmp_target_ctx.target_loc = location_make(location_get_x(origin) + x, location_get_y(origin) + y);
+                        if (target_context_evaluate(&tmp_target_ctx)) {
+                            target_list_add_loc(targets, tmp_target_ctx.target_loc);
 
                             // FIXME: Missing count tracking.
                         }
@@ -1449,8 +1469,8 @@ void sub_4F40B0(S603CB8* a1)
         }
     }
 
-    if ((target_params->tgt & Tgt_List) != 0 && a1->field_54 != NULL) {
-        mt_obj_node = *a1->field_54;
+    if ((target_params->tgt & Tgt_List) != 0 && ctx->obj_list != NULL) {
+        mt_obj_node = *ctx->obj_list;
         if (mt_obj_node != NULL) {
             while (mt_obj_node != NULL) {
                 target_list_add_obj_unless_destroyed(targets, mt_obj_node->obj);
@@ -1462,7 +1482,7 @@ void sub_4F40B0(S603CB8* a1)
                 mt_obj_node = mt_obj_node_create();
                 if (targets->entries[idx].obj != OBJ_HANDLE_NULL) {
                     mt_obj_node->obj = targets->entries[idx].obj;
-                    mt_obj_node->next = *a1->field_54;
+                    mt_obj_node->next = *ctx->obj_list;
                     sub_443EB0(mt_obj_node->obj, &(mt_obj_node->field_8));
                     if (mt_obj_node->obj != OBJ_HANDLE_NULL) {
                         mt_obj_node->type = obj_field_int32_get(mt_obj_node->obj, OBJ_F_TYPE);
@@ -1470,14 +1490,14 @@ void sub_4F40B0(S603CB8* a1)
                             mt_obj_node->aptitude = stat_level_get(mt_obj_node->obj, STAT_MAGICK_TECH_APTITUDE);
                         }
                     }
-                    *a1->field_54 = mt_obj_node;
+                    *ctx->obj_list = mt_obj_node;
                 }
             }
         }
     }
 
-    if ((target_params->tgt & Tgt_All_Party_Critters_Naked) != 0 && a1->source_obj != OBJ_HANDLE_NULL) {
-        object_list_team(a1->source_obj, &objects);
+    if ((target_params->tgt & Tgt_All_Party_Critters_Naked) != 0 && ctx->source_obj != OBJ_HANDLE_NULL) {
+        object_list_team(ctx->source_obj, &objects);
         obj_node = objects.head;
         while (obj_node != NULL) {
             target_list_add_obj_unless_destroyed(targets, obj_node->obj);
@@ -1486,8 +1506,8 @@ void sub_4F40B0(S603CB8* a1)
         object_list_destroy(&objects);
 
         if (tig_net_is_active()
-            && obj_field_int32_get(a1->source_obj, OBJ_F_TYPE) == OBJ_TYPE_PC) {
-            object_list_party(a1->source_obj, &objects);
+            && obj_field_int32_get(ctx->source_obj, OBJ_F_TYPE) == OBJ_TYPE_PC) {
+            object_list_party(ctx->source_obj, &objects);
             obj_node = objects.head;
             while (obj_node != NULL) {
                 target_list_add_obj_unless_destroyed(targets, obj_node->obj);
@@ -1498,8 +1518,8 @@ void sub_4F40B0(S603CB8* a1)
     }
 
     if ((target_params->tgt & Tgt_Parent) != 0
-        && obj_type_is_item(obj_field_int32_get(a1->source_obj, OBJ_F_TYPE))) {
-        int64_t parent_obj = obj_field_handle_get(a1->source_obj, OBJ_F_ITEM_PARENT);
+        && obj_type_is_item(obj_field_int32_get(ctx->source_obj, OBJ_F_TYPE))) {
+        int64_t parent_obj = obj_field_handle_get(ctx->source_obj, OBJ_F_ITEM_PARENT);
         if (parent_obj != OBJ_HANDLE_NULL) {
             target_list_add_obj_unless_destroyed(targets, parent_obj);
         }
