@@ -13635,7 +13635,7 @@ bool sub_434030(int64_t obj, int64_t loc)
 }
 
 // 0x4341C0
-bool sub_4341C0(int64_t source_obj, int64_t target_loc, int range)
+bool anim_goal_move_near_tile(int64_t source_obj, int64_t target_loc, int range)
 {
     AnimRunInfo* run_info;
     AnimGoalData goal_data;

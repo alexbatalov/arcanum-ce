@@ -2132,7 +2132,7 @@ int script_execute_action(ScriptAction* action, int line, ScriptState* state)
         int64_t obj = script_get_obj(action->op_type[0], action->op_value[0], state);
         int x = script_get_value(action->op_type[1], action->op_value[1], state);
         int y = script_get_value(action->op_type[2], action->op_value[2], state);
-        sub_4341C0(obj, location_make(x, y), AG_MOVE_TO_TILE);
+        anim_goal_move_near_tile(obj, location_make(x, y), 3);
         return NEXT;
     }
     case SAT_GET_WEAPON_TYPE: {

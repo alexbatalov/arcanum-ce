@@ -2879,7 +2879,7 @@ int64_t ai_find_nearest_bed(int64_t loc)
 void ai_move_to(int64_t obj, int64_t loc, int range)
 {
     if (range != 0) {
-        sub_4341C0(obj, loc, range);
+        anim_goal_move_near_tile(obj, loc, range);
     } else {
         anim_goal_move_to_tile(obj, loc);
     }
