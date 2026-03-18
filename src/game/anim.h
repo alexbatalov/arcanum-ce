@@ -70,7 +70,7 @@ void anim_debug_enable(void);
 bool sub_423300(int64_t obj, AnimID* anim_id);
 int sub_4233D0(int64_t obj);
 bool sub_423470(int64_t obj);
-bool sub_4234F0(int64_t obj);
+bool anim_is_fidgeting(int64_t obj);
 bool anim_timeevent_process(TimeEvent* timeevent);
 void sub_423E60(const char* msg);
 void anim_catch_up_enable(void);

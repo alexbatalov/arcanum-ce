@@ -3541,7 +3541,7 @@ bool sub_423470(int64_t obj)
 }
 
 // 0x4234F0
-bool sub_4234F0(int64_t obj)
+bool anim_is_fidgeting(int64_t obj)
 {
     return anim_is_current_goal_type(obj, AG_ANIM_FIDGET, NULL);
 }
@@ -14544,7 +14544,7 @@ bool anim_goal_fidget(int64_t critter_obj)
         return false;
     }
 
-    if (sub_4234F0(critter_obj) || sub_423300(critter_obj, NULL)) {
+    if (anim_is_fidgeting(critter_obj) || sub_423300(critter_obj, NULL)) {
         return false;
     }
 

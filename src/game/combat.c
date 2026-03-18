@@ -1388,7 +1388,7 @@ void combat_critter_toggle_combat_mode(int64_t obj)
             combat_callbacks.field_0(0);
         }
 
-        if (!v1 && sub_4234F0(obj)) {
+        if (!v1 && anim_is_fidgeting(obj)) {
             sub_424070(obj, 3, 0, 0);
         }
     } else {
