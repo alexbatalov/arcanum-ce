@@ -2839,7 +2839,7 @@ tig_art_id_t sub_4650D0(int64_t critter_obj)
     }
 
     art_id = obj_field_int32_get(critter_obj, OBJ_F_CURRENT_AID);
-    art_id = tig_art_id_anim_set(art_id, 20);
+    art_id = tig_art_id_anim_set(art_id, TIG_ART_ANIM_ATTACK);
     art_id = tig_art_critter_id_weapon_set(art_id, weapon_type);
     art_id = tig_art_critter_id_shield_set(art_id, shield_type);
 

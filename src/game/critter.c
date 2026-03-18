@@ -1719,7 +1719,7 @@ void critter_set_concealed_internal(int64_t obj, bool concealed)
             return;
         }
     } else {
-        new_art_id = tig_art_id_anim_set(art_id, 0);
+        new_art_id = tig_art_id_anim_set(art_id, TIG_ART_ANIM_STAND);
         new_art_id = tig_art_id_frame_set(new_art_id, 0);
     }
 

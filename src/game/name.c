@@ -679,21 +679,21 @@ tig_art_id_t name_normalize_aid(tig_art_id_t aid)
 
         fix_missing_art(gender + 2 * body_type, num_critter_art, missing_critter_art, &anim, &weapon);
 
-        if (anim == 24) {
+        if (anim == TIG_ART_ANIM_EXPLODE) {
             armor = 0;
             shield = 0;
             weapon = 0;
             gender = 0;
-        } else if (anim == 23) {
+        } else if (anim == TIG_ART_ANIM_STUNNED) {
             weapon = 1;
             shield = 0;
         } else {
-            if (weapon == 1 && (anim == 3 || anim == 5)) {
+            if (weapon == 1 && (anim == TIG_ART_ANIM_STEALTH_WALK || anim == TIG_ART_ANIM_CONCEAL_FIDGET)) {
                 weapon = 0;
-            } else if (anim >= 6 && anim <= 19) {
+            } else if (anim >= TIG_ART_ANIM_RUN && anim <= TIG_ART_ANIM_SEVERED_LEG) {
                 weapon = 0;
                 shield = 0;
-            } else if (anim == 1) {
+            } else if (anim == TIG_ART_ANIM_WALK) {
                 shield = 0;
             }
         }
@@ -754,17 +754,17 @@ tig_art_id_t name_normalize_aid(tig_art_id_t aid)
         weapon = tig_art_critter_id_weapon_get(aid);
         fix_missing_art(specie, num_monster_art, missing_monster_art, &anim, &weapon);
 
-        if (anim == 24) {
+        if (anim == TIG_ART_ANIM_EXPLODE) {
             armor = 0;
             shield = 0;
             weapon = 0;
-        } else if (anim == 23) {
+        } else if (anim == TIG_ART_ANIM_STUNNED) {
             weapon = 1;
             shield = 0;
         } else {
-            if (weapon == 1 && (anim == 3 || anim == 5)) {
+            if (weapon == 1 && (anim == TIG_ART_ANIM_STEALTH_WALK || anim == TIG_ART_ANIM_CONCEAL_FIDGET)) {
                 weapon = 0;
-            } else if (anim >= 6 && anim <= 19) {
+            } else if (anim >= TIG_ART_ANIM_RUN && anim <= TIG_ART_ANIM_SEVERED_LEG) {
                 weapon = 0;
                 shield = 0;
             } else if (anim == 1) {
@@ -786,16 +786,17 @@ tig_art_id_t name_normalize_aid(tig_art_id_t aid)
         anim = tig_art_id_anim_get(aid);
         weapon = tig_art_critter_id_weapon_get(aid);
         fix_missing_art(num, num_unique_npc_art, missing_unique_npc_art, &anim, &weapon);
-        if (anim == 24) {
+
+        if (anim == TIG_ART_ANIM_EXPLODE) {
             shield = 0;
             weapon = 0;
-        } else if (anim == 23) {
+        } else if (anim == TIG_ART_ANIM_STUNNED) {
             shield = 0;
             weapon = 1;
         } else {
-            if (weapon == 1 && (anim == 3 || anim == 5)) {
+            if (weapon == 1 && (anim == TIG_ART_ANIM_STEALTH_WALK || anim == TIG_ART_ANIM_CONCEAL_FIDGET)) {
                 weapon = 0;
-            } else if (anim >= 6 && anim <= 19) {
+            } else if (anim >= TIG_ART_ANIM_RUN && anim <= TIG_ART_ANIM_SEVERED_LEG) {
                 weapon = 0;
                 shield = 0;
             } else if (anim == 1) {

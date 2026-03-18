@@ -253,6 +253,8 @@ typedef enum TigArtAnim {
     TIG_ART_ANIM_EXPLODE,
 } TigArtAnim;
 
+#define IS_BLOODY_DEATH_ANIM(anim) ((anim) >= TIG_ART_ANIM_DECAPITATION && (anim) <= TIG_ART_ANIM_SEVERED_LEG)
+
 typedef enum TigArtRoofPiece {
     TIG_ART_ROOF_PIECE_NORTH_WEST_OUTSIDE,
     TIG_ART_ROOF_PIECE_WEST,

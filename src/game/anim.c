@@ -5511,7 +5511,7 @@ bool sub_426E80(AnimRunInfo* run_info)
         return false;
     }
 
-    if (tig_art_id_anim_get(obj_field_int32_get(obj, OBJ_F_CURRENT_AID)) != 5) {
+    if (tig_art_id_anim_get(obj_field_int32_get(obj, OBJ_F_CURRENT_AID)) != TIG_ART_ANIM_CONCEAL_FIDGET) {
         return false;
     }
 
@@ -7352,7 +7352,7 @@ bool sub_429CD0(AnimRunInfo* run_info)
 
     if ((run_info->flags & 0x200000) == 0) {
         art_id = obj_field_int32_get(obj, OBJ_F_CURRENT_AID);
-        art_id = tig_art_id_anim_set(art_id, 0);
+        art_id = tig_art_id_anim_set(art_id, TIG_ART_ANIM_STAND);
         art_id = tig_art_id_frame_set(art_id, 0);
         object_set_current_aid(obj, art_id);
 
@@ -7464,12 +7464,12 @@ bool sub_42A010(AnimRunInfo* run_info)
         anim = tig_art_id_anim_get(art_id);
 
         if ((obj_field_int32_get(obj, OBJ_F_CRITTER_FLAGS) & (OCF_PARALYZED | OCF_STUNNED)) != 0
-            && (anim < 17 || anim > 19)) {
+            && !IS_BLOODY_DEATH_ANIM(anim)) {
             return false;
         }
 
         if (run_info->cur_stack_data->type == AG_DYING) {
-            if (anim != 7) {
+            if (anim != TIG_ART_ANIM_FALL_DOWN) {
                 sound_id = sfx_critter_sound(obj, CRITTER_SOUND_DYING_GRUESOME);
             } else {
                 sound_id = sfx_critter_sound(obj, CRITTER_SOUND_DYING);
@@ -8079,7 +8079,7 @@ bool sub_42AFB0(AnimRunInfo* run_info)
     type = obj_field_int32_get(obj, OBJ_F_TYPE);
 
     art_id = obj_field_int32_get(obj, OBJ_F_CURRENT_AID);
-    art_id = tig_art_id_anim_set(art_id, 0);
+    art_id = tig_art_id_anim_set(art_id, TIG_ART_ANIM_STAND);
     art_id = tig_art_id_frame_set(art_id, 0);
     object_set_current_aid(obj, art_id);
 
@@ -8127,9 +8127,9 @@ bool sub_42B090(AnimRunInfo* run_info)
 
     if (obj_type_is_critter(obj_type)) {
         if (critter_is_concealed(obj)) {
-            art_id = tig_art_id_anim_set(art_id, 5);
+            art_id = tig_art_id_anim_set(art_id, TIG_ART_ANIM_CONCEAL_FIDGET);
         } else {
-            art_id = tig_art_id_anim_set(art_id, 0);
+            art_id = tig_art_id_anim_set(art_id, TIG_ART_ANIM_STAND);
         }
 
         art_id = tig_art_id_frame_set(art_id, 0);
@@ -8187,9 +8187,9 @@ bool sub_42B250(AnimRunInfo* run_info)
 
     if (obj_type_is_critter(obj_type)) {
         if (critter_is_concealed(obj)) {
-            art_id = tig_art_id_anim_set(art_id, 5);
+            art_id = tig_art_id_anim_set(art_id, TIG_ART_ANIM_CONCEAL_FIDGET);
         } else {
-            art_id = tig_art_id_anim_set(art_id, 0);
+            art_id = tig_art_id_anim_set(art_id, TIG_ART_ANIM_STAND);
         }
 
         art_id = tig_art_id_frame_set(art_id, 0);
@@ -8258,9 +8258,9 @@ bool sub_42B440(AnimRunInfo* run_info)
 
     if (obj_type_is_critter(obj_type)) {
         if (critter_is_concealed(obj)) {
-            art_id = tig_art_id_anim_set(art_id, 5);
+            art_id = tig_art_id_anim_set(art_id, TIG_ART_ANIM_CONCEAL_FIDGET);
         } else {
-            art_id = tig_art_id_anim_set(art_id, 0);
+            art_id = tig_art_id_anim_set(art_id, TIG_ART_ANIM_STAND);
         }
 
         art_id = tig_art_id_frame_set(art_id, 0);
@@ -8510,20 +8510,20 @@ bool sub_42B9C0(AnimRunInfo* run_info)
     weapon_obj = item_wield_get(source_obj, ITEM_INV_LOC_WEAPON);
     if (weapon_obj != OBJ_HANDLE_NULL
         && (obj_field_int32_get(weapon_obj, OBJ_F_WEAPON_FLAGS) & OWF_BOOMERANGS) != 0) {
-        new_anim = 14;
+        new_anim = TIG_ART_ANIM_THROW;
     } else if ((flags & OF_SHRUNK) != 0) {
-        new_anim = 21;
+        new_anim = TIG_ART_ANIM_ATTACK_LOW;
     } else {
         switch (anim) {
-        case 7:
-        case 8:
-        case 9:
-        case 10:
-        case 11:
-            new_anim = 21;
+        case TIG_ART_ANIM_FALL_DOWN:
+        case TIG_ART_ANIM_GET_UP:
+        case TIG_ART_ANIM_9:
+        case TIG_ART_ANIM_10:
+        case TIG_ART_ANIM_11:
+            new_anim = TIG_ART_ANIM_ATTACK_LOW;
             break;
         default:
-            new_anim = sub_503F60(art_id) != 0 ? 20 : 21;
+            new_anim = sub_503F60(art_id) != 0 ? TIG_ART_ANIM_ATTACK : TIG_ART_ANIM_ATTACK_LOW;
             break;
         }
     }
@@ -8596,7 +8596,7 @@ bool sub_42BC10(AnimRunInfo* run_info)
             return false;
         }
 
-        art_id = tig_art_id_anim_set(art_id, 18);
+        art_id = tig_art_id_anim_set(art_id, TIG_ART_ANIM_BLOWN_OUT_CHUNK);
         tig_debug_printf("Anim: Error: Missing Death Art: %d: Using Default\n", anim);
     }
 
@@ -9153,12 +9153,12 @@ bool sub_42CB10(AnimRunInfo* run_info)
     if (obj_type_is_critter(obj_field_int32_get(obj, OBJ_F_TYPE))) {
         anim = tig_art_id_anim_get(art_id);
         if ((obj_field_int32_get(obj, OBJ_F_CRITTER_FLAGS) & (OCF_PARALYZED | OCF_STUNNED)) != 0
-            && (anim < 17 || anim > 19)) {
+            && !IS_BLOODY_DEATH_ANIM(anim)) {
             return false;
         }
 
         if (run_info->cur_stack_data->type == AG_DYING) {
-            if (anim != 7) {
+            if (anim != TIG_ART_ANIM_FALL_DOWN) {
                 sound_id = sfx_critter_sound(obj, CRITTER_SOUND_DYING_GRUESOME);
             } else {
                 sound_id = sfx_critter_sound(obj, CRITTER_SOUND_DYING);
@@ -9208,9 +9208,9 @@ bool sub_42CC80(AnimRunInfo* run_info)
         art_id = obj_field_int32_get(obj, OBJ_F_CURRENT_AID);
         anim = tig_art_id_anim_get(art_id);
         if ((obj_field_int32_get(obj, OBJ_F_CRITTER_FLAGS) & (OCF_PARALYZED | OCF_STUNNED)) != 0
-            && (anim < 17 || anim > 19)
-            && anim != 7
-            && anim != 11) {
+            && !IS_BLOODY_DEATH_ANIM(anim)
+            && anim != TIG_ART_ANIM_FALL_DOWN
+            && anim != TIG_ART_ANIM_11) {
             return false;
         }
 
@@ -9592,7 +9592,7 @@ bool sub_42D570(AnimRunInfo* run_info)
     art_id = obj_field_int32_get(obj, OBJ_F_CURRENT_AID);
     anim = tig_art_id_anim_get(art_id);
 
-    if (((anim >= 17 && anim <= 19) || anim == 7)
+    if ((IS_BLOODY_DEATH_ANIM(anim) || anim == TIG_ART_ANIM_FALL_DOWN)
         && tig_art_id_frame_get(art_id) > 0) {
         return false;
     }
@@ -9603,7 +9603,7 @@ bool sub_42D570(AnimRunInfo* run_info)
         art_id = tig_art_id_frame_set(art_id, 0);
     }
 
-    if (tig_art_id_anim_get(art_id) != 7) {
+    if (tig_art_id_anim_get(art_id) != TIG_ART_ANIM_FALL_DOWN) {
         sound_id = sfx_critter_sound(obj, CRITTER_SOUND_DYING_GRUESOME);
     } else {
         sound_id = sfx_critter_sound(obj, CRITTER_SOUND_DYING);
@@ -9694,7 +9694,7 @@ bool sub_42D7D0(AnimRunInfo* run_info)
     if (obj_type_is_critter(obj_field_int32_get(obj, OBJ_F_TYPE))
         && (obj_field_int32_get(obj, OBJ_F_CRITTER_FLAGS) & (OCF_PARALYZED | OCF_STUNNED)) != 0) {
         anim = tig_art_id_anim_get(art_id);
-        if (anim < 17 || anim > 19) {
+        if (!IS_BLOODY_DEATH_ANIM(anim)) {
             return false;
         }
     }
@@ -9748,7 +9748,7 @@ bool sub_42D910(AnimRunInfo* run_info)
         && (obj_field_int32_get(obj, OBJ_F_CRITTER_FLAGS) & (OCF_PARALYZED | OCF_STUNNED)) != 0) {
         art_id = obj_field_int32_get(obj, OBJ_F_CURRENT_AID);
         anim = tig_art_id_anim_get(art_id);
-        if (anim < 17 || anim > 19) {
+        if (!IS_BLOODY_DEATH_ANIM(anim)) {
             return false;
         }
     }
@@ -9812,7 +9812,7 @@ bool AGbeginAnimLoopAnim(AnimRunInfo* run_info)
         && (obj_field_int32_get(obj, OBJ_F_CRITTER_FLAGS) & (OCF_PARALYZED | OCF_STUNNED)) != 0) {
         art_id = obj_field_int32_get(obj, OBJ_F_CURRENT_AID);
         anim = tig_art_id_anim_get(art_id);
-        if (!(anim >= TIG_ART_ANIM_DECAPITATION && anim <= TIG_ART_ANIM_SEVERED_LEG)) {
+        if (!IS_BLOODY_DEATH_ANIM(anim)) {
             return false;
         }
     }
@@ -9958,6 +9958,7 @@ bool AGbeginStunAnim(AnimRunInfo* run_info)
     int64_t obj;
     tig_art_id_t art_id;
     TigArtAnimData art_anim_data;
+    int anim;
 
     obj = run_info->params[0].obj;
 
@@ -9968,7 +9969,7 @@ bool AGbeginStunAnim(AnimRunInfo* run_info)
     }
 
     art_id = obj_field_int32_get(obj, OBJ_F_CURRENT_AID);
-    art_id = tig_art_id_anim_set(art_id, 23);
+    art_id = tig_art_id_anim_set(art_id, TIG_ART_ANIM_STUNNED);
     art_id = tig_art_id_frame_set(art_id, 0);
     object_set_current_aid(obj, art_id);
 
@@ -9978,12 +9979,8 @@ bool AGbeginStunAnim(AnimRunInfo* run_info)
 
     if (obj_type_is_critter(obj_field_int32_get(obj, OBJ_F_TYPE))) {
         if ((obj_field_int32_get(obj, OBJ_F_CRITTER_FLAGS) & OCF_PARALYZED) != 0) {
-            switch (tig_art_id_anim_get(art_id)) {
-            case 17:
-            case 18:
-            case 19:
-                break;
-            default:
+            anim = tig_art_id_anim_get(art_id);
+            if (!IS_BLOODY_DEATH_ANIM(anim)) {
                 return false;
             }
         }
@@ -10030,7 +10027,7 @@ bool sub_42E070(AnimRunInfo* run_info)
         && (obj_field_int32_get(obj, OBJ_F_CRITTER_FLAGS) & OCF_PARALYZED) != 0) {
         art_id = obj_field_int32_get(obj, OBJ_F_CURRENT_AID);
         anim = tig_art_id_anim_get(art_id);
-        if (anim < 17 || anim > 19) {
+        if (!IS_BLOODY_DEATH_ANIM(anim)) {
             return false;
         }
     }
@@ -10073,7 +10070,7 @@ bool sub_42E1B0(AnimRunInfo* run_info)
     }
 
     art_id = obj_field_int32_get(obj, OBJ_F_CURRENT_AID);
-    art_id = tig_art_id_anim_set(art_id, 9);
+    art_id = tig_art_id_anim_set(art_id, TIG_ART_ANIM_9);
     art_id = tig_art_id_frame_set(art_id, 0);
     object_set_current_aid(obj, art_id);
 
@@ -10132,8 +10129,8 @@ bool sub_42E2D0(AnimRunInfo* run_info)
 
     frame = tig_art_id_frame_get(art_id);
     if (frame == art_anim_data.num_frames - 1) {
-        if (tig_art_id_anim_get(art_id) != 9) {
-            art_id = tig_art_id_anim_set(art_id, 9);
+        if (tig_art_id_anim_get(art_id) != TIG_ART_ANIM_9) {
+            art_id = tig_art_id_anim_set(art_id, TIG_ART_ANIM_9);
             if (tig_art_anim_data(art_id, &art_anim_data) != TIG_OK) {
                 return false;
             }
@@ -10145,7 +10142,7 @@ bool sub_42E2D0(AnimRunInfo* run_info)
             return false;
         } else {
             art_id = tig_art_id_frame_set(art_id, 0);
-            art_id = tig_art_id_anim_set(art_id, 10);
+            art_id = tig_art_id_anim_set(art_id, TIG_ART_ANIM_10);
             object_set_current_aid(obj, art_id);
             run_info->flags &= ~0x04;
             return true;
@@ -10189,7 +10186,7 @@ bool AGbeginKnockDownAnim(AnimRunInfo* run_info)
     }
 
     art_id = obj_field_int32_get(obj, OBJ_F_CURRENT_AID);
-    art_id = tig_art_id_anim_set(art_id, 7);
+    art_id = tig_art_id_anim_set(art_id, TIG_ART_ANIM_FALL_DOWN);
     art_id = tig_art_id_frame_set(art_id, 0);
     object_set_current_aid(obj, art_id);
 
@@ -10231,7 +10228,7 @@ bool AGbeginGetUpAnim(AnimRunInfo* run_info)
     }
 
     art_id = obj_field_int32_get(obj, OBJ_F_CURRENT_AID);
-    art_id = tig_art_id_anim_set(art_id, 8);
+    art_id = tig_art_id_anim_set(art_id, TIG_ART_ANIM_GET_UP);
     art_id = tig_art_id_frame_set(art_id, 0);
 
     if (tig_art_anim_data(art_id, &art_anim_data) == TIG_OK) {
@@ -10413,7 +10410,7 @@ bool sub_42E9B0(AnimRunInfo* run_info)
     art_id = obj_field_int32_get(obj, OBJ_F_CURRENT_AID);
     anim = tig_art_id_anim_get(art_id);
     run_info->cur_stack_data->params[AGDATA_ANIM_ID_PREVIOUS].data = art_id;
-    if (tig_art_id_anim_get(art_id) == 5
+    if (tig_art_id_anim_get(art_id) == TIG_ART_ANIM_CONCEAL_FIDGET
         && critter_is_concealed(obj)) {
         run_info->cur_stack_data->params[AGDATA_ANIM_ID_PREVIOUS].data = tig_art_id_anim_set(run_info->cur_stack_data->params[AGDATA_ANIM_ID_PREVIOUS].data, 0);
     }
@@ -10516,11 +10513,11 @@ void sub_42EDC0(AnimRunInfo* run_info, int64_t obj, tig_art_id_t* art_id_ptr, bo
     concealed = critter_is_concealed(obj);
 
     if (concealed && basic_skill_training_get(obj, BASIC_SKILL_PROWLING) < TRAINING_EXPERT) {
-        *art_id_ptr = tig_art_id_anim_set(art_id, 3);
+        *art_id_ptr = tig_art_id_anim_set(art_id, TIG_ART_ANIM_STEALTH_WALK);
         return;
     }
 
-    art_id = tig_art_id_anim_set(art_id, 1);
+    art_id = tig_art_id_anim_set(art_id, TIG_ART_ANIM_WALK);
     if (run_info->current_goal <= 0
         || !a4
         || (concealed
@@ -10535,7 +10532,7 @@ void sub_42EDC0(AnimRunInfo* run_info, int64_t obj, tig_art_id_t* art_id_ptr, bo
         return;
     }
 
-    art_id = tig_art_id_anim_set(art_id, 6);
+    art_id = tig_art_id_anim_set(art_id, TIG_ART_ANIM_RUN);
     if (a5 != NULL) {
         *a5 = 1;
     }
@@ -10676,7 +10673,7 @@ bool sub_42F140(AnimRunInfo* run_info)
     run_info->path.curr++;
     if (run_info->path.curr >= run_info->path.max) {
         art_id = obj_field_int32_get(obj, OBJ_F_CURRENT_AID);
-        art_id = tig_art_id_anim_set(art_id, 0);
+        art_id = tig_art_id_anim_set(art_id, TIG_ART_ANIM_STAND);
         art_id = tig_art_id_frame_set(art_id, 0);
         object_set_current_aid(obj, art_id);
 
@@ -10695,14 +10692,14 @@ bool sub_42F140(AnimRunInfo* run_info)
     }
 
     art_id = obj_field_int32_get(obj, OBJ_F_CURRENT_AID);
-    art_id = tig_art_id_anim_set(art_id, 13);
+    art_id = tig_art_id_anim_set(art_id, TIG_ART_ANIM_VAULT);
     art_id = tig_art_id_rotation_set(art_id, rot);
     sub_430490(obj, -offset_x, -offset_y);
 
     if ((run_info->flags & 0x40) != 0) {
-        art_id = tig_art_id_anim_set(art_id, 6);
+        art_id = tig_art_id_anim_set(art_id, TIG_ART_ANIM_RUN);
     } else {
-        art_id = tig_art_id_anim_set(art_id, 1);
+        art_id = tig_art_id_anim_set(art_id, TIG_ART_ANIM_WALK);
     }
 
     art_id = tig_art_id_frame_set(art_id, 0);
@@ -10979,7 +10976,7 @@ bool AGupdateAnimMoveStraightKnockback(AnimRunInfo* run_info)
         loc = obj_field_int64_get(obj, OBJ_F_LOCATION);
 
         art_id = obj_field_int32_get(obj, OBJ_F_CURRENT_AID);
-        if (tig_art_id_anim_get(art_id) == 0) {
+        if (tig_art_id_anim_get(art_id) == TIG_ART_ANIM_STAND) {
             art_id = tig_art_id_frame_inc(art_id);
             object_set_current_aid(obj, art_id);
         }
@@ -11235,7 +11232,7 @@ bool anim_fidget_timeevent_process(TimeEvent* timeevent)
                 art_id = obj_field_int32_get(qword_5DE6D8, OBJ_F_CURRENT_AID);
                 art_id = tig_art_id_frame_set(art_id, 0);
                 if (magictech_is_under_influence_of(qword_5DE6D8, 172)) {
-                    art_id = tig_art_id_anim_set(art_id, 23);
+                    art_id = tig_art_id_anim_set(art_id, TIG_ART_ANIM_STUNNED);
                     v1 = true;
                 }
 
@@ -11244,7 +11241,7 @@ bool anim_fidget_timeevent_process(TimeEvent* timeevent)
                 sub_44D4E0(&goal_data, qword_5DE6D8, AG_ANIM_FIDGET);
                 if (!anim_goal_add(&goal_data, NULL)) {
                     if (v1) {
-                        art_id = tig_art_id_anim_set(art_id, 0);
+                        art_id = tig_art_id_anim_set(art_id, TIG_ART_ANIM_STAND);
                         object_set_current_aid(qword_5DE6D8, art_id);
                     }
                 }
@@ -11297,7 +11294,7 @@ bool sub_4303D0(int64_t obj)
         && critter_is_active(obj)) {
         if (obj_field_int32_get(obj, OBJ_F_TYPE) == OBJ_TYPE_PC
             || !player_is_local_pc_obj(sub_4C1110(obj))) {
-            if (tig_art_id_anim_get(obj_field_int32_get(obj, OBJ_F_CURRENT_AID)) == 0) {
+            if (tig_art_id_anim_get(obj_field_int32_get(obj, OBJ_F_CURRENT_AID)) == TIG_ART_ANIM_STAND) {
                 return true;
             }
         }
@@ -11411,7 +11408,7 @@ bool sub_4305D0(AnimRunInfo* run_info)
     loc = obj_field_int64_get(obj, OBJ_F_LOCATION);
     art_id = obj_field_int32_get(obj, OBJ_F_CURRENT_AID);
 
-    if (tig_art_id_anim_get(art_id) == 0) {
+    if (tig_art_id_anim_get(art_id) == TIG_ART_ANIM_STAND) {
         return false;
     }
 
@@ -11444,9 +11441,9 @@ bool sub_4305D0(AnimRunInfo* run_info)
 
             art_id = obj_field_int32_get(obj, OBJ_F_CURRENT_AID);
             if (critter_is_concealed(art_id)) {
-                art_id = tig_art_id_anim_set(art_id, 5);
+                art_id = tig_art_id_anim_set(art_id, TIG_ART_ANIM_CONCEAL_FIDGET);
             } else {
-                art_id = tig_art_id_anim_set(art_id, 0);
+                art_id = tig_art_id_anim_set(art_id, TIG_ART_ANIM_STAND);
             }
             object_set_current_aid(obj, art_id);
 
@@ -11458,7 +11455,7 @@ bool sub_4305D0(AnimRunInfo* run_info)
     }
 
     if (v1) {
-        if (tig_art_id_anim_get(art_id) != 6) {
+        if (tig_art_id_anim_get(art_id) != TIG_ART_ANIM_RUN) {
             sub_42EDC0(run_info, obj, &art_id, true, NULL);
         }
     }
@@ -11482,7 +11479,7 @@ bool sub_4305D0(AnimRunInfo* run_info)
 
     if (!critter_is_monstrous(obj)) {
         anim = tig_art_id_anim_get(art_id);
-        if (anim == 1 || anim == 6) {
+        if (anim == TIG_ART_ANIM_WALK || anim == TIG_ART_ANIM_RUN) {
             if (tig_art_anim_data(art_id, &art_anim_data) == TIG_OK) {
                 frame = tig_art_id_frame_get(art_id);
                 if (frame == 3 || frame == 8) {
@@ -11662,7 +11659,7 @@ bool sub_430F20(AnimRunInfo* run_info)
 
     // FIXME: Useless.
     art_id = obj_field_int32_get(obj, OBJ_F_CURRENT_AID);
-    art_id = tig_art_id_anim_set(art_id, 0);
+    art_id = tig_art_id_anim_set(art_id, TIG_ART_ANIM_STAND);
     tig_art_id_frame_set(art_id, 0);
 
     if (run_info->path_attached_to_stack_index == run_info->current_goal
@@ -11729,7 +11726,7 @@ int sub_430FC0(AnimRunInfo* run_info)
             action_points = 1;
         } else {
             art_id = obj_field_int32_get(obj, OBJ_F_CURRENT_AID);
-            art_id = tig_art_id_anim_set(art_id, 1);
+            art_id = tig_art_id_anim_set(art_id, TIG_ART_ANIM_WALK);
             object_set_current_aid(obj, art_id);
 
             run_info->flags &= ~0x40;
@@ -14039,7 +14036,7 @@ bool anim_goal_get_up(int64_t obj)
     }
 
     art_id = obj_field_int32_get(obj, OBJ_F_CURRENT_AID);
-    if (tig_art_id_anim_get(art_id) != 7) {
+    if (tig_art_id_anim_get(art_id) != TIG_ART_ANIM_FALL_DOWN) {
         return false;
     }
 
@@ -14047,7 +14044,7 @@ bool anim_goal_get_up(int64_t obj)
         return false;
     }
 
-    goal_data.params[AGDATA_ANIM_ID].data = tig_art_id_anim_set(art_id, 8);
+    goal_data.params[AGDATA_ANIM_ID].data = tig_art_id_anim_set(art_id, TIG_ART_ANIM_GET_UP);
 
     if (!anim_goal_add(&goal_data, &stru_5A1908)) {
         return false;
@@ -14466,7 +14463,7 @@ bool anim_goal_knockdown(int64_t critter_obj)
     }
 
     art_id = obj_field_int32_get(critter_obj, OBJ_F_CURRENT_AID);
-    if (tig_art_id_anim_get(art_id) == 7) {
+    if (tig_art_id_anim_get(art_id) == TIG_ART_ANIM_FALL_DOWN) {
         return false;
     }
 
@@ -14504,7 +14501,7 @@ bool anim_goal_make_knockdown(int64_t obj)
     }
 
     art_id = obj_field_int32_get(obj, OBJ_F_CURRENT_AID);
-    art_id = tig_art_id_anim_set(art_id, 7);
+    art_id = tig_art_id_anim_set(art_id, TIG_ART_ANIM_FALL_DOWN);
     if (tig_art_anim_data(art_id, &art_anim_data) == TIG_OK) {
         art_id = tig_art_id_frame_set(art_id, art_anim_data.num_frames - 1);
     } else {
@@ -14549,7 +14546,7 @@ bool anim_goal_fidget(int64_t critter_obj)
     }
 
     art_id = obj_field_int32_get(critter_obj, OBJ_F_CURRENT_AID);
-    if (tig_art_id_anim_get(art_id) != 0) {
+    if (tig_art_id_anim_get(art_id) != TIG_ART_ANIM_STAND) {
         return false;
     }
 
@@ -14729,7 +14726,7 @@ bool sub_436220(int64_t obj, int64_t target_obj, int64_t item_obj)
     goal_data.params[AGDATA_FLAGS_DATA].data |= 0x400;
 
     art_id = obj_field_int32_get(obj, OBJ_F_CURRENT_AID);
-    art_id = tig_art_id_anim_set(art_id, 12);
+    art_id = tig_art_id_anim_set(art_id, TIG_ART_ANIM_PICK_POCKET);
 
     if (tig_art_anim_data(art_id, &art_anim_data) != TIG_OK) {
         return false;
@@ -15388,22 +15385,22 @@ int sub_437990(int64_t obj, tig_art_id_t art_id, int speed)
     anim = tig_art_id_anim_get(art_id);
     weapon_type = tig_art_critter_id_weapon_get(art_id);
     switch (anim) {
-    case 1:
+    case TIG_ART_ANIM_WALK:
         v12 = v1 + 17;
         v13 = v1 + 6;
         v14 = v1 + 30;
         break;
-    case 3:
+    case TIG_ART_ANIM_STEALTH_WALK:
         v12 = v1 + 10;
         v13 = v1 + 4;
         v14 = v1 + 16;
         break;
-    case 6:
+    case TIG_ART_ANIM_RUN:
         v12 = v1 + 20;
         v13 = v1 + 8;
         v14 = v1 + 30;
         break;
-    case 20:
+    case TIG_ART_ANIM_ATTACK:
         switch (weapon_type) {
         case TIG_ART_WEAPON_TYPE_UNARMED:
         case TIG_ART_WEAPON_TYPE_SWORD:
@@ -15444,7 +15441,7 @@ int sub_437990(int64_t obj, tig_art_id_t art_id, int speed)
             break;
         }
         break;
-    case 21:
+    case TIG_ART_ANIM_ATTACK_LOW:
         switch (weapon_type) {
         case TIG_ART_WEAPON_TYPE_UNARMED:
             v12 = 13;

@@ -2290,7 +2290,7 @@ int skill_invocation_difficulty(SkillInvocation* skill_invocation)
             difficulty -= 50;
         } else if (critter_is_unconscious(target_obj)) {
             difficulty -= 50;
-        } else if (tig_art_id_anim_get(obj_field_int32_get(target_obj, OBJ_F_CURRENT_AID)) == 7
+        } else if (tig_art_id_anim_get(obj_field_int32_get(target_obj, OBJ_F_CURRENT_AID)) == TIG_ART_ANIM_FALL_DOWN
             || (critter_flags & OCF_STUNNED) != 0) {
             difficulty -= 30;
         } else if ((critter_flags & OCF_SLEEPING) != 0) {

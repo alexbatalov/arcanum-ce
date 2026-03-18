@@ -1314,7 +1314,7 @@ void combat_critter_toggle_combat_mode(int64_t obj)
 
     art_id = obj_field_int32_get(obj, OBJ_F_CURRENT_AID);
 
-    if (tig_art_id_anim_get(art_id) == 5) {
+    if (tig_art_id_anim_get(art_id) == TIG_ART_ANIM_CONCEAL_FIDGET) {
         v1 = true;
         if (!is_pc && !critter_is_dead(obj)) {
             return;
@@ -1329,8 +1329,8 @@ void combat_critter_toggle_combat_mode(int64_t obj)
         ai_target_unlock(obj);
 
         int anim = tig_art_id_anim_get(art_id);
-        if (anim == 20 || anim == 21) {
-            art_id = tig_art_id_anim_set(art_id, 0);
+        if (anim == TIG_ART_ANIM_ATTACK || anim == TIG_ART_ANIM_ATTACK_LOW) {
+            art_id = tig_art_id_anim_set(art_id, TIG_ART_ANIM_STAND);
         }
 
         art_id = tig_art_critter_id_weapon_set(art_id, TIG_ART_WEAPON_TYPE_NO_WEAPON);
@@ -2241,7 +2241,7 @@ void combat_heal(CombatContext* combat)
         }
 
         art_id = obj_field_int32_get(combat->target_obj, OBJ_F_CURRENT_AID);
-        art_id = tig_art_id_anim_set(art_id, 0);
+        art_id = tig_art_id_anim_set(art_id, TIG_ART_ANIM_STAND);
         art_id = tig_art_id_frame_set(art_id, 0);
         object_set_current_aid(combat->target_obj, art_id);
 
