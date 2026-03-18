@@ -4579,7 +4579,7 @@ int item_decay_process_is_enabled(void)
 void item_flags_set(int64_t item_obj, ObjectItemFlags flags_to_add)
 {
     ObjectItemFlags flags = obj_field_int32_get(item_obj, OBJ_F_ITEM_FLAGS);
-    flags |= OIF_NO_DISPLAY;
+    flags |= flags_to_add;
     obj_field_int32_set(item_obj, OBJ_F_ITEM_FLAGS, flags);
 }
 
