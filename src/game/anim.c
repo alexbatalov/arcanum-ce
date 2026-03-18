@@ -4233,7 +4233,7 @@ bool sub_4246E0(AnimRunInfo* run_info)
     goal_data.params[AGDATA_ANIM_ID].data = obj_field_int32_get(obj, OBJ_F_CURRENT_AID);
     goal_data.params[AGDATA_PARENT_OBJ].obj = parent_obj;
 
-    if (!sub_44D520(&goal_data, &anim_id)) {
+    if (!anim_goal_add(&goal_data, &anim_id)) {
         return false;
     }
 
@@ -11242,7 +11242,7 @@ bool anim_fidget_timeevent_process(TimeEvent* timeevent)
                 object_set_current_aid(qword_5DE6D8, art_id);
 
                 sub_44D4E0(&goal_data, qword_5DE6D8, AG_ANIM_FIDGET);
-                if (!sub_44D520(&goal_data, NULL)) {
+                if (!anim_goal_add(&goal_data, NULL)) {
                     if (v1) {
                         art_id = tig_art_id_anim_set(art_id, 0);
                         object_set_current_aid(qword_5DE6D8, art_id);
@@ -13048,7 +13048,7 @@ void sub_432D90(int64_t obj)
 
     if (sub_44D4E0(&goal_data, blood_obj, AG_ANIMATE)) {
         goal_data.params[AGDATA_ANIM_ID].data = blood_art_id;
-        if (sub_44D520(&goal_data, NULL)) {
+        if (anim_goal_add(&goal_data, NULL)) {
             critter_decay_timeevent_schedule(blood_obj);
         } else {
             tig_debug_printf("Anim: AGapplyBloodEffect: ERROR: Blood object failed to animate!\n");
@@ -13216,7 +13216,7 @@ bool anim_goal_animate(int64_t obj, int anim)
     if (obj_type_is_critter(obj_type)
         && anim == 10
         && sub_44D4E0(&goal_data, obj, AG_ANIMATE_KNEEL_MAGIC_HANDS)) {
-        sub_44D520(&goal_data, 0);
+        anim_goal_add(&goal_data, 0);
         return true;
     }
 
@@ -13226,7 +13226,7 @@ bool anim_goal_animate(int64_t obj, int anim)
 
     art_id = obj_field_int32_get(obj, OBJ_F_CURRENT_AID);
     goal_data.params[AGDATA_ANIM_ID].data = tig_art_id_anim_set(art_id, anim);
-    if (!sub_44D520(&goal_data, 0)) {
+    if (!anim_goal_add(&goal_data, 0)) {
         return false;
     }
 
@@ -13267,7 +13267,7 @@ bool anim_goal_rotate(int64_t obj, int rot)
 
     goal_data.params[AGDATA_SCRATCH_VAL1].data = rot;
     sub_423300(obj, &anim_id);
-    if (!sub_44D520(&goal_data, &anim_id)) {
+    if (!anim_goal_add(&goal_data, &anim_id)) {
         return false;
     }
 
@@ -13295,7 +13295,7 @@ bool anim_goal_animate_loop(int64_t obj)
         : AG_ANIMATE_LOOP;
     sub_44D4E0(&goal_data, obj, goal_type);
     goal_data.params[AGDATA_ANIM_ID].data = art_id;
-    if (!sub_44D520(&goal_data, &stru_5A1908)) {
+    if (!anim_goal_add(&goal_data, &stru_5A1908)) {
         return false;
     }
 
@@ -13353,7 +13353,7 @@ bool sub_433640(int64_t obj, int64_t loc)
             return false;
         }
 
-        if (!sub_44D520(&goal_data, &stru_5A1908)) {
+        if (!anim_goal_add(&goal_data, &stru_5A1908)) {
             return false;
         }
 
@@ -13474,7 +13474,7 @@ bool sub_433A00(int64_t obj, int64_t loc, bool a3)
             return false;
         }
 
-        if (!sub_44D520(&goal_data, &stru_5A1908)) {
+        if (!anim_goal_add(&goal_data, &stru_5A1908)) {
             return false;
         }
     }
@@ -13521,7 +13521,7 @@ bool sub_433C80(int64_t obj, int64_t loc)
             return false;
         }
 
-        if (!sub_44D520(&goal_data, &stru_5A1908)) {
+        if (!anim_goal_add(&goal_data, &stru_5A1908)) {
             return false;
         }
 
@@ -13613,7 +13613,7 @@ bool sub_434030(int64_t obj, int64_t loc)
             return false;
         }
 
-        if (!sub_44D520(&goal_data, &stru_5A1908)) {
+        if (!anim_goal_add(&goal_data, &stru_5A1908)) {
             return false;
         }
 
@@ -13648,7 +13648,7 @@ bool sub_4341C0(int64_t source_obj, int64_t target_loc, int range)
         if (sub_44D4E0(&goal_data, source_obj, AG_MOVE_NEAR_TILE)) {
             goal_data.params[AGDATA_TARGET_TILE].loc = target_loc;
             goal_data.params[AGDATA_RANGE_DATA].data = range;
-            if (sub_44D520(&goal_data, &stru_5A1908)) {
+            if (anim_goal_add(&goal_data, &stru_5A1908)) {
                 return true;
             }
         }
@@ -13719,7 +13719,7 @@ bool sub_434400(int64_t source_obj, int64_t target_loc, int range)
         if (sub_44D4E0(&goal_data, source_obj, AG_RUN_NEAR_TILE)) {
             goal_data.params[AGDATA_TARGET_TILE].loc = target_loc;
             goal_data.params[AGDATA_RANGE_DATA].data = range;
-            if (sub_44D520(&goal_data, &stru_5A1908)) {
+            if (anim_goal_add(&goal_data, &stru_5A1908)) {
                 if (critter_encumbrance_level_get(source_obj) < ENCUMBRANCE_LEVEL_SIGNIFICANT) {
                     turn_on_running(stru_5A1908);
                 }
@@ -13869,7 +13869,7 @@ bool anim_goal_follow_obj(int64_t source_obj, int64_t target_obj)
 
     goal_data.params[AGDATA_FLAGS_DATA].data |= 0x1000;
 
-    if (!sub_44D520(&goal_data, &stru_5A1908)) {
+    if (!anim_goal_add(&goal_data, &stru_5A1908)) {
         return false;
     }
 
@@ -13925,7 +13925,7 @@ bool anim_goal_flee(int64_t obj, int64_t from_obj)
 
     goal_data.params[AGDATA_TARGET_OBJ].obj = from_obj;
 
-    if (!sub_44D520(&goal_data, &stru_5A1908)) {
+    if (!anim_goal_add(&goal_data, &stru_5A1908)) {
         return false;
     }
 
@@ -14009,7 +14009,7 @@ bool anim_goal_attack_ex(int64_t attacker_obj, int64_t target_obj, int sound_id)
 
     goal_data.params[AGDATA_SCRATCH_VAL5].data = sound_id;
 
-    if (!sub_44D520(&goal_data, &stru_5A1908)) {
+    if (!anim_goal_add(&goal_data, &stru_5A1908)) {
         sub_4364D0(attacker_obj);
         return false;
     }
@@ -14049,7 +14049,7 @@ bool anim_goal_get_up(int64_t obj)
 
     goal_data.params[AGDATA_ANIM_ID].data = tig_art_id_anim_set(art_id, 8);
 
-    if (!sub_44D520(&goal_data, &stru_5A1908)) {
+    if (!anim_goal_add(&goal_data, &stru_5A1908)) {
         return false;
     }
 
@@ -14083,7 +14083,7 @@ bool anim_goal_knockback(int64_t target_obj, int rot, int range, int64_t source_
     goal_data.params[AGDATA_TARGET_TILE].loc = loc;
     goal_data.params[AGDATA_SCRATCH_OBJ].obj = source_obj;
 
-    if (!sub_44D520(&goal_data, &stru_5A1908)) {
+    if (!anim_goal_add(&goal_data, &stru_5A1908)) {
         return false;
     }
 
@@ -14120,7 +14120,7 @@ bool anim_goal_throw_item(int64_t obj, int64_t item_obj, int64_t target_loc)
         return false;
     }
 
-    if (!sub_44D520(&goal_data, &stru_5A1908)) {
+    if (!anim_goal_add(&goal_data, &stru_5A1908)) {
         return false;
     }
 
@@ -14142,7 +14142,7 @@ bool anim_goal_dying(int64_t obj, int anim)
 
     goal_data.params[AGDATA_SCRATCH_VAL1].data = anim;
 
-    if (!sub_44D520(&goal_data, &stru_5A1908)) {
+    if (!anim_goal_add(&goal_data, &stru_5A1908)) {
         return false;
     }
 
@@ -14171,7 +14171,7 @@ bool anim_goal_use_skill_on(int64_t obj, int64_t target_obj, int64_t item_obj, i
     goal_data.params[AGDATA_SKILL_DATA].data = skill;
     goal_data.params[AGDATA_FLAGS_DATA].data |= flags;
 
-    if (!sub_44D520(&goal_data, &stru_5A1908)) {
+    if (!anim_goal_add(&goal_data, &stru_5A1908)) {
         return false;
     }
 
@@ -14213,7 +14213,7 @@ bool anim_goal_use_item_on_obj_with_skill(int64_t obj, int64_t item_obj, int64_t
     goal_data.params[AGDATA_SKILL_DATA].data = skill;
     goal_data.params[AGDATA_SCRATCH_VAL4].data = modifier;
 
-    if (!sub_44D520(&goal_data, &stru_5A1908)) {
+    if (!anim_goal_add(&goal_data, &stru_5A1908)) {
         return false;
     }
 
@@ -14258,7 +14258,7 @@ bool anim_goal_use_item_on_obj(int64_t obj, int64_t target_obj, int64_t item_obj
     goal_data.params[AGDATA_SCRATCH_OBJ].obj = item_obj;
     goal_data.params[AGDATA_FLAGS_DATA].data |= flags;
 
-    if (!sub_44D520(&goal_data, &stru_5A1908)) {
+    if (!anim_goal_add(&goal_data, &stru_5A1908)) {
         return false;
     }
 
@@ -14303,7 +14303,7 @@ bool anim_goal_use_item_on_loc(int64_t obj, int64_t target_loc, int64_t item_obj
     goal_data.params[AGDATA_SCRATCH_OBJ].obj = item_obj;
     goal_data.params[AGDATA_FLAGS_DATA].data |= flags;
 
-    if (!sub_44D520(&goal_data, &stru_5A1908)) {
+    if (!anim_goal_add(&goal_data, &stru_5A1908)) {
         return false;
     }
 
@@ -14338,7 +14338,7 @@ bool anim_goal_pickup_item(int64_t obj, int64_t item_obj)
 
     goal_data.params[AGDATA_TARGET_OBJ].obj = item_obj;
 
-    if (!sub_44D520(&goal_data, &stru_5A1908)) {
+    if (!anim_goal_add(&goal_data, &stru_5A1908)) {
         return false;
     }
 
@@ -14373,7 +14373,7 @@ bool anim_goal_animate_stunned(int64_t obj)
 
     goal_data.params[AGDATA_SCRATCH_VAL5].data = (20 - stat_level_get(obj, STAT_CONSTITUTION)) / 2;
 
-    if (!sub_44D520(&goal_data, &stru_5A1908)) {
+    if (!anim_goal_add(&goal_data, &stru_5A1908)) {
         return false;
     }
 
@@ -14424,7 +14424,7 @@ bool anim_goal_projectile(int64_t source_obj, int64_t missile_obj, tig_art_id_t 
     }
     goal_data.params[AGDATA_SCRATCH_VAL5].data = projectile_speed;
 
-    if (!sub_44D520(&goal_data, &stru_5A1908)) {
+    if (!anim_goal_add(&goal_data, &stru_5A1908)) {
         return false;
     }
 
@@ -14482,7 +14482,7 @@ bool anim_goal_knockdown(int64_t critter_obj)
         return false;
     }
 
-    if (!sub_44D520(&goal_data, &stru_5A1908)) {
+    if (!anim_goal_add(&goal_data, &stru_5A1908)) {
         return false;
     }
 
@@ -14557,7 +14557,7 @@ bool anim_goal_fidget(int64_t critter_obj)
         return false;
     }
 
-    if (!sub_44D520(&goal_data, &stru_5A1908)) {
+    if (!anim_goal_add(&goal_data, &stru_5A1908)) {
         return false;
     }
 
@@ -14619,7 +14619,7 @@ bool anim_goal_unconceal(int64_t critter_obj)
         return false;
     }
 
-    if (!sub_44D520(&goal_data, &stru_5A1908)) {
+    if (!anim_goal_add(&goal_data, &stru_5A1908)) {
         return false;
     }
 
@@ -14657,7 +14657,7 @@ bool anim_goal_wander(int64_t obj, int64_t tether_loc, int radius)
             goal_data.params[AGDATA_RANGE_DATA].data = radius;
             goal_data.params[AGDATA_SCRATCH_VAL1].data = (int)LOCATION_GET_X(tether_loc);
             goal_data.params[AGDATA_SCRATCH_VAL2].data = (int)LOCATION_GET_Y(tether_loc);
-            if (sub_44D520(&goal_data, &stru_5A1908)) {
+            if (anim_goal_add(&goal_data, &stru_5A1908)) {
                 return true;
             }
         }
@@ -14697,7 +14697,7 @@ bool anim_goal_wander_seek_darkness(int64_t obj, int64_t tether_loc, int radius)
             goal_data.params[AGDATA_RANGE_DATA].data = radius;
             goal_data.params[AGDATA_SCRATCH_VAL1].data = (int)LOCATION_GET_X(tether_loc);
             goal_data.params[AGDATA_SCRATCH_VAL2].data = (int)LOCATION_GET_Y(tether_loc);
-            if (sub_44D520(&goal_data, &stru_5A1908)) {
+            if (anim_goal_add(&goal_data, &stru_5A1908)) {
                 return true;
             }
         }
@@ -14747,7 +14747,7 @@ bool sub_436220(int64_t obj, int64_t target_obj, int64_t item_obj)
 
     goal_data.params[AGDATA_SCRATCH_VAL3].data = v1;
 
-    if (!sub_44D520(&goal_data, &stru_5A1908)) {
+    if (!anim_goal_add(&goal_data, &stru_5A1908)) {
         return false;
     }
 
@@ -14793,7 +14793,7 @@ bool anim_goal_please_move(int64_t obj, int64_t target_obj)
 
     goal_data.params[AGDATA_TARGET_OBJ].obj = obj;
 
-    if (!sub_44D520(&goal_data, &stru_5A1908)) {
+    if (!anim_goal_add(&goal_data, &stru_5A1908)) {
         return false;
     }
 
@@ -15016,7 +15016,7 @@ bool anim_goal_attempt_spread_out(int64_t obj, int64_t target_obj)
         return false;
     }
 
-    if (!sub_44D520(&goal_data, &stru_5A1908)) {
+    if (!anim_goal_add(&goal_data, &stru_5A1908)) {
         return false;
     }
 

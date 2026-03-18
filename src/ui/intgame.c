@@ -3540,7 +3540,7 @@ void sub_54ED30(TargetDescriptor* td)
             }
         }
 
-        if (!sub_44D540(&goal_data, &anim_id, flags)) {
+        if (!anim_goal_add_ex(&goal_data, &anim_id, flags)) {
             return;
         }
 
@@ -3556,7 +3556,7 @@ void sub_54ED30(TargetDescriptor* td)
                 && num_goal_subslots_in_use(&anim_id) < 4) {
                 if (is_anim_forever(&anim_id)) {
                     if (sub_424070(pc_obj, 3, false, false)) {
-                        if (!sub_44D520(&goal_data, &anim_id)) {
+                        if (!anim_goal_add(&goal_data, &anim_id)) {
                             return;
                         }
                     }
@@ -3573,7 +3573,7 @@ void sub_54ED30(TargetDescriptor* td)
                 if (num_goal_subslots_in_use(&anim_id) < 4) {
                     if (is_anim_forever(&anim_id)) {
                         if (sub_424070(pc_obj, 3, 0, 0)
-                            && !sub_44D520(&goal_data, &anim_id)) {
+                            && !anim_goal_add(&goal_data, &anim_id)) {
                             return;
                         }
                     } else {
@@ -3586,7 +3586,7 @@ void sub_54ED30(TargetDescriptor* td)
                 }
             } else {
                 if (sub_424070(pc_obj, 3, false, false)
-                    && sub_44D520(&goal_data, &anim_id)) {
+                    && anim_goal_add(&goal_data, &anim_id)) {
                     if (tig_kb_get_modifier(SDL_KMOD_SHIFT)) {
                         sub_436C50(anim_id);
                     } else if (tig_kb_get_modifier(SDL_KMOD_CTRL)) {
@@ -3616,7 +3616,7 @@ void sub_54ED30(TargetDescriptor* td)
                 // NOTE: Some useless checks.
             }
 
-            if (sub_44D520(&goal_data, &anim_id)
+            if (anim_goal_add(&goal_data, &anim_id)
                 && !tig_net_is_active()) {
                 if (tig_kb_get_modifier(SDL_KMOD_SHIFT)) {
                     sub_436C50(anim_id);
@@ -3641,7 +3641,7 @@ void sub_54ED30(TargetDescriptor* td)
             }
         }
     } else {
-        if (!sub_44D520(&goal_data, &anim_id)) {
+        if (!anim_goal_add(&goal_data, &anim_id)) {
             return;
         }
     }

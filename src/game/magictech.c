@@ -2147,7 +2147,7 @@ void MTComponentAGoal_ProcFunc(void)
                 // __LINE__: 3277
                 anim_subgoal_add(stru_5E75C0, &goal_data, __FILE__, __LINE__);
             } else {
-                sub_44D520(&goal_data, &stru_5E75C0);
+                anim_goal_add(&goal_data, &stru_5E75C0);
             }
         }
         break;
@@ -4816,7 +4816,7 @@ void sub_455C30(MagicTechInvocation* mt_invocation)
                     return;
                 }
 
-                if (sub_44D520(&goal_data, &anim_id)) {
+                if (anim_goal_add(&goal_data, &anim_id)) {
                     turn_on_flags(anim_id, 0x200000, 0);
                     return;
                 }
@@ -4864,14 +4864,14 @@ void sub_455C30(MagicTechInvocation* mt_invocation)
                 return;
             }
 
-            if (sub_44D520(&goal_data, &anim_id)) {
+            if (anim_goal_add(&goal_data, &anim_id)) {
                 if (info->casting_anim != -1) {
                     if (sub_44D500(&goal_data, run_info->parent_obj.obj, AG_THROW_SPELL_W_CAST_ANIM_2NDARY)) {
                         goal_data.params[AGDATA_SPELL_DATA].data = run_info->id;
                         goal_data.params[AGDATA_TARGET_OBJ].obj = run_info->target_obj.obj;
                         goal_data.params[AGDATA_TARGET_TILE].obj = run_info->target_obj.loc;
                         goal_data.params[AGDATA_ANIM_ID].data = TIG_ART_ID_INVALID;
-                        sub_44D520(&goal_data, &anim_id);
+                        anim_goal_add(&goal_data, &anim_id);
                     }
                 }
                 return;

@@ -704,13 +704,13 @@ bool sub_44D500(AnimGoalData* anim_data, int64_t obj, int goal_type)
 }
 
 // 0x44D520
-bool sub_44D520(AnimGoalData* anim_data, AnimID* anim_id)
+bool anim_goal_add(AnimGoalData* anim_data, AnimID* anim_id)
 {
-    return sub_44D540(anim_data, anim_id, 0);
+    return anim_goal_add_ex(anim_data, anim_id, 0);
 }
 
 // 0x44D540
-bool sub_44D540(AnimGoalData* anim_data, AnimID* anim_id, unsigned int flags)
+bool anim_goal_add_ex(AnimGoalData* anim_data, AnimID* anim_id, unsigned int flags)
 {
     Packet5 pkt;
     int index;

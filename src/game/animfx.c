@@ -668,7 +668,7 @@ bool animfx_add(AnimFxNode* node)
                     // __LINE__: 790
                     anim_subgoal_add(stru_601700, &goal_data, __FILE__, __LINE__);
                 } else {
-                    sub_44D520(&goal_data, &stru_601700);
+                    anim_goal_add(&goal_data, &stru_601700);
                 }
 
                 if ((node->flags & ANIMFX_PLAY_DESTROY) != 0) {
