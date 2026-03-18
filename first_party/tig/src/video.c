@@ -567,7 +567,7 @@ int tig_video_buffer_unlock(TigVideoBuffer* video_buffer)
 }
 
 // 0x520540
-int tig_video_buffer_outline(TigVideoBuffer* video_buffer, TigRect* rect, int color)
+int tig_video_buffer_outline(TigVideoBuffer* video_buffer, TigRect* rect, tig_color_t color)
 {
     TigRect line;
     int rc;
@@ -612,7 +612,7 @@ int tig_video_buffer_outline(TigVideoBuffer* video_buffer, TigRect* rect, int co
 }
 
 // 0x520630
-int tig_video_buffer_fill(TigVideoBuffer* video_buffer, TigRect* rect, int color)
+int tig_video_buffer_fill(TigVideoBuffer* video_buffer, TigRect* rect, tig_color_t color)
 {
     SDL_Rect native_rect;
 
@@ -631,7 +631,7 @@ int tig_video_buffer_fill(TigVideoBuffer* video_buffer, TigRect* rect, int color
 }
 
 // 0x520660
-int tig_video_buffer_line(TigVideoBuffer* video_buffer, TigLine* line, TigRect* a3, unsigned int color)
+int tig_video_buffer_line(TigVideoBuffer* video_buffer, TigLine* line, TigRect* a3, tig_color_t color)
 {
     int pattern = 0;
     bool reversed;

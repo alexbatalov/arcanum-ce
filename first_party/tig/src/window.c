@@ -591,7 +591,7 @@ void sub_51D050(TigRect* src_rect, TigVideoBuffer* dst_video_buffer, int dx, int
 }
 
 // 0x51D570
-int tig_window_fill(tig_window_handle_t window_handle, TigRect* rect, int color)
+int tig_window_fill(tig_window_handle_t window_handle, TigRect* rect, tig_color_t color)
 {
     int window_index;
     TigWindow* win;
@@ -640,7 +640,7 @@ int tig_window_fill(tig_window_handle_t window_handle, TigRect* rect, int color)
 }
 
 // 0x51D6B0
-int tig_window_line(tig_window_handle_t window_handle, TigLine* line, int color)
+int tig_window_line(tig_window_handle_t window_handle, TigLine* line, tig_color_t color)
 {
     int window_index;
     TigWindow* win;
@@ -683,7 +683,7 @@ int tig_window_line(tig_window_handle_t window_handle, TigLine* line, int color)
 }
 
 // 0x51D7B0
-int tig_window_box(tig_window_handle_t window_handle, TigRect* rect, int color)
+int tig_window_box(tig_window_handle_t window_handle, TigRect* rect, tig_color_t color)
 {
     int rc;
     TigRect side_rect;
