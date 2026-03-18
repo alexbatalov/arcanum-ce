@@ -271,7 +271,6 @@ bool sub_44D4E0(AnimGoalData* goal_data, int64_t obj, int goal_type);
 bool sub_44D500(AnimGoalData* goal_data, int64_t obj, int goal_type);
 bool sub_44D520(AnimGoalData* goal_data, AnimID* anim_id);
 bool sub_44D540(AnimGoalData* goal_data, AnimID* anim_id, unsigned int flags);
-bool sub_44D730(AnimGoalData* goal_data, AnimID* anim_id, bool a3, unsigned int flags);
 bool anim_subgoal_add(AnimID anim_id, AnimGoalData* goal_data, const char* file, int line);
 bool anim_recover_handles(AnimRunInfo* run_info, AnimGoalSubNode* goal_subnode);
 void sub_44E050(int64_t a1, int64_t a2);

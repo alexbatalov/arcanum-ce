@@ -14,6 +14,7 @@
 
 static bool anim_allocate_this_run_index(AnimID* anim_id);
 static bool sub_44D240(int index);
+static bool anim_goal_add_func(AnimGoalData* goal_data, AnimID* anim_id, bool a3, unsigned int flags);
 static bool anim_subgoal_add_func(AnimID anim_id, AnimGoalData* goal_data);
 static bool sub_44E2A0(TimeEvent* timeevent);
 static void anim_path_debug(AnimPath* path);
@@ -720,7 +721,7 @@ bool sub_44D540(AnimGoalData* anim_data, AnimID* anim_id, unsigned int flags)
     }
 
     if (!tig_net_is_active()) {
-        return sub_44D730(anim_data, anim_id, true, flags);
+        return anim_goal_add_func(anim_data, anim_id, true, flags);
     }
 
     if (sub_45B300()
@@ -743,7 +744,7 @@ bool sub_44D540(AnimGoalData* anim_data, AnimID* anim_id, unsigned int flags)
     pkt.field_10 = *anim_data;
 
     if (tig_net_is_host()) {
-        if (!sub_44D730(anim_data, &v1, true, flags)) {
+        if (!anim_goal_add_func(anim_data, &v1, true, flags)) {
             return false;
         }
 
@@ -764,7 +765,7 @@ bool sub_44D540(AnimGoalData* anim_data, AnimID* anim_id, unsigned int flags)
 }
 
 // 0x44D730
-bool sub_44D730(AnimGoalData* goal_data, AnimID* anim_id, bool a3, unsigned int flags)
+bool anim_goal_add_func(AnimGoalData* goal_data, AnimID* anim_id, bool a3, unsigned int flags)
 {
     AnimID new_anim_id;
     AnimRunInfo* run_info;
@@ -857,7 +858,7 @@ bool anim_subgoal_add_func(AnimID anim_id, AnimGoalData* goal_data)
             return false;
         }
 
-        return sub_44D730(goal_data, &anim_id, false, 0);
+        return anim_goal_add_func(goal_data, &anim_id, false, 0);
     }
 
     if (!anim_id_to_run_info(&anim_id, &run_info)) {
