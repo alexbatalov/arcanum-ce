@@ -223,7 +223,7 @@ bool animfx_has(AnimFxNode* node)
     }
 
     if ((node->flags & ANIMFX_PLAY_CHECK_ALREADY) != 0
-        && sub_424560(node->obj, entry->eye_candy_art_id, node->mt_id)) {
+        && anim_eye_candy_is_active(node->obj, entry->eye_candy_art_id, node->mt_id)) {
         return false;
     }
 
@@ -328,7 +328,7 @@ bool animfx_add(AnimFxNode* node)
         tig_art_id_t art_id;
 
         if ((node->flags & ANIMFX_PLAY_CHECK_ALREADY) != 0
-            && sub_424560(node->obj, entry->eye_candy_art_id, node->mt_id)) {
+            && anim_eye_candy_is_active(node->obj, entry->eye_candy_art_id, node->mt_id)) {
             return false;
         }
 

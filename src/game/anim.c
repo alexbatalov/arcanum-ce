@@ -4143,7 +4143,7 @@ bool sub_4243E0(int64_t obj, tig_art_id_t eye_candy_id, int mt_id)
 }
 
 // 0x424560
-bool sub_424560(int64_t obj, tig_art_id_t eye_candy_id, int mt_id)
+bool anim_eye_candy_is_active(int64_t obj, tig_art_id_t eye_candy_id, int mt_id)
 {
     AnimID prev_anim_id;
     AnimID cur_anim_id;

@@ -82,7 +82,7 @@ bool anim_goal_interrupt_all_goals(void);
 bool anim_goal_interrupt_all_goals_of_priority(int priority_level);
 bool anim_goal_interrupt_all_for_tb_combat(void);
 bool sub_4243E0(int64_t obj, tig_art_id_t eye_candy_id, int mt_id);
-bool sub_424560(int64_t obj, tig_art_id_t eye_candy_id, int mt_id);
+bool anim_eye_candy_is_active(int64_t obj, tig_art_id_t eye_candy_id, int mt_id);
 int sub_4261E0(int64_t a1, int64_t a2);
 int sub_426250(int64_t a1, int64_t a2);
 bool sub_426560(int64_t obj, int64_t from, int64_t to, AnimPath* path, unsigned int flags);
