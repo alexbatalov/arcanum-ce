@@ -4095,7 +4095,7 @@ bool anim_goal_interrupt_all_for_tb_combat(void)
 }
 
 // 0x4243E0
-bool sub_4243E0(int64_t obj, tig_art_id_t eye_candy_id, int mt_id)
+bool anim_eye_candy_interrupt(int64_t obj, tig_art_id_t eye_candy_id, int mt_id)
 {
     AnimID prev_anim_id;
     AnimID cur_anim_id;

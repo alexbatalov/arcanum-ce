@@ -81,7 +81,7 @@ bool sub_424070(int64_t obj, int priority_level, bool a3, bool a4);
 bool anim_goal_interrupt_all_goals(void);
 bool anim_goal_interrupt_all_goals_of_priority(int priority_level);
 bool anim_goal_interrupt_all_for_tb_combat(void);
-bool sub_4243E0(int64_t obj, tig_art_id_t eye_candy_id, int mt_id);
+bool anim_eye_candy_interrupt(int64_t obj, tig_art_id_t eye_candy_id, int mt_id);
 bool anim_eye_candy_is_active(int64_t obj, tig_art_id_t eye_candy_id, int mt_id);
 int sub_4261E0(int64_t a1, int64_t a2);
 int sub_426250(int64_t a1, int64_t a2);

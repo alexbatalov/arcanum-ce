@@ -817,7 +817,7 @@ void animfx_remove(AnimFxList* list, int64_t obj, int fx_id, int mt_id)
     }
 
     if ((list->entries[fx_id].flags & ANIMFX_LIST_ENTRY_ANIMATES) != 0) {
-        sub_4243E0(obj, list->entries[fx_id].eye_candy_art_id, mt_id);
+        anim_eye_candy_interrupt(obj, list->entries[fx_id].eye_candy_art_id, mt_id);
     } else {
         sub_4CD9C0(&(list->entries[fx_id]), obj);
     }
