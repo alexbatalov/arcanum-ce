@@ -915,7 +915,7 @@ void follower_ui_begin_order_mode(int cmd)
         }
     }
 
-    sub_4F25B0(tgt);
+    target_flags_set(tgt);
 }
 
 /**

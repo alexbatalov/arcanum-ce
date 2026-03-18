@@ -111,9 +111,9 @@ void item_ui_activate(int64_t owner_obj, int64_t item_obj)
     }
 
     if (combat_check_action_points(owner_obj, 4)) {
-        sub_4F25B0(*tgt_ptr);
+        target_flags_set(*tgt_ptr);
         if (intgame_mode_set(INTGAME_MODE_ITEM)) {
-            sub_4F25B0(*tgt_ptr);
+            target_flags_set(*tgt_ptr);
             if (obj_field_int32_get(qword_6810D8, OBJ_F_ITEM_MAGIC_TECH_COMPLEXITY) < 0) {
                 intgame_item_mode_cursor_set(620);
                 intgame_refresh_cursor();

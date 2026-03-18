@@ -108,14 +108,22 @@ void target_resize(GameResizeInfo* resize_info)
     target_iso_content_rect = resize_info->content_rect;
 }
 
-// 0x4F25B0
-void sub_4F25B0(uint64_t flags)
+/**
+ * Sets current targeting flags.
+ *
+ * 0x4F25B0
+ */
+void target_flags_set(uint64_t flags)
 {
     stru_603D20.tgt = flags;
 }
 
-// 0x4F25D0
-uint64_t sub_4F25D0(void)
+/**
+ * Retrieves current targeting flags.
+ *
+ * 0x4F25D0
+ */
+uint64_t target_flags_get(void)
 {
     return stru_603D20.tgt;
 }
@@ -404,10 +412,10 @@ bool sub_4F2CB0(int x, int y, TargetDescriptor* a3, uint64_t tgt, bool fullscree
         y -= target_iso_content_rect.y;
     }
 
-    old_tgt = sub_4F25D0();
-    sub_4F25B0(tgt);
+    old_tgt = target_flags_get();
+    target_flags_set(tgt);
     rc = sub_4F28A0(x, y, a3);
-    sub_4F25B0(old_tgt);
+    target_flags_set(old_tgt);
     return rc;
 }
 

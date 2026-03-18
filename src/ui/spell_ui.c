@@ -210,9 +210,9 @@ SpellUiActivate spell_ui_activate(int64_t obj, int spl)
         return false;
     }
 
-    sub_4F25B0(tgt);
+    target_flags_set(tgt);
     if (intgame_mode_set(INTGAME_MODE_SPELL)) {
-        sub_4F25B0(tgt);
+        target_flags_set(tgt);
 
         if ((*tgt_ptr & Tgt_Object) != 0
             && tig_kb_get_modifier(SDL_KMOD_SHIFT)) {
@@ -273,9 +273,9 @@ void spell_ui_aggressive_mode_off(void)
     uint64_t tgt;
 
     if (magictech_is_aggressive(dword_5CB3A0)) {
-        tgt = sub_4F25D0();
+        tgt = target_flags_get();
         tgt &= ~Tgt_Non_Party;
-        sub_4F25B0(tgt);
+        target_flags_set(tgt);
     }
 }
 
@@ -285,9 +285,9 @@ void spell_ui_aggressive_mode_on(void)
     uint64_t tgt;
 
     if (magictech_is_aggressive(dword_5CB3A0)) {
-        tgt = sub_4F25D0();
+        tgt = target_flags_get();
         tgt |= Tgt_Non_Party;
-        sub_4F25B0(tgt);
+        target_flags_set(tgt);
     }
 }
 

@@ -221,7 +221,7 @@ void skill_ui_preprocess(int64_t obj, int type)
 
     if (is_pc && tgt != Tgt_None && tgt != Tgt_Self) {
         if (intgame_mode_set(INTGAME_MODE_SKILL)) {
-            sub_4F25B0(tgt);
+            target_flags_set(tgt);
         }
     }
 }

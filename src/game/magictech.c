@@ -5119,8 +5119,8 @@ bool sub_456A90(int mt_id)
         return true;
     }
 
-    prev_tgt = sub_4F25D0();
-    sub_4F25B0(*tgt_ptr);
+    prev_tgt = target_flags_get();
+    target_flags_set(*tgt_ptr);
     if (run_info->target_obj.obj != OBJ_HANDLE_NULL) {
         target_descriptor_set_obj(&td, run_info->target_obj.obj);
     } else {
@@ -5131,7 +5131,7 @@ bool sub_456A90(int mt_id)
     v3.field_8 = run_info->parent_obj.obj;
     v3.td = &td;
     rc = sub_4F2680(&v3);
-    sub_4F25B0(prev_tgt);
+    target_flags_set(prev_tgt);
 
     return rc;
 }

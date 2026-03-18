@@ -1302,7 +1302,7 @@ void iso_interface_create(tig_window_handle_t window_handle)
 
     intgame_mode_stack_size = 0;
     intgame_mode_stack[0] = INTGAME_MODE_MAIN;
-    sub_4F25B0(Tgt_Obj_No_T_Wall | Tgt_Tile);
+    target_flags_set(Tgt_Obj_No_T_Wall | Tgt_Tile);
     intgame_pc_lens_mode = PC_LENS_MODE_NONE;
 
     font_desc.str = NULL;
@@ -4877,7 +4877,7 @@ bool intgame_mode_set(IntgameMode mode)
         case INTGAME_MODE_MAIN:
         case INTGAME_MODE_FOLLOWER:
             v1 = true;
-            sub_4F25B0(Tgt_Tile | Tgt_Obj_No_T_Wall);
+            target_flags_set(Tgt_Tile | Tgt_Obj_No_T_Wall);
             break;
         case INTGAME_MODE_SPELL:
             v1 = true;
@@ -5101,17 +5101,17 @@ void sub_551F80(void)
 
         if (combat_critter_is_combat_mode_active(pc_obj)) {
             if (tig_kb_get_modifier(SDL_KMOD_ALT)) {
-                sub_4F25B0(Tgt_Obj_No_Self | Tgt_Obj_No_T_Wall | Tgt_Tile);
+                target_flags_set(Tgt_Obj_No_Self | Tgt_Obj_No_T_Wall | Tgt_Tile);
                 qword_5C7280 = Tgt_Obj_No_Self | Tgt_Obj_No_T_Wall;
             } else {
-                sub_4F25B0(Tgt_Obj_No_Self | Tgt_Obj_No_ST_Critter_Dead | Tgt_Obj_No_T_Wall | Tgt_Tile | Tgt_Non_Party_Critters);
+                target_flags_set(Tgt_Obj_No_Self | Tgt_Obj_No_ST_Critter_Dead | Tgt_Obj_No_T_Wall | Tgt_Tile | Tgt_Non_Party_Critters);
                 qword_5C7280 = Tgt_Obj_No_Self | Tgt_Obj_No_ST_Critter_Dead | Tgt_Obj_No_T_Wall | Tgt_Non_Party_Critters;
             }
             return;
         }
     }
 
-    sub_4F25B0(Tgt_Obj_No_T_Wall | Tgt_Tile);
+    target_flags_set(Tgt_Obj_No_T_Wall | Tgt_Tile);
     qword_5C7280 = Tgt_Object;
 }
 
