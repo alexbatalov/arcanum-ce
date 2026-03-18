@@ -3260,10 +3260,10 @@ void anim_break_nodes_to_map(const char* map)
         if ((run_info->flags & 0x1) != 0) {
             if (!teleport_is_teleporting_obj(run_info->anim_obj)
                 || !anim_goal_nodes[run_info->goals[0].type]->field_C) {
-                sub_44E2C0(&(run_info->id), 6);
+                anim_interrupt(&(run_info->id), PRIORITY_HIGHEST);
             } else if (anim_run_info_save(run_info, stream)) {
                 cnt++;
-                sub_44E2C0(&(run_info->id), 6);
+                anim_interrupt(&(run_info->id), PRIORITY_HIGHEST);
             } else {
                 ASSERT(0); // 1067, "0"
                 break;
@@ -3657,7 +3657,7 @@ bool anim_timeevent_process(TimeEvent* timeevent)
 
             combat_turn_based_end_critter_turn(run_info->anim_obj);
             dword_5A5978 = -1;
-            sub_44E2C0(&(run_info->id), PRIORITY_HIGHEST);
+            anim_interrupt(&(run_info->id), PRIORITY_HIGHEST);
             return true;
         }
 
@@ -3804,7 +3804,7 @@ bool anim_timeevent_process(TimeEvent* timeevent)
             return true;
         }
 
-        bool rc = sub_44E2C0(&(run_info->id), PRIORITY_HIGHEST);
+        bool rc = anim_interrupt(&(run_info->id), PRIORITY_HIGHEST);
 
         if (!combat_turn_based_is_active()) {
             sub_4B4320(anim_obj);
@@ -4032,7 +4032,7 @@ bool sub_424070(int64_t obj, int priority_level, bool a3, bool a4)
     slot = anim_find_first(obj);
     while (slot != -1 && slot != prev) {
         prev = slot;
-        if (!sub_44E2C0(&(anim_run_info[slot].id), priority_level)) {
+        if (!anim_interrupt(&(anim_run_info[slot].id), priority_level)) {
             return false;
         }
 
@@ -4050,7 +4050,7 @@ bool anim_goal_interrupt_all_goals(void)
     if (dword_5E3500 > 0) {
         for (index = 0; index < 216; index++) {
             if ((anim_run_info[index].flags & 0x1) != 0
-                && !sub_44E2C0(&(anim_run_info[index].id), PRIORITY_HIGHEST)) {
+                && !anim_interrupt(&(anim_run_info[index].id), PRIORITY_HIGHEST)) {
                 return false;
             }
         }
@@ -4068,7 +4068,7 @@ bool anim_goal_interrupt_all_goals_of_priority(int priority_level)
 
     for (index = 0; index < 216; index++) {
         if ((anim_run_info[index].flags & 0x1) != 0
-            && !sub_44E2C0(&(anim_run_info[index].id), priority_level)) {
+            && !anim_interrupt(&(anim_run_info[index].id), priority_level)) {
             tig_debug_printf("Anim: anim_goal_interrupt_all_goals_of_priority: ERROR: Failed to interrupt slot: %d!\n", index);
         }
     }
@@ -4086,7 +4086,7 @@ bool anim_goal_interrupt_all_for_tb_combat(void)
         run_info = &(anim_run_info[index]);
         if ((run_info->flags & 0x1) != 0
             && !sub_44C9A0(run_info)
-            && !sub_44E2C0(&(run_info->id), 3)) {
+            && !anim_interrupt(&(run_info->id), PRIORITY_3)) {
             tig_debug_printf("Anim: anim_goal_interrupt_all_for_tb_combat: ERROR: Failed to interrupt slot: %d!\n", index);
         }
     }
@@ -4131,7 +4131,7 @@ bool sub_4243E0(int64_t obj, tig_art_id_t eye_candy_id, int mt_id)
 
             if (run_info->cur_stack_data->params[AGDATA_SPELL_DATA].data == mt_id
                 && tig_art_num_get(run_info->cur_stack_data->params[AGDATA_ANIM_ID].data) == num
-                && sub_44E2C0(&(run_info->id), PRIORITY_HIGHEST)) {
+                && anim_interrupt(&(run_info->id), PRIORITY_HIGHEST)) {
                 break;
             }
         }
@@ -5587,7 +5587,7 @@ bool sub_427000(int64_t obj)
         && anim_id_to_run_info(&anim_id, &run_info)) {
         run_info->cur_stack_data->params[AGDATA_SCRATCH_VAL5].data -= 3;
         if (run_info->cur_stack_data->params[AGDATA_SCRATCH_VAL5].data <= 0) {
-            sub_44E2C0(&anim_id, PRIORITY_HIGHEST);
+            anim_interrupt(&anim_id, PRIORITY_HIGHEST);
         }
     }
 
@@ -10422,7 +10422,7 @@ bool sub_42E9B0(AnimRunInfo* run_info)
     sub_42EDC0(run_info, obj, &art_id, (run_info->flags & 0x40) != 0, &v2);
 
     if (!combat_check_action_points(obj, v2)) {
-        sub_44E2C0(&(run_info->id), PRIORITY_HIGHEST);
+        anim_interrupt(&(run_info->id), PRIORITY_HIGHEST);
         return false;
     }
 
@@ -11574,7 +11574,7 @@ bool sub_4305D0(AnimRunInfo* run_info)
                 }
 
                 if (!combat_check_action_points(obj, v3)) {
-                    sub_44E2C0(&(run_info->id), PRIORITY_HIGHEST);
+                    anim_interrupt(&(run_info->id), PRIORITY_HIGHEST);
                     return false;
                 }
             } else {
@@ -11738,7 +11738,7 @@ int sub_430FC0(AnimRunInfo* run_info)
 
     if (!combat_consume_action_points(obj, action_points)) {
         dword_5DE6E4 = 0;
-        sub_44E2C0(&(run_info->id), PRIORITY_HIGHEST);
+        anim_interrupt(&(run_info->id), PRIORITY_HIGHEST);
         return false;
     }
 
@@ -12768,7 +12768,7 @@ bool sub_432700(AnimRunInfo* run_info)
 
     action_points = combat_attack_cost(source_obj);
     if (!combat_consume_action_points(source_obj, action_points)) {
-        sub_44E2C0(&(run_info->id), PRIORITY_HIGHEST);
+        anim_interrupt(&(run_info->id), PRIORITY_HIGHEST);
         return false;
     }
 
@@ -13860,7 +13860,7 @@ bool anim_goal_follow_obj(int64_t source_obj, int64_t target_obj)
     }
 
     if (v1) {
-        sub_44E2C0(&anim_id, PRIORITY_HIGHEST);
+        anim_interrupt(&anim_id, PRIORITY_HIGHEST);
     }
 
     if (!sub_424070(source_obj, 3, false, false)) {

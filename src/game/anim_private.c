@@ -423,7 +423,7 @@ bool anim_allocate_this_run_index(AnimID* anim_id)
         run_info = &(anim_run_info[slot]);
         if (run_info->id.field_4 == anim_id->field_4) {
             if ((run_info->flags & 0x1) != 0
-                && !sub_44E2C0(&(run_info->id), PRIORITY_HIGHEST)) {
+                && !anim_interrupt(&(run_info->id), PRIORITY_HIGHEST)) {
                 tig_debug_printf("Anim: WARNING(uniqueID): Animation slots Force Alloc INTERRUPT FAILED!\n");
                 return false;
             }
@@ -1045,7 +1045,7 @@ void sub_44E050(int64_t a1, int64_t a2)
             || run_info->goals[1].type == AG_ATTEMPT_ATTACK) {
             if (run_info->goals[0].params[AGDATA_TARGET_OBJ].obj == a2
                 || critter_pc_leader_get(run_info->goals[0].params[AGDATA_TARGET_OBJ].obj) == a2) {
-                sub_44E2C0(&anim_id, 5);
+                anim_interrupt(&anim_id, PRIORITY_5);
             }
         }
     }
@@ -1062,7 +1062,7 @@ void sub_44E0E0(int64_t a1, int64_t a2)
         if (run_info->goals[0].type == AG_ATTACK
             || run_info->goals[1].type == AG_ATTEMPT_ATTACK) {
             if (run_info->goals[0].params[AGDATA_TARGET_OBJ].obj == a2) {
-                sub_44E2C0(&anim_id, 5);
+                anim_interrupt(&anim_id, PRIORITY_5);
             }
         }
     }
@@ -1120,7 +1120,7 @@ bool sub_44E2A0(TimeEvent* timeevent)
 }
 
 // 0x44E2C0
-bool sub_44E2C0(AnimID* anim_id, int priority)
+bool anim_interrupt(AnimID* anim_id, int priority)
 {
     AnimRunInfo* run_info;
     bool in_reset;
@@ -1234,11 +1234,11 @@ bool sub_44E4D0(int64_t obj, int goal_type, int a3)
 
         run_info = &(anim_run_info[slot]);
         if (run_info->goals[0].type == goal_type) {
-            if (!sub_44E2C0(&(run_info->id), priority)) {
+            if (!anim_interrupt(&(run_info->id), priority)) {
                 return false;
             }
         } else if (run_info->cur_stack_data->type == goal_type) {
-            if (!sub_44E2C0(&(run_info->id), priority)) {
+            if (!anim_interrupt(&(run_info->id), priority)) {
                 return false;
             }
         }
