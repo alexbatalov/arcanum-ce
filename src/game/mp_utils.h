@@ -211,30 +211,6 @@ typedef struct Packet29 {
 
 static_assert(sizeof(Packet29) == 0x20, "wrong size");
 
-typedef struct Packet30 {
-    /* 0000 */ int type;
-    /* 0004 */ int field_4;
-    /* 0008 */ FollowerInfo field_8;
-    /* 0038 */ int field_38;
-    /* 003C */ int padding_3C;
-} Packet30;
-
-// Serializeable.
-static_assert(sizeof(Packet30) == 0x40, "wrong size");
-
-typedef struct Packet31 {
-    /* 0000 */ int type;
-    /* 0004 */ int field_4;
-    /* 0008 */ FollowerInfo field_8;
-    /* 0038 */ int field_38;
-    /* 003C */ int field_3C;
-    /* 0040 */ TargetDescriptor td;
-    /* 0050 */ ObjectID field_50;
-} Packet31;
-
-// Serializeable.
-static_assert(sizeof(Packet31) == 0x68, "wrong size");
-
 typedef struct PacketDialog {
     /* 0000 */ int type;
     /* 0004 */ int subtype;

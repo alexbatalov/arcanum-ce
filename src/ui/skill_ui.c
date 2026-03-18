@@ -4,8 +4,6 @@
 #include "game/critter.h"
 #include "game/dialog.h"
 #include "game/mes.h"
-#include "game/mp_utils.h"
-#include "game/multiplayer.h"
 #include "game/obj.h"
 #include "game/player.h"
 #include "game/script.h"
@@ -146,7 +144,6 @@ int sub_579F90(void)
 void sub_579FA0(int64_t obj, int type)
 {
     int64_t pc_obj;
-    Packet30 pkt;
 
     pc_obj = player_get_local_pc_obj();
     if (pc_obj != obj) {
@@ -170,16 +167,6 @@ void sub_579FA0(int64_t obj, int type)
 
     if ((qword_5CB250[type] & 0x2000000) != 0
         || intgame_mode_set(INTGAME_MODE_MAIN)) {
-        if (!multiplayer_is_locked()) {
-            pkt.type = 30;
-            sub_4440E0(pc_obj, &(pkt.field_8));
-            pkt.field_38 = type;
-            tig_net_send_app_all(&pkt, sizeof(pkt));
-            if (!tig_net_is_host()) {
-                return;
-            }
-        }
-
         skill_ui_preprocess(obj, type);
     }
 }
@@ -237,23 +224,8 @@ void skill_ui_cancel(void)
 void skill_ui_apply(TargetDescriptor* td)
 {
     int64_t pc_obj;
-    Packet31 pkt;
 
     pc_obj = player_get_local_pc_obj();
-
-    if (!multiplayer_is_locked()) {
-        pkt.type = 31;
-        sub_4440E0(qword_683490, &(pkt.field_8));
-        pkt.field_38 = dword_5CB270;
-        pkt.td = *td;
-        if (!td->is_loc) {
-            pkt.field_50 = obj_get_id(td->obj);
-        }
-
-        if (!tig_net_is_host()) {
-            return;
-        }
-    }
 
     if ((pc_obj == qword_683490 || !critter_is_unconscious(pc_obj))
         && !critter_is_unconscious(qword_683490)) {
@@ -443,7 +415,6 @@ bool skill_ui_steal_item(int64_t source_obj, int64_t target_obj, int64_t item_ob
     MesFileEntry mes_file_entry;
     UiMessage ui_message;
     int tf_type;
-    int client_id;
 
     (void)target_obj;
     (void)item_obj;
@@ -463,11 +434,6 @@ bool skill_ui_steal_item(int64_t source_obj, int64_t target_obj, int64_t item_ob
 
     if (player_is_local_pc_obj(source_obj)) {
         intgame_message_window_display_msg(&ui_message);
-    } else {
-        client_id = multiplayer_find_slot_from_obj(source_obj);
-        if (client_id != -1) {
-            sub_4EDA60(&ui_message, client_id, 0);
-        }
     }
 
     tf_add(source_obj, tf_type, mes_file_entry.str);
@@ -483,7 +449,6 @@ bool skill_ui_plant_item(int64_t source_obj, int64_t target_obj, int64_t item_ob
     MesFileEntry mes_file_entry;
     UiMessage ui_message;
     int tf_type;
-    int client_id;
 
     (void)target_obj;
     (void)item_obj;
@@ -503,11 +468,6 @@ bool skill_ui_plant_item(int64_t source_obj, int64_t target_obj, int64_t item_ob
 
     if (player_is_local_pc_obj(source_obj)) {
         intgame_message_window_display_msg(&ui_message);
-    } else {
-        client_id = multiplayer_find_slot_from_obj(source_obj);
-        if (client_id != -1) {
-            sub_4EDA60(&ui_message, client_id, 0);
-        }
     }
 
     tf_add(source_obj, tf_type, mes_file_entry.str);
