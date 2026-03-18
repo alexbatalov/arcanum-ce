@@ -234,7 +234,7 @@ void skill_ui_cancel(void)
 }
 
 // 0x57A1F0
-void sub_57A1F0(TargetDescriptor* td)
+void skill_ui_apply(TargetDescriptor* td)
 {
     int64_t pc_obj;
     Packet31 pkt;

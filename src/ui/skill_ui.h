@@ -13,7 +13,7 @@ int sub_579F90(void);
 void sub_579FA0(int64_t obj, int type);
 void skill_ui_preprocess(int64_t obj, int type);
 void skill_ui_cancel(void);
-void sub_57A1F0(TargetDescriptor* td);
+void skill_ui_apply(TargetDescriptor* td);
 void skill_ui_activate(TargetDescriptor* td, int64_t obj, int a3);
 int sub_57A6A0(int index);
 int sub_57A6C0(int a1, TargetDescriptor* td);

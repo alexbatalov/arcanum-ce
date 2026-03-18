@@ -2889,7 +2889,7 @@ void intgame_process_event(TigMessage* msg)
             switch (msg->data.mouse.event) {
             case TIG_MESSAGE_MOUSE_LEFT_BUTTON_UP:
                 if (target_pick_at_screen_xy(msg->data.mouse.x, msg->data.mouse.y, &td, intgame_fullscreen)) {
-                    sub_57A1F0(&td);
+                    skill_ui_apply(&td);
                 }
                 break;
             case TIG_MESSAGE_MOUSE_RIGHT_BUTTON_UP:
@@ -3104,7 +3104,7 @@ void sub_54EA80(TargetDescriptor* td)
             break;
         case INTGAME_MODE_SKILL:
             if (sub_4F2680(&v1)) {
-                sub_57A1F0(td);
+                skill_ui_apply(td);
             }
             break;
         case INTGAME_MODE_ITEM:

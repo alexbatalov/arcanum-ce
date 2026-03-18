@@ -1552,7 +1552,7 @@ static inline bool inven_ui_message_filter_handle_mouse_lbutton_down(int x, int 
         v1 = sub_575FA0(x, y, &qword_681450);
         if (v1 != OBJ_HANDLE_NULL) {
             target_descriptor_set_obj(&td, v1);
-            sub_57A1F0(&td);
+            skill_ui_apply(&td);
             skill_ui_cancel();
             return true;
         }
