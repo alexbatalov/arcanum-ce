@@ -44,7 +44,7 @@ void tig_button_exit(void);
 int tig_button_create(TigButtonData* button_data, tig_button_handle_t* button_handle);
 int tig_button_destroy(tig_button_handle_t button_handle);
 int tig_button_data(tig_button_handle_t button_handle, TigButtonData* button_data);
-int tig_button_refresh_rect(int window_handle, TigRect* rect);
+int tig_button_refresh_rect(tig_window_handle_t window_handle, TigRect* rect);
 void tig_button_state_change(tig_button_handle_t button_handle, TigButtonState state);
 int tig_button_state_get(tig_button_handle_t button_handle, TigButtonState* state);
 tig_button_handle_t tig_button_get_at_position(int x, int y);

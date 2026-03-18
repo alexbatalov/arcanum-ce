@@ -221,7 +221,7 @@ int tig_button_data(tig_button_handle_t button_handle, TigButtonData* button_dat
 }
 
 // 0x537E20
-int tig_button_refresh_rect(int window_handle, TigRect* rect)
+int tig_button_refresh_rect(tig_window_handle_t window_handle, TigRect* rect)
 {
     tig_button_handle_t* window_buttons;
     int num_window_buttons;
