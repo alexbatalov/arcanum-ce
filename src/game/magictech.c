@@ -4349,7 +4349,7 @@ void sub_455350(int64_t obj, int64_t target_loc)
 
     source_loc = obj_field_int64_get(obj, OBJ_F_LOCATION);
     path.field_CC = sizeof(path.rotations) / sizeof(path.rotations[0]);
-    sub_44EBD0(&path);
+    anim_path_init(&path);
 
     path_create_info.to = target_loc;
     path_create_info.from = source_loc;
@@ -4376,7 +4376,7 @@ void sub_455350(int64_t obj, int64_t target_loc)
         }
     }
 
-    sub_44EBE0(&path);
+    anim_path_destroy(&path);
 }
 
 // 0x4554B0

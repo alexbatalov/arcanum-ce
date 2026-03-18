@@ -269,7 +269,7 @@ bool anim_private_init(GameInitInfo* init_info)
         anim_run_info[index].flags = 0;
         anim_run_info[index].path.flags = 1;
         anim_run_info[index].path.field_CC = 200;
-        sub_44EBD0(&(anim_run_info[index].path));
+        anim_path_init(&(anim_run_info[index].path));
     }
 
     dword_6876E4 = random_between(0, 10024);
@@ -287,7 +287,7 @@ void anim_private_exit(void)
     for (index = 0; index < 216; index++) {
         anim_run_info[index].flags = 0;
         anim_run_info[index].path.flags = 1;
-        sub_44EBE0(&(anim_run_info[index].path));
+        anim_path_destroy(&(anim_run_info[index].path));
     }
 
     animNumActiveGoals = 0;
@@ -1551,13 +1551,13 @@ bool sub_44EB40(int64_t obj, int64_t from, int64_t to)
 }
 
 // 0x44EBD0
-void sub_44EBD0(AnimPath* path)
+void anim_path_init(AnimPath* path)
 {
     (void)path;
 }
 
 // 0x44EBE0
-void sub_44EBE0(AnimPath* path)
+void anim_path_destroy(AnimPath* path)
 {
     (void)path;
 }
