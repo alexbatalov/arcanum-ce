@@ -2817,7 +2817,7 @@ void intgame_process_event(TigMessage* msg)
                 if (!inven_ui_is_created()) {
                     if (sub_4F2830(&(msg->data.mouse), &td, intgame_fullscreen)) {
                         spell_ui_apply(&td);
-                    } else if (sub_4F2D10() == 0x100000) {
+                    } else if (target_last_rejection_get() == 0x100000) {
                         spell_ui_error_target_not_damaged();
                     }
                 }
@@ -2995,7 +2995,7 @@ void intgame_process_event(TigMessage* msg)
             case TIG_MESSAGE_MOUSE_LEFT_BUTTON_UP:
                 if (sub_4F2830(&(msg->data.mouse), &td, intgame_fullscreen)) {
                     item_ui_apply(&td);
-                } else if (sub_4F2D10() == 0x100000) {
+                } else if (target_last_rejection_get() == 0x100000) {
                     spell_ui_error_target_not_damaged();
                 }
                 break;

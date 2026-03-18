@@ -205,7 +205,7 @@ void target_descriptor_set_loc(TargetDescriptor* td, int64_t loc);
 void target_descriptor_set_obj(TargetDescriptor* td, int64_t obj);
 bool sub_4F2830(TigMouseMessageData* mouse, TargetDescriptor* td, bool fullscreen);
 bool sub_4F2CB0(int x, int y, TargetDescriptor* td, uint64_t tgt, bool fullscreen);
-int64_t sub_4F2D10(void);
+uint64_t target_last_rejection_get(void);
 bool target_context_evaluate(TargetContext* ctx);
 void target_context_build_list(TargetContext* ctx);
 bool target_find_displacement_loc(int64_t obj, int distance, int64_t* loc_ptr);

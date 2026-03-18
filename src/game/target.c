@@ -71,8 +71,16 @@ static TargetParams stru_603D20;
 // 0x603D38
 static bool target_initialized;
 
-// 0x603D40
-static int64_t qword_603D40;
+/**
+ * Stores the targeting flag that caused the most recent targeting attempt
+ * rejection.
+ *
+ * NOTE: For unknown reason this value only includes either damaged or
+ * non-damaged flag.
+ *
+ * 0x603D40
+ */
+static uint64_t target_last_rejection;
 
 // 0x4F24F0
 bool target_init(GameInitInfo* init_info)
@@ -99,7 +107,7 @@ void target_exit(void)
 // 0x4F2570
 void target_reset(void)
 {
-    qword_603D40 = OBJ_HANDLE_NULL;
+    target_last_rejection = Tgt_None;
 }
 
 // 0x4F2580
@@ -419,10 +427,15 @@ bool sub_4F2CB0(int x, int y, TargetDescriptor* a3, uint64_t tgt, bool fullscree
     return rc;
 }
 
-// 0x4F2D10
-int64_t sub_4F2D10(void)
+/**
+ * Returns the targeting flag that caused the most recent targeting attempt
+ * rejection.
+ *
+ * 0x4F2D10
+ */
+uint64_t target_last_rejection_get(void)
 {
-    return qword_603D40;
+    return target_last_rejection;
 }
 
 /**
@@ -795,14 +808,14 @@ bool target_context_evaluate(TargetContext* ctx)
                 if (object_hp_damage_get(ctx->target_obj) <= 0
                     && (!obj_type_is_critter(obj_type)
                         || (obj_field_int32_get(ctx->target_obj, OBJ_F_CRITTER_FLAGS) & OCF_INJURED) == 0)) {
-                    qword_603D40 = 0x100000;
+                    target_last_rejection = 0x100000;
                     return false;
                 }
             } else if ((tgt & 0x40000000000) != 0) {
                 if (object_hp_damage_get(ctx->target_obj) > 0
                     && (!obj_type_is_critter(obj_type)
                         || (obj_field_int32_get(ctx->target_obj, OBJ_F_CRITTER_FLAGS) & OCF_INJURED) != 0)) {
-                    qword_603D40 = 0x40000000000;
+                    target_last_rejection = 0x40000000000;
                     return false;
                 }
             }
