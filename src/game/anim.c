@@ -13343,7 +13343,7 @@ bool anim_goal_move_to_tile(int64_t obj, int64_t loc)
     if (obj_field_int32_get(obj, OBJ_F_TYPE) == OBJ_TYPE_PC
         && get_always_run(obj)
         && critter_encumbrance_level_get(obj) < 4) {
-        return sub_433C80(obj, loc);
+        return anim_goal_run_to_tile(obj, loc);
     }
 
     if (!anim_is_current_goal_type(obj, AG_MOVE_TO_TILE, &stru_5A1908)) {
@@ -13483,7 +13483,7 @@ bool sub_433A00(int64_t obj, int64_t loc, bool a3)
 }
 
 // 0x433C80
-bool sub_433C80(int64_t obj, int64_t loc)
+bool anim_goal_run_to_tile(int64_t obj, int64_t loc)
 {
     AnimID anim_id;
     AnimRunInfo* run_info;

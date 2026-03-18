@@ -2699,7 +2699,7 @@ void intgame_process_event(TigMessage* msg)
                             if ((tig_kb_get_modifier(SDL_KMOD_CTRL)
                                     || tig_kb_get_modifier(SDL_KMOD_NUM))
                                 && !settings_get_value(&settings, ALWAYS_RUN_KEY)) {
-                                sub_433C80(pc_obj, td.loc);
+                                anim_goal_run_to_tile(pc_obj, td.loc);
                             } else {
                                 anim_goal_move_to_tile(pc_obj, td.loc);
                             }
@@ -2952,7 +2952,7 @@ void intgame_process_event(TigMessage* msg)
                     if ((tig_kb_get_modifier(SDL_KMOD_CTRL)
                             || tig_kb_get_modifier(SDL_KMOD_NUM))
                         && !settings_get_value(&settings, ALWAYS_RUN_KEY)) {
-                        sub_433C80(pc_obj, td.loc);
+                        anim_goal_run_to_tile(pc_obj, td.loc);
                     } else {
                         anim_goal_move_to_tile(pc_obj, td.loc);
                     }
