@@ -1079,7 +1079,7 @@ void sub_4A9AD0(int64_t attacker_obj, int64_t target_obj)
         }
     }
 
-    if (!sub_423300(attacker_obj, NULL) || sub_423470(attacker_obj)) {
+    if (!sub_423300(attacker_obj, NULL) || anim_is_idle(attacker_obj)) {
         if (combat_auto_attack_get(attacker_obj)) {
             if (!anim_is_current_goal_type(attacker_obj, AG_ATTEMPT_ATTACK, NULL)) {
                 anim_goal_attack(attacker_obj, target_obj);

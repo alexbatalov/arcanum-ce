@@ -3512,7 +3512,7 @@ int sub_4233D0(int64_t obj)
 }
 
 // 0x423470
-bool sub_423470(int64_t obj)
+bool anim_is_idle(int64_t obj)
 {
     int index;
     AnimRunInfo* run_info;
@@ -3533,7 +3533,7 @@ bool sub_423470(int64_t obj)
     }
 
     art_id = obj_field_int32_get(obj, OBJ_F_CURRENT_AID);
-    if (tig_art_id_anim_get(art_id) != 0) {
+    if (tig_art_id_anim_get(art_id) != TIG_ART_ANIM_STAND) {
         return false;
     }
 
