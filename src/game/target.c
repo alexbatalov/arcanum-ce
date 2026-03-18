@@ -237,23 +237,26 @@ void target_descriptor_set_obj(TargetDescriptor* td, int64_t obj)
     td->is_loc = 0;
 }
 
-// 0x4F2830
-bool sub_4F2830(TigMouseMessageData* mouse, TargetDescriptor* td, bool fullscreen)
+/**
+ * Resolves a target from a raw mouse position using current targeting flags
+ *
+ * Returns `true` and populates target descriptor, `false` otherwise.
+ *
+ * CE: Signature is slightly changed. Original code accepts raw mouse event
+ * instance.
+ *
+ * 0x4F2830
+ */
+bool target_pick_at_screen_xy(int x, int y, TargetDescriptor* td, bool fullscreen)
 {
-    int x;
-    int y;
-
-    if (mouse->x < target_iso_content_rect.x
-        || mouse->x >= target_iso_content_rect.x + target_iso_content_rect.width
-        || mouse->y < target_iso_content_rect.y
-        || mouse->y >= target_iso_content_rect.y + target_iso_content_rect.height) {
+    if (x < target_iso_content_rect.x
+        || x >= target_iso_content_rect.x + target_iso_content_rect.width
+        || y < target_iso_content_rect.y
+        || y >= target_iso_content_rect.y + target_iso_content_rect.height) {
         return false;
     }
 
-    x = mouse->x - target_iso_content_rect.x;
-    y = mouse->y;
-
-    // FIXME: Looks odd, why `x` is not treat in the same way?
+    x -= target_iso_content_rect.x;
     if (!fullscreen) {
         y -= target_iso_content_rect.y;
     }
@@ -409,8 +412,18 @@ int sub_4F2C60(int64_t* obj_ptr)
     return type;
 }
 
-// 0x4F2CB0
-bool sub_4F2CB0(int x, int y, TargetDescriptor* a3, uint64_t tgt, bool fullscreen)
+/**
+ * Resolves a target from a given mouse coordinates using the specified
+ * targeting flags.
+ *
+ * This function is an extendend variant of `target_pick_at_screen_xy`, it
+ * bypasses targeting rect validation, and accepts targeting flags directly.
+ *
+ * Returns `true` and populates target descriptor, `false` otherwise.
+ *
+ * 0x4F2CB0
+ */
+bool target_pick_at_screen_xy_ex(int x, int y, TargetDescriptor* td, uint64_t tgt, bool fullscreen)
 {
     uint64_t old_tgt;
     bool rc;
@@ -422,7 +435,7 @@ bool sub_4F2CB0(int x, int y, TargetDescriptor* a3, uint64_t tgt, bool fullscree
 
     old_tgt = target_flags_get();
     target_flags_set(tgt);
-    rc = sub_4F28A0(x, y, a3);
+    rc = sub_4F28A0(x, y, td);
     target_flags_set(old_tgt);
     return rc;
 }
