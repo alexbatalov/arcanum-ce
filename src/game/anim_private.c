@@ -1434,7 +1434,7 @@ bool sub_44E8C0(int64_t obj, AnimID* anim_id)
 }
 
 // 0x44E940
-bool sub_44E940(int64_t obj, AnimID* anim_id, int64_t a2)
+bool anim_is_attacking(int64_t attacker_obj, AnimID* anim_id, int64_t target_obj)
 {
     int slot;
     int goal_type;
@@ -1446,11 +1446,11 @@ bool sub_44E940(int64_t obj, AnimID* anim_id, int64_t a2)
     ObjectList objects;
     ObjectNode* node;
 
-    if (obj == OBJ_HANDLE_NULL) {
+    if (attacker_obj == OBJ_HANDLE_NULL) {
         return false;
     }
 
-    slot = anim_find_first(obj);
+    slot = anim_find_first(attacker_obj);
     if (slot == -1) {
         return false;
     }
@@ -1470,16 +1470,16 @@ bool sub_44E940(int64_t obj, AnimID* anim_id, int64_t a2)
         }
 
         if (goal_type == run_info->goals[0].type) {
-            if (a2 == OBJ_HANDLE_NULL) {
+            if (target_obj == OBJ_HANDLE_NULL) {
                 if (anim_id != NULL) {
                     *anim_id = run_info->id;
                 }
                 return true;
             }
 
-            leader_obj = critter_pc_leader_get(a2);
+            leader_obj = critter_pc_leader_get(target_obj);
             if (leader_obj == OBJ_HANDLE_NULL) {
-                leader_obj = a2;
+                leader_obj = target_obj;
             }
 
             target_leader_obj = critter_pc_leader_get(run_info->goals[0].params[AGDATA_TARGET_OBJ].obj);
@@ -1495,8 +1495,8 @@ bool sub_44E940(int64_t obj, AnimID* anim_id, int64_t a2)
             }
 
             if (tig_net_is_active()
-                && obj_field_int32_get(a2, OBJ_F_TYPE) == OBJ_TYPE_PC) {
-                object_list_party(a2, &objects);
+                && obj_field_int32_get(target_obj, OBJ_F_TYPE) == OBJ_TYPE_PC) {
+                object_list_party(target_obj, &objects);
                 node = objects.head;
                 while (node != NULL) {
                     if (node->obj == run_info->goals[0].params[AGDATA_TARGET_OBJ].obj) {

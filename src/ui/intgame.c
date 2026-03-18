@@ -3280,7 +3280,7 @@ void sub_54ED30(TargetDescriptor* td)
         anim = AG_THROW_ITEM;
     } else {
         if (!combat_critter_is_combat_mode_active(pc_obj)) {
-            if (sub_44E940(td->obj, 0, pc_obj)) {
+            if (anim_is_attacking(td->obj, 0, pc_obj)) {
                 combat_critter_activate_combat_mode(pc_obj);
             }
         }

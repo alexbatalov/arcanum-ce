@@ -284,7 +284,7 @@ bool anim_interrupt_all_goals_of_type(int64_t obj, int goal_type, int next_goal_
 bool sub_44E710(int64_t obj, AnimGoalData* goal_data, AnimID* anim_id);
 bool anim_is_current_goal_type(int64_t obj, int goal_type, AnimID* anim_id);
 bool sub_44E8C0(int64_t obj, AnimID* anim_id);
-bool sub_44E940(int64_t a1, AnimID* anim_id, int64_t a2);
+bool anim_is_attacking(int64_t attacker_obj, AnimID* anim_id, int64_t target_obj);
 bool sub_44EB40(int64_t obj, int64_t from, int64_t to);
 void anim_path_init(AnimPath* path);
 void anim_path_destroy(AnimPath* path);
