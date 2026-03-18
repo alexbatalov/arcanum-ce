@@ -4042,7 +4042,7 @@ void ai_stop_fleeing(int64_t obj)
         if (danger_type == AI_DANGER_SOURCE_TYPE_FLEE) {
             sub_4AABE0(obj, AI_DANGER_SOURCE_TYPE_NONE, OBJ_HANDLE_NULL, 0);
         }
-        sub_44E4D0(obj, AG_FLEE, -1);
+        anim_interrupt_all_goals_of_type(obj, AG_FLEE, -1);
     }
 }
 

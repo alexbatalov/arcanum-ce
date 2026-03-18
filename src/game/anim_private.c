@@ -1204,7 +1204,7 @@ bool anim_interrupt(AnimID* anim_id, int priority)
 }
 
 // 0x44E4D0
-bool sub_44E4D0(int64_t obj, int goal_type, int a3)
+bool anim_interrupt_all_goals_of_type(int64_t obj, int goal_type, int next_goal_type)
 {
     int priority;
     AnimGoalNode* goal_node;
@@ -1212,8 +1212,8 @@ bool sub_44E4D0(int64_t obj, int goal_type, int a3)
     int slot;
     AnimRunInfo* run_info;
 
-    if (a3 != -1) {
-        goal_node = anim_goal_nodes[a3];
+    if (next_goal_type != -1) {
+        goal_node = anim_goal_nodes[next_goal_type];
 
         ASSERT(goal_node != NULL); // 4156, "pGoalNode != NULL"
 

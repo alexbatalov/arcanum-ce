@@ -280,7 +280,7 @@ bool anim_interrupt(AnimID* anim_id, int priority);
 bool anim_find_first_of_type(int64_t obj, int type, AnimID* anim_id);
 bool anim_find_next_of_type(int64_t obj, int type, AnimID* anim_id);
 bool sub_44E6F0(int64_t obj, AnimGoalData* goal_data);
-bool sub_44E4D0(int64_t a1, int a2, int a3);
+bool anim_interrupt_all_goals_of_type(int64_t obj, int goal_type, int next_goal_type);
 bool sub_44E710(int64_t obj, AnimGoalData* goal_data, AnimID* anim_id);
 bool anim_is_current_goal_type(int64_t obj, int goal_type, AnimID* anim_id);
 bool sub_44E8C0(int64_t obj, AnimID* anim_id);

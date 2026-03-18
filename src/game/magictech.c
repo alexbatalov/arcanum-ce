@@ -2158,7 +2158,7 @@ void MTComponentAGoal_ProcFunc(void)
 void MTComponentAGoalTerminate_ProcFunc(void)
 {
     if (stru_5E6D28.target_obj != OBJ_HANDLE_NULL) {
-        sub_44E4D0(stru_5E6D28.target_obj, magictech_cur_component->data.agoal_terminate.goal, -1);
+        anim_interrupt_all_goals_of_type(stru_5E6D28.target_obj, magictech_cur_component->data.agoal_terminate.goal, -1);
     }
 }
 
@@ -4061,8 +4061,8 @@ void magictech_component_obj_flag(int64_t obj, int64_t a2, int fld, int a4, int 
             } else if ((a4 & OSF_STONED) != 0) {
                 object_flags_set(obj, OF_STONED);
             } else if ((a4 & OSF_ENTANGLED) != 0) {
-                sub_44E4D0(obj, AG_MOVE_TO_TILE, -1);
-                sub_44E4D0(obj, AG_ATTEMPT_MOVE_NEAR, -1);
+                anim_interrupt_all_goals_of_type(obj, AG_MOVE_TO_TILE, -1);
+                anim_interrupt_all_goals_of_type(obj, AG_ATTEMPT_MOVE_NEAR, -1);
             } else if ((a4 & OSF_MIND_CONTROLLED) != 0) {
                 if (a6 != OBJ_HANDLE_NULL) {
                     if (obj_type == OBJ_TYPE_NPC) {
@@ -4105,8 +4105,8 @@ void magictech_component_obj_flag(int64_t obj, int64_t a2, int fld, int a4, int 
                 combat_set_blinded(obj);
                 return;
             } else if ((a4 & OCF_PARALYZED) != 0) {
-                sub_44E4D0(obj, AG_MOVE_TO_TILE, -1);
-                sub_44E4D0(obj, AG_ATTEMPT_MOVE_NEAR, -1);
+                anim_interrupt_all_goals_of_type(obj, AG_MOVE_TO_TILE, -1);
+                anim_interrupt_all_goals_of_type(obj, AG_ATTEMPT_MOVE_NEAR, -1);
             }
             break;
         case OBJ_F_CRITTER_FLAGS2:
