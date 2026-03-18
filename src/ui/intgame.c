@@ -2701,7 +2701,7 @@ void intgame_process_event(TigMessage* msg)
                                 && !settings_get_value(&settings, ALWAYS_RUN_KEY)) {
                                 sub_433C80(pc_obj, td.loc);
                             } else {
-                                sub_433640(pc_obj, td.loc);
+                                anim_goal_move_to_tile(pc_obj, td.loc);
                             }
 
                             if (dword_64C6D8) {
@@ -2954,7 +2954,7 @@ void intgame_process_event(TigMessage* msg)
                         && !settings_get_value(&settings, ALWAYS_RUN_KEY)) {
                         sub_433C80(pc_obj, td.loc);
                     } else {
-                        sub_433640(pc_obj, td.loc);
+                        anim_goal_move_to_tile(pc_obj, td.loc);
                     }
 
                     if (dword_64C6D8) {

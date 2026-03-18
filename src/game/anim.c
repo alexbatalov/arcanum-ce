@@ -13305,7 +13305,7 @@ bool anim_goal_animate_loop(int64_t obj)
 }
 
 // 0x433640
-bool sub_433640(int64_t obj, int64_t loc)
+bool anim_goal_move_to_tile(int64_t obj, int64_t loc)
 {
     AnimID anim_id;
     AnimRunInfo* run_info;

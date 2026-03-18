@@ -100,7 +100,7 @@ void anim_lag_icon_add(int64_t obj);
 void anim_lag_icon_remove(int64_t obj);
 bool anim_goal_rotate(int64_t obj, int rot);
 bool anim_goal_animate_loop(int64_t obj);
-bool sub_433640(int64_t a1, int64_t a2);
+bool anim_goal_move_to_tile(int64_t obj, int64_t loc);
 bool sub_433A00(int64_t obj, int64_t loc, bool a3);
 bool sub_433C80(int64_t obj, int64_t loc);
 bool sub_434030(int64_t obj, int64_t loc);

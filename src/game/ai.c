@@ -2881,7 +2881,7 @@ void ai_move_to(int64_t obj, int64_t loc, int range)
     if (range != 0) {
         sub_4341C0(obj, loc, range);
     } else {
-        sub_433640(obj, loc);
+        anim_goal_move_to_tile(obj, loc);
     }
 }
 

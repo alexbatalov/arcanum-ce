@@ -2180,7 +2180,7 @@ bool wmap_ui_message_filter(TigMessage* msg)
                         }
                     } else {
                         if (wmap_ui_mode == WMAP_UI_MODE_TOWN && wmap_ui_routes[WMAP_ROUTE_TYPE_TOWN].length > 0) {
-                            sub_433640(player_get_local_pc_obj(),
+                            anim_goal_move_to_tile(player_get_local_pc_obj(),
                                 wmap_ui_routes[WMAP_ROUTE_TYPE_TOWN].waypoints[0].loc);
 
                             for (int idx = 1; idx < wmap_ui_routes[WMAP_ROUTE_TYPE_TOWN].length; idx++) {
