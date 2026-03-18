@@ -37,11 +37,11 @@ static bool sub_421CE0(AnimID* anim_id, AnimRunInfo* run_info);
 static void violence_filter_changed(void);
 static bool anim_run_info_save(AnimRunInfo* run_info, TigFile* stream);
 static bool anim_goal_data_save(AnimGoalData* goal_data, TigFile* stream);
-static bool sub_422430(AnimRunInfoParam* param, Ryan* a2, int type, TigFile* stream);
+static bool anim_run_info_param_save(AnimRunInfoParam* param, Ryan* a2, int type, TigFile* stream);
 static bool anim_load_internal(GameLoadInfo* load_info);
 static bool anim_run_info_load(AnimRunInfo* run_info, TigFile* stream);
 static bool anim_goal_data_load(AnimGoalData* goal_data, TigFile* stream);
-static bool sub_422A50(AnimRunInfoParam* param, Ryan* a2, int type, TigFile* stream);
+static bool anim_run_info_param_load(AnimRunInfoParam* param, Ryan* a2, int type, TigFile* stream);
 static bool sub_423C80(AnimRunInfo* run_info, DateTime* a2, int delay);
 static void sub_423D10(AnimRunInfo* run_info, unsigned int* flags_ptr, AnimGoalNode** goal_node_ptr, AnimGoalData** goal_data_ptr, bool* a5);
 static int anim_goal_pending_active_goals_count(void);
@@ -2981,13 +2981,13 @@ bool anim_goal_data_save(AnimGoalData* goal_data, TigFile* stream)
     }
 
     for (idx = 0; idx < 5; idx++) {
-        if (!sub_422430(&(goal_data->params[idx]), &(goal_data->field_B0[idx]), dword_5A597C[idx], stream)) {
+        if (!anim_run_info_param_save(&(goal_data->params[idx]), &(goal_data->field_B0[idx]), dword_5A597C[idx], stream)) {
             return false;
         }
     }
 
     for (; idx < 20; idx++) {
-        if (!sub_422430(&(goal_data->params[idx]), NULL, dword_5A597C[idx], stream)) {
+        if (!anim_run_info_param_save(&(goal_data->params[idx]), NULL, dword_5A597C[idx], stream)) {
             return false;
         }
     }
@@ -2995,7 +2995,7 @@ bool anim_goal_data_save(AnimGoalData* goal_data, TigFile* stream)
     // Special case - sound handle is volatile, it's not intended to be
     // serialized.
     param.data = -1;
-    if (!sub_422430(&param, NULL, dword_5A597C[AGDATA_SOUND_HANDLE], stream)) {
+    if (!anim_run_info_param_save(&param, NULL, dword_5A597C[AGDATA_SOUND_HANDLE], stream)) {
         return false;
     }
 
@@ -3003,7 +3003,7 @@ bool anim_goal_data_save(AnimGoalData* goal_data, TigFile* stream)
 }
 
 // 0x422430
-bool sub_422430(AnimRunInfoParam* param, Ryan* a2, int type, TigFile* stream)
+bool anim_run_info_param_save(AnimRunInfoParam* param, Ryan* a2, int type, TigFile* stream)
 {
     if (stream == NULL) {
         return false;
@@ -3151,13 +3151,13 @@ bool anim_goal_data_load(AnimGoalData* goal_data, TigFile* stream)
     }
 
     for (idx = 0; idx < 5; idx++) {
-        if (!sub_422A50(&(goal_data->params[idx]), &(goal_data->field_B0[idx]), dword_5A597C[idx], stream)) {
+        if (!anim_run_info_param_load(&(goal_data->params[idx]), &(goal_data->field_B0[idx]), dword_5A597C[idx], stream)) {
             return false;
         }
     }
 
     for (; idx < AGDATA_COUNT; idx++) {
-        if (!sub_422A50(&(goal_data->params[idx]), NULL, dword_5A597C[idx], stream)) {
+        if (!anim_run_info_param_load(&(goal_data->params[idx]), NULL, dword_5A597C[idx], stream)) {
             return false;
         }
     }
@@ -3166,7 +3166,7 @@ bool anim_goal_data_load(AnimGoalData* goal_data, TigFile* stream)
 }
 
 // 0x422A50
-bool sub_422A50(AnimRunInfoParam* param, Ryan* a2, int type, TigFile* stream)
+bool anim_run_info_param_load(AnimRunInfoParam* param, Ryan* a2, int type, TigFile* stream)
 {
     if (stream == NULL) {
         return false;
