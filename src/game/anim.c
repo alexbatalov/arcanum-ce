@@ -13463,7 +13463,7 @@ bool sub_433A00(int64_t obj, int64_t loc, bool a3)
 
         // __FILE__: "C:\Troika\Code\Game\GameLibX\Anim.c"
         // __LINE__: 15016
-        if (!sub_44DBE0(stru_5A1908, &goal_data, __FILE__, __LINE__)) {
+        if (!anim_subgoal_add(stru_5A1908, &goal_data, __FILE__, __LINE__)) {
             return false;
         }
     } else {
@@ -13628,7 +13628,7 @@ bool sub_434030(int64_t obj, int64_t loc)
 
         // __FILE__: C:\Troika\Code\Game\GameLibX\Anim.c
         // __LINE__: 15263
-        sub_44DBE0(stru_5A1908, &goal_data, __FILE__, __LINE__);
+        anim_subgoal_add(stru_5A1908, &goal_data, __FILE__, __LINE__);
     }
 
     return true;

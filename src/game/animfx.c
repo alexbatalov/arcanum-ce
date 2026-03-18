@@ -666,7 +666,7 @@ bool animfx_add(AnimFxNode* node)
                 if ((node->flags & ANIMFX_PLAY_STACK) != 0) {
                     // __FILE__: "C:\Troika\Code\Game\GameLibX\AnimFX.c"
                     // __LINE__: 790
-                    sub_44DBE0(stru_601700, &goal_data, __FILE__, __LINE__);
+                    anim_subgoal_add(stru_601700, &goal_data, __FILE__, __LINE__);
                 } else {
                     sub_44D520(&goal_data, &stru_601700);
                 }
@@ -676,7 +676,7 @@ bool animfx_add(AnimFxNode* node)
 
                         // __FILE__: "C:\Troika\Code\Game\GameLibX\AnimFX.c"
                         // __LINE__: 798
-                        sub_44DBE0(stru_601700, &goal_data, __FILE__, __LINE__);
+                        anim_subgoal_add(stru_601700, &goal_data, __FILE__, __LINE__);
                     }
                 }
             }

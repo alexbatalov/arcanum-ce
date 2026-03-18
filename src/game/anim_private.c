@@ -14,6 +14,7 @@
 
 static bool anim_allocate_this_run_index(AnimID* anim_id);
 static bool sub_44D240(int index);
+static bool anim_subgoal_add_func(AnimID anim_id, AnimGoalData* goal_data);
 static bool sub_44E2A0(TimeEvent* timeevent);
 static void anim_path_debug(AnimPath* path);
 static void anim_goal_data_debug(AnimGoalData* goal_data);
@@ -896,7 +897,7 @@ bool anim_subgoal_add_func(AnimID anim_id, AnimGoalData* goal_data)
 }
 
 // 0x44DBE0
-bool sub_44DBE0(AnimID anim_id, AnimGoalData* goal_data, const char* file, int line)
+bool anim_subgoal_add(AnimID anim_id, AnimGoalData* goal_data, const char* file, int line)
 {
     Packet7 pkt;
     int64_t obj;

@@ -2145,7 +2145,7 @@ void MTComponentAGoal_ProcFunc(void)
             if ((magictech_cur_component->data.agoal.subgoal & 1) != 0) {
                 // __FILE__: "C:\Troika\Code\Game\GameLibX\MagicTech.c"
                 // __LINE__: 3277
-                sub_44DBE0(stru_5E75C0, &goal_data, __FILE__, __LINE__);
+                anim_subgoal_add(stru_5E75C0, &goal_data, __FILE__, __LINE__);
             } else {
                 sub_44D520(&goal_data, &stru_5E75C0);
             }
@@ -4843,7 +4843,7 @@ void sub_455C30(MagicTechInvocation* mt_invocation)
 
                 // __FILE__: "C:\Troika\Code\Game\GameLibX\MagicTech.c"
                 // __LINE__: 6893
-                if (sub_44DBE0(anim_id, &goal_data, __FILE__, __LINE__)) {
+                if (anim_subgoal_add(anim_id, &goal_data, __FILE__, __LINE__)) {
                     return;
                 }
             }
