@@ -1069,7 +1069,7 @@ void sub_44E0E0(int64_t a1, int64_t a2)
 }
 
 // 0x44E160
-bool sub_44E160(AnimID* anim_id)
+bool anim_force_interrupt(AnimID* anim_id)
 {
     AnimRunInfo* run_info;
     int idx;

@@ -275,7 +275,7 @@ bool anim_subgoal_add(AnimID anim_id, AnimGoalData* goal_data, const char* file,
 bool anim_recover_handles(AnimRunInfo* run_info, AnimGoalSubNode* goal_subnode);
 void sub_44E050(int64_t a1, int64_t a2);
 void sub_44E0E0(int64_t a1, int64_t a2);
-bool sub_44E160(AnimID* anim_id);
+bool anim_force_interrupt(AnimID* anim_id);
 bool anim_interrupt(AnimID* anim_id, int priority);
 bool anim_find_first_of_type(int64_t obj, int type, AnimID* anim_id);
 bool anim_find_next_of_type(int64_t obj, int type, AnimID* anim_id);

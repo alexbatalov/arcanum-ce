@@ -3978,7 +3978,7 @@ bool sub_423FF0(int64_t obj)
     slot = anim_find_first(obj);
     while (slot != -1 && slot != prev) {
         prev = slot;
-        if (!sub_44E160(&(anim_run_info[slot].id))) {
+        if (!anim_force_interrupt(&(anim_run_info[slot].id))) {
             return false;
         }
 
