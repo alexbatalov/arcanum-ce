@@ -13706,7 +13706,7 @@ bool anim_goal_move_near_tile(int64_t source_obj, int64_t target_loc, int range)
 }
 
 // 0x434400
-bool sub_434400(int64_t source_obj, int64_t target_loc, int range)
+bool anim_goal_run_near_tile(int64_t source_obj, int64_t target_loc, int range)
 {
     AnimRunInfo* run_info;
     AnimGoalData goal_data;
