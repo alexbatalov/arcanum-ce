@@ -2799,7 +2799,7 @@ bool sub_421CE0(AnimID* anim_id, AnimRunInfo* run_info)
     ASSERT(anim_id != NULL); // pAnimID != NULL
     ASSERT(run_info != NULL); // pRunInfo != NULL
 
-    if (run_info->id.field_4 != anim_id->field_4) {
+    if (run_info->id.unique_id != anim_id->unique_id) {
         return false;
     }
 
@@ -2818,7 +2818,7 @@ bool anim_id_is_equal(AnimID* a, AnimID* b)
     ASSERT(a != NULL); // pAnimID1 != NULL
     ASSERT(b != NULL); // pAnimID2 != NULL
 
-    if (a->field_4 != b->field_4) {
+    if (a->unique_id != b->unique_id) {
         return false;
     }
 
@@ -2837,7 +2837,7 @@ void anim_id_init(AnimID* anim_id)
     ASSERT(anim_id != NULL); // pAnimID != NULL
 
     anim_id->slot_num = -1;
-    anim_id->field_4 = -1;
+    anim_id->unique_id = -1;
     anim_id->field_8 = 0;
 }
 
@@ -2850,7 +2850,7 @@ void anim_id_to_str(AnimID* anim_id, char* buffer)
     snprintf(buffer, ANIM_ID_STR_SIZE,
         "[%d:%dr%d]",
         anim_id->slot_num,
-        anim_id->field_4,
+        anim_id->unique_id,
         anim_id->field_8);
 }
 
@@ -2862,7 +2862,7 @@ bool anim_save(TigFile* stream)
     int start;
     int extent_size;
 
-    if (tig_file_fwrite(&dword_6876E4, 4, 1, stream) != 1) return false;
+    if (tig_file_fwrite(&anim_next_unique_id, 4, 1, stream) != 1) return false;
     if (tig_file_fwrite(&animNumActiveGoals, 4, 1, stream) != 1) return false;
     if (tig_file_fwrite(&anim_catch_up, 4, 1, stream) != 1) return false;
     if (tig_file_fwrite(&dword_739E44, 4, 1, stream) != 1) return false;
@@ -2944,7 +2944,7 @@ bool anim_run_info_save(AnimRunInfo* run_info, TigFile* stream)
     }
 
     if (tig_file_fwrite(&(run_info->id.slot_num), 4, 1, stream) != 1) return false;
-    if (tig_file_fwrite(&(run_info->id.field_4), 4, 1, stream) != 1) return false;
+    if (tig_file_fwrite(&(run_info->id.unique_id), 4, 1, stream) != 1) return false;
     if (tig_file_fwrite(&(run_info->id.field_8), 4, 1, stream) != 1) return false;
     if (tig_file_fwrite(&(run_info->flags), 4, 1, stream) != 1) return false;
     if (tig_file_fwrite(&(run_info->current_state), 4, 1, stream) != 1) return false;
@@ -3059,7 +3059,7 @@ bool anim_load_internal(GameLoadInfo* load_info)
         return false;
     }
 
-    if (tig_file_fread(&dword_6876E4, 4, 1, load_info->stream) != 1) return false;
+    if (tig_file_fread(&anim_next_unique_id, 4, 1, load_info->stream) != 1) return false;
     if (tig_file_fread(&animNumActiveGoals, 4, 1, load_info->stream) != 1) return false;
     if (tig_file_fread(&anim_catch_up, 4, 1, load_info->stream) != 1) return false;
     if (tig_file_fread(&dword_739E44, 4, 1, load_info->stream) != 1) return false;
@@ -3111,7 +3111,7 @@ bool anim_run_info_load(AnimRunInfo* run_info, TigFile* stream)
     }
 
     if (tig_file_fread(&(run_info->id.slot_num), 4, 1, stream) != 1) return false;
-    if (tig_file_fread(&(run_info->id.field_4), 4, 1, stream) != 1) return false;
+    if (tig_file_fread(&(run_info->id.unique_id), 4, 1, stream) != 1) return false;
     if (tig_file_fread(&(run_info->id.field_8), 4, 1, stream) != 1) return false;
     if (tig_file_fread(&(run_info->flags), 4, 1, stream) != 1) return false;
     if (tig_file_fread(&(run_info->current_state), 4, 1, stream) != 1) return false;
@@ -3840,7 +3840,7 @@ bool sub_423C80(AnimRunInfo* run_info, DateTime* a2, int delay)
 
     timeevent.type = TIMEEVENT_TYPE_ANIM;
     timeevent.params[0].integer_value = run_info->id.slot_num;
-    timeevent.params[1].integer_value = run_info->id.field_4;
+    timeevent.params[1].integer_value = run_info->id.unique_id;
     timeevent.params[2].integer_value = 1111;
 
     if (anim_catch_up) {

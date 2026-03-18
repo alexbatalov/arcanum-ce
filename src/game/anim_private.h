@@ -133,7 +133,7 @@ typedef struct AnimGoalNode {
 
 typedef struct AnimID {
     int slot_num;
-    int field_4;
+    int unique_id;
     int field_8;
 } AnimID;
 
@@ -248,7 +248,7 @@ extern void (*dword_5E34F8)(void);
 extern bool in_anim_load;
 extern int dword_5E3500;
 extern int animNumActiveGoals;
-extern int dword_6876E4;
+extern int anim_next_unique_id;
 extern int dword_739E40;
 extern int dword_739E44;
 

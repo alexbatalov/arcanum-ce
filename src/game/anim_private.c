@@ -193,7 +193,7 @@ int animNumActiveGoals;
 static bool anim_private_editor;
 
 // 0x6876E4
-int dword_6876E4;
+int anim_next_unique_id;
 
 // 0x687700
 AnimRunInfo anim_run_info[216];
@@ -272,7 +272,7 @@ bool anim_private_init(GameInitInfo* init_info)
         anim_path_init(&(anim_run_info[index].path));
     }
 
-    dword_6876E4 = random_between(0, 10024);
+    anim_next_unique_id = random_between(0, 10024);
     animNumActiveGoals = 0;
     dword_5E3500 = 0;
 
@@ -352,7 +352,7 @@ bool anim_goal_restart(AnimID* anim_id)
 
     timeevent.type = TIMEEVENT_TYPE_ANIM;
     timeevent.params[0].integer_value = run_info->id.slot_num;
-    timeevent.params[1].integer_value = run_info->id.field_4;
+    timeevent.params[1].integer_value = run_info->id.unique_id;
     timeevent.params[2].integer_value = 2222;
     return timeevent_add_base(&timeevent, &(run_info->next_ping_time));
 }
@@ -380,7 +380,7 @@ bool sub_44CCB0(AnimID* anim_id)
 
     run_info = &(anim_run_info[index]);
     run_info->id.slot_num = index;
-    run_info->id.field_4 = dword_6876E4++;
+    run_info->id.unique_id = anim_next_unique_id++;
     run_info->id.field_8 = 0;
     run_info->flags = 1;
     run_info->path.maxPathLength = 0;
@@ -421,14 +421,14 @@ bool anim_allocate_this_run_index(AnimID* anim_id)
 
     for (slot = 0; slot < 216; slot++) {
         run_info = &(anim_run_info[slot]);
-        if (run_info->id.field_4 == anim_id->field_4) {
+        if (run_info->id.unique_id == anim_id->unique_id) {
             if ((run_info->flags & 0x1) != 0
                 && !anim_interrupt(&(run_info->id), PRIORITY_HIGHEST)) {
                 tig_debug_printf("Anim: WARNING(uniqueID): Animation slots Force Alloc INTERRUPT FAILED!\n");
                 return false;
             }
 
-            anim_id->field_4 = slot;
+            anim_id->unique_id = slot;
             anim_id->field_8 = 0;
             break;
         }
@@ -804,7 +804,7 @@ bool anim_goal_add_func(AnimGoalData* goal_data, AnimID* anim_id, bool a3, unsig
     if (new_anim_id.slot_num == -1) {
         if (anim_id != NULL) {
             anim_id->slot_num = -1;
-            anim_id->field_4 = new_anim_id.field_4;
+            anim_id->unique_id = new_anim_id.unique_id;
             anim_id->field_8 = new_anim_id.field_8;
         }
         return false;
@@ -831,7 +831,7 @@ bool anim_goal_add_func(AnimGoalData* goal_data, AnimID* anim_id, bool a3, unsig
 
     timeevent.type = TIMEEVENT_TYPE_ANIM;
     timeevent.params[0].integer_value = new_anim_id.slot_num;
-    timeevent.params[1].integer_value = new_anim_id.field_4;
+    timeevent.params[1].integer_value = new_anim_id.unique_id;
     timeevent.params[2].integer_value = 3333;
     sub_45A950(&datetime, 5);
 
