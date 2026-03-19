@@ -45,7 +45,7 @@ static bool sub_5681B0(DialogUiEntry* entry);
 static bool sub_568280(DialogUiEntry* a1);
 static void sub_568480(DialogUiEntry* entry, int a2);
 static void sub_5684C0(DialogUiEntry* entry);
-static void sub_568540(int64_t npc_obj, int64_t pc_obj, int type, int expires_in, const char* str, int speech_id);
+static void dialog_ui_npc_say(int64_t npc_obj, int64_t pc_obj, int type, int expires_in, const char* str, int speech_id);
 static void dialog_ui_pc_say(int64_t pc_obj, int64_t npc_obj, int type, int expires_in, const char* str);
 static void dialog_ui_speech_start(int64_t npc_obj, int64_t pc_obj, int speech_id);
 static void dialog_ui_speech_stop(void);
@@ -164,7 +164,7 @@ void dialog_ui_start_dialog(int64_t pc_obj, int64_t npc_obj, int script_num, int
         }
 
         if (entry->state.field_17E8 == 4) {
-            sub_568540(entry->state.npc_obj,
+            dialog_ui_npc_say(entry->state.npc_obj,
                 entry->state.pc_obj,
                 TB_TYPE_WHITE,
                 TB_EXPIRE_DEFAULT,
@@ -313,7 +313,7 @@ bool sub_567E30(DialogUiEntry* entry, int a2)
         }
         break;
     case 4:
-        sub_568540(entry->state.npc_obj,
+        dialog_ui_npc_say(entry->state.npc_obj,
             entry->state.pc_obj,
             TB_TYPE_WHITE,
             TB_EXPIRE_DEFAULT,
@@ -395,7 +395,7 @@ void sub_5681C0(int64_t pc_obj, int64_t npc_obj)
     char text[1000];
 
     sub_4132A0(npc_obj, pc_obj, text);
-    sub_568540(npc_obj, pc_obj, TB_TYPE_WHITE, TB_EXPIRE_DEFAULT, text, -1);
+    dialog_ui_npc_say(npc_obj, pc_obj, TB_TYPE_WHITE, TB_EXPIRE_DEFAULT, text, -1);
 }
 
 // 0x568280
@@ -462,7 +462,7 @@ void dialog_ui_float_line(int64_t npc_obj, int64_t pc_obj, const char* str, int 
     type = obj_field_int32_get(npc_obj, OBJ_F_TYPE) != OBJ_TYPE_PC
         ? TB_TYPE_WHITE
         : TB_TYPE_GREEN;
-    sub_568540(npc_obj, pc_obj, type, TB_EXPIRE_DEFAULT, str, speech_id);
+    dialog_ui_npc_say(npc_obj, pc_obj, type, TB_EXPIRE_DEFAULT, str, speech_id);
 }
 
 // 0x568480
@@ -480,7 +480,7 @@ void sub_5684C0(DialogUiEntry* entry)
 {
     int index;
 
-    sub_568540(entry->state.npc_obj,
+    dialog_ui_npc_say(entry->state.npc_obj,
         entry->state.pc_obj,
         TB_TYPE_WHITE,
         TB_EXPIRE_NEVER,
@@ -497,7 +497,7 @@ void sub_5684C0(DialogUiEntry* entry)
 }
 
 // 0x568540
-void sub_568540(int64_t npc_obj, int64_t pc_obj, int type, int expires_in, const char* str, int speech_id)
+void dialog_ui_npc_say(int64_t npc_obj, int64_t pc_obj, int type, int expires_in, const char* str, int speech_id)
 {
     if (pc_obj != OBJ_HANDLE_NULL
         && !critter_is_dead(npc_obj)
