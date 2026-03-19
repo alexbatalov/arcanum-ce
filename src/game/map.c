@@ -1575,7 +1575,7 @@ void map_clear_objects(void)
         }
 
         sector_cache_reset();
-        sub_4E5300();
+        obj_pool_perm_clear();
 
         map_in_map_clear_objects = false;
     }

@@ -15,7 +15,7 @@ void obj_pool_perm_oid_set(ObjectID oid, int64_t obj);
 int64_t obj_pool_perm_lookup(ObjectID oid);
 ObjectID obj_pool_perm_reverse_lookup(int64_t obj);
 void obj_pool_perm_oid_remove(ObjectID oid);
-void sub_4E5300(void);
+void obj_pool_perm_clear(void);
 bool obj_pool_walk_first(int64_t* obj_ptr, int* iter_ptr);
 bool obj_pool_walk_next(int64_t* obj_ptr, int* iter_ptr);
 bool obj_handle_is_valid(int64_t obj);

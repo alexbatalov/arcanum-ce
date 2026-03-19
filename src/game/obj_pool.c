@@ -317,7 +317,7 @@ void obj_pool_perm_oid_remove(ObjectID oid)
 }
 
 // 0x4E5300
-void sub_4E5300(void)
+void obj_pool_perm_clear(void)
 {
     PermOidLookupEntry* v1;
     int cnt;
