@@ -2065,7 +2065,7 @@ int script_execute_action(ScriptAction* action, int line, ScriptState* state)
         int damage = script_get_value(action->op_type[1], action->op_value[1], state);
         int type = script_get_value(action->op_type[2], action->op_value[2], state);
         for (int idx = 0; idx < cnt; idx++) {
-            sub_4B2210(OBJ_HANDLE_NULL, handles[idx], &combat);
+            combat_context_setup(OBJ_HANDLE_NULL, OBJ_HANDLE_NULL, handles[idx], &combat);
             combat.dam[type] = damage;
             combat_dmg(&combat);
         }
@@ -2180,7 +2180,7 @@ int script_execute_action(ScriptAction* action, int line, ScriptState* state)
         int cnt = script_resolve_focus_obj(action->op_type[0], action->op_value[0], state, handles, &objects);
         int value = script_get_value(action->op_type[1], action->op_value[1], state);
         for (int idx = 0; idx < cnt; idx++) {
-            sub_4B2210(OBJ_HANDLE_NULL, handles[idx], &combat);
+            combat_context_setup(OBJ_HANDLE_NULL, OBJ_HANDLE_NULL, handles[idx], &combat);
             combat.dam[DAMAGE_TYPE_NORMAL] = value;
             combat_heal(&combat);
         }
@@ -2778,7 +2778,7 @@ int script_execute_action(ScriptAction* action, int line, ScriptState* state)
         int damage = script_get_value(action->op_type[1], action->op_value[1], state);
         int type = script_get_value(action->op_type[2], action->op_value[2], state);
         for (int idx = 0; idx < cnt; idx++) {
-            sub_4B2210(OBJ_HANDLE_NULL, handles[idx], &combat);
+            combat_context_setup(OBJ_HANDLE_NULL, OBJ_HANDLE_NULL, handles[idx], &combat);
             combat.dam[type] = damage;
             combat.dam_flags |= CDF_IGNORE_RESISTANCE;
             combat_dmg(&combat);

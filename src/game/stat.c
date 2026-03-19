@@ -1022,7 +1022,7 @@ bool stat_poison_timeevent_process(TimeEvent* timeevent)
     case POISON_EVENT_DAMAGE:
         if (poison > 0) {
             if ((obj_field_int32_get(obj, OBJ_F_FLAGS) & OF_OFF) == 0) {
-                sub_4B2210(OBJ_HANDLE_NULL, obj, &combat);
+                combat_context_setup(OBJ_HANDLE_NULL, OBJ_HANDLE_NULL, obj, &combat);
 
                 // Determine damage based on poison severity.
                 if (poison >= 550) {

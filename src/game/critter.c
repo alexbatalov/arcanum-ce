@@ -627,7 +627,7 @@ void critter_kill(int64_t obj)
         return;
     }
 
-    sub_4B2210(OBJ_HANDLE_NULL, obj, &combat);
+    combat_context_setup(OBJ_HANDLE_NULL, OBJ_HANDLE_NULL, obj, &combat);
     combat.dam_flags |= CDF_DEATH;
     combat_dmg(&combat);
 
@@ -826,6 +826,11 @@ void sub_45DC90(int64_t killer_obj, int64_t victim_obj, bool a3)
 int64_t critter_pc_leader_get(int64_t obj)
 {
     int64_t leader_obj = obj;
+
+    //Return self if PC
+    if (obj_field_int32_get(obj, OBJ_F_TYPE) == OBJ_TYPE_PC) {
+        return obj;
+    }
 
     // Only NPCs have leaders.
     if (obj_field_int32_get(obj, OBJ_F_TYPE) != OBJ_TYPE_NPC) {

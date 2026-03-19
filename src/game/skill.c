@@ -1791,7 +1791,7 @@ bool skill_invocation_run(SkillInvocation* skill_invocation)
         CombatContext combat;
 
         // Initialize combat invocation for healing.
-        sub_4B2210(source_obj, target_obj, &combat);
+        combat_context_setup(source_obj, OBJ_HANDLE_NULL, target_obj, &combat);
 
         if (is_success) {
             int heal;

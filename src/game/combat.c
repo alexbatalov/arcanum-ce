@@ -356,14 +356,19 @@ bool combat_load(GameLoadInfo* load_info)
 }
 
 // 0x4B2210
-void sub_4B2210(int64_t attacker_obj, int64_t target_obj, CombatContext* combat)
+void combat_context_setup(int64_t attacker_obj, int64_t weapon_obj, int64_t target_obj, CombatContext* combat)
 {
     int type;
 
     combat->flags = 0;
     combat->attacker_obj = attacker_obj;
 
-    if (attacker_obj != OBJ_HANDLE_NULL) {
+    if (weapon_obj != OBJ_HANDLE_NULL)
+    {
+        type = obj_field_int32_get(attacker_obj, OBJ_F_TYPE);
+        combat->weapon_obj = weapon_obj;
+    }
+    else if (attacker_obj != OBJ_HANDLE_NULL) {
         type = obj_field_int32_get(attacker_obj, OBJ_F_TYPE);
         if (obj_type_is_critter(type)) {
             combat->weapon_obj = combat_critter_weapon(attacker_obj);
@@ -694,7 +699,7 @@ bool sub_4B2870(int64_t attacker_obj, int64_t target_obj, int64_t target_loc, in
     if (block_obj != OBJ_HANDLE_NULL) {
         CombatContext combat;
 
-        sub_4B2210(attacker_obj, block_obj, &combat);
+        combat_context_setup(attacker_obj, OBJ_HANDLE_NULL, block_obj, &combat);
 
         if (target_obj != OBJ_HANDLE_NULL) {
             combat.field_28 = target_obj;
@@ -1048,7 +1053,7 @@ void combat_process_melee_attack(CombatContext* combat)
 
         if ((obj_field_int32_get(combat->attacker_obj, OBJ_F_SPELL_FLAGS) & OSF_BODY_OF_FIRE) == 0
             && (obj_field_int32_get(combat->target_obj, OBJ_F_SPELL_FLAGS) & OSF_BODY_OF_FIRE) != 0) {
-            sub_4B2210(combat->target_obj, combat->attacker_obj, &body_of_fire);
+            combat_context_setup(combat->target_obj, OBJ_HANDLE_NULL, combat->attacker_obj, &body_of_fire);
             body_of_fire.dam[DAMAGE_TYPE_FIRE] = 5;
             combat_dmg(&body_of_fire);
         }
@@ -1139,7 +1144,7 @@ void sub_4B3BB0(int64_t attacker_obj, int64_t target_obj, int hit_loc)
 {
     CombatContext combat;
 
-    sub_4B2210(attacker_obj, target_obj, &combat);
+    combat_context_setup(attacker_obj, OBJ_HANDLE_NULL, target_obj, &combat);
     combat.hit_loc = hit_loc;
     combat.flags |= CF_WEAPON_WEAR;
     combat.flags |= 0x40000;
@@ -1158,7 +1163,7 @@ void combat_throw(int64_t attacker_obj, int64_t weapon_obj, int64_t target_obj, 
     }
 
     if (object_script_execute(attacker_obj, weapon_obj, target_obj, SAP_THROW, 0)) {
-        sub_4B2210(attacker_obj, target_obj, &combat);
+        combat_context_setup(attacker_obj, weapon_obj, target_obj, &combat);
         combat.hit_loc = hit_loc;
         combat.weapon_obj = weapon_obj;
         if (target_obj == OBJ_HANDLE_NULL) {
@@ -2428,7 +2433,7 @@ void combat_process_crit_hit(CombatContext* combat)
     int attacker_obj_type;
     bool npc_attacks_pc;
     CritHitType crit_hit_type;
-    int chance;
+    int chance =0;
     CritBodyType crit_body_type;
     unsigned int critter_flags;
     int64_t helmet_obj;
@@ -3675,7 +3680,7 @@ bool combat_consume_action_points(int64_t obj, int action_points)
     if (combat_action_points > 0
         && is_pc
         && critter_fatigue_current(obj) > 1) {
-        sub_4B2210(OBJ_HANDLE_NULL, obj, &combat);
+        combat_context_setup(OBJ_HANDLE_NULL, OBJ_HANDLE_NULL, obj, &combat);
         combat.flags |= 0x80;
         combat.dam[DAMAGE_TYPE_FATIGUE] = 2;
         combat_dmg(&combat);

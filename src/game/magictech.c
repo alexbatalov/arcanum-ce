@@ -2227,7 +2227,7 @@ void MTComponentDamage_ProcFunc(void)
         return;
     }
 
-    sub_4B2210(magictech_cur_run_info->parent_obj.obj, stru_5E6D28.target_obj, &combat);
+    combat_context_setup(magictech_cur_run_info->parent_obj.obj, OBJ_HANDLE_NULL, stru_5E6D28.target_obj, &combat);
 
     combat.dam_flags |= magictech_cur_component->data.damage.damage_flags;
 
@@ -2304,7 +2304,7 @@ void MTComponentDestroy_ProcFunc(void)
     }
 
     spell_flags = obj_field_int32_get(stru_5E6D28.target_obj, OBJ_F_SPELL_FLAGS);
-    if (!magictech_cur_run_info->field_144 || (spell_flags & OSF_SUMMONED) != 0) {
+    if ((!magictech_cur_run_info->field_144 && !obj_type_is_critter(magictech_cur_target_obj_type)) || (spell_flags & OSF_SUMMONED) != 0) {
         object_destroy(stru_5E6D28.target_obj);
 
         if (tig_net_is_active()
@@ -2559,7 +2559,7 @@ void MTComponentHeal_ProcFunc(void)
     int heal_max;
 
     if (stru_5E6D28.target_obj != OBJ_HANDLE_NULL) {
-        sub_4B2210(magictech_cur_run_info->parent_obj.obj, stru_5E6D28.target_obj, &combat);
+        combat_context_setup(magictech_cur_run_info->parent_obj.obj, OBJ_HANDLE_NULL, stru_5E6D28.target_obj, &combat);
         combat.dam_flags |= magictech_cur_component->data.heal.damage_flags;
         if ((combat.dam_flags & CDF_FULL) == 0) {
             heal_min = magictech_cur_component->data.heal.damage_min;
@@ -4148,7 +4148,7 @@ void magictech_component_obj_flag(int64_t obj, int64_t a2, int fld, int a4, int 
             } else if ((a4 & OSF_WATER_WALKING) != 0) {
                 object_flags_unset(obj, OF_WATER_WALKING);
                 if (tile_is_blocking(obj_field_int64_get(obj, OBJ_F_LOCATION), false)) {
-                    sub_4B2210(OBJ_HANDLE_NULL, obj, &combat);
+                    combat_context_setup(OBJ_HANDLE_NULL, OBJ_HANDLE_NULL, obj, &combat);
                     combat.dam_flags |= CDF_FULL;
                     combat_dmg(&combat);
 

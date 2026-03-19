@@ -151,7 +151,7 @@ static bool AGapplyFireDmg(AnimRunInfo* run_info);
 static bool sub_42A930(AnimRunInfo* run_info);
 static bool sub_42A9B0(AnimRunInfo* run_info);
 static bool sub_42AA70(int64_t source_obj, int64_t target_obj);
-static bool sub_42AB90(AnimRunInfo* run_info);
+static bool combat_throw_start(AnimRunInfo* run_info);
 static bool sub_42ACD0(AnimRunInfo* run_info);
 static bool sub_42AE10(AnimRunInfo* run_info);
 static bool sub_42AF00(AnimRunInfo* run_info);
@@ -1224,7 +1224,7 @@ static AnimGoalNode anim_goal_node_throw_item = {
         /*  4 */ { sub_42C390, { AGDATA_SELF_OBJ, AGDATA_TARGET_TILE }, -1, 8, 0, 5, 0 },
         /*  5 */ { sub_42CB10, { AGDATA_SELF_OBJ, AGDATA_ANIM_ID }, -1, 8, 0, 0x10000000, 0 },
         /*  6 */ { sub_42CAA0, { AGDATA_SELF_OBJ, AGDATA_ANIM_ID }, -1, 0x10000000, -2, 7, 0 },
-        /*  7 */ { sub_42AB90, { AGDATA_SELF_OBJ, AGDATA_SCRATCH_OBJ }, 5, 8, 0, 0x10000000, -2 },
+        /*  7 */ { combat_throw_start, { AGDATA_SELF_OBJ, AGDATA_SCRATCH_OBJ }, 5, 8, 0, 0x10000000, -2 },
         /*  8 */ { sub_42BD40, { AGDATA_SELF_OBJ, -1 }, 0, 9, 0, 9, 0 },
         /*  9 */ { sub_433270, { AGDATA_SELF_OBJ, -1 }, 1, 0x90000000, 0, 0x90000000, 0 },
         /* 10 */ { 0 },
@@ -3688,7 +3688,7 @@ bool anim_timeevent_process(TimeEvent* timeevent)
 
         state_change = rc ? goal_subnode->field_18 : goal_subnode->field_10;
         delay = rc ? goal_subnode->field_1C : goal_subnode->field_14;
-
+        
         if ((state_change & 0xFF000000) != 0) {
             if ((state_change & 0x10000000) != 0) {
                 run_info->current_state = 0;
@@ -7749,7 +7749,7 @@ bool AGapplyFireDmg(AnimRunInfo* run_info)
     object_list_location(source_loc, OBJ_TM_CRITTER | OBJ_TM_ITEM, &objects);
     node = objects.head;
     while (node != NULL) {
-        sub_4B2210(source_obj, node->obj, &combat);
+        combat_context_setup(source_obj, OBJ_HANDLE_NULL, node->obj, &combat);
         combat.field_30 = parent_obj;
         if ((run_info->cur_stack_data->params[AGDATA_FLAGS_DATA].data & 0x4000) != 0) {
             dam = 1;
@@ -7896,7 +7896,7 @@ bool sub_42AA70(int64_t source_obj, int64_t target_obj)
 }
 
 // 0x42AB90
-bool sub_42AB90(AnimRunInfo* run_info)
+bool combat_throw_start(AnimRunInfo* run_info)
 {
     int64_t source_obj;
     int64_t item_obj;
@@ -7930,6 +7930,8 @@ bool sub_42AB90(AnimRunInfo* run_info)
     }
 
     combat_throw(source_obj, item_obj, target_obj, target_loc, HIT_LOC_TORSO);
+
+    combat_consume_action_points(source_obj, 4);
 
     run_info->cur_stack_data->params[AGDATA_SCRATCH_OBJ].obj = OBJ_HANDLE_NULL;
 
@@ -10993,7 +10995,7 @@ bool AGupdateAnimMoveStraightKnockback(AnimRunInfo* run_info)
         if (new_loc != loc) {
             if (sub_42FD70(run_info, obj, &(run_info->path), loc, new_loc)) {
                 sub_43E770(obj, loc, 0, 0);
-                sub_4B2210(OBJ_HANDLE_NULL, obj, &combat);
+                combat_context_setup(OBJ_HANDLE_NULL, OBJ_HANDLE_NULL, obj, &combat);
                 combat.dam[DAMAGE_TYPE_NORMAL] = random_between(1, (run_info->path.max - run_info->path.curr) / 2);
                 combat.dam[DAMAGE_TYPE_FATIGUE] = random_between(1, (run_info->path.max - run_info->path.curr) / 2);
                 combat.field_30 = run_info->cur_stack_data->params[AGDATA_SCRATCH_OBJ].obj;
