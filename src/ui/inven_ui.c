@@ -4054,22 +4054,22 @@ void sub_578B80(int a1)
     pkt->field_68 = sub_529520();
 
     if (tig_net_is_active()) {
-        object_examine(objp_perm_lookup(pkt->field_10),
-            objp_perm_lookup(pkt->field_10),
+        object_examine(obj_pool_perm_lookup(pkt->field_10),
+            obj_pool_perm_lookup(pkt->field_10),
             byte_682BEC);
         objid_id_to_str(byte_6812FC, pkt->field_10);
 
         if (pkt->field_40.type != OID_TYPE_NULL) {
-            object_examine(objp_perm_lookup(pkt->field_40),
-                objp_perm_lookup(pkt->field_40),
+            object_examine(obj_pool_perm_lookup(pkt->field_40),
+                obj_pool_perm_lookup(pkt->field_40),
                 byte_6813C0);
         } else {
             strcpy(byte_6813C0, "nobody");
         }
 
         if (pkt->field_28.type != OID_TYPE_NULL) {
-            object_examine(objp_perm_lookup(pkt->field_28),
-                objp_perm_lookup(pkt->field_28),
+            object_examine(obj_pool_perm_lookup(pkt->field_28),
+                obj_pool_perm_lookup(pkt->field_28),
                 byte_681468);
         } else {
             strcpy(byte_681468, "nobody");
@@ -4118,12 +4118,12 @@ bool sub_578EA0(Packet81* pkt)
     cost = pkt->field_5C;
     inventory_location = pkt->field_58;
 
-    v1 = objp_perm_lookup(pkt->field_28);
-    v2 = objp_perm_lookup(pkt->field_10);
-    v3 = objp_perm_lookup(pkt->field_40);
-    v4 = objp_perm_lookup(pkt->field_70);
-    v5 = objp_perm_lookup(pkt->field_88);
-    v6 = objp_perm_lookup(pkt->field_A0);
+    v1 = obj_pool_perm_lookup(pkt->field_28);
+    v2 = obj_pool_perm_lookup(pkt->field_10);
+    v3 = obj_pool_perm_lookup(pkt->field_40);
+    v4 = obj_pool_perm_lookup(pkt->field_70);
+    v5 = obj_pool_perm_lookup(pkt->field_88);
+    v6 = obj_pool_perm_lookup(pkt->field_A0);
 
     if (tig_net_is_active()
         && !tig_net_is_host()) {

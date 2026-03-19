@@ -231,7 +231,7 @@ bool handle_from_fname(int64_t* handle_ptr, const char* path)
     }
 
     // Lookup the object handle for ID.
-    *handle_ptr = objp_perm_lookup(oid);
+    *handle_ptr = obj_pool_perm_lookup(oid);
     if (*handle_ptr == OBJ_HANDLE_NULL) {
         tig_debug_printf("ID not loaded, can't convert to handle in ObjFile,handle_from_fname: [%s]", fname);
         return false;

@@ -318,10 +318,10 @@ bool combat_load(GameLoadInfo* load_info)
     combat_action_points = saved_action_points;
 
     if (tig_file_fread(&oid, sizeof(oid), 1, load_info->stream) != 1) return false;
-    qword_5FC238 = objp_perm_lookup(oid);
+    qword_5FC238 = obj_pool_perm_lookup(oid);
 
     if (tig_file_fread(&oid, sizeof(oid), 1, load_info->stream) != 1) return false;
-    obj = objp_perm_lookup(oid);
+    obj = obj_pool_perm_lookup(oid);
     if (obj == OBJ_HANDLE_NULL) {
         return false;
     }
@@ -345,7 +345,7 @@ bool combat_load(GameLoadInfo* load_info)
     combat_required_action_points = 0;
 
     if (tig_file_fread(&oid, sizeof(oid), 1, load_info->stream) != 1) return false;
-    qword_5FC248 = objp_perm_lookup(oid);
+    qword_5FC248 = obj_pool_perm_lookup(oid);
     if (qword_5FC248 == OBJ_HANDLE_NULL) {
         return false;
     }

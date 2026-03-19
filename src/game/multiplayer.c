@@ -985,7 +985,7 @@ void sub_4A1F30(int64_t obj, int64_t location, int dx, int dy)
 bool sub_4A1F60(int player, int64_t* obj_ptr)
 {
     if (player >= 0 && player < NUM_PLAYERS) {
-        *obj_ptr = objp_perm_lookup(stru_5E8AD0[player].field_8);
+        *obj_ptr = obj_pool_perm_lookup(stru_5E8AD0[player].field_8);
         return *obj_ptr != OBJ_HANDLE_NULL;
     }
 
@@ -1224,7 +1224,7 @@ bool sub_4A2EC0(ObjectID item_oid, ObjectID parent_oid, int player)
     int64_t tmp_parent_obj;
     S5F0E1C* lock;
 
-    item_obj = objp_perm_lookup(item_oid);
+    item_obj = obj_pool_perm_lookup(item_oid);
     sub_4F0690(parent_oid, &parent_obj);
 
     if (obj_type_is_item(obj_field_int32_get(item_obj, OBJ_F_TYPE))) {

@@ -720,7 +720,7 @@ bool obj_validate_system(unsigned int flags)
                                     return false;
                                 }
 
-                                item_obj = objp_perm_lookup(oid);
+                                item_obj = obj_pool_perm_lookup(oid);
 
                                 // TODO: Looks wrong, validates `obj` instead of `item_obj`.
                                 if (!obj_handle_is_valid(obj)) {
@@ -4009,7 +4009,7 @@ void sub_40BDB0(Object* object)
             && sub_40D320(object, fld)) {
             sub_408A20(object, fld, &oid);
             if (oid.type != OID_TYPE_NULL) {
-                obj = objp_perm_lookup(oid);
+                obj = obj_pool_perm_lookup(oid);
                 if (obj != OBJ_HANDLE_NULL) {
                     oid.type = OID_TYPE_HANDLE;
                     oid.d.h = obj;
@@ -4083,7 +4083,7 @@ bool sub_40BFC0(void* entry, int index)
 
     memcpy(&oid, entry, sizeof(oid));
     if (oid.type != OID_TYPE_NULL) {
-        obj = objp_perm_lookup(oid);
+        obj = obj_pool_perm_lookup(oid);
         if (obj != OBJ_HANDLE_NULL) {
             oid.type = OID_TYPE_HANDLE;
             oid.d.h = obj;
@@ -5087,7 +5087,7 @@ bool obj_version_read_mem(uint8_t** data)
 int64_t obj_get_prototype_handle(Object* object)
 {
     if (object->prototype_obj == OBJ_HANDLE_NULL) {
-        object->prototype_obj = objp_perm_lookup(object->prototype_oid);
+        object->prototype_obj = obj_pool_perm_lookup(object->prototype_oid);
     }
 
     return object->prototype_obj;

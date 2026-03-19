@@ -1440,7 +1440,7 @@ bool map_load_mobile(const char* base_path, const char* save_path)
         }
 
         while (tig_file_fread(&oid, sizeof(oid), 1, stream) == 1) {
-            obj = objp_perm_lookup(oid);
+            obj = obj_pool_perm_lookup(oid);
             if (obj == OBJ_HANDLE_NULL) {
                 tig_file_fclose(stream);
                 tig_debug_printf("Error retrieving object handle to apply differences\n");
@@ -1473,7 +1473,7 @@ bool map_load_mobile(const char* base_path, const char* save_path)
 
         if (stream != NULL) {
             while (tig_file_fread(&oid, sizeof(oid), 1, stream) == 1) {
-                obj = objp_perm_lookup(oid);
+                obj = obj_pool_perm_lookup(oid);
                 if (obj != OBJ_HANDLE_NULL) {
                     obj_deallocate(obj);
                 }
@@ -1504,7 +1504,7 @@ bool map_load_mobile(const char* base_path, const char* save_path)
 
                     *end = '\0';
                     if (objid_id_from_str(&oid, str)) {
-                        obj = objp_perm_lookup(oid);
+                        obj = obj_pool_perm_lookup(oid);
                         if (obj != OBJ_HANDLE_NULL) {
                             map_apply_obj_patch(obj, strchr(str, ':'));
                         }

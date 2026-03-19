@@ -319,13 +319,13 @@ bool proto_save(int64_t obj)
 // 0x468570
 int64_t sub_468570(ObjectType object_type)
 {
-    return objp_perm_lookup(dword_5E882C[object_type]);
+    return obj_pool_perm_lookup(dword_5E882C[object_type]);
 }
 
 // 0x4685A0
 int64_t sub_4685A0(int a1)
 {
-    return objp_perm_lookup(sub_468860(a1));
+    return obj_pool_perm_lookup(sub_468860(a1));
 }
 
 // 0x4685D0
@@ -472,7 +472,7 @@ void sub_468800(void)
 
     for (object_type = 0; object_type < OBJ_TYPE_COUNT; object_type++) {
         for (description = dword_5B37FC[object_type]; description < dword_5B384C[object_type]; description++) {
-            obj_deallocate(objp_perm_lookup(sub_468860(description)));
+            obj_deallocate(obj_pool_perm_lookup(sub_468860(description)));
         }
     }
 }

@@ -5004,7 +5004,7 @@ bool object_load_obj_handle_safe(int64_t* obj_ptr, Ryan* a2, TigFile* stream)
             object_list_destroy(&objects);
         }
 
-        obj = objp_perm_lookup(oid);
+        obj = obj_pool_perm_lookup(oid);
         if (obj == OBJ_HANDLE_NULL) {
             tig_debug_printf("Object: object_load_obj_handle_safe: Note: Couldn't match ObjID to HANDLE!\n");
             objid_id_to_str(buffer, oid);
@@ -5084,7 +5084,7 @@ bool sub_443F80(int64_t* obj_ptr, Ryan* a2)
         object_list_destroy(&objects);
     }
 
-    *obj_ptr = objp_perm_lookup(a2->objid);
+    *obj_ptr = obj_pool_perm_lookup(a2->objid);
 
     return *obj_ptr != OBJ_HANDLE_NULL;
 }

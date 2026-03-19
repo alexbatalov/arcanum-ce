@@ -426,7 +426,7 @@ bool intgame_load_hotkey(Hotkey* hotkey, TigFile* stream)
             return false;
         }
 
-        hotkey->item_obj.obj = objp_perm_lookup(hotkey->item_obj.field_8.objid);
+        hotkey->item_obj.obj = obj_pool_perm_lookup(hotkey->item_obj.field_8.objid);
         if (hotkey->item_obj.obj == OBJ_HANDLE_NULL) {
             tig_debug_printf("hotkey_ui: intgame_load_hotkey: ERROR: Load of object FAILED to match!!!\n");
             hotkey->type = HOTKEY_NONE;
@@ -469,7 +469,7 @@ bool intgame_load_hotkey(Hotkey* hotkey, TigFile* stream)
             return false;
         }
 
-        hotkey->item_obj.obj = objp_perm_lookup(hotkey->item_obj.field_8.objid);
+        hotkey->item_obj.obj = obj_pool_perm_lookup(hotkey->item_obj.field_8.objid);
         if (hotkey->item_obj.obj == OBJ_HANDLE_NULL) {
             return false;
         }

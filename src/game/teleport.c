@@ -264,7 +264,7 @@ bool teleport_process(TeleportData* teleport_data)
         }
 
         if (oid.type != OID_TYPE_NULL) {
-            obj = objp_perm_lookup(oid);
+            obj = obj_pool_perm_lookup(oid);
             if (obj != OBJ_HANDLE_NULL) {
                 if (player_get_local_pc_obj() == obj) {
                     map_precache_sectors(teleport_data->loc);

@@ -4151,7 +4151,7 @@ void mainmenu_ui_pregen_char_create(void)
 {
     mainmenu_ui_window_type = MM_WINDOW_PREGEN_CHAR;
     mainmenu_ui_pregen_char_idx = 1;
-    qword_64C460 = objp_perm_lookup(obj_get_id(sub_4685A0(BP_MERWIN_TUMBLEBROOK)));
+    qword_64C460 = obj_pool_perm_lookup(obj_get_id(sub_4685A0(BP_MERWIN_TUMBLEBROOK)));
     mainmenu_ui_create_window();
 }
 
@@ -4214,7 +4214,7 @@ bool mainmenu_ui_pregen_char_button_released(tig_button_handle_t button_handle)
         } else {
             mainmenu_ui_pregen_char_idx = mainmenu_ui_pregen_char_cnt - 1;
         }
-        qword_64C460 = objp_perm_lookup(obj_get_id(sub_4685A0(mainmenu_ui_pregen_char_idx + BP_GENERIC_PC)));
+        qword_64C460 = obj_pool_perm_lookup(obj_get_id(sub_4685A0(mainmenu_ui_pregen_char_idx + BP_GENERIC_PC)));
         window->refresh_func(NULL);
         return true;
     case 3:
@@ -4223,7 +4223,7 @@ bool mainmenu_ui_pregen_char_button_released(tig_button_handle_t button_handle)
         } else {
             mainmenu_ui_pregen_char_idx = 1;
         }
-        qword_64C460 = objp_perm_lookup(obj_get_id(sub_4685A0(mainmenu_ui_pregen_char_idx + BP_GENERIC_PC)));
+        qword_64C460 = obj_pool_perm_lookup(obj_get_id(sub_4685A0(mainmenu_ui_pregen_char_idx + BP_GENERIC_PC)));
         window->refresh_func(NULL);
         return true;
     default:
@@ -5938,7 +5938,7 @@ void sub_549A80(void)
     int64_t obj;
 
     if (!dword_5C3620) {
-        obj = objp_perm_lookup(obj_get_id(sub_4685A0(BP_VICTORIA_WARRINGTON)));
+        obj = obj_pool_perm_lookup(obj_get_id(sub_4685A0(BP_VICTORIA_WARRINGTON)));
         if (obj != OBJ_HANDLE_NULL
             && tig_art_exists(obj_field_int32_get(obj, OBJ_F_CURRENT_AID)) == TIG_OK) {
             dword_5C3620 = false;

@@ -237,7 +237,7 @@ void obj_pool_perm_oid_set(ObjectID oid, int64_t obj)
 }
 
 // 0x4E50E0
-int64_t objp_perm_lookup(ObjectID oid)
+int64_t obj_pool_perm_lookup(ObjectID oid)
 {
     int idx;
     ObjectList objects;

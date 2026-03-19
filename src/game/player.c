@@ -91,7 +91,7 @@ bool player_load(GameLoadInfo* load_info)
     }
 
     player_pc_oid = temp_oid;
-    player_pc_obj = objp_perm_lookup(temp_oid);
+    player_pc_obj = obj_pool_perm_lookup(temp_oid);
     if (player_pc_obj == OBJ_HANDLE_NULL) {
         return false;
     }
@@ -108,7 +108,7 @@ bool player_load(GameLoadInfo* load_info)
 void sub_40D860(void)
 {
     if (player_pc_oid.type != OID_TYPE_NULL) {
-        player_pc_obj = objp_perm_lookup(player_pc_oid);
+        player_pc_obj = obj_pool_perm_lookup(player_pc_oid);
     }
 }
 
@@ -173,7 +173,7 @@ int64_t player_get_local_pc_obj(void)
         if (obj_handle_is_valid(player_pc_obj) || player_pc_oid.type == OID_TYPE_NULL) {
             obj = player_pc_obj;
         } else {
-            player_pc_obj = objp_perm_lookup(player_pc_oid);
+            player_pc_obj = obj_pool_perm_lookup(player_pc_oid);
             obj = player_pc_obj;
         }
     }
@@ -226,7 +226,7 @@ bool player_obj_create_player(PlayerCreateInfo* player_create_info)
     char str[80];
 
     if (player_create_info->basic_prototype != -1) {
-        player_pc_prototype_obj = objp_perm_lookup(obj_get_id(sub_4685A0(player_create_info->basic_prototype)));
+        player_pc_prototype_obj = obj_pool_perm_lookup(obj_get_id(sub_4685A0(player_create_info->basic_prototype)));
     } else {
         player_pc_prototype_obj = sub_468570(OBJ_TYPE_PC);
     }

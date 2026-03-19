@@ -1858,7 +1858,7 @@ void magictech_effect_summon(MagicTechSummonInfo* summon_info)
     int64_t proto_obj;
     int64_t obj;
 
-    proto_obj = objp_perm_lookup(summon_info->field_60);
+    proto_obj = obj_pool_perm_lookup(summon_info->field_60);
 
     if (tig_net_is_active()) {
         if (tig_net_is_host()) {

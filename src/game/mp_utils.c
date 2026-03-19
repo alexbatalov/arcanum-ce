@@ -143,7 +143,7 @@ void mp_handle_ui_update_inven(PacketUpdateInven* pkt)
 {
     int64_t obj;
 
-    obj = objp_perm_lookup(pkt->oid);
+    obj = obj_pool_perm_lookup(pkt->oid);
     if (obj != OBJ_HANDLE_NULL) {
         ui_update_inven(obj);
     }
@@ -180,7 +180,7 @@ void sub_4EDFF0(Packet99* pkt)
     int64_t obj;
 
     if (tig_net_is_host()) {
-        obj = objp_perm_lookup(pkt->oid);
+        obj = obj_pool_perm_lookup(pkt->oid);
         sub_43E770(obj, pkt->location, pkt->dx, pkt->dy);
 
         if (pkt->field_30 && player_is_local_pc_obj(obj)) {
@@ -322,7 +322,7 @@ void sub_4EE5E0(Packet100* pkt)
         ui_follower_refresh();
         break;
     case 1:
-        ui_refresh_health_bar(objp_perm_lookup(pkt->d.b.field_8));
+        ui_refresh_health_bar(obj_pool_perm_lookup(pkt->d.b.field_8));
         break;
     case 2:
         ui_toggle_primary_button(pkt->d.a.field_8, pkt->d.a.field_C);
@@ -332,8 +332,8 @@ void sub_4EE5E0(Packet100* pkt)
         break;
     case 4:
         ui_schematic_feedback(pkt->d.c.field_8,
-            objp_perm_lookup(pkt->d.c.field_10),
-            objp_perm_lookup(pkt->d.c.field_28));
+            obj_pool_perm_lookup(pkt->d.c.field_10),
+            obj_pool_perm_lookup(pkt->d.c.field_28));
         break;
     case 5:
         sub_4F0690(pkt->d.s.field_20, &v2);
@@ -505,7 +505,7 @@ void mp_handle_gsound_play_scheme(PacketPlaySound* pkt)
         gsound_play_sfx(pkt->sound_id, 1);
         break;
     case 1:
-        gsound_play_sfx_on_obj(pkt->sound_id, pkt->loops, objp_perm_lookup(pkt->oid));
+        gsound_play_sfx_on_obj(pkt->sound_id, pkt->loops, obj_pool_perm_lookup(pkt->oid));
         break;
     case 2:
         gsound_play_scheme(pkt->music_scheme_idx, pkt->ambient_scheme_idx);
@@ -668,7 +668,7 @@ void sub_4F0640(int64_t obj, ObjectID* oid_ptr)
 void sub_4F0690(ObjectID oid, int64_t* obj_ptr)
 {
     if (oid.type != OID_TYPE_NULL) {
-        *obj_ptr = objp_perm_lookup(oid);
+        *obj_ptr = obj_pool_perm_lookup(oid);
     } else {
         *obj_ptr = OBJ_HANDLE_NULL;
     }

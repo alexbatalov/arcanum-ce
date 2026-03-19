@@ -1047,7 +1047,7 @@ void sub_4BD850(int64_t obj)
     oid = obj_get_id(obj);
     node = dword_5FC48C;
     while (node != NULL) {
-        trap_obj = objp_perm_lookup(node->trap_oid);
+        trap_obj = obj_pool_perm_lookup(node->trap_oid);
         if (objid_is_equal(oid, node->pc_oid)) {
             object_flags_set(trap_obj, OF_TRAP_SPOTTED);
             if (obj_field_int32_get(trap_obj, OBJ_F_TYPE) == OBJ_TYPE_TRAP) {
