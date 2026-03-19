@@ -9,7 +9,6 @@
 #include "game/item.h"
 #include "game/magictech.h"
 #include "game/mes.h"
-#include "game/mp_utils.h"
 #include "game/newspaper.h"
 #include "game/player.h"
 #include "game/quest.h"
@@ -3332,20 +3331,9 @@ void dialog_ask_money(int amt, int param1, int param2, int a4, int a5, DialogSta
 // 0x418B30
 void sub_418B30(int a1, DialogState* a2)
 {
-    Packet82 pkt;
-
     if (item_gold_get(a2->pc_obj) < a1) {
         sub_418C40(2000, a2->field_17F0[1], a2->field_1804[1], a2);
     } else {
-        if (tig_net_is_active()
-            && tig_net_is_host()) {
-            pkt.type = 82;
-            pkt.field_8 = obj_get_id(a2->pc_obj);
-            pkt.field_20 = obj_get_id(a2->npc_obj);
-            pkt.field_38 = a1;
-            pkt.field_40.type = OID_TYPE_NULL;
-        }
-
         item_gold_transfer(a2->pc_obj, a2->npc_obj, a1, OBJ_HANDLE_NULL);
         sub_414810(a2->field_17F0[2], a2->field_1804[2], a2->field_1818[2], 2, a2);
     }
