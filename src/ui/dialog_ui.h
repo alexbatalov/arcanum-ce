@@ -7,7 +7,7 @@
 bool dialog_ui_init(GameInitInfo* init_info);
 void dialog_ui_exit(void);
 void dialog_ui_reset(void);
-bool sub_567400(int64_t obj);
+bool dialog_ui_is_in_dialog(int64_t obj);
 void dialog_ui_start_dialog(int64_t pc_obj, int64_t npc_obj, int script_num, int script_line, int num);
 void sub_5678D0(int64_t obj, int a2);
 int sub_567A10(void);

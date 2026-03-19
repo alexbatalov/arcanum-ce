@@ -117,7 +117,7 @@ void dialog_ui_reset(void)
 }
 
 // 0x567400
-bool sub_567400(int64_t obj)
+bool dialog_ui_is_in_dialog(int64_t obj)
 {
     return sub_567420(obj)->field_1850;
 }

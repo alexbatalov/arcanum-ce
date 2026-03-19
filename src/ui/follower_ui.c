@@ -639,7 +639,7 @@ bool follower_ui_message_filter(TigMessage* msg)
     TargetDescriptor td;
 
     pc_obj = player_get_local_pc_obj();
-    if (sub_567400(pc_obj)) {
+    if (dialog_ui_is_in_dialog(pc_obj)) {
         return false;
     }
 

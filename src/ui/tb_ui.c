@@ -87,7 +87,7 @@ bool tb_ui_init(GameInitInfo* init_info)
     callbacks.set_skill_training = skill_ui_set_training;
     callbacks.field_3C = sub_57CC70;
     callbacks.field_40 = sub_567E00;
-    callbacks.field_44 = sub_567400;
+    callbacks.field_44 = dialog_ui_is_in_dialog;
     callbacks.end_death = end_death;
     callbacks.end_game = end_game;
     callbacks.field_64 = sub_57CDF0;

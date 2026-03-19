@@ -236,7 +236,7 @@ tig_window_handle_t compact_ui_message_window_acquire(void)
         tig_window_fill(compact_ui_message_window_handle, &rect, tig_color_make(5, 5, 5));
         tig_window_box(compact_ui_message_window_handle, &rect, tig_color_make(9, 9, 9));
 
-        if (!sub_567400(player_get_local_pc_obj())) {
+        if (!dialog_ui_is_in_dialog(player_get_local_pc_obj())) {
             if (tig_window_show(compact_ui_message_window_handle) != TIG_OK) {
                 return TIG_WINDOW_HANDLE_INVALID;
             }
