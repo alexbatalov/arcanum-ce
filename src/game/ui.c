@@ -163,10 +163,10 @@ void sub_460410(int64_t a1, int64_t a2)
 }
 
 // 0x460460
-int sub_460460(int64_t obj)
+int ui_is_in_dialog(int64_t obj)
 {
-    if (ui_callbacks.field_44 != NULL) {
-        return ui_callbacks.field_44(obj);
+    if (ui_callbacks.is_in_dialog != NULL) {
+        return ui_callbacks.is_in_dialog(obj);
     } else {
         return 0;
     }

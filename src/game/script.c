@@ -1035,7 +1035,7 @@ int script_execute_condition(ScriptCondition* condition, int line, ScriptState* 
                     matched++;
                 }
             } else {
-                if (sub_460460(objs[index])) {
+                if (ui_is_in_dialog(objs[index])) {
                     matched++;
                 }
             }
