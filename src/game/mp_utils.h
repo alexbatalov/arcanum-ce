@@ -211,40 +211,6 @@ typedef struct Packet29 {
 
 static_assert(sizeof(Packet29) == 0x20, "wrong size");
 
-typedef struct PacketDialog {
-    /* 0000 */ int type;
-    /* 0004 */ int subtype;
-    union {
-        struct {
-            /* 0008 */ ObjectID field_8;
-        } b;
-        struct {
-            /* 0008 */ ObjectID field_8;
-            /* 0020 */ ObjectID field_20;
-            /* 0038 */ int field_38;
-            /* 003C */ int field_3C;
-            /* 0040 */ int field_40;
-            /* 0044 */ char field_44[1000];
-            /* 042C */ int padding_42C;
-        } d;
-        struct {
-            /* 0008 */ int field_8;
-            /* 000C */ int field_C;
-            /* 0010 */ int field_10;
-            /* 0014 */ int field_14;
-            /* 0018 */ DialogSerializedData serialized_data;
-        } e;
-        struct {
-            /* 0008 */ ObjectID field_8;
-            /* 0020 */ int field_20;
-            /* 0024 */ int field_24;
-        } f;
-    } d;
-} PacketDialog;
-
-// Serializeable.
-static_assert(sizeof(PacketDialog) == 0x430, "wrong size");
-
 typedef struct Packet46 {
     /* 0000 */ int type;
     /* 0004 */ int player;
