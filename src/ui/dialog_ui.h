@@ -18,6 +18,5 @@ void sub_5681C0(int64_t pc_obj, int64_t npc_obj);
 void sub_568220(DialogSerializedData* serialized_data, int a2, int a3, int a4, int a5, char* buffer);
 void dialog_ui_float_line(int64_t npc_obj, int64_t pc_obj, const char* str, int speech_id);
 void sub_568830(int64_t obj);
-void sub_568880(int64_t obj, int a2, int a3, int a4, int a5, int a6, const char* str);
 
 #endif /* ARCANUM_UI_DIALOG_UI_H_ */

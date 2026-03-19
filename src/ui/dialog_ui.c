@@ -796,23 +796,6 @@ void sub_568830(int64_t obj)
     }
 }
 
-// 0x568880
-void sub_568880(int64_t obj, int a2, int a3, int type, int a5, int a6, const char* str)
-{
-    (void)a2;
-    (void)a3;
-
-    if ((a6 & 1) != 0) {
-        if (player_is_local_pc_obj(obj)) {
-            return;
-        }
-    }
-
-    tb_remove(obj);
-    tb_add(obj, type, str);
-    tb_expire_in(obj, a5);
-}
-
 // 0x5688D0
 void dialog_ui_speech_start(int64_t npc_obj, int64_t pc_obj, int speech_id)
 {

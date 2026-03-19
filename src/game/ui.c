@@ -522,14 +522,6 @@ void ui_end_dialog(int64_t pc_obj, int a3)
     }
 }
 
-// 0x460A40
-void sub_460A40(int64_t obj, int a3, int a4, int a5, int a6, int a7, const char* str)
-{
-    if (ui_callbacks.field_F0 != NULL) {
-        ui_callbacks.field_F0(obj, a3, a4, a5, a6, a7, str);
-    }
-}
-
 // 0x460A80
 void sub_460A80(DialogSerializedData* a1, int a2, int a3, int a4, int a5, char* buffer)
 {
