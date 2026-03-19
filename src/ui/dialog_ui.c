@@ -531,7 +531,7 @@ void sub_5686C0(int64_t pc_obj, int64_t npc_obj, int type, int expires_in, const
 }
 
 // 0x568830
-void sub_568830(int64_t obj)
+void dialog_ui_notify_object_destroyed(int64_t obj)
 {
     int index;
 

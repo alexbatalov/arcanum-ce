@@ -188,7 +188,7 @@ void sub_57CAE0(void)
 void sub_57CAF0(int64_t obj)
 {
     sub_573590(obj);
-    sub_568830(obj);
+    dialog_ui_notify_object_destroyed(obj);
 }
 
 // 0x57CB10
