@@ -187,7 +187,7 @@ void sub_57CAE0(void)
 // 0x57CAF0
 void sub_57CAF0(int64_t obj)
 {
-    sub_573590(obj);
+    inven_ui_notify_object_destroyed(obj);
     dialog_ui_notify_object_destroyed(obj);
 }
 

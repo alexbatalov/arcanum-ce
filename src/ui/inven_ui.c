@@ -1150,7 +1150,7 @@ void inven_ui_destroy(void)
 }
 
 // 0x573590
-void sub_573590(int64_t obj)
+void inven_ui_notify_object_destroyed(int64_t obj)
 {
     if (!inven_ui_created) {
         return;

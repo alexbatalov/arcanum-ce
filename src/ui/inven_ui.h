@@ -23,7 +23,7 @@ bool inven_ui_open(int64_t pc_obj, int64_t target_obj, int mode);
 void sub_572640(int64_t pc_obj, int64_t target_obj, int mode);
 bool inven_ui_create(int64_t pc_obj, int64_t target_obj, int mode);
 void inven_ui_destroy(void);
-void sub_573590(int64_t obj);
+void inven_ui_notify_object_destroyed(int64_t obj);
 int inven_ui_is_created(void);
 int64_t sub_573600(void);
 int64_t inven_ui_drag_item_obj_get(void);
