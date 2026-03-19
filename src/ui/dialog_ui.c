@@ -42,7 +42,7 @@ static void sub_5679C0(DialogUiEntry* entry);
 static bool dialog_ui_process_option(DialogUiEntry* entry, int option);
 static bool dialog_ui_message_filter(TigMessage* msg);
 static bool sub_5681B0(DialogUiEntry* entry);
-static void sub_568480(DialogUiEntry* entry, int a2);
+static void dialog_ui_execute_script(DialogUiEntry* entry, int line);
 static void sub_5684C0(DialogUiEntry* entry);
 static void dialog_ui_npc_say(int64_t npc_obj, int64_t pc_obj, int type, int expires_in, const char* str, int speech_id);
 static void dialog_ui_pc_say(int64_t pc_obj, int64_t npc_obj, int type, int expires_in, const char* str);
@@ -299,11 +299,11 @@ bool dialog_ui_process_option(DialogUiEntry* entry, int option)
         break;
     case 1:
         dialog_ui_end_dialog(entry->state.pc_obj, 0);
-        sub_568480(entry, 0);
+        dialog_ui_execute_script(entry, 0);
         break;
     case 2:
         dialog_ui_end_dialog(entry->state.pc_obj, 0);
-        sub_568480(entry, entry->state.field_17EC);
+        dialog_ui_execute_script(entry, entry->state.field_17EC);
         break;
     case 3:
         if (is_pc) {
@@ -409,13 +409,13 @@ void dialog_ui_float_line(int64_t npc_obj, int64_t pc_obj, const char* str, int 
 }
 
 // 0x568480
-void sub_568480(DialogUiEntry* entry, int a2)
+void dialog_ui_execute_script(DialogUiEntry* entry, int line)
 {
-    if (a2 == 0) {
-        a2 = entry->script_line + 1;
+    if (line == 0) {
+        line = entry->script_line + 1;
     }
 
-    object_script_execute(entry->state.pc_obj, entry->state.npc_obj, OBJ_HANDLE_NULL, SAP_DIALOG, a2);
+    object_script_execute(entry->state.pc_obj, entry->state.npc_obj, OBJ_HANDLE_NULL, SAP_DIALOG, line);
 }
 
 // 0x5684C0
