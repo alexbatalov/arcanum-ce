@@ -207,7 +207,7 @@ void obj_pool_deallocate(int64_t obj)
 }
 
 // 0x4E4FD0
-void sub_4E4FD0(ObjectID oid, int64_t obj)
+void obj_pool_perm_oid_set(ObjectID oid, int64_t obj)
 {
     int index;
 
@@ -278,7 +278,7 @@ int64_t objp_perm_lookup(ObjectID oid)
     }
 
     if (node != NULL) {
-        sub_4E4FD0(oid, node->obj);
+        obj_pool_perm_oid_set(oid, node->obj);
         object_list_destroy(&objects);
 
         if (!sub_4E57E0(oid, &idx)) {

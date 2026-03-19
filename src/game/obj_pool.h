@@ -11,7 +11,7 @@ void* obj_pool_allocate(int64_t* obj_ptr);
 void* obj_pool_lock(int64_t obj);
 void obj_pool_unlock(int64_t obj);
 void obj_pool_deallocate(int64_t obj);
-void sub_4E4FD0(ObjectID oid, int64_t obj);
+void obj_pool_perm_oid_set(ObjectID oid, int64_t obj);
 int64_t objp_perm_lookup(ObjectID oid);
 ObjectID sub_4E5280(int64_t obj);
 void sub_4E52F0(ObjectID oid);

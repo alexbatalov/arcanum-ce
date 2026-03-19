@@ -787,7 +787,7 @@ void obj_create_proto(int type, int64_t* obj_ptr)
     object = obj_allocate(&handle);
     object->type = type;
     objid_create_guid(&(object->oid));
-    sub_4E4FD0(object->oid, handle);
+    obj_pool_perm_oid_set(object->oid, handle);
     object->prototype_oid.type = OID_TYPE_BLOCKED;
     object->prototype_obj = OBJ_HANDLE_NULL;
     object->field_40 = 0;
@@ -841,7 +841,7 @@ void sub_4058E0(int64_t proto_obj, int64_t loc, int64_t* obj_ptr)
         || obj_type_is_item(object->type)
         || !obj_editor) {
         objid_create_guid(&(object->oid));
-        sub_4E4FD0(object->oid, obj);
+        obj_pool_perm_oid_set(object->oid, obj);
     } else {
         object->oid.type = OID_TYPE_NULL;
     }
@@ -879,7 +879,7 @@ void sub_405B30(int64_t proto_obj, int64_t loc, ObjectID oid, int64_t* obj_ptr)
 
     object->oid = oid;
 
-    sub_4E4FD0(oid, *obj_ptr);
+    obj_pool_perm_oid_set(oid, *obj_ptr);
     obj_unlock(*obj_ptr);
 }
 
@@ -1028,7 +1028,7 @@ void obj_perm_dup(int64_t* copy_obj_ptr, int64_t existing_obj)
         case OID_TYPE_GUID:
         case OID_TYPE_P:
             objid_create_guid(&(copy_object->oid));
-            sub_4E4FD0(copy_object->oid, copy_obj);
+            obj_pool_perm_oid_set(copy_object->oid, copy_obj);
             break;
         default:
             tig_debug_println("ERROR: Unallowed ID type in obj_perm_dup");
@@ -1097,7 +1097,7 @@ void sub_406210(int64_t* copy, int64_t obj, ObjectID* oids)
         sub_4E52F0(object->oid);
     }
 
-    sub_4E4FD0(*oids++, *copy);
+    obj_pool_perm_oid_set(*oids++, *copy);
     obj_unlock(*copy);
 
     if (inventory_fields_from_obj_type(obj_field_int32_get(*copy, OBJ_F_TYPE), &inventory_num_fld, &inventory_list_fld)) {
@@ -1108,7 +1108,7 @@ void sub_406210(int64_t* copy, int64_t obj, ObjectID* oids)
             if (object->oid.type != OID_TYPE_NULL) {
                 sub_4E52F0(object->oid);
             }
-            sub_4E4FD0(*oids++, item_obj);
+            obj_pool_perm_oid_set(*oids++, item_obj);
             obj_unlock(item_obj);
         }
     }
@@ -1387,7 +1387,7 @@ bool obj_dif_read(TigFile* stream, int64_t obj)
         object->oid = oid;
 
         if (oid.type > 0 && oid.type < 4) {
-            sub_4E4FD0(oid, obj);
+            obj_pool_perm_oid_set(oid, obj);
         }
     }
 
@@ -2083,7 +2083,7 @@ ObjectID obj_get_id(int64_t obj)
                 objid_create_guid(&(object->oid));
             }
 
-            sub_4E4FD0(object->oid, obj);
+            obj_pool_perm_oid_set(object->oid, obj);
             object->modified = true;
         }
 
@@ -2281,7 +2281,7 @@ ObjectID sub_408020(int64_t obj, int a2)
     }
 
     object->oid = sub_4E6540(a2);
-    sub_4E4FD0(object->oid, obj);
+    obj_pool_perm_oid_set(object->oid, obj);
 
     obj_unlock(obj);
 
@@ -2932,7 +2932,7 @@ bool obj_proto_read_file(TigFile* stream, int64_t* obj_ptr, ObjectID oid)
     memset(object->transient_properties, -1, sizeof(object->transient_properties));
 
     if (object->oid.type != OID_TYPE_NULL) {
-        sub_4E4FD0(object->oid, obj);
+        obj_pool_perm_oid_set(object->oid, obj);
     }
 
     obj_unlock(obj);
@@ -3035,7 +3035,7 @@ bool obj_inst_read_file(TigFile* stream, int64_t* obj_ptr, ObjectID oid)
     memset(object->transient_properties, 0, sizeof(object->transient_properties));
 
     if (object->oid.type != OID_TYPE_NULL) {
-        sub_4E4FD0(object->oid, obj);
+        obj_pool_perm_oid_set(object->oid, obj);
     }
 
     obj_unlock(obj);
@@ -3099,7 +3099,7 @@ bool obj_proto_read_mem(uint8_t* data, int64_t* obj_ptr)
     memset(object->transient_properties, -1, sizeof(object->transient_properties));
 
     if (object->oid.type != OID_TYPE_NULL) {
-        sub_4E4FD0(object->oid, obj);
+        obj_pool_perm_oid_set(object->oid, obj);
     }
 
     obj_unlock(obj);
@@ -3157,7 +3157,7 @@ bool obj_inst_read_mem(uint8_t* data, int64_t* obj_ptr)
     memset(object->transient_properties, 0, sizeof(object->transient_properties));
 
     if (object->oid.type != OID_TYPE_NULL) {
-        sub_4E4FD0(object->oid, obj);
+        obj_pool_perm_oid_set(object->oid, obj);
     }
 
     obj_unlock(obj);
