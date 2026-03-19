@@ -2097,7 +2097,7 @@ ObjectID obj_get_id(int64_t obj)
             oid.type = OID_TYPE_NULL;
         }
     } else {
-        oid = sub_4E5280(obj);
+        oid = obj_pool_perm_reverse_lookup(obj);
     }
 
     return oid;
@@ -3962,7 +3962,7 @@ void sub_40BBF0(Object* object)
                             sub_408760(object, fld, &oid);
                         }
                     } else {
-                        oid = sub_4E5280(oid.d.h);
+                        oid = obj_pool_perm_reverse_lookup(oid.d.h);
                         sub_408760(object, fld, &oid);
                     }
                 } else {
@@ -4062,7 +4062,7 @@ bool sub_40BF00(void* entry, int index)
 
             oid = obj_get_id(oid.d.h);
         } else {
-            oid = sub_4E5280(oid.d.h);
+            oid = obj_pool_perm_reverse_lookup(oid.d.h);
         }
 
         *(ObjectID*)entry = oid;

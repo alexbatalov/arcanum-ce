@@ -13,7 +13,7 @@ void obj_pool_unlock(int64_t obj);
 void obj_pool_deallocate(int64_t obj);
 void obj_pool_perm_oid_set(ObjectID oid, int64_t obj);
 int64_t obj_pool_perm_lookup(ObjectID oid);
-ObjectID sub_4E5280(int64_t obj);
+ObjectID obj_pool_perm_reverse_lookup(int64_t obj);
 void sub_4E52F0(ObjectID oid);
 void sub_4E5300(void);
 bool obj_pool_walk_first(int64_t* obj_ptr, int* iter_ptr);

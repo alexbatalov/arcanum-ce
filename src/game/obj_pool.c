@@ -294,7 +294,7 @@ int64_t obj_pool_perm_lookup(ObjectID oid)
 }
 
 // 0x4E5280
-ObjectID sub_4E5280(int64_t obj)
+ObjectID obj_pool_perm_reverse_lookup(int64_t obj)
 {
     ObjectID oid;
     int index;
