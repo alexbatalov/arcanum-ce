@@ -311,7 +311,7 @@ ObjectID obj_pool_perm_reverse_lookup(int64_t obj)
 }
 
 // 0x4E52F0
-void sub_4E52F0(ObjectID oid)
+void obj_pool_perm_oid_remove(ObjectID oid)
 {
     (void)oid;
 }

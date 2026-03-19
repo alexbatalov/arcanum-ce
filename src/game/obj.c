@@ -874,7 +874,7 @@ void sub_405B30(int64_t proto_obj, int64_t loc, ObjectID oid, int64_t* obj_ptr)
 
     object = obj_lock(*obj_ptr);
     if (object->oid.type != OID_TYPE_NULL) {
-        sub_4E52F0(object->oid);
+        obj_pool_perm_oid_remove(object->oid);
     }
 
     object->oid = oid;
@@ -908,7 +908,7 @@ void obj_deallocate(int64_t obj)
     }
 
     if (object->oid.type != OID_TYPE_NULL) {
-        sub_4E52F0(object->oid);
+        obj_pool_perm_oid_remove(object->oid);
     }
 
     if (object->prototype_oid.type != OID_TYPE_BLOCKED) {
@@ -1094,7 +1094,7 @@ void sub_406210(int64_t* copy, int64_t obj, ObjectID* oids)
 
     object = obj_lock(*copy);
     if (object->oid.type != OID_TYPE_NULL) {
-        sub_4E52F0(object->oid);
+        obj_pool_perm_oid_remove(object->oid);
     }
 
     obj_pool_perm_oid_set(*oids++, *copy);
@@ -1106,7 +1106,7 @@ void sub_406210(int64_t* copy, int64_t obj, ObjectID* oids)
             item_obj = obj_arrayfield_handle_get(*copy, inventory_list_fld, idx);
             object = obj_lock(item_obj);
             if (object->oid.type != OID_TYPE_NULL) {
-                sub_4E52F0(object->oid);
+                obj_pool_perm_oid_remove(object->oid);
             }
             obj_pool_perm_oid_set(*oids++, item_obj);
             obj_unlock(item_obj);
@@ -2277,7 +2277,7 @@ ObjectID sub_408020(int64_t obj, int a2)
 
     object = obj_lock(obj);
     if (objid_is_valid(object->oid) && object->oid.type != OID_TYPE_NULL) {
-        sub_4E52F0(object->oid);
+        obj_pool_perm_oid_remove(object->oid);
     }
 
     object->oid = sub_4E6540(a2);
