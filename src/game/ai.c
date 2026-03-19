@@ -10,10 +10,8 @@
 #include "game/magictech.h"
 #include "game/map.h"
 #include "game/monstergen.h"
-#include "game/mp_utils.h"
 #include "game/mt_ai.h"
 #include "game/mt_item.h"
-#include "game/multiplayer.h"
 #include "game/obj.h"
 #include "game/object.h"
 #include "game/object_node.h"
@@ -292,10 +290,6 @@ void ai_process(int64_t obj)
     Ai ai;
 
     if (map_is_clearing_objects()) {
-        return;
-    }
-
-    if (tig_net_is_active() && !tig_net_is_host()) {
         return;
     }
 
@@ -945,11 +939,6 @@ void ai_attack(int64_t source_obj, int64_t target_obj, int loudness, unsigned in
         return;
     }
 
-    if (tig_net_is_active()
-        && !tig_net_is_host()) {
-        return;
-    }
-
     source_obj_type = obj_field_int32_get(source_obj, OBJ_F_TYPE);
     if (obj_type_is_critter(source_obj_type)) {
         if ((flags & 0x04) != 0) {
@@ -1476,11 +1465,6 @@ void ai_npc_wait(int64_t obj)
         return;
     }
 
-    if (tig_net_is_active()
-        && !tig_net_is_host()) {
-        return;
-    }
-
     if ((obj_field_int32_get(obj, OBJ_F_NPC_FLAGS) & ONF_AI_WAIT_HERE) != 0) {
         return;
     }
@@ -1514,11 +1498,6 @@ void ai_npc_unwait(int64_t obj, bool force)
     unsigned int flags;
 
     if (obj_field_int32_get(obj, OBJ_F_TYPE) != OBJ_TYPE_NPC) {
-        return;
-    }
-
-    if (tig_net_is_active()
-        && !tig_net_is_host()) {
         return;
     }
 
@@ -1557,10 +1536,6 @@ bool ai_npc_wait_here_timeevent_process(TimeEvent* timeevent)
     unsigned int flags;
     int max_charisma;
     int charisma;
-
-    if (tig_net_is_active() && !tig_net_is_host()) {
-        return true;
-    }
 
     obj = timeevent->params[0].object_value;
     leader_obj = critter_leader_get(obj);
@@ -1643,11 +1618,6 @@ int sub_4AABE0(int64_t source_obj, int danger_type, int64_t target_obj, int* sou
     AiParams ai_params;
     char str[1000];
     int speech_id;
-
-    if (tig_net_is_active()
-        && !tig_net_is_host()) {
-        return danger_type;
-    }
 
     if ((obj_field_int32_get(source_obj, OBJ_F_FLAGS) & OF_INVULNERABLE) != 0
         || (obj_field_int32_get(source_obj, OBJ_F_CRITTER_FLAGS2) & OCF2_NIGH_INVULNERABLE) != 0
@@ -2897,11 +2867,6 @@ bool ai_timeevent_process(TimeEvent* timeevent)
     bool v1;
     unsigned int millis;
 
-    if (tig_net_is_active()
-        && !tig_net_is_host()) {
-        return true;
-    }
-
     obj = timeevent->params[0].object_value;
     if (obj == OBJ_HANDLE_NULL) {
         return true;
@@ -2974,25 +2939,11 @@ bool ai_timeevent_process(TimeEvent* timeevent)
 // 0x4AD420
 bool sub_4AD420(int64_t obj)
 {
-    int64_t pc_obj;
-
     if (critter_is_dead(obj)) {
         return false;
     }
 
     if (combat_turn_based_is_active()) {
-        return false;
-    }
-
-    if (tig_net_is_active()) {
-        pc_obj = multiplayer_player_find_first();
-        while (pc_obj != OBJ_HANDLE_NULL) {
-            if (object_dist(pc_obj, obj) <= 30) {
-                return true;
-            }
-            pc_obj = multiplayer_player_find_next();
-        }
-
         return false;
     }
 
@@ -3037,13 +2988,6 @@ bool sub_4AD4D0(int64_t obj)
         return false;
     }
 
-    if (tig_net_is_active()) {
-        int64_t v1 = sub_4C1110(obj);
-        if (v1 != OBJ_HANDLE_NULL) {
-            sub_460A20(v1, 0);
-        }
-    }
-
     sub_424070(obj, 4, false, true);
     sub_43E770(obj, obj_field_int64_get(pc_leader_obj, OBJ_F_LOCATION), 0, 0);
 
@@ -3059,23 +3003,9 @@ int ai_timeevent_delay(int64_t obj)
 // 0x4AD610
 int ai_distance_to_nearest_player(int64_t obj)
 {
-    int64_t pc_obj;
-    int64_t dist;
     int64_t nearest_dist;
 
-    if (tig_net_is_active()) {
-        nearest_dist = -1;
-        pc_obj = multiplayer_player_find_first();
-        while (pc_obj != OBJ_HANDLE_NULL) {
-            dist = object_dist(pc_obj, obj);
-            if (nearest_dist == -1 || dist < nearest_dist) {
-                nearest_dist = dist;
-            }
-            pc_obj = multiplayer_player_find_next();
-        }
-    } else {
-        nearest_dist = object_dist(player_get_local_pc_obj(), obj);
-    }
+    nearest_dist = object_dist(player_get_local_pc_obj(), obj);
 
     return nearest_dist >= 0 && nearest_dist <= 30 ? (int)nearest_dist : 30;
 }
@@ -3105,10 +3035,6 @@ void sub_4AD700(int64_t obj, int millis)
 void sub_4AD730(int64_t obj, DateTime* datetime)
 {
     TimeEvent timeevent;
-
-    if (tig_net_is_active() && !tig_net_is_host()) {
-        return;
-    }
 
     ai_timeevent_clear(obj);
 
@@ -3761,10 +3687,6 @@ void ai_npc_witness_pc_critical(int64_t pc_obj, int type)
     int64_t follower_obj;
     char str[1000];
     int speech_id;
-
-    if (tig_net_is_active() && !tig_net_is_host()) {
-        return;
-    }
 
     if (random_between(1, 2) == 1) {
         return;
