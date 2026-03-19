@@ -2370,6 +2370,7 @@ bool sub_54B5D0(TigMessage* msg)
             case SDL_SCANCODE_SLASH:
                 intgame_refresh_cursor();
                 return false;
+            case SDL_SCANCODE_7:
             case SDL_SCANCODE_KP_7:
                 if (intgame_iso_window_type == ROTWIN_TYPE_QUANTITY) {
                     intgame_quantity = 10 * intgame_quantity + 7;
@@ -2379,6 +2380,7 @@ bool sub_54B5D0(TigMessage* msg)
                     intgame_refresh_quantity();
                 }
                 return true;
+            case SDL_SCANCODE_8:
             case SDL_SCANCODE_KP_8:
                 if (intgame_iso_window_type == ROTWIN_TYPE_QUANTITY) {
                     intgame_quantity = 10 * intgame_quantity + 8;
@@ -2388,6 +2390,7 @@ bool sub_54B5D0(TigMessage* msg)
                     intgame_refresh_quantity();
                 }
                 return true;
+            case SDL_SCANCODE_9:
             case SDL_SCANCODE_KP_9:
                 if (intgame_iso_window_type == ROTWIN_TYPE_QUANTITY) {
                     intgame_quantity = 10 * intgame_quantity + 9;
@@ -2397,6 +2400,7 @@ bool sub_54B5D0(TigMessage* msg)
                     intgame_refresh_quantity();
                 }
                 return true;
+            case SDL_SCANCODE_4:
             case SDL_SCANCODE_KP_4:
                 if (intgame_iso_window_type == ROTWIN_TYPE_QUANTITY) {
                     intgame_quantity = 10 * intgame_quantity + 4;
@@ -2406,6 +2410,7 @@ bool sub_54B5D0(TigMessage* msg)
                     intgame_refresh_quantity();
                 }
                 return true;
+            case SDL_SCANCODE_5:
             case SDL_SCANCODE_KP_5:
                 if (intgame_iso_window_type == ROTWIN_TYPE_QUANTITY) {
                     intgame_quantity = 10 * intgame_quantity + 5;
@@ -2415,6 +2420,7 @@ bool sub_54B5D0(TigMessage* msg)
                     intgame_refresh_quantity();
                 }
                 return true;
+            case SDL_SCANCODE_6:
             case SDL_SCANCODE_KP_6:
                 if (intgame_iso_window_type == ROTWIN_TYPE_QUANTITY) {
                     intgame_quantity = 10 * intgame_quantity + 6;
@@ -2424,6 +2430,7 @@ bool sub_54B5D0(TigMessage* msg)
                     intgame_refresh_quantity();
                 }
                 return true;
+            case SDL_SCANCODE_1:
             case SDL_SCANCODE_KP_1:
                 if (intgame_iso_window_type == ROTWIN_TYPE_QUANTITY) {
                     intgame_quantity = 10 * intgame_quantity + 1;
@@ -2433,6 +2440,7 @@ bool sub_54B5D0(TigMessage* msg)
                     intgame_refresh_quantity();
                 }
                 return true;
+            case SDL_SCANCODE_2:
             case SDL_SCANCODE_KP_2:
                 if (intgame_iso_window_type == ROTWIN_TYPE_QUANTITY) {
                     intgame_quantity = 10 * intgame_quantity + 2;
@@ -2442,6 +2450,7 @@ bool sub_54B5D0(TigMessage* msg)
                     intgame_refresh_quantity();
                 }
                 return true;
+            case SDL_SCANCODE_3:
             case SDL_SCANCODE_KP_3:
                 if (intgame_iso_window_type == ROTWIN_TYPE_QUANTITY) {
                     intgame_quantity = 10 * intgame_quantity + 3;
@@ -2451,6 +2460,7 @@ bool sub_54B5D0(TigMessage* msg)
                     intgame_refresh_quantity();
                 }
                 return true;
+            case SDL_SCANCODE_0:
             case SDL_SCANCODE_KP_0:
                 if (intgame_iso_window_type == ROTWIN_TYPE_QUANTITY) {
                     intgame_quantity = 10 * intgame_quantity;
