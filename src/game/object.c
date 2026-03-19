@@ -1250,7 +1250,7 @@ void object_destroy(int64_t obj)
         if (obj_type == OBJ_TYPE_NPC) {
             pc_obj = sub_4C1110(obj);
             if (pc_obj != OBJ_HANDLE_NULL) {
-                sub_460A20(pc_obj, 0);
+                ui_end_dialog(pc_obj, 0);
             }
         }
 

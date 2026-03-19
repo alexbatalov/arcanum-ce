@@ -4895,7 +4895,7 @@ bool intgame_mode_set(IntgameMode mode)
             sub_551A10(pc_obj);
             v1 = 1;
             if (v2) {
-                sub_5678D0(player_get_local_pc_obj(), 0);
+                dialog_ui_end_dialog(player_get_local_pc_obj(), 0);
             } else {
                 sub_567A20(player_get_local_pc_obj());
             }

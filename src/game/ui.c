@@ -515,10 +515,10 @@ void ui_start_dialog(int64_t pc_obj, int64_t npc_obj, int script_num, int script
 }
 
 // 0x460A20
-void sub_460A20(int64_t a1, int a3)
+void ui_end_dialog(int64_t pc_obj, int a3)
 {
-    if (ui_callbacks.field_EC != NULL) {
-        ui_callbacks.field_EC(a1, a3);
+    if (ui_callbacks.end_dialog != NULL) {
+        ui_callbacks.end_dialog(pc_obj, a3);
     }
 }
 

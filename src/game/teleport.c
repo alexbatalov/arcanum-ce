@@ -326,7 +326,7 @@ bool schedule_teleport_obj_recursively(int64_t obj, int64_t loc)
                 if (tig_net_is_active()) {
                     v1 = sub_4C1110(obj_node->obj);
                     if (v1 != OBJ_HANDLE_NULL) {
-                        sub_460A20(v1, 0);
+                        ui_end_dialog(v1, 0);
                     }
                 }
 

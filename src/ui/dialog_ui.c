@@ -86,7 +86,7 @@ bool dialog_ui_init(GameInitInfo* init_info)
     }
 
     script_set_callbacks(dialog_ui_start_dialog, dialog_ui_float_line);
-    ai_set_callbacks(sub_5678D0, dialog_ui_float_line);
+    ai_set_callbacks(dialog_ui_end_dialog, dialog_ui_float_line);
     broadcast_set_float_line_func(dialog_ui_float_line);
     dialog_ui_speech_handle = TIG_SOUND_HANDLE_INVALID;
 
@@ -262,7 +262,7 @@ void dialog_ui_start_dialog(int64_t pc_obj, int64_t npc_obj, int script_num, int
 }
 
 // 0x5678D0
-void sub_5678D0(int64_t obj, int a2)
+void dialog_ui_end_dialog(int64_t obj, int a2)
 {
     DialogUiEntry* entry;
     PacketDialog pkt;
@@ -473,11 +473,11 @@ bool sub_567E30(DialogUiEntry* entry, int a2)
         sub_5684C0(entry);
         break;
     case 1:
-        sub_5678D0(entry->state.pc_obj, 0);
+        dialog_ui_end_dialog(entry->state.pc_obj, 0);
         sub_568480(entry, 0);
         break;
     case 2:
-        sub_5678D0(entry->state.pc_obj, 0);
+        dialog_ui_end_dialog(entry->state.pc_obj, 0);
         sub_568480(entry, entry->state.field_17EC);
         break;
     case 3:
@@ -486,7 +486,7 @@ bool sub_567E30(DialogUiEntry* entry, int a2)
             inven_ui_open(entry->state.pc_obj, entry->state.npc_obj, INVEN_UI_MODE_BARTER);
         }
         if (tig_net_is_active()) {
-            sub_5678D0(entry->state.pc_obj, 0);
+            dialog_ui_end_dialog(entry->state.pc_obj, 0);
         }
         break;
     case 4:
@@ -496,7 +496,7 @@ bool sub_567E30(DialogUiEntry* entry, int a2)
             TB_EXPIRE_DEFAULT,
             entry->state.reply,
             entry->state.speech_id);
-        sub_5678D0(entry->state.pc_obj, 0);
+        dialog_ui_end_dialog(entry->state.pc_obj, 0);
         break;
     case 5:
         if (is_pc) {
@@ -522,7 +522,7 @@ bool sub_567E30(DialogUiEntry* entry, int a2)
             ui_show_inven_npc_identify(entry->state.pc_obj, entry->state.npc_obj);
         }
         if (tig_net_is_active()) {
-            sub_5678D0(entry->state.pc_obj, 0);
+            dialog_ui_end_dialog(entry->state.pc_obj, 0);
         }
         break;
     case 9:
@@ -531,7 +531,7 @@ bool sub_567E30(DialogUiEntry* entry, int a2)
             inven_ui_open(entry->state.pc_obj, entry->state.npc_obj, INVEN_UI_MODE_NPC_REPAIR);
         }
         if (tig_net_is_active()) {
-            sub_5678D0(entry->state.pc_obj, 0);
+            dialog_ui_end_dialog(entry->state.pc_obj, 0);
         }
         break;
     }
@@ -628,7 +628,7 @@ bool sub_568280(DialogUiEntry* a1)
         break;
     case 1:
     case 2:
-        sub_5678D0(a1->state.pc_obj, 0);
+        dialog_ui_end_dialog(a1->state.pc_obj, 0);
         break;
     case 3:
         if (is_pc) {
@@ -791,7 +791,7 @@ void sub_568830(int64_t obj)
     for (index = 0; index < 8; index++) {
         if (stru_66DAB8[index].state.pc_obj == obj
             || stru_66DAB8[index].state.npc_obj == obj) {
-            sub_5678D0(obj, 0);
+            dialog_ui_end_dialog(obj, 0);
         }
     }
 }
