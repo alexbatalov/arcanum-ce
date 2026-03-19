@@ -46,7 +46,7 @@ static bool sub_568280(DialogUiEntry* a1);
 static void sub_568480(DialogUiEntry* entry, int a2);
 static void sub_5684C0(DialogUiEntry* entry);
 static void sub_568540(int64_t npc_obj, int64_t pc_obj, int type, int expires_in, const char* str, int speech_id);
-static void sub_5686C0(int64_t pc_obj, int64_t npc_obj, int type, int expires_in, const char* str);
+static void dialog_ui_pc_say(int64_t pc_obj, int64_t npc_obj, int type, int expires_in, const char* str);
 static void dialog_ui_speech_start(int64_t npc_obj, int64_t pc_obj, int speech_id);
 static void dialog_ui_speech_stop(void);
 
@@ -285,7 +285,7 @@ bool sub_567E30(DialogUiEntry* entry, int a2)
     bool is_pc;
 
     is_pc = player_is_local_pc_obj(entry->state.pc_obj);
-    sub_5686C0(entry->state.pc_obj,
+    dialog_ui_pc_say(entry->state.pc_obj,
         entry->state.npc_obj,
         TB_TYPE_GREEN,
         TB_EXPIRE_DEFAULT,
@@ -514,7 +514,7 @@ void sub_568540(int64_t npc_obj, int64_t pc_obj, int type, int expires_in, const
 }
 
 // 0x5686C0
-void sub_5686C0(int64_t pc_obj, int64_t npc_obj, int type, int expires_in, const char* str)
+void dialog_ui_pc_say(int64_t pc_obj, int64_t npc_obj, int type, int expires_in, const char* str)
 {
     if (npc_obj != OBJ_HANDLE_NULL
         && !critter_is_dead(pc_obj)
