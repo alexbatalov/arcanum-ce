@@ -42,7 +42,6 @@ static void sub_5679C0(DialogUiEntry* entry);
 static bool sub_567E30(DialogUiEntry* entry, int a2);
 static bool dialog_ui_message_filter(TigMessage* msg);
 static bool sub_5681B0(DialogUiEntry* entry);
-static bool sub_568280(DialogUiEntry* a1);
 static void sub_568480(DialogUiEntry* entry, int a2);
 static void sub_5684C0(DialogUiEntry* entry);
 static void dialog_ui_npc_say(int64_t npc_obj, int64_t pc_obj, int type, int expires_in, const char* str, int speech_id);
@@ -396,62 +395,6 @@ void sub_5681C0(int64_t pc_obj, int64_t npc_obj)
 
     sub_4132A0(npc_obj, pc_obj, text);
     dialog_ui_npc_say(npc_obj, pc_obj, TB_TYPE_WHITE, TB_EXPIRE_DEFAULT, text, -1);
-}
-
-// 0x568280
-bool sub_568280(DialogUiEntry* a1)
-{
-    bool is_pc;
-
-    is_pc = player_is_local_pc_obj(a1->state.pc_obj);
-
-    switch (a1->state.field_17E8) {
-    case 0:
-        sub_5684C0(a1);
-        break;
-    case 1:
-    case 2:
-        dialog_ui_end_dialog(a1->state.pc_obj, 0);
-        break;
-    case 3:
-        if (is_pc) {
-            intgame_dialog_clear();
-            inven_ui_open(a1->state.pc_obj, a1->state.npc_obj, INVEN_UI_MODE_BARTER);
-        }
-        break;
-    case 5:
-        if (is_pc) {
-            intgame_dialog_clear();
-            charedit_open(a1->state.npc_obj, CHAREDIT_MODE_PASSIVE);
-        }
-        break;
-    case 6:
-        if (is_pc) {
-            intgame_dialog_clear();
-            wmap_ui_open();
-        }
-        break;
-    case 7:
-        if (is_pc) {
-            intgame_dialog_clear();
-            schematic_ui_toggle(a1->state.npc_obj, a1->state.pc_obj);
-        }
-        break;
-    case 8:
-        if (is_pc) {
-            intgame_dialog_clear();
-            ui_show_inven_npc_identify(a1->state.pc_obj, a1->state.npc_obj);
-        }
-        break;
-    case 9:
-        if (is_pc) {
-            intgame_dialog_clear();
-            inven_ui_open(a1->state.pc_obj, a1->state.npc_obj, INVEN_UI_MODE_NPC_REPAIR);
-        }
-        break;
-    }
-
-    return true;
 }
 
 // 0x568430
