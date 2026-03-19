@@ -8523,7 +8523,9 @@ bool sub_42B9C0(AnimRunInfo* run_info)
             new_anim = TIG_ART_ANIM_ATTACK_LOW;
             break;
         default:
-            new_anim = sub_503F60(art_id) != 0 ? TIG_ART_ANIM_ATTACK : TIG_ART_ANIM_ATTACK_LOW;
+            new_anim = tig_art_critter_id_size_get(art_id) != TIG_ART_CRITTER_SIZE_SMALL
+                ? TIG_ART_ANIM_ATTACK
+                : TIG_ART_ANIM_ATTACK_LOW;
             break;
         }
     }
@@ -13020,7 +13022,7 @@ void sub_432D90(int64_t obj)
     blood_art_id = obj_field_int32_get(blood_obj, OBJ_F_CURRENT_AID);
 
     // FIXME: Useless.
-    sub_503F60(obj_field_int32_get(obj, OBJ_F_CURRENT_AID));
+    tig_art_critter_id_size_get(obj_field_int32_get(obj, OBJ_F_CURRENT_AID));
 
     if (anim_editor) {
         obj_art_id = obj_field_int32_get(obj, OBJ_F_CURRENT_AID);

@@ -45,6 +45,12 @@ typedef enum TigArtTileType {
     TIG_ART_TILE_TYPE_OUTDOOR,
 } TigArtTileType;
 
+typedef enum TigArtCritterSize {
+    TIG_ART_CRITTER_SIZE_SMALL,
+    TIG_ART_CRITTER_SIZE_MEDIUM,
+    TIG_ART_CRITTER_SIZE_LARGE,
+} TigArtCritterSize;
+
 typedef enum TigArtCritterBodyType {
     TIG_ART_CRITTER_BODY_TYPE_HUMAN,
     TIG_ART_CRITTER_BODY_TYPE_DWARF,
@@ -470,7 +476,7 @@ int tig_art_critter_id_body_type_get(tig_art_id_t art_id);
 tig_art_id_t tig_art_critter_id_body_type_set(tig_art_id_t art_id, int value);
 int tig_art_monster_id_specie_get(tig_art_id_t art_id);
 int sub_503F50(int a1);
-int sub_503F60(tig_art_id_t art_id);
+int tig_art_critter_id_size_get(tig_art_id_t art_id);
 int tig_art_critter_id_gender_get(tig_art_id_t art_id);
 tig_art_id_t tig_art_critter_id_gender_set(tig_art_id_t art_id, int value);
 int tig_art_critter_id_armor_get(tig_art_id_t art_id);

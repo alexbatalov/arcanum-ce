@@ -254,48 +254,48 @@ static int dword_5BE900[32] = {
 };
 
 // 0x5BE980
-static int dword_5BE980[5] = {
-    1,
-    0,
-    0,
-    2,
-    1,
+static TigArtCritterSize critter_body_type_to_size_tbl[TIG_ART_CRITTER_BODY_TYPE_COUNT] = {
+    /*     TIG_ART_CRITTER_BODY_TYPE_HUMAN */ TIG_ART_CRITTER_SIZE_MEDIUM,
+    /*     TIG_ART_CRITTER_BODY_TYPE_DWARF */ TIG_ART_CRITTER_SIZE_SMALL,
+    /*  TIG_ART_CRITTER_BODY_TYPE_HALFLING */ TIG_ART_CRITTER_SIZE_SMALL,
+    /* TIG_ART_CRITTER_BODY_TYPE_HALF_OGRE */ TIG_ART_CRITTER_SIZE_LARGE,
+    /*       TIG_ART_CRITTER_BODY_TYPE_ELF */ TIG_ART_CRITTER_SIZE_MEDIUM,
 };
 
 // 0x5BE994
-static int dword_5BE994[TIG_ART_MONSTER_SPECIE_COUNT] = {
-    0,
-    0,
-    1,
-    2,
-    1,
-    1,
-    1,
-    1,
-    2,
-    0,
-    0,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    0,
-    0,
-    0,
-    0,
-    0,
-    1,
-    1,
-    0,
-    2,
-    2,
-    2,
-    1,
-    1,
-    1,
+static TigArtCritterSize monster_specie_to_size_tbl[TIG_ART_MONSTER_SPECIE_COUNT] = {
+    /*            TIG_ART_MONSTER_SPECIE_WOLF */ TIG_ART_CRITTER_SIZE_SMALL,
+    /*          TIG_ART_MONSTER_SPECIE_SPIDER */ TIG_ART_CRITTER_SIZE_SMALL,
+    /*             TIG_ART_MONSTER_SPECIE_ORC */ TIG_ART_CRITTER_SIZE_MEDIUM,
+    /* TIG_ART_MONSTER_SPECIE_EARTH_ELEMENTAL */ TIG_ART_CRITTER_SIZE_LARGE,
+    /*    TIG_ART_MONSTER_SPECIE_LESSER_DEMON */ TIG_ART_CRITTER_SIZE_MEDIUM,
+    /* TIG_ART_MONSTER_SPECIE_LESSER_SKELETON */ TIG_ART_CRITTER_SIZE_MEDIUM,
+    /*   TIG_ART_MONSTER_SPECIE_LESSER_ZOMBIE */ TIG_ART_CRITTER_SIZE_MEDIUM,
+    /*    TIG_ART_MONSTER_SPECIE_LESSER_MUMMY */ TIG_ART_CRITTER_SIZE_MEDIUM,
+    /*   TIG_ART_MONSTER_SPECIE_GREATER_DEMON */ TIG_ART_CRITTER_SIZE_LARGE,
+    /*           TIG_ART_MONSTER_SPECIE_BUNNY */ TIG_ART_CRITTER_SIZE_SMALL,
+    /*     TIG_ART_MONSTER_SPECIE_MECH_SPIDER */ TIG_ART_CRITTER_SIZE_SMALL,
+    /*       TIG_ART_MONSTER_SPECIE_AUTOMATON */ TIG_ART_CRITTER_SIZE_MEDIUM,
+    /*      TIG_ART_MONSTER_SPECIE_LIZARD_MAN */ TIG_ART_CRITTER_SIZE_MEDIUM,
+    /*  TIG_ART_MONSTER_SPECIE_PHANTOM_KNIGHT */ TIG_ART_CRITTER_SIZE_MEDIUM,
+    /*         TIG_ART_MONSTER_SPECIE_WERERAT */ TIG_ART_CRITTER_SIZE_MEDIUM,
+    /*       TIG_ART_MONSTER_SPECIE_SNAKE_MAN */ TIG_ART_CRITTER_SIZE_MEDIUM,
+    /*             TIG_ART_MONSTER_SPECIE_APE */ TIG_ART_CRITTER_SIZE_MEDIUM,
+    /*            TIG_ART_MONSTER_SPECIE_BEAR */ TIG_ART_CRITTER_SIZE_MEDIUM,
+    /*         TIG_ART_MONSTER_SPECIE_CHICKEN */ TIG_ART_CRITTER_SIZE_SMALL,
+    /*          TIG_ART_MONSTER_SPECIE_COUGAR */ TIG_ART_CRITTER_SIZE_SMALL,
+    /*           TIG_ART_MONSTER_SPECIE_SHEEP */ TIG_ART_CRITTER_SIZE_SMALL,
+    /*           TIG_ART_MONSTER_SPECIE_TIGER */ TIG_ART_CRITTER_SIZE_SMALL,
+    /*             TIG_ART_MONSTER_SPECIE_PIG */ TIG_ART_CRITTER_SIZE_SMALL,
+    /*             TIG_ART_MONSTER_SPECIE_COW */ TIG_ART_CRITTER_SIZE_MEDIUM,
+    /*            TIG_ART_MONSTER_SPECIE_WISP */ TIG_ART_CRITTER_SIZE_MEDIUM,
+    /*      TIG_ART_MONSTER_SPECIE_MUTANT_PIG */ TIG_ART_CRITTER_SIZE_SMALL,
+    /*  TIG_ART_MONSTER_SPECIE_FIRE_ELEMENTAL */ TIG_ART_CRITTER_SIZE_LARGE,
+    /* TIG_ART_MONSTER_SPECIE_WATER_ELEMENTAL */ TIG_ART_CRITTER_SIZE_LARGE,
+    /*   TIG_ART_MONSTER_SPECIE_AIR_ELEMENTAL */ TIG_ART_CRITTER_SIZE_LARGE,
+    /*    TIG_ART_MONSTER_SPECIE_DEATH_KNIGHT */ TIG_ART_CRITTER_SIZE_MEDIUM,
+    /*    TIG_ART_MONSTER_SPECIE_SPIDER_QUEEN */ TIG_ART_CRITTER_SIZE_MEDIUM,
+    /*        TIG_ART_MONSTER_SPECIE_WEREWOLF */ TIG_ART_CRITTER_SIZE_MEDIUM,
 };
 
 // 0x5BEA14
@@ -1915,18 +1915,23 @@ int sub_503F50(int a1)
 }
 
 // 0x503F60
-int sub_503F60(tig_art_id_t art_id)
+int tig_art_critter_id_size_get(tig_art_id_t art_id)
 {
-    int v1;
+    int idx;
+
     switch (tig_art_type(art_id)) {
     case TIG_ART_TYPE_CRITTER:
-        v1 = tig_art_num_get(art_id);
-        return dword_5BE980[v1];
+        // FIXME: This is wrong, art number for critters is always 0, probably
+        // should call `tig_art_critter_id_body_type_get` to obtain correct
+        // index into `critter_body_type_to_size_tbl` lookup table. Need some
+        // tests to be sure combat animation won't break.
+        idx = tig_art_num_get(art_id);
+        return critter_body_type_to_size_tbl[idx];
     case TIG_ART_TYPE_MONSTER:
-        v1 = tig_art_monster_id_specie_get(art_id);
-        return dword_5BE994[v1];
+        idx = tig_art_monster_id_specie_get(art_id);
+        return monster_specie_to_size_tbl[idx];
     default:
-        return 1;
+        return TIG_ART_CRITTER_SIZE_MEDIUM;
     }
 }
 
