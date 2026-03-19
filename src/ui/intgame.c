@@ -4897,7 +4897,7 @@ bool intgame_mode_set(IntgameMode mode)
             if (v2) {
                 dialog_ui_end_dialog(player_get_local_pc_obj(), 0);
             } else {
-                sub_567A20(player_get_local_pc_obj());
+                dialog_ui_notify_dialog_ended(player_get_local_pc_obj());
             }
             break;
         case INTGAME_MODE_BARTER:
@@ -5010,7 +5010,7 @@ bool intgame_mode_set(IntgameMode mode)
         case INTGAME_MODE_DIALOG:
             compact_ui_message_window_hide();
             if (!v18) {
-                sub_567A60(player_get_local_pc_obj());
+                dialog_ui_notify_dialog_started(player_get_local_pc_obj());
             }
             break;
         case INTGAME_MODE_BARTER:

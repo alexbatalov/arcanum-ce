@@ -424,7 +424,7 @@ void main_loop(void)
                             intgame_mode_set(INTGAME_MODE_MAIN);
                             break;
                         }
-                        if (sub_567A10()
+                        if (dialog_ui_is_local_pc_in_dialog()
                             || wmap_ui_is_created()
                             || (combat_turn_based_is_active()
                                 && player_get_local_pc_obj() != combat_turn_based_whos_turn_get())) {

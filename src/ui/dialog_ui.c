@@ -63,7 +63,7 @@ static unsigned char byte_679DB8[8]; // boolean
 static tig_sound_handle_t dialog_ui_speech_handle;
 
 // 0x67B964
-static bool dword_67B964;
+static bool dialog_ui_local_pc_dialog_active;
 
 // 0x679DC0
 static struct {
@@ -104,9 +104,9 @@ void dialog_ui_reset(void)
 {
     int index;
 
-    if (dword_67B964) {
+    if (dialog_ui_local_pc_dialog_active) {
         intgame_dialog_end();
-        dword_67B964 = false;
+        dialog_ui_local_pc_dialog_active = false;
     }
 
     for (index = 0; index < MAX_ENTRIES; index++) {
@@ -201,7 +201,7 @@ void dialog_ui_start_dialog(int64_t pc_obj, int64_t npc_obj, int script_num, int
                     return;
                 }
 
-                dword_67B964 = true;
+                dialog_ui_local_pc_dialog_active = true;
 
                 if (!intgame_is_compact_interface()) {
                     sub_57CD60(pc_obj, npc_obj, str);
@@ -255,7 +255,7 @@ void dialog_ui_start_dialog(int64_t pc_obj, int64_t npc_obj, int script_num, int
                 entry->script_line = script_line;
                 entry->field_1850 = 1;
 
-                dword_67B964 = true;
+                dialog_ui_local_pc_dialog_active = true;
             }
         }
     }
@@ -278,7 +278,7 @@ void dialog_ui_end_dialog(int64_t obj, int a2)
 
     if (player_is_local_pc_obj(obj)) {
         intgame_dialog_end();
-        dword_67B964 = 0;
+        dialog_ui_local_pc_dialog_active = 0;
     }
 
     if (!tig_net_is_active()
@@ -321,28 +321,28 @@ void sub_5679C0(DialogUiEntry* entry)
 }
 
 // 0x567A10
-int sub_567A10(void)
+bool dialog_ui_is_local_pc_in_dialog(void)
 {
-    return dword_67B964;
+    return dialog_ui_local_pc_dialog_active;
 }
 
 // 0x567A20
-void sub_567A20(int64_t obj)
+void dialog_ui_notify_dialog_ended(int64_t obj)
 {
     sub_567420(obj)->field_1850 = false;
     if (player_is_local_pc_obj(obj)) {
         intgame_dialog_end();
-        dword_67B964 = false;
+        dialog_ui_local_pc_dialog_active = false;
     }
 }
 
 // 0x567A60
-void sub_567A60(int64_t obj)
+void dialog_ui_notify_dialog_started(int64_t obj)
 {
     sub_567420(obj)->field_1850 = true;
     if (player_is_local_pc_obj(obj)) {
         if (intgame_dialog_begin(dialog_ui_message_filter)) {
-            dword_67B964 = true;
+            dialog_ui_local_pc_dialog_active = true;
         }
     }
 }
