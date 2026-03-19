@@ -43,7 +43,6 @@ typedef enum UiPrimaryButton {
 
 // TODO: Remove forward declarations.
 typedef struct Packet81 Packet81;
-typedef struct DialogSerializedData DialogSerializedData;
 typedef struct TargetDescriptor TargetDescriptor;
 
 typedef void(UI_CALLBACKS_FUNC_0)(void);
@@ -106,7 +105,6 @@ typedef void(UI_CALLBACKS_FUNC_E0)(int64_t obj);
 typedef void(UiGameUiLibReset)(void);
 typedef void(UiStartDialog)(int64_t pc_obj, int64_t npc_obj, int script_num, int script_line, int num);
 typedef void(UiEndDialog)(int64_t pc_obj, int a3);
-typedef void(UI_CALLBACKS_FUNC_F4)(DialogSerializedData* serialized_data, int a2, int a3, int a4, int a5, char* buffer);
 typedef void(UI_CALLBACKS_FUNC_F8)(int a1, int a2, void* a3);
 typedef bool(UI_CALLBACKS_FUNC_FC)(tig_button_handle_t button_handle);
 typedef void(UiRefreshCursor)(void);
@@ -199,7 +197,6 @@ typedef struct UiCallbacks {
     /* 00E4 */ UiGameUiLibReset* gameuilib_reset;
     /* 00E8 */ UiStartDialog* start_dialog;
     /* 00EC */ UiEndDialog* end_dialog;
-    /* 00F4 */ UI_CALLBACKS_FUNC_F4* field_F4;
     /* 00F8 */ UI_CALLBACKS_FUNC_F8* field_F8;
     /* 00FC */ UI_CALLBACKS_FUNC_FC* field_FC;
     /* 0100 */ UiRefreshCursor* refresh_cursor;
@@ -293,7 +290,6 @@ void sub_460980(int64_t a1);
 void ui_gameuilib_reset(void);
 void ui_start_dialog(int64_t pc_obj, int64_t npc_obj, int script_num, int script_line, int num);
 void ui_end_dialog(int64_t a1, int a3);
-void sub_460A80(DialogSerializedData* a1, int a2, int a3, int a4, int a5, char* buffer);
 void sub_460AB0(int a1, int a2, void* a3);
 void sub_460AD0(int a1);
 void ui_refresh_cursor(void);

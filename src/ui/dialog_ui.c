@@ -597,20 +597,6 @@ void sub_5681C0(int64_t pc_obj, int64_t npc_obj)
     sub_568540(npc_obj, pc_obj, TB_TYPE_WHITE, TB_EXPIRE_DEFAULT, text, -1);
 }
 
-// 0x568220
-void sub_568220(DialogSerializedData* serialized_data, int a2, int a3, int a4, int a5, char* buffer)
-{
-    DialogUiEntry* entry;
-
-    entry = &(stru_66DAB8[a2]);
-    entry->field_1850 = a3;
-    entry->script_num = a4;
-    entry->script_line = a5;
-    sub_567C30(serialized_data, entry, buffer);
-    entry->slot = a2;
-    sub_568280(entry);
-}
-
 // 0x568280
 bool sub_568280(DialogUiEntry* a1)
 {
