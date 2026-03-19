@@ -49,13 +49,13 @@ static int obj_pool_next_seq;
 static bool obj_pool_editor;
 
 // 0x6036B8
-static PermOidLookupEntry* dword_6036B8;
+static PermOidLookupEntry* obj_pool_perm_oid_table;
 
 // 0x6036BC
 static unsigned char** obj_pool_buckets;
 
 // 0x6036C0
-static int dword_6036C0;
+static int obj_pool_perm_oid_table_capacity;
 
 // 0x6036C4
 static int obj_pool_num_objects;
@@ -76,7 +76,7 @@ static int obj_pool_bucket_byte_size;
 static int* obj_pool_freed_indexes;
 
 // 0x6036DC
-static int dword_6036DC;
+static int obj_pool_perm_oid_table_size;
 
 // 0x6036E0
 static int obj_pool_freed_indexes_capacity;
@@ -109,10 +109,10 @@ void obj_pool_init(int size, bool editor)
     obj_pool_freed_indexes_capacity = 4096;
     obj_pool_freed_indexes = (int*)MALLOC(sizeof(*obj_pool_freed_indexes) * obj_pool_freed_indexes_capacity);
     obj_pool_freed_indexes_size = 0;
-    dword_6036C0 = 1024;
-    dword_6036DC = 0;
+    obj_pool_perm_oid_table_capacity = 1024;
+    obj_pool_perm_oid_table_size = 0;
     obj_handle_requested = OBJ_HANDLE_NULL;
-    dword_6036B8 = (PermOidLookupEntry*)MALLOC(sizeof(*dword_6036B8) * dword_6036C0);
+    obj_pool_perm_oid_table = (PermOidLookupEntry*)MALLOC(sizeof(*obj_pool_perm_oid_table) * obj_pool_perm_oid_table_capacity);
     obj_pool_initialized = true;
 }
 
@@ -141,7 +141,7 @@ void obj_pool_exit(void)
     }
 
     FREE(obj_pool_freed_indexes);
-    FREE(dword_6036B8);
+    FREE(obj_pool_perm_oid_table);
     FREE(obj_pool_buckets);
     obj_pool_initialized = false;
 }
@@ -212,28 +212,28 @@ void obj_pool_perm_oid_set(ObjectID oid, int64_t obj)
     int index;
 
     if (find_perm_oid(oid, &index)) {
-        dword_6036B8[index].obj = obj;
+        obj_pool_perm_oid_table[index].obj = obj;
         return;
     }
 
-    if (dword_6036DC == dword_6036C0) {
-        dword_6036C0 += 0x200;
-        if (dword_6036C0 > OBJ_POOL_CAP) {
+    if (obj_pool_perm_oid_table_size == obj_pool_perm_oid_table_capacity) {
+        obj_pool_perm_oid_table_capacity += 0x200;
+        if (obj_pool_perm_oid_table_capacity > OBJ_POOL_CAP) {
             return;
         }
 
-        dword_6036B8 = (PermOidLookupEntry*)REALLOC(dword_6036B8, sizeof(*dword_6036B8) * dword_6036C0);
+        obj_pool_perm_oid_table = (PermOidLookupEntry*)REALLOC(obj_pool_perm_oid_table, sizeof(*obj_pool_perm_oid_table) * obj_pool_perm_oid_table_capacity);
     }
 
-    if (index != dword_6036DC) {
-        memmove(&(dword_6036B8[index + 1]),
-            &(dword_6036B8[index]),
-            sizeof(*dword_6036B8) * (dword_6036DC - index));
+    if (index != obj_pool_perm_oid_table_size) {
+        memmove(&(obj_pool_perm_oid_table[index + 1]),
+            &(obj_pool_perm_oid_table[index]),
+            sizeof(*obj_pool_perm_oid_table) * (obj_pool_perm_oid_table_size - index));
     }
 
-    dword_6036B8[index].oid = oid;
-    dword_6036B8[index].obj = obj;
-    dword_6036DC++;
+    obj_pool_perm_oid_table[index].oid = oid;
+    obj_pool_perm_oid_table[index].obj = obj;
+    obj_pool_perm_oid_table_size++;
 }
 
 // 0x4E50E0
@@ -244,8 +244,8 @@ int64_t obj_pool_perm_lookup(ObjectID oid)
     ObjectNode* node;
 
     if (find_perm_oid(oid, &idx)) {
-        if (obj_handle_is_valid(dword_6036B8[idx].obj)) {
-            return dword_6036B8[idx].obj;
+        if (obj_handle_is_valid(obj_pool_perm_oid_table[idx].obj)) {
+            return obj_pool_perm_oid_table[idx].obj;
         }
     }
 
@@ -286,7 +286,7 @@ int64_t obj_pool_perm_lookup(ObjectID oid)
             return OBJ_HANDLE_NULL;
         }
 
-        return dword_6036B8[idx].obj;
+        return obj_pool_perm_oid_table[idx].obj;
     }
 
     object_list_destroy(&objects);
@@ -299,9 +299,9 @@ ObjectID obj_pool_perm_reverse_lookup(int64_t obj)
     ObjectID oid;
     int index;
 
-    for (index = 0; index < dword_6036DC; index++) {
-        if (dword_6036B8[index].obj == obj) {
-            return dword_6036B8[index].oid;
+    for (index = 0; index < obj_pool_perm_oid_table_size; index++) {
+        if (obj_pool_perm_oid_table[index].obj == obj) {
+            return obj_pool_perm_oid_table[index].oid;
         }
     }
 
@@ -325,23 +325,23 @@ void obj_pool_perm_clear(void)
     int v3;
 
     cnt = 0;
-    v1 = MALLOC(sizeof(*v1) * dword_6036DC);
+    v1 = MALLOC(sizeof(*v1) * obj_pool_perm_oid_table_size);
 
-    v2 = dword_6036DC - 1;
+    v2 = obj_pool_perm_oid_table_size - 1;
     v3 = v2;
     while (v2 >= 0) {
-        if (dword_6036B8[v2].oid.type == OID_TYPE_A) {
-            v1[v3] = dword_6036B8[v2];
+        if (obj_pool_perm_oid_table[v2].oid.type == OID_TYPE_A) {
+            v1[v3] = obj_pool_perm_oid_table[v2];
             v3--;
             cnt++;
         }
         v2--;
     }
 
-    memset(dword_6036B8, 0, sizeof(*dword_6036B8) * dword_6036DC);
-    memcpy(dword_6036B8, &(v1[v3 + 1]), sizeof(*dword_6036B8) * cnt);
+    memset(obj_pool_perm_oid_table, 0, sizeof(*obj_pool_perm_oid_table) * obj_pool_perm_oid_table_size);
+    memcpy(obj_pool_perm_oid_table, &(v1[v3 + 1]), sizeof(*obj_pool_perm_oid_table) * cnt);
     FREE(v1);
-    dword_6036DC = cnt;
+    obj_pool_perm_oid_table_size = cnt;
 }
 
 // 0x4E53C0
@@ -555,13 +555,13 @@ bool find_perm_oid(ObjectID oid, int* index_ptr)
     int m;
 
     l = 0;
-    r = dword_6036DC - 1;
+    r = obj_pool_perm_oid_table_size - 1;
     while (l <= r) {
         m = (l + r) / 2;
         // FIXME: Unnecessary copying.
-        if (objid_compare(dword_6036B8[m].oid, oid)) {
+        if (objid_compare(obj_pool_perm_oid_table[m].oid, oid)) {
             l = m + 1;
-        } else if (objid_compare(oid, dword_6036B8[m].oid)) {
+        } else if (objid_compare(oid, obj_pool_perm_oid_table[m].oid)) {
             r = m - 1;
         } else {
             *index_ptr = m;
