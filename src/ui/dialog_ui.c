@@ -41,7 +41,6 @@ static DialogUiEntry* sub_567420(int64_t obj);
 static void sub_5679C0(DialogUiEntry* entry);
 static bool dialog_ui_process_option(DialogUiEntry* entry, int option);
 static bool dialog_ui_message_filter(TigMessage* msg);
-static bool sub_5681B0(DialogUiEntry* entry);
 static void dialog_ui_execute_script(DialogUiEntry* entry, int line);
 static void dialog_ui_display(DialogUiEntry* entry);
 static void dialog_ui_npc_say(int64_t npc_obj, int64_t pc_obj, int type, int expires_in, const char* str, int speech_id);
@@ -363,9 +362,6 @@ bool dialog_ui_message_filter(TigMessage* msg)
     int player;
 
     entry = sub_567420(player_get_local_pc_obj());
-    if (sub_5681B0(entry)) {
-        return false;
-    }
 
     option = intgame_dialog_get_option(msg);
     if (option == -1) {
@@ -378,14 +374,6 @@ bool dialog_ui_message_filter(TigMessage* msg)
     }
 
     return true;
-}
-
-// 0x5681B0
-bool sub_5681B0(DialogUiEntry* entry)
-{
-    (void)entry;
-
-    return false;
 }
 
 // 0x5681C0
