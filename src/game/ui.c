@@ -162,14 +162,6 @@ void sub_460410(int64_t a1, int64_t a2)
     }
 }
 
-// 0x460440
-void sub_460440(int a1, int a2)
-{
-    if (ui_callbacks.field_40 != NULL) {
-        ui_callbacks.field_40(a1, a2);
-    }
-}
-
 // 0x460460
 int sub_460460(int64_t obj)
 {

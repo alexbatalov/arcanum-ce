@@ -446,12 +446,6 @@ void sub_567D60(DialogUiEntry* entry)
     }
 }
 
-// 0x567E00
-void sub_567E00(int index, int a2)
-{
-    sub_567E30(&stru_66DAB8[index], a2);
-}
-
 // 0x567E30
 bool sub_567E30(DialogUiEntry* entry, int a2)
 {
