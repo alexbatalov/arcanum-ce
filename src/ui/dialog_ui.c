@@ -43,7 +43,7 @@ static bool dialog_ui_process_option(DialogUiEntry* entry, int option);
 static bool dialog_ui_message_filter(TigMessage* msg);
 static bool sub_5681B0(DialogUiEntry* entry);
 static void dialog_ui_execute_script(DialogUiEntry* entry, int line);
-static void sub_5684C0(DialogUiEntry* entry);
+static void dialog_ui_display(DialogUiEntry* entry);
 static void dialog_ui_npc_say(int64_t npc_obj, int64_t pc_obj, int type, int expires_in, const char* str, int speech_id);
 static void dialog_ui_pc_say(int64_t pc_obj, int64_t npc_obj, int type, int expires_in, const char* str);
 static void dialog_ui_speech_start(int64_t npc_obj, int64_t pc_obj, int speech_id);
@@ -205,7 +205,7 @@ void dialog_ui_start_dialog(int64_t pc_obj, int64_t npc_obj, int script_num, int
         entry->script_line = script_line;
         entry->field_1850 = 1;
 
-        sub_5684C0(entry);
+        dialog_ui_display(entry);
     } else {
         sub_5681C0(pc_obj, npc_obj);
     }
@@ -295,7 +295,7 @@ bool dialog_ui_process_option(DialogUiEntry* entry, int option)
 
     switch (entry->state.field_17E8) {
     case 0:
-        sub_5684C0(entry);
+        dialog_ui_display(entry);
         break;
     case 1:
         dialog_ui_end_dialog(entry->state.pc_obj, 0);
@@ -419,7 +419,7 @@ void dialog_ui_execute_script(DialogUiEntry* entry, int line)
 }
 
 // 0x5684C0
-void sub_5684C0(DialogUiEntry* entry)
+void dialog_ui_display(DialogUiEntry* entry)
 {
     int index;
 
