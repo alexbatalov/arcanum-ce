@@ -31,7 +31,7 @@ static int acquire_index(void);
 static void release_index(int index);
 static bool grow_pool(void);
 static void recycle_index(int index);
-static bool sub_4E57E0(ObjectID oid, int* index_ptr);
+static bool find_perm_oid(ObjectID oid, int* index_ptr);
 static int64_t make_handle(int index, int seq);
 static int index_from_handle(int64_t obj);
 static ObjPoolEntryHeader* element_hdr_at_index(int index);
@@ -211,7 +211,7 @@ void obj_pool_perm_oid_set(ObjectID oid, int64_t obj)
 {
     int index;
 
-    if (sub_4E57E0(oid, &index)) {
+    if (find_perm_oid(oid, &index)) {
         dword_6036B8[index].obj = obj;
         return;
     }
@@ -243,7 +243,7 @@ int64_t obj_pool_perm_lookup(ObjectID oid)
     ObjectList objects;
     ObjectNode* node;
 
-    if (sub_4E57E0(oid, &idx)) {
+    if (find_perm_oid(oid, &idx)) {
         if (obj_handle_is_valid(dword_6036B8[idx].obj)) {
             return dword_6036B8[idx].obj;
         }
@@ -281,7 +281,7 @@ int64_t obj_pool_perm_lookup(ObjectID oid)
         obj_pool_perm_oid_set(oid, node->obj);
         object_list_destroy(&objects);
 
-        if (!sub_4E57E0(oid, &idx)) {
+        if (!find_perm_oid(oid, &idx)) {
             tig_debug_println("Error: objp_perm_lookup can't find handle just added with positional id.");
             return OBJ_HANDLE_NULL;
         }
@@ -548,7 +548,7 @@ void recycle_index(int index)
 }
 
 // 0x4E57E0
-bool sub_4E57E0(ObjectID oid, int* index_ptr)
+bool find_perm_oid(ObjectID oid, int* index_ptr)
 {
     int l;
     int r;
