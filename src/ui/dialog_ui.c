@@ -39,7 +39,7 @@ typedef struct DialogUiEntry {
 
 static DialogUiEntry* sub_567420(int64_t obj);
 static void sub_5679C0(DialogUiEntry* entry);
-static bool sub_567E30(DialogUiEntry* entry, int a2);
+static bool dialog_ui_process_option(DialogUiEntry* entry, int option);
 static bool dialog_ui_message_filter(TigMessage* msg);
 static bool sub_5681B0(DialogUiEntry* entry);
 static void sub_568480(DialogUiEntry* entry, int a2);
@@ -279,7 +279,7 @@ void dialog_ui_notify_dialog_started(int64_t obj)
 }
 
 // 0x567E30
-bool sub_567E30(DialogUiEntry* entry, int a2)
+bool dialog_ui_process_option(DialogUiEntry* entry, int option)
 {
     bool is_pc;
 
@@ -288,10 +288,10 @@ bool sub_567E30(DialogUiEntry* entry, int a2)
         entry->state.npc_obj,
         TB_TYPE_GREEN,
         TB_EXPIRE_DEFAULT,
-        entry->state.options[a2]);
+        entry->state.options[option]);
     tb_remove(entry->state.npc_obj);
     dialog_ui_speech_stop();
-    sub_413130(&(entry->state), a2);
+    sub_413130(&(entry->state), option);
 
     switch (entry->state.field_17E8) {
     case 0:
@@ -373,7 +373,7 @@ bool dialog_ui_message_filter(TigMessage* msg)
         return true;
     }
 
-    if (!sub_567E30(entry, option)) {
+    if (!dialog_ui_process_option(entry, option)) {
         sub_5517A0(msg);
     }
 
