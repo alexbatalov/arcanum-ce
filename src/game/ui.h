@@ -131,9 +131,6 @@ typedef void(UI_CALLBACKS_FUNC_154)(int a1, int a2);
 typedef void(UI_CALLBACKS_FUNC_158)(const char* a1, const char* a2);
 typedef void(UI_CALLBACKS_FUNC_15C)(void);
 typedef void(UiShowInvenNpcIdentify)(int64_t pc_obj, int64_t target_obj);
-typedef void(UiMpChareditCacheTraits)(int player);
-typedef void(UiMultiplayerChareditTraitInc)(int player, int trait, int param);
-typedef void(UiMultiplayerChareditTraitDec)(int player, int trait, int param);
 
 typedef struct UiCallbacks {
     /* 0000 */ UI_CALLBACKS_FUNC_0* field_0;
@@ -222,9 +219,6 @@ typedef struct UiCallbacks {
     /* 0158 */ UI_CALLBACKS_FUNC_158* field_158;
     /* 015C */ UI_CALLBACKS_FUNC_15C* field_15C;
     /* 0160 */ UiShowInvenNpcIdentify* show_inven_npc_identify;
-    /* 0164 */ UiMpChareditCacheTraits* mp_charedit_cache_traits;
-    /* 0168 */ UiMultiplayerChareditTraitInc* mp_charedit_trait_inc;
-    /* 016C */ UiMultiplayerChareditTraitDec* mp_charedit_trait_dec;
 } UiCallbacks;
 
 void ui_init(UiCallbacks* callbacks);

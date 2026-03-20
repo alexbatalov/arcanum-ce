@@ -713,22 +713,6 @@ typedef struct PacketPerformRepairService {
 // Serializeable.
 static_assert(sizeof(PacketPerformRepairService) == 0x58, "wrong size");
 
-typedef enum PacketChareditTraitChangeSubtype {
-    PACKET_CHAREDIT_TRAIT_CHANGE_SUBTYPE_CACHE,
-    PACKET_CHAREDIT_TRAIT_CHANGE_SUBTYPE_INC,
-    PACKET_CHAREDIT_TRAIT_CHANGE_SUBTYPE_DEC,
-} PacketChareditTraitChangeSubtype;
-
-typedef struct PacketChareditTraitChange {
-    /* 0000 */ int type;
-    /* 0004 */ int subtype;
-    /* 0008 */ int trait;
-    /* 000C */ int param;
-} PacketChareditTraitChange;
-
-// Serializeable.
-static_assert(sizeof(PacketChareditTraitChange) == 0x10, "wrong size");
-
 typedef struct Packet128 {
     /* 0000 */ int type;
     /* 0004 */ int padding_4;
