@@ -20,7 +20,7 @@ bool reaction_met_before(int64_t npc_obj, int64_t pc_obj);
 int reaction_get(int64_t npc_obj, int64_t pc_obj);
 int sub_4C0CE0(int64_t npc_obj, int64_t pc_obj);
 void reaction_adj(int64_t npc_obj, int64_t pc_obj, int value);
-void sub_4C0F50(int64_t a1, int64_t a2);
+void reaction_forget(int64_t npc_obj, int64_t pc_obj);
 int reaction_translate(int value);
 const char* reaction_get_name(int reaction);
 void sub_4C1020(int64_t pc, int64_t npc);

@@ -282,19 +282,19 @@ void reaction_adj(int64_t npc_obj, int64_t pc_obj, int value)
 }
 
 // 0x4C0F50
-void sub_4C0F50(int64_t a1, int64_t a2)
+void reaction_forget(int64_t npc_obj, int64_t pc_obj)
 {
     int index;
 
     for (index = 0; index < 10; index++) {
         if (index != 0
-            && obj_arrayfield_handle_get(a1, OBJ_F_NPC_REACTION_PC_IDX, index) == a2) {
-            obj_arrayfield_obj_set(a1, OBJ_F_NPC_REACTION_PC_IDX, index, OBJ_HANDLE_NULL);
+            && obj_arrayfield_handle_get(npc_obj, OBJ_F_NPC_REACTION_PC_IDX, index) == pc_obj) {
+            obj_arrayfield_obj_set(npc_obj, OBJ_F_NPC_REACTION_PC_IDX, index, OBJ_HANDLE_NULL);
             break;
         }
     }
 
-    combat_recalc_reaction(a1);
+    combat_recalc_reaction(npc_obj);
 }
 
 // 0x4C0FC0

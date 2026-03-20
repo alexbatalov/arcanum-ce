@@ -4379,7 +4379,7 @@ void mainmenu_ui_shop_refresh(TigRect* rect)
         return;
     }
 
-    sub_4C0F50(npc_obj, pc_obj);
+    reaction_forget(npc_obj, pc_obj);
     sub_463E20(npc_obj);
 
     substitute_inventory_obj = critter_substitute_inventory_get(npc_obj);
