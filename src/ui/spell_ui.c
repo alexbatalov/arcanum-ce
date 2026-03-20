@@ -108,7 +108,7 @@ void spell_ui_error_target_not_damaged(void)
 
     ui_message.type = UI_MSG_TYPE_FEEDBACK;
     ui_message.str = mes_file_entry.str;
-    sub_460630(&ui_message);
+    ui_display_msg(&ui_message);
 }
 
 // 0x57BC70
@@ -323,7 +323,7 @@ void spell_ui_apply(TargetDescriptor* td)
 
         ui_message.type = UI_MSG_TYPE_FEEDBACK;
         ui_message.str = mes_file_entry.str;
-        sub_460630(&ui_message);
+        ui_display_msg(&ui_message);
         return;
     }
 

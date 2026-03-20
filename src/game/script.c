@@ -2983,7 +2983,7 @@ void script_print_line(ScriptAction* action, ScriptState* state)
             return;
         }
     } else {
-        sub_460630(&ui_message);
+        ui_display_msg(&ui_message);
         dialog_unload(v1.dlg);
     }
 }

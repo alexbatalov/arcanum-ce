@@ -261,7 +261,7 @@ void sleep_ui_toggle(int64_t bed_obj)
 
         ui_message.type = UI_MSG_TYPE_EXCLAMATION;
         ui_message.str = mes_file_entry.str;
-        sub_460630(&ui_message);
+        ui_display_msg(&ui_message);
 
         sleep_ui_wait_mode = false;
         return;
@@ -283,7 +283,7 @@ void sleep_ui_toggle(int64_t bed_obj)
 
                 ui_message.type = UI_MSG_TYPE_EXCLAMATION;
                 ui_message.str = mes_file_entry.str;
-                sub_460630(&ui_message);
+                ui_display_msg(&ui_message);
                 return;
             }
 
@@ -302,7 +302,7 @@ void sleep_ui_toggle(int64_t bed_obj)
 
             ui_message.type = UI_MSG_TYPE_EXCLAMATION;
             ui_message.str = mes_file_entry.str;
-            sub_460630(&ui_message);
+            ui_display_msg(&ui_message);
             sleep_ui_wait_mode = false;
             return;
         }
@@ -317,7 +317,7 @@ void sleep_ui_toggle(int64_t bed_obj)
 
             ui_message.type = UI_MSG_TYPE_EXCLAMATION;
             ui_message.str = mes_file_entry.str;
-            sub_460630(&ui_message);
+            ui_display_msg(&ui_message);
             sleep_ui_wait_mode = false;
             return;
         }
@@ -329,7 +329,7 @@ void sleep_ui_toggle(int64_t bed_obj)
 
             ui_message.type = UI_MSG_TYPE_EXCLAMATION;
             ui_message.str = mes_file_entry.str;
-            sub_460630(&ui_message);
+            ui_display_msg(&ui_message);
             sleep_ui_wait_mode = false;
             return;
         }

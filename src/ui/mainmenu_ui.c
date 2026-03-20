@@ -2849,7 +2849,7 @@ bool sub_5432B0(const char* name)
 
             ui_message.type = UI_MSG_TYPE_EXCLAMATION;
             ui_message.str = mes_file_entry.str;
-            sub_460630(&ui_message);
+            ui_display_msg(&ui_message);
 
             mainmenu_ui_start_new_game = false;
             sub_5412D0();
@@ -2865,7 +2865,7 @@ bool sub_5432B0(const char* name)
 
     ui_message.type = UI_MSG_TYPE_EXCLAMATION;
     ui_message.str = mes_file_entry.str;
-    sub_460630(&ui_message);
+    ui_display_msg(&ui_message);
 
     return false;
 }
@@ -3047,7 +3047,7 @@ bool mainmenu_ui_save_game_execute(int btn)
 
         ui_message.type = UI_MSG_TYPE_EXCLAMATION;
         ui_message.str = mes_file_entry.str;
-        sub_460630(&ui_message);
+        ui_display_msg(&ui_message);
 
         return false;
     }
@@ -3057,7 +3057,7 @@ bool mainmenu_ui_save_game_execute(int btn)
 
     ui_message.type = UI_MSG_TYPE_EXCLAMATION;
     ui_message.str = mes_file_entry.str;
-    sub_460630(&ui_message);
+    ui_display_msg(&ui_message);
     sub_5412D0();
     mainmenu_ui_textedit_buffer[0] = '\0';
 

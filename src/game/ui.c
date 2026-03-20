@@ -35,7 +35,7 @@ bool ui_timeevent_process(TimeEvent* timeevent)
             timeevent->params[0].integer_value);
     } else {
         tig_idxtable_get(&stru_5E87C8, timeevent->params[1].integer_value, &ui_message);
-        sub_460630(&ui_message);
+        ui_display_msg(&ui_message);
         FREE(ui_message.str);
     }
 
@@ -289,10 +289,10 @@ void ui_display_warning(char* str)
 }
 
 // 0x460630
-void sub_460630(UiMessage* ui_message)
+void ui_display_msg(UiMessage* ui_message)
 {
-    if (ui_callbacks.field_80 != NULL) {
-        ui_callbacks.field_80(ui_message);
+    if (ui_callbacks.display_msg != NULL) {
+        ui_callbacks.display_msg(ui_message);
     }
 }
 

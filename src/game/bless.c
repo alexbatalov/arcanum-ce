@@ -179,7 +179,7 @@ void bless_add(int64_t obj, int bless)
         ui_message.type = UI_MSG_TYPE_BLESS;
         ui_message.str = mes_file_entry.str;
         ui_message.field_8 = bless;
-        sub_460630(&ui_message);
+        ui_display_msg(&ui_message);
 
         // Highlight logbook button.
         ui_toggle_primary_button(UI_PRIMARY_BUTTON_LOGBOOK, true);

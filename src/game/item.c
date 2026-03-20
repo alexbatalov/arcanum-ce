@@ -1505,7 +1505,7 @@ void item_use_on_obj(int64_t source_obj, int64_t item_obj, int64_t target_obj)
             mes_get_msg(item_mes_file, &mes_file_entry);
             ui_message.type = UI_MSG_TYPE_EXCLAMATION;
             ui_message.str = mes_file_entry.str;
-            sub_460630(&ui_message);
+            ui_display_msg(&ui_message);
 
             sub_4574D0(item_obj);
             object_destroy(item_obj);
@@ -4095,7 +4095,7 @@ void item_error_msg(int64_t obj, int reason)
 
     ui_message.type = UI_MSG_TYPE_EXCLAMATION;
     ui_message.str = str;
-    sub_460630(&ui_message);
+    ui_display_msg(&ui_message);
 }
 
 // 0x467440

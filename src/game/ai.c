@@ -4216,7 +4216,7 @@ void ai_npc_fighting_toggle(void)
     } else {
         ui_message.str = "NPC fighting is OFF";
     }
-    sub_460630(&ui_message);
+    ui_display_msg(&ui_message);
 }
 
 // 0x4AF8C0

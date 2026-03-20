@@ -2205,7 +2205,7 @@ void critter_encumbrance_level_recalc(int64_t obj, int prev_encumbrance_level)
 
         ui_message.type = UI_MSG_TYPE_EXCLAMATION;
         ui_message.str = mes_file_entry.str;
-        sub_460630(&ui_message);
+        ui_display_msg(&ui_message);
     }
 
     // Schedule fatigue damage event.

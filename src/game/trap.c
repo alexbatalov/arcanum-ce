@@ -326,7 +326,7 @@ void trap_mark_known(int64_t pc_obj, int64_t trap_obj, int reason)
 
         ui_message.type = UI_MSG_TYPE_EXCLAMATION;
         ui_message.str = mes_file_entry.str;
-        sub_460630(&ui_message);
+        ui_display_msg(&ui_message);
     }
 }
 
@@ -385,7 +385,7 @@ bool trap_use_on_obj(int64_t pc_obj, int64_t item_obj, int64_t target_obj)
 
             ui_message.type = UI_MSG_TYPE_EXCLAMATION;
             ui_message.str = mes_file_entry.str;
-            sub_460630(&ui_message);
+            ui_display_msg(&ui_message);
 
             return false;
         }
@@ -453,7 +453,7 @@ bool trap_use_at_loc(int64_t pc_obj, int64_t item_obj, int64_t target_loc)
 
         ui_message.type = UI_MSG_TYPE_EXCLAMATION;
         ui_message.str = mes_file_entry.str;
-        sub_460630(&ui_message);
+        ui_display_msg(&ui_message);
 
         return false;
     }

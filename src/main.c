@@ -550,7 +550,7 @@ void main_loop(void)
 
                                     ui_message.type = UI_MSG_TYPE_FEEDBACK;
                                     ui_message.str = "Cheater! Here's $1000!";
-                                    sub_460630(&ui_message);
+                                    ui_display_msg(&ui_message);
 
                                     int64_t gold_obj;
                                     object_create(sub_4685A0(BP_GOLD),

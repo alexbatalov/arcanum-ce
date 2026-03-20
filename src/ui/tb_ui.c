@@ -64,7 +64,7 @@ bool tb_ui_init(GameInitInfo* init_info)
     (void)init_info;
 
     callbacks.display_warning = display_warning;
-    callbacks.field_80 = intgame_message_window_display_msg;
+    callbacks.display_msg = intgame_message_window_display_msg;
     callbacks.field_58 = sub_57CCF0;
     callbacks.spell_add = spell_ui_add;
     callbacks.spell_maintain_add = spell_ui_maintain_add;

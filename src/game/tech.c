@@ -406,7 +406,7 @@ void tech_learn_schematic(int64_t pc_obj, int64_t written_obj)
         ui_message.field_8 = schematic;
     }
 
-    sub_460630(&ui_message);
+    ui_display_msg(&ui_message);
 }
 
 /**
