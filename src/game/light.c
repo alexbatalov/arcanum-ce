@@ -56,8 +56,8 @@ static tig_art_id_t light_get_aid(Light* light);
 static void light_set_custom_color(Light* light, uint8_t r, uint8_t g, uint8_t b);
 static bool sub_4DDD90(Sector* sector);
 static void shadows_changed(void);
-static bool sub_4DDF50(void);
-static void sub_4DE060(void);
+static bool light_buffers_init(void);
+static void light_buffers_exit(void);
 static bool sub_4DE0B0(tig_art_id_t art_id, TigPaletteModifyInfo* modify_info);
 static void sub_4DE200(void);
 static void sub_4DE250(void);
@@ -216,7 +216,7 @@ bool light_init(GameInitInfo* init_info)
     settings_register(&settings, SHADOWS_KEY, "0", shadows_changed);
     light_shadows_enabled = settings_get_value(&settings, SHADOWS_KEY);
 
-    if (!sub_4DDF50()) {
+    if (!light_buffers_init()) {
         FREE(dword_602E58);
         return false;
     }
@@ -241,7 +241,7 @@ void light_exit(void)
 {
     shadow_exit();
     sub_4DE250();
-    sub_4DE060();
+    light_buffers_exit();
     light_iso_window_handle = TIG_WINDOW_HANDLE_INVALID;
     light_iso_window_invalidate_rect = NULL;
     sub_4F8340();
@@ -253,9 +253,9 @@ void light_resize(GameResizeInfo* resize_info)
 {
     light_iso_window_handle = resize_info->window_handle;
     light_iso_content_rect = resize_info->content_rect;
-    sub_4DE060();
+    light_buffers_exit();
 
-    if (!sub_4DDF50()) {
+    if (!light_buffers_init()) {
         tig_debug_printf("light_resize: ERROR: Failed to rebuild the vbuffer!\n");
     }
 }
@@ -1974,9 +1974,9 @@ void shadows_changed(void)
 }
 
 // 0x4DDF50
-bool sub_4DDF50(void)
+bool light_buffers_init(void)
 {
-    sub_4DE060();
+    light_buffers_exit();
 
     dword_602E44 = light_iso_content_rect.width + 320;
     dword_603418 = dword_602E44 / 40 + 1;
@@ -2003,7 +2003,7 @@ bool sub_4DDF50(void)
 }
 
 // 0x4DE060
-void sub_4DE060(void)
+void light_buffers_exit(void)
 {
     if (lighter_vb != NULL) {
         tig_video_buffer_destroy(lighter_vb);
