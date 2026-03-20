@@ -739,17 +739,6 @@ typedef struct Packet128 {
 // Serializeable.
 static_assert(sizeof(Packet128) == 0x38, "wrong size");
 
-typedef struct Packet130 {
-    /* 0000 */ int type;
-    /* 0004 */ int field_4;
-    /* 0008 */ ObjectID oid;
-    /* 0020 */ int fld;
-    /* 0024 */ int length;
-} Packet130;
-
-// Serializeable.
-static_assert(sizeof(Packet130) == 0x28, "wrong size");
-
 bool sub_4ED6C0(int64_t obj);
 bool mp_object_create(int name, int64_t loc, int64_t* obj_ptr);
 void mp_object_destroy(int64_t obj);
@@ -772,7 +761,6 @@ void mp_gsound_play_sfx(int sound_id);
 void sub_4EED00(int64_t obj, int sound_id);
 void mp_gsound_play_sfx_on_obj(int sound_id, int loops, int64_t obj);
 void mp_gsound_play_scheme(int music_scheme_idx, int ambient_scheme_idx);
-void sub_4F0500(int64_t obj, int fld);
 void sub_4F0640(int64_t obj, ObjectID* oid_ptr);
 void sub_4F0690(ObjectID oid, int64_t* obj_ptr);
 

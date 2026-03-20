@@ -2868,18 +2868,18 @@ void sub_4A6010(int64_t obj)
         }
     }
 
-    sub_4F0500(obj, OBJ_F_PC_QUEST_IDX);
-    sub_4F0500(obj, OBJ_F_PC_RUMOR_IDX);
-    sub_4F0500(obj, OBJ_F_PC_BLESSING_IDX);
-    sub_4F0500(obj, OBJ_F_PC_BLESSING_TS_IDX);
-    sub_4F0500(obj, OBJ_F_PC_CURSE_IDX);
-    sub_4F0500(obj, OBJ_F_PC_CURSE_TS_IDX);
-    sub_4F0500(obj, OBJ_F_PC_REPUTATION_IDX);
-    sub_4F0500(obj, OBJ_F_PC_REPUTATION_TS_IDX);
-    sub_4F0500(obj, OBJ_F_CRITTER_FOLLOWER_IDX);
-    sub_4F0500(obj, OBJ_F_PC_GLOBAL_FLAGS);
-    sub_4F0500(obj, OBJ_F_PC_GLOBAL_VARIABLES);
-    sub_4F0500(obj, OBJ_F_SPELL_FLAGS);
+    obj_field_reset(obj, OBJ_F_PC_QUEST_IDX);
+    obj_field_reset(obj, OBJ_F_PC_RUMOR_IDX);
+    obj_field_reset(obj, OBJ_F_PC_BLESSING_IDX);
+    obj_field_reset(obj, OBJ_F_PC_BLESSING_TS_IDX);
+    obj_field_reset(obj, OBJ_F_PC_CURSE_IDX);
+    obj_field_reset(obj, OBJ_F_PC_CURSE_TS_IDX);
+    obj_field_reset(obj, OBJ_F_PC_REPUTATION_IDX);
+    obj_field_reset(obj, OBJ_F_PC_REPUTATION_TS_IDX);
+    obj_field_reset(obj, OBJ_F_CRITTER_FOLLOWER_IDX);
+    obj_field_reset(obj, OBJ_F_PC_GLOBAL_FLAGS);
+    obj_field_reset(obj, OBJ_F_PC_GLOBAL_VARIABLES);
+    obj_field_reset(obj, OBJ_F_SPELL_FLAGS);
 
     for (index = 0; index < 7; index++) {
         object_overlay_set(obj, OBJ_F_OVERLAY_FORE, index, TIG_ART_ID_INVALID);

@@ -632,22 +632,6 @@ void sub_4EFC30(int64_t pc_obj, const char* name, const char* rule)
     FREE(pkt);
 }
 
-// 0x4F0500
-void sub_4F0500(int64_t obj, int fld)
-{
-    Packet130 pkt;
-
-    obj_field_reset(obj, fld);
-
-    if (tig_net_is_active()) {
-        pkt.type = 130;
-        pkt.field_4 = 0;
-        pkt.fld = fld;
-        pkt.oid = obj_get_id(obj);
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-    }
-}
-
 // 0x4F05F0
 void sub_4F05F0(void)
 {
