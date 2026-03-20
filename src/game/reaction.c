@@ -236,6 +236,19 @@ int sub_4C0D00(int64_t npc_obj, int64_t pc_obj, unsigned int flags)
 // 0x4C0DE0
 void reaction_adj(int64_t npc_obj, int64_t pc_obj, int value)
 {
+    reaction_adj_ex(npc_obj, pc_obj, value, true);
+}
+
+// CE: There is a bug when temporary reaction adjustments must be reversible,
+// notably with the Charm spell. The bug stems from applying separate modifiers
+// for negative and positive adjustments that are not symmetric. For example, a
+// PC gnome has `badreactionadj +10`. When Charm is applied it grants +30 bonus
+// to reaction. When it wears off the net reduction becomes -20 (-30 from Charm
+// and +10 from being a gnome), thus granting permanent increase in reaction.
+// The fix is to add a parameter that controls whether a reaction adjustment
+// should be affected by effects or not.
+void reaction_adj_ex(int64_t npc_obj, int64_t pc_obj, int value, bool apply_effects)
+{
     int64_t mind_controlled_by_obj;
     int base;
     int adjusted_value;
@@ -267,7 +280,11 @@ void reaction_adj(int64_t npc_obj, int64_t pc_obj, int value)
     }
 
     base = sub_4C1290(npc_obj, pc_obj);
-    adjusted_value = effect_adjust_good_bad_reaction(pc_obj, value);
+    if (apply_effects) {
+        adjusted_value = effect_adjust_good_bad_reaction(pc_obj, value);
+    } else {
+        adjusted_value = value;
+    }
     sub_4C1360(npc_obj, pc_obj, base + adjusted_value);
 
     if (value < 0 && critter_leader_get(npc_obj) == pc_obj) {
