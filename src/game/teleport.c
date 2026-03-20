@@ -12,8 +12,6 @@
 #include "game/light.h"
 #include "game/magictech.h"
 #include "game/map.h"
-#include "game/mp_utils.h"
-#include "game/multiplayer.h"
 #include "game/obj_private.h"
 #include "game/object.h"
 #include "game/player.h"
@@ -167,46 +165,32 @@ bool teleport_process(TeleportData* teleport_data)
 {
     int map;
 
-    if (!tig_net_is_active()) {
-        if ((teleport_data->flags & TELEPORT_FADE_OUT) != 0) {
-            gfade_run(&(teleport_data->fade_out));
-        }
+    if ((teleport_data->flags & TELEPORT_FADE_OUT) != 0) {
+        gfade_run(&(teleport_data->fade_out));
     }
 
     if ((teleport_data->flags & TELEPORT_SOUND) != 0) {
         gsound_play_sfx_on_obj(teleport_data->sound_id, 1, teleport_data->obj);
     }
 
-    if (!tig_net_is_active()) {
-        if ((teleport_data->flags & TELEPORT_MOVIE1) != 0) {
-            gmovie_play(teleport_data->movie1, teleport_data->movie_flags1, 0);
-        }
+    if ((teleport_data->flags & TELEPORT_MOVIE1) != 0) {
+        gmovie_play(teleport_data->movie1, teleport_data->movie_flags1, 0);
+    }
 
-        if ((teleport_data->flags & TELEPORT_MOVIE2) != 0) {
-            gmovie_play(teleport_data->movie2, teleport_data->movie_flags2, 0);
-        }
+    if ((teleport_data->flags & TELEPORT_MOVIE2) != 0) {
+        gmovie_play(teleport_data->movie2, teleport_data->movie_flags2, 0);
+    }
 
-        if ((teleport_data->flags & TELEPORT_TIME) != 0) {
-            DateTime datetime;
+    if ((teleport_data->flags & TELEPORT_TIME) != 0) {
+        DateTime datetime;
 
-            sub_45A950(&datetime, 1000 * teleport_data->time);
-            timeevent_inc_datetime(&datetime);
-        }
+        sub_45A950(&datetime, 1000 * teleport_data->time);
+        timeevent_inc_datetime(&datetime);
     }
 
     map = map_current_map();
     if (teleport_data->map == -1) {
         teleport_data->map = map;
-    }
-
-    if (!multiplayer_is_locked()) {
-        if (!tig_net_is_host()) {
-            return false;
-        }
-
-        if (teleport_data->map != map) {
-            return false;
-        }
     }
 
     if ((teleport_data->flags & TELEPORT_SKIP_FOLLOWERS) == 0) {
@@ -282,13 +266,11 @@ bool teleport_process(TeleportData* teleport_data)
         }
     }
 
-    if (!tig_net_is_active()) {
-        if ((teleport_data->flags & TELEPORT_FADE_IN) != 0) {
-            teleport_iso_window_invalidate_rect(NULL);
-            teleport_iso_window_draw();
-            tig_window_display();
-            gfade_run(&(teleport_data->fade_in));
-        }
+    if ((teleport_data->flags & TELEPORT_FADE_IN) != 0) {
+        teleport_iso_window_invalidate_rect(NULL);
+        teleport_iso_window_draw();
+        tig_window_display();
+        gfade_run(&(teleport_data->fade_in));
     }
 
     return true;
@@ -317,19 +299,11 @@ bool schedule_teleport_obj_recursively(int64_t obj, int64_t loc)
     if (obj_type_is_critter(obj_type)) {
         ObjectList objects;
         ObjectNode* obj_node;
-        int64_t v1;
 
         object_list_followers(obj, &objects);
         obj_node = objects.head;
         while (obj_node != NULL) {
             if ((obj_field_int32_get(obj_node->obj, OBJ_F_NPC_FLAGS) & ONF_AI_WAIT_HERE) == 0) {
-                if (tig_net_is_active()) {
-                    v1 = sub_4C1110(obj_node->obj);
-                    if (v1 != OBJ_HANDLE_NULL) {
-                        ui_end_dialog(v1, 0);
-                    }
-                }
-
                 if (!schedule_teleport_obj_recursively(obj_node->obj, loc)) {
                     object_list_destroy(&objects);
                     return false;
@@ -481,18 +455,16 @@ bool sub_4D39A0(TeleportData* teleport_data)
         if ((obj_field_int32_get(node->obj, OBJ_F_FLAGS) & OF_INVENTORY) == 0) {
             sub_4D3D60(node->obj);
 
-            if (!tig_net_is_active()
-                && player_is_local_pc_obj(node->obj)) {
+            if (player_is_local_pc_obj(node->obj)) {
                 wallcheck_flush();
                 roof_fill_off(obj_field_int64_get(node->obj, OBJ_F_LOCATION));
             }
 
-            if (tig_net_is_active()
-                && tig_net_is_host()) {
-                sub_424070(node->obj, 5, false, false);
+            if (player_is_local_pc_obj(node->obj)) {
+                location_origin_set(node->loc);
             }
 
-            sub_4EDF20(node->obj, node->loc, 0, 0, 1);
+            sub_43E770(node->obj, node->loc, 0, 0);
         }
         node = node->next;
     }
