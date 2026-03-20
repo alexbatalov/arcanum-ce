@@ -59,8 +59,8 @@ static void shadows_changed(void);
 static bool light_buffers_init(void);
 static void light_buffers_exit(void);
 static bool sub_4DE0B0(tig_art_id_t art_id, TigPaletteModifyInfo* modify_info);
-static void sub_4DE200(void);
-static void sub_4DE250(void);
+static void light_ambient_palettes_init(void);
+static void light_ambient_palettes_exit(void);
 static void light_get_rect_internal(Light* light, TigRect* rect);
 static void sub_4DE390(Light* light);
 static void sub_4DE4D0(Light* light);
@@ -229,7 +229,7 @@ bool light_init(GameInitInfo* init_info)
     light_outdoor_color = tig_color_make(255, 255, 255);
     light_indoor_color = tig_color_make(255, 255, 255);
 
-    sub_4DE200();
+    light_ambient_palettes_init();
     sub_5022B0(sub_4DE0B0);
     sub_5022D0();
 
@@ -240,7 +240,7 @@ bool light_init(GameInitInfo* init_info)
 void light_exit(void)
 {
     shadow_exit();
-    sub_4DE250();
+    light_ambient_palettes_exit();
     light_buffers_exit();
     light_iso_window_handle = TIG_WINDOW_HANDLE_INVALID;
     light_iso_window_invalidate_rect = NULL;
@@ -363,7 +363,7 @@ void light_set_colors(tig_color_t indoor_color, tig_color_t outdoor_color)
 {
     light_indoor_color = indoor_color;
     light_outdoor_color = outdoor_color;
-    sub_4DE200();
+    light_ambient_palettes_init();
 
     if (light_enabled) {
         if (!light_hardware_accelerated) {
@@ -2085,7 +2085,7 @@ bool sub_4DE0B0(tig_art_id_t art_id, TigPaletteModifyInfo* modify_info)
 }
 
 // 0x4DE200
-void sub_4DE200(void)
+void light_ambient_palettes_init(void)
 {
     if (!light_hardware_accelerated) {
         if (light_indoor_palette == NULL) {
@@ -2101,7 +2101,7 @@ void sub_4DE200(void)
 }
 
 // 0x4DE250
-void sub_4DE250(void)
+void light_ambient_palettes_exit(void)
 {
     if (!light_hardware_accelerated) {
         tig_palette_destroy(light_indoor_palette);
