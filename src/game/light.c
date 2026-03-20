@@ -65,8 +65,8 @@ static void light_get_rect_internal(Light* light, TigRect* rect);
 static void sub_4DE390(Light* light);
 static void sub_4DE4D0(Light* light);
 static void sub_4DE4F0(Light* light, int offset_x, int offset_y);
-static bool sub_4DE5D0(void);
-static void sub_4DE730(void);
+static bool shadow_init(void);
+static void shadow_exit(void);
 static Shadow* shadow_node_allocate(void);
 static void shadow_node_deallocate(Shadow* node);
 static void shadow_node_reserve(void);
@@ -221,7 +221,7 @@ bool light_init(GameInitInfo* init_info)
         return false;
     }
 
-    if (!sub_4DE5D0()) {
+    if (!shadow_init()) {
         FREE(dword_602E58);
         return false;
     }
@@ -239,7 +239,7 @@ bool light_init(GameInitInfo* init_info)
 // 0x4D8120
 void light_exit(void)
 {
-    sub_4DE730();
+    shadow_exit();
     sub_4DE250();
     sub_4DE060();
     light_iso_window_handle = TIG_WINDOW_HANDLE_INVALID;
@@ -2216,7 +2216,7 @@ void sub_4DE4F0(Light* light, int offset_x, int offset_y)
 }
 
 // 0x4DE5D0
-bool sub_4DE5D0(void)
+bool shadow_init(void)
 {
     int index;
     tig_art_id_t art_id;
@@ -2264,7 +2264,7 @@ bool sub_4DE5D0(void)
 }
 
 // 0x4DE730
-void sub_4DE730(void)
+void shadow_exit(void)
 {
     int index;
 
