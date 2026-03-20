@@ -2682,9 +2682,9 @@ void MTComponentMovement_ProcFunc(void)
             } else {
                 MesFileEntry mes_file_entry;
 
-                mes_file_entry.num = 10000;
+                mes_file_entry.num = 10000; // "This place seems to block your attempt to teleport."
                 mes_get_msg(magictech_spell_mes_file, &mes_file_entry);
-                sub_460610(mes_file_entry.str);
+                ui_display_warning(mes_file_entry.str);
             }
             break;
         case 3:
@@ -2741,9 +2741,9 @@ void sub_452650(int64_t obj)
         }
     } else {
         if (player_is_local_pc_obj(obj)) {
-            mes_file_entry.num = 1000;
+            mes_file_entry.num = 10000; // "This place seems to block your attempt to teleport."
             mes_get_msg(magictech_spell_mes_file, &mes_file_entry);
-            sub_460610(mes_file_entry.str);
+            ui_display_warning(mes_file_entry.str);
         }
     }
 }
@@ -3091,7 +3091,7 @@ bool sub_452F20(void)
             if (v1) {
                 if (player_is_local_pc_obj(magictech_cur_run_info->parent_obj.obj)) {
                     mes_get_msg(magictech_spell_mes_file, &mes_file_entry);
-                    sub_460610(mes_file_entry.str);
+                    ui_display_warning(mes_file_entry.str);
                 }
 
                 return false;
@@ -3153,7 +3153,7 @@ bool sub_452F20(void)
             if (v1) {
                 if (player_is_local_pc_obj(magictech_cur_run_info->parent_obj.obj)) {
                     mes_get_msg(magictech_spell_mes_file, &mes_file_entry);
-                    sub_460610(mes_file_entry.str);
+                    ui_display_warning(mes_file_entry.str);
                     ui_spell_maintain_end(magictech_cur_run_info->id);
                 }
 
@@ -3325,9 +3325,9 @@ bool sub_453710(void)
     }
 
     if (player_is_local_pc_obj(magictech_cur_run_info->parent_obj.obj)) {
-        mes_file_entry.num = 602;
+        mes_file_entry.num = 602; // "You lose your concentration."
         mes_get_msg(magictech_spell_mes_file, &mes_file_entry);
-        sub_460610(mes_file_entry.str);
+        ui_display_warning(mes_file_entry.str);
         ui_spell_maintain_end(magictech_cur_run_info->id);
     }
 
@@ -3708,9 +3708,9 @@ void sub_453FA0(void)
                 if (magictech_cur_run_info->source_obj.obj != OBJ_HANDLE_NULL) {
                     if (!sub_4545E0(magictech_cur_run_info)) {
                         if (player_is_pc_obj(magictech_cur_run_info->parent_obj.obj)) {
-                            mes_file_entry.num = 601;
+                            mes_file_entry.num = 601; // "Maintain terminated."
                             mes_get_msg(magictech_spell_mes_file, &mes_file_entry);
-                            sub_460610(mes_file_entry.str);
+                            ui_display_warning(mes_file_entry.str);
                         }
                         magictech_cur_run_info->action = MAGICTECH_ACTION_END;
                         sub_451070(magictech_cur_run_info);
@@ -4433,7 +4433,7 @@ bool sub_455550(TargetContext* target_ctx, MagicTechRunInfo* run_info)
         if (player_is_local_pc_obj(run_info->parent_obj.obj)) {
             mes_file_entry.num = 603; // "The effect is nullified."
             mes_get_msg(magictech_spell_mes_file, &mes_file_entry);
-            sub_460610(mes_file_entry.str);
+            ui_display_warning(mes_file_entry.str);
             ui_spell_maintain_end(run_info->id);
         }
         return false;
@@ -4481,7 +4481,7 @@ bool sub_455550(TargetContext* target_ctx, MagicTechRunInfo* run_info)
     if (player_is_local_pc_obj(run_info->parent_obj.obj)) {
         mes_file_entry.num = 602; // "You lose your concentration."
         mes_get_msg(magictech_spell_mes_file, &mes_file_entry);
-        sub_460610(mes_file_entry.str);
+        ui_display_warning(mes_file_entry.str);
         ui_spell_maintain_end(run_info->id);
     }
 
@@ -5054,7 +5054,7 @@ bool magictech_invocation_check(MagicTechInvocation* mt_invocation)
         if (player_is_local_pc_obj(mt_invocation->parent_obj.obj)) {
             mes_file_entry.num = 10000; // "This place seems to block your attempt to teleport."
             mes_get_msg(magictech_spell_mes_file, &mes_file_entry);
-            sub_460610(mes_file_entry.str);
+            ui_display_warning(mes_file_entry.str);
         }
         return false;
     }
@@ -7032,7 +7032,7 @@ void magictech_error_unressurectable(int64_t obj)
 
     mes_file_entry.num = 605; // "This life cannot be replenished."
     magictech_get_msg(&mes_file_entry);
-    sub_460610(mes_file_entry.str);
+    ui_display_warning(mes_file_entry.str);
 
     magictech_fx_add(obj, MAGICTECH_FX_RESURRECT);
 }

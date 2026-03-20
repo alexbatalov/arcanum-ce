@@ -306,7 +306,7 @@ void spell_ui_apply(TargetDescriptor* td)
         mes_file_entry.num = 600; // "Not enough Energy."
         magictech_get_msg(&mes_file_entry);
 
-        sub_460610(mes_file_entry.str);
+        ui_display_warning(mes_file_entry.str);
         return;
     }
 

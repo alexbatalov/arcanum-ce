@@ -281,10 +281,10 @@ void sub_4605E0(int64_t a1, void* a2, int a3)
 }
 
 // 0x460610
-void sub_460610(char* str)
+void ui_display_warning(char* str)
 {
-    if (ui_callbacks.field_7C != NULL) {
-        ui_callbacks.field_7C(str);
+    if (ui_callbacks.display_warning != NULL) {
+        ui_callbacks.display_warning(str);
     }
 }
 

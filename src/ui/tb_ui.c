@@ -39,7 +39,7 @@ static void sub_57CAF0(int64_t obj);
 static void show_inven_loot(int64_t pc_obj, int64_t target_obj);
 static void show_inven_identify(int64_t pc_obj, int64_t target_obj);
 static void show_inven_npc_identify(int64_t pc_obj, int64_t target_obj);
-static void sub_57CBE0(char* str);
+static void display_warning(char* str);
 static void refresh_fatigue_bar(int64_t obj);
 static void sub_57CC70(int64_t a1, int64_t a2);
 static void end_death(void);
@@ -63,7 +63,7 @@ bool tb_ui_init(GameInitInfo* init_info)
 
     (void)init_info;
 
-    callbacks.field_7C = sub_57CBE0;
+    callbacks.display_warning = display_warning;
     callbacks.field_80 = intgame_message_window_display_msg;
     callbacks.field_58 = sub_57CCF0;
     callbacks.spell_add = spell_ui_add;
@@ -222,7 +222,7 @@ void show_inven_npc_identify(int64_t pc_obj, int64_t target_obj)
 }
 
 // 0x57CBE0
-void sub_57CBE0(char* str)
+void display_warning(char* str)
 {
     UiMessage ui_message;
 

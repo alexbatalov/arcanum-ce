@@ -1867,9 +1867,9 @@ bool wmap_ui_message_filter(TigMessage* msg)
                         wmap_ui_teleport(loc);
                         wmap_ui_close();
                     } else {
-                        mes_file_entry.num = 640;
+                        mes_file_entry.num = 640; // "You are unable to teleport to this location. Something is blocking you."
                         mes_get_msg(wmap_ui_worldmap_mes_file, &mes_file_entry);
-                        sub_460610(mes_file_entry.str);
+                        ui_display_warning(mes_file_entry.str);
                     }
 
                     return true;
