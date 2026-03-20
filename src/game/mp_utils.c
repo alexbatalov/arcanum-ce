@@ -637,7 +637,7 @@ void sub_4F0500(int64_t obj, int fld)
 {
     Packet130 pkt;
 
-    sub_407D50(obj, fld);
+    obj_field_reset(obj, fld);
 
     if (tig_net_is_active()) {
         pkt.type = 130;

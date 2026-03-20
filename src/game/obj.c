@@ -2035,7 +2035,7 @@ void obj_arrayfield_pc_quest_copy_to_flat(int64_t obj, int fld, int cnt, void* d
 }
 
 // 0x407D50
-void sub_407D50(int64_t obj, int fld)
+void obj_field_reset(int64_t obj, int fld)
 {
     Object* object;
 
