@@ -143,34 +143,6 @@ typedef struct PacketCombatModeSet {
 // Serializeable.
 static_assert(sizeof(PacketCombatModeSet) == 0x28, "wrong size");
 
-typedef struct PacketCombatDmg {
-    /* 0000 */ int type;
-    /* 0004 */ int padding_4;
-    /* 0008 */ CombatContext combat;
-    /* 0070 */ ObjectID attacker_oid;
-    /* 0088 */ ObjectID weapon_oid;
-    /* 00A0 */ ObjectID target_oid;
-    /* 00B8 */ ObjectID field_B8;
-    /* 00D0 */ ObjectID field_D0;
-} PacketCombatDmg;
-
-// Serializeable.
-static_assert(sizeof(PacketCombatDmg) == 0xE8, "wrong size");
-
-typedef struct PacketCombatHeal {
-    /* 0000 */ int type;
-    /* 0004 */ int padding_4;
-    /* 0008 */ CombatContext combat;
-    /* 0070 */ ObjectID attacker_oid;
-    /* 0088 */ ObjectID weapon_oid;
-    /* 00A0 */ ObjectID target_oid;
-    /* 00B8 */ ObjectID field_B8;
-    /* 00D0 */ ObjectID field_D0;
-} PacketCombatHeal;
-
-// Serializeable.
-static_assert(sizeof(PacketCombatHeal) == 0xE8, "wrong size");
-
 typedef struct Packet26 {
     /* 0000 */ int type;
     /* 0004 */ int padding_4;

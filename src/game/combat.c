@@ -21,14 +21,13 @@
 #include "game/map.h"
 #include "game/material.h"
 #include "game/mes.h"
-#include "game/mp_utils.h"
 #include "game/mt_item.h"
-#include "game/multiplayer.h"
 #include "game/obj.h"
 #include "game/obj_private.h"
 #include "game/object.h"
 #include "game/object_node.h"
 #include "game/player.h"
+#include "game/proto.h"
 #include "game/random.h"
 #include "game/reaction.h"
 #include "game/resistance.h"
@@ -38,6 +37,7 @@
 #include "game/stat.h"
 #include "game/tf.h"
 #include "game/trap.h"
+#include "game/ui.h"
 
 static void turn_based_changed(void);
 static void fast_turn_based_changed(void);
@@ -49,7 +49,6 @@ static void combat_process_melee_attack(CombatContext* combat);
 static void combat_process_ranged_attack(CombatContext* combat);
 static void combat_critter_toggle_combat_mode(int64_t obj);
 static int64_t combat_critter_armor(int64_t critter_obj, int hit_loc);
-static bool sub_4B5520(CombatContext* combat);
 static void combat_apply_weapon_wear(CombatContext* combat);
 static void combat_remove_blood_splotch(int64_t loc);
 static void combat_process_crit_hit(CombatContext* combat);
@@ -73,14 +72,6 @@ static int combat_move_cost(int64_t source_obj, int64_t target_loc, bool adjacen
 static bool sub_4B7DC0(int64_t obj);
 static void sort_combat_list(void);
 static void pc_switch_weapon(int64_t pc_obj, int64_t target_obj);
-
-// 0x5B5790
-static struct {
-    const char* name;
-    bool (*func)(int64_t a1, int64_t a2, int64_t a3, int64_t a4);
-} stru_5B5790[] = {
-    { "Multiplayer", sub_4A6190 },
-};
 
 // 0x5B5798
 static int hit_loc_penalties[HIT_LOC_COUNT] = {
@@ -424,11 +415,8 @@ void turn_based_changed(void)
     int value;
 
     value = settings_get_value(&settings, TURN_BASED_KEY);
-    if (value && tig_net_is_active()) {
-        settings_set_value(&settings, TURN_BASED_KEY, 0);
-    } else {
-        sub_4B6C90(value);
-    }
+
+    sub_4B6C90(value);
 }
 
 // 0x4B2410
@@ -445,7 +433,7 @@ void combat_create_projectile(CombatContext* combat, int64_t loc, int a3, int a4
     unsigned int weapon_flags;
     unsigned int critter_flags2;
 
-    if (!mp_object_create(BP_PROJECTILE, loc, &proj_obj)) {
+    if (!object_create(sub_4685A0(BP_PROJECTILE), loc, &proj_obj)) {
         return;
     }
 
@@ -501,16 +489,11 @@ void sub_4B2690(int64_t proj_obj, int64_t a2, int64_t a3, CombatContext* combat,
     int64_t loc;
     unsigned int critter_flags2;
 
-    if (tig_net_is_active()
-        && !tig_net_is_host()) {
-        return;
-    }
-
     proj_flags = obj_field_int32_get(proj_obj, OBJ_F_PROJECTILE_FLAGS_COMBAT);
     if ((proj_flags & 0x40) != 0) {
         weapon_obj = obj_field_handle_get(proj_obj, OBJ_F_PROJECTILE_PARENT_WEAPON);
         loc = obj_field_int64_get(proj_obj, OBJ_F_LOCATION);
-        sub_4EDF20(weapon_obj, loc, 0, 0, false);
+        sub_43E770(weapon_obj, loc, 0, 0);
         object_flags_unset(weapon_obj, OF_OFF);
         object_destroy(proj_obj);
     } else if ((proj_flags & 0x1000) != 0) {
@@ -1118,19 +1101,17 @@ void combat_process_ranged_attack(CombatContext* combat)
         combat->flags |= 0x20;
     }
 
-    if (multiplayer_is_locked() || tig_net_is_host()) {
-        // FIXME: Unused.
-        rotation = tig_art_id_rotation_get(obj_field_int32_get(combat->attacker_obj, OBJ_F_CURRENT_AID));
+    // FIXME: Unused.
+    rotation = tig_art_id_rotation_get(obj_field_int32_get(combat->attacker_obj, OBJ_F_CURRENT_AID));
 
-        num_arrows = 1;
-        if (combat->skill == BASIC_SKILL_BOW
-            && basic_skill_training_get(combat->attacker_obj, BASIC_SKILL_BOW) >= TRAINING_EXPERT) {
-            num_arrows = 2;
-        }
+    num_arrows = 1;
+    if (combat->skill == BASIC_SKILL_BOW
+        && basic_skill_training_get(combat->attacker_obj, BASIC_SKILL_BOW) >= TRAINING_EXPERT) {
+        num_arrows = 2;
+    }
 
-        for (arrow = 0; arrow < num_arrows; arrow++) {
-            combat_create_projectile(combat, loc, dword_5B57FC[arrow], dword_5B57FC[arrow], missile_art_id);
-        }
+    for (arrow = 0; arrow < num_arrows; arrow++) {
+        combat_create_projectile(combat, loc, dword_5B57FC[arrow], dword_5B57FC[arrow], missile_art_id);
     }
 }
 
@@ -1295,21 +1276,6 @@ void combat_critter_toggle_combat_mode(int64_t obj)
         }
     }
 
-    if (!multiplayer_is_locked()) {
-        if (tig_net_is_host() || is_pc) {
-            PacketCombatModeSet pkt;
-
-            pkt.type = 19;
-            pkt.oid = obj_get_id(obj);
-            pkt.active = combat_mode_is_active;
-            tig_net_send_app_all(&pkt, sizeof(pkt));
-        }
-
-        if (!tig_net_is_host()) {
-            return;
-        }
-    }
-
     is_tb = combat_is_turn_based();
 
     art_id = obj_field_int32_get(obj, OBJ_F_CURRENT_AID);
@@ -1430,12 +1396,6 @@ void combat_dmg(CombatContext* combat)
     unsigned int spell_flags = 0;
     bool weapon_dropped = false;
 
-    if (!multiplayer_is_locked()) {
-        if (sub_4B5520(combat) || !tig_net_is_host()) {
-            return;
-        }
-    }
-
     if (combat->target_obj == OBJ_HANDLE_NULL) {
         return;
     }
@@ -1514,10 +1474,7 @@ void combat_dmg(CombatContext* combat)
     }
 
     if (player_is_pc_obj(combat->attacker_obj)) {
-        if (!tig_net_is_active()
-            || tig_net_is_host()) {
-            combat->game_difficulty = gamelib_game_difficulty_get();
-        }
+        combat->game_difficulty = gamelib_game_difficulty_get();
 
         switch (combat->game_difficulty) {
         case GAME_DIFFICULTY_EASY:
@@ -1541,10 +1498,7 @@ void combat_dmg(CombatContext* combat)
         // 0x4B475F
         if ((combat->flags & CF_TRAP) != 0) {
             combat->flags |= CF_HIT;
-            if (!tig_net_is_active()
-                || tig_net_is_host()) {
-                combat_play_hit_fx(combat);
-            }
+            combat_play_hit_fx(combat);
         }
 
         if (critter_is_dead(combat->target_obj)) {
@@ -1605,9 +1559,7 @@ void combat_dmg(CombatContext* combat)
             mt_item_notify_parent_stunned(combat->attacker_obj, combat->target_obj);
             critter_flags |= OCF_STUNNED;
 
-            if ((!tig_net_is_active()
-                    || tig_net_is_host())
-                && !anim_goal_animate_stunned(combat->target_obj)) {
+            if (!anim_goal_animate_stunned(combat->target_obj)) {
                 critter_flags &= ~OCF_STUNNED;
             }
 
@@ -1627,10 +1579,7 @@ void combat_dmg(CombatContext* combat)
                 if (!critter_is_unconscious(combat->target_obj)) {
                     int max_fatigue = critter_fatigue_max(combat->target_obj);
 
-                    if (!tig_net_is_active()
-                        || tig_net_is_host()) {
-                        combat->field_64 = random_between(10, 20);
-                    }
+                    combat->field_64 = random_between(10, 20);
 
                     critter_fatigue_damage_set(combat->target_obj, combat->field_64 + max_fatigue);
 
@@ -1689,10 +1638,7 @@ void combat_dmg(CombatContext* combat)
             int64_t weapon_obj = item_wield_get(combat->target_obj, ITEM_INV_LOC_WEAPON);
             if (weapon_obj != OBJ_HANDLE_NULL
                 && sub_464D20(weapon_obj, ITEM_INV_LOC_WEAPON, combat->target_obj)) {
-                if (!tig_net_is_active()
-                    || tig_net_is_host()) {
-                    item_drop_nearby(weapon_obj);
-                }
+                item_drop_nearby(weapon_obj);
 
                 mes_file_entry.num = 19; // "Weapon dropped"
                 mes_get_msg(combat_mes_file, &mes_file_entry);
@@ -1704,10 +1650,7 @@ void combat_dmg(CombatContext* combat)
             int64_t shield_obj = item_wield_get(combat->target_obj, ITEM_INV_LOC_SHIELD);
             if (shield_obj != OBJ_HANDLE_NULL
                 && sub_464D20(shield_obj, ITEM_INV_LOC_SHIELD, combat->target_obj)) {
-                if (!tig_net_is_active()
-                    || tig_net_is_host()) {
-                    item_drop_nearby(weapon_obj);
-                }
+                item_drop_nearby(weapon_obj);
 
                 mes_file_entry.num = 20; // "Item dropped"
                 mes_get_msg(combat_mes_file, &mes_file_entry);
@@ -1994,19 +1937,6 @@ void combat_dmg(CombatContext* combat)
             }
         }
     }
-
-    if (!multiplayer_is_locked() && tig_net_is_host()) {
-        PacketCombatDmg pkt;
-
-        pkt.type = 20;
-        sub_4F0640(combat->attacker_obj, &(pkt.attacker_oid));
-        sub_4F0640(combat->weapon_obj, &(pkt.weapon_oid));
-        sub_4F0640(combat->target_obj, &(pkt.target_oid));
-        sub_4F0640(combat->field_28, &(pkt.field_B8));
-        sub_4F0640(combat->field_30, &(pkt.field_D0));
-        pkt.combat = *combat;
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-    }
 }
 
 // 0x4B54B0
@@ -2022,21 +1952,6 @@ int64_t combat_critter_armor(int64_t critter_obj, int hit_loc)
     default:
         return item_wield_get(critter_obj, ITEM_INV_LOC_ARMOR);
     }
-}
-
-// 0x4B5520
-bool sub_4B5520(CombatContext* combat)
-{
-    int index;
-
-    for (index = 0; index < sizeof(stru_5B5790) / sizeof(stru_5B5790[0]); index++) {
-        if (stru_5B5790[index].func != NULL
-            && stru_5B5790[index].func(combat->attacker_obj, combat->target_obj, combat->field_28, combat->field_30)) {
-            return true;
-        }
-    }
-
-    return false;
 }
 
 // 0x4B5580
@@ -2190,23 +2105,6 @@ void combat_heal(CombatContext* combat)
     bool unressurectable = false;
     bool v2 = false;
     tig_art_id_t art_id;
-
-    if (!multiplayer_is_locked()) {
-        PacketCombatHeal pkt;
-
-        if (!tig_net_is_host()) {
-            return;
-        }
-
-        pkt.type = 21;
-        sub_4F0640(combat->attacker_obj, &(pkt.attacker_oid));
-        sub_4F0640(combat->weapon_obj, &(pkt.weapon_oid));
-        sub_4F0640(combat->target_obj, &(pkt.target_oid));
-        sub_4F0640(combat->field_28, &(pkt.field_B8));
-        sub_4F0640(combat->field_30, &(pkt.field_D0));
-        pkt.combat = *combat;
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-    }
 
     type = obj_field_int32_get(combat->target_obj, OBJ_F_TYPE);
     if (!obj_type_is_critter(type)) {
@@ -2433,11 +2331,6 @@ void combat_process_crit_hit(CombatContext* combat)
     unsigned int critter_flags;
     int64_t helmet_obj;
     int difficulty;
-
-    if (tig_net_is_active()
-        && !tig_net_is_host()) {
-        return;
-    }
 
     if (combat->target_obj == OBJ_HANDLE_NULL) {
         return;
@@ -2787,11 +2680,6 @@ void combat_apply_resistance(CombatContext* combat)
     int damage_type;
     int resistance;
 
-    if (tig_net_is_active()
-        && !tig_net_is_host()) {
-        return;
-    }
-
     if (combat->target_obj == OBJ_HANDLE_NULL) {
         return;
     }
@@ -2965,10 +2853,6 @@ bool combat_is_turn_based(void)
 bool sub_4B6C90(bool turn_based)
 {
     int64_t pc;
-
-    if (tig_net_is_active() && turn_based) {
-        return false;
-    }
 
     if (combat_turn_based == turn_based) {
         return true;
@@ -3954,102 +3838,47 @@ bool combat_set_blinded(int64_t obj)
 // 0x4B8230
 bool combat_auto_attack_get(int64_t obj)
 {
-    int player;
-
     if (combat_turn_based_is_active()) {
         return false;
     }
 
-    if (!tig_net_is_active()) {
-        return settings_get_value(&settings, AUTO_ATTACK_KEY);
-    }
-
-    player = multiplayer_find_slot_from_obj(obj);
-    if (player == -1) {
-        return false;
-    }
-
-    return (multiplayer_flags_get(player) & MULTIPLAYER_AUTO_ATTACK) != 0;
+    return settings_get_value(&settings, AUTO_ATTACK_KEY);
 }
 
 // 0x4B8280
 void combat_auto_attack_set(bool value)
 {
-    int player;
-
     settings_set_value(&settings, AUTO_ATTACK_KEY, value);
-
-    if (tig_net_is_active()) {
-        player = multiplayer_find_slot_from_obj(player_get_local_pc_obj());
-        if (player != -1) {
-            if (value) {
-                multiplayer_flags_set(player, MULTIPLAYER_AUTO_ATTACK);
-            } else {
-                multiplayer_flags_unset(player, MULTIPLAYER_AUTO_ATTACK);
-            }
-        }
-    }
 }
 
 // 0x4B82E0
 bool combat_taunts_get(void)
 {
-    if (!tig_net_is_active()) {
-        return settings_get_value(&settings, COMBAT_TAUNTS_KEY);
-    } else {
-        return false;
-    }
+    return settings_get_value(&settings, COMBAT_TAUNTS_KEY);
 }
 
 // 0x4B8300
 void combat_taunts_set(bool value)
 {
-    if (!tig_net_is_active()) {
-        settings_set_value(&settings, COMBAT_TAUNTS_KEY, value);
-    }
+    settings_set_value(&settings, COMBAT_TAUNTS_KEY, value);
 }
 
 // 0x4B8330
 bool combat_auto_switch_weapons_get(int64_t obj)
 {
-    int player;
-
-    if (!tig_net_is_active()) {
-        return settings_get_value(&settings, AUTO_SWITCH_WEAPON_KEY);
-    }
-
-    player = multiplayer_find_slot_from_obj(obj);
-    if (player == -1) {
-        return false;
-    }
-
-    return (multiplayer_flags_get(player) & MULTIPLAYER_AUTO_SWITCH_WEAPONS) != 0;
+    return settings_get_value(&settings, AUTO_SWITCH_WEAPON_KEY);
 }
 
 // 0x4B8380
 void combat_auto_switch_weapons_set(bool value)
 {
-    int player;
-
     settings_set_value(&settings, AUTO_SWITCH_WEAPON_KEY, value);
-
-    if (tig_net_is_active()) {
-        player = multiplayer_find_slot_from_obj(player_get_local_pc_obj());
-        if (player != -1) {
-            if (value) {
-                multiplayer_flags_set(player, MULTIPLAYER_AUTO_SWITCH_WEAPONS);
-            } else {
-                multiplayer_flags_unset(player, MULTIPLAYER_AUTO_SWITCH_WEAPONS);
-            }
-        }
-    }
 }
 
 // 0x4B83E0
 void pc_switch_weapon(int64_t pc_obj, int64_t target_obj)
 {
     if (pc_obj != OBJ_HANDLE_NULL
-        && (!tig_net_is_active() || tig_net_is_host())
         && obj_field_int32_get(pc_obj, OBJ_F_TYPE) == OBJ_TYPE_PC
         && combat_auto_switch_weapons_get(pc_obj)) {
         item_wield_best(pc_obj, ITEM_INV_LOC_WEAPON, target_obj);
