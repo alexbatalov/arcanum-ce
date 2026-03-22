@@ -203,7 +203,7 @@ static bool sub_42DCF0(AnimRunInfo* run_info);
 static bool sub_42DDE0(AnimRunInfo* run_info);
 static bool sub_42DED0(AnimRunInfo* run_info);
 static bool AGbeginStunAnim(AnimRunInfo* run_info);
-static bool sub_42E070(AnimRunInfo* run_info);
+static bool AGupdateStunAnim(AnimRunInfo* run_info);
 static bool sub_42E1B0(AnimRunInfo* run_info);
 static bool sub_42E2D0(AnimRunInfo* run_info);
 static bool sub_42E460(AnimRunInfo* run_info);
@@ -1759,7 +1759,7 @@ static AnimGoalNode anim_goal_node_animate_stunned = {
     { -1, -1, -1 },
     {
         /*  1 */ { sub_42CA90, { AGDATA_SELF_OBJ, -1 }, -1, 2, 0, 3, 0 },
-        /*  2 */ { sub_42E070, { AGDATA_SELF_OBJ, -1 }, -1, 7, 0, 0x10000000, -2 },
+        /*  2 */ { AGupdateStunAnim, { AGDATA_SELF_OBJ, -1 }, -1, 7, 0, 0x10000000, -2 },
         /*  3 */ { sub_426F10, { AGDATA_SELF_OBJ, -1 }, -1, 4, 0, 0x40000000 | AG_ANIM_GET_UP, 0 },
         /*  4 */ { sub_426E80, { AGDATA_SELF_OBJ, -1 }, -1, 5, 0, 0x40000000 | AG_UNCONCEAL, 0 },
         /*  5 */ { AGbeginStunAnim, { AGDATA_SELF_OBJ, AGDATA_ANIM_ID }, -1, 6, 0, 0x10000000, 0 },
@@ -10005,7 +10005,7 @@ bool AGbeginStunAnim(AnimRunInfo* run_info)
 }
 
 // 0x42E070
-bool sub_42E070(AnimRunInfo* run_info)
+bool AGupdateStunAnim(AnimRunInfo* run_info)
 {
     int64_t obj;
     tig_art_id_t art_id;
