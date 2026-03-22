@@ -1336,7 +1336,7 @@ int script_execute_condition(ScriptCondition* condition, int line, ScriptState* 
         int num;
 
         num = script_get_value(condition->op_type[0], condition->op_value[0], state);
-        if (script_global_var_get(num)) {
+        if (script_global_flag_get(num)) {
             rc = script_execute_action(&(condition->action), line, state);
         } else {
             rc = script_execute_action(&(condition->els), line, state);
