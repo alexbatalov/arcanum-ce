@@ -193,7 +193,7 @@ static bool AGupdateAnimOpenDoor(AnimRunInfo* run_info);
 static bool AGbeginAnimCloseDoor(AnimRunInfo* run_info);
 static bool AGupdateAnimCloseDoor(AnimRunInfo* run_info);
 static bool AGbeginAnimPickLock(AnimRunInfo* run_info);
-static bool sub_42D440(AnimRunInfo* run_info);
+static bool AGupdateAnimPickLock(AnimRunInfo* run_info);
 static bool sub_42D570(AnimRunInfo* run_info);
 static bool sub_42D6F0(AnimRunInfo* run_info);
 static bool AGbeginAnimJump(AnimRunInfo* run_info);
@@ -2029,7 +2029,7 @@ static AnimGoalNode anim_goal_node_use_picklock_skill_on = {
     { -1, -1, -1 },
     {
         /*  1 */ { sub_42CA90, { AGDATA_SELF_OBJ, -1 }, -1, 2, 0, 3, 0 },
-        /*  2 */ { sub_42D440, { AGDATA_SELF_OBJ, -1 }, -1, 6, -2, 0x10000000, -2 },
+        /*  2 */ { AGupdateAnimPickLock, { AGDATA_SELF_OBJ, -1 }, -1, 6, -2, 0x10000000, -2 },
         /*  3 */ { sub_42C0F0, { AGDATA_SELF_OBJ, AGDATA_TARGET_OBJ }, -1, 0x90000000, 0, 4, 0 },
         /*  4 */ { sub_42BD40, { AGDATA_SELF_OBJ, -1 }, 0xC, 0x90000000, 0, 5, 0 },
         /*  5 */ { AGbeginAnimPickLock, { AGDATA_SELF_OBJ, AGDATA_ANIM_ID }, -1, 7, 0, 0x10000000, -2 },
@@ -9514,7 +9514,7 @@ bool AGbeginAnimPickLock(AnimRunInfo* run_info)
 }
 
 // 0x42D440
-bool sub_42D440(AnimRunInfo* run_info)
+bool AGupdateAnimPickLock(AnimRunInfo* run_info)
 {
     int64_t obj;
     tig_art_id_t art_id;
