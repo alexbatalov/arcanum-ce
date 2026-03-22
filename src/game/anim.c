@@ -176,7 +176,7 @@ static bool sub_42BFD0(AnimRunInfo* run_info);
 static bool sub_42C0F0(AnimRunInfo* run_info);
 static bool sub_42C240(AnimRunInfo* run_info);
 static bool sub_42C390(AnimRunInfo* run_info);
-static bool sub_42C440(AnimRunInfo* run_info);
+static bool AGperformRotateAnim(AnimRunInfo* run_info);
 static bool sub_42C610(AnimRunInfo* run_info);
 static bool sub_42C650(AnimRunInfo* run_info);
 static bool sub_42C780(AnimRunInfo* run_info);
@@ -1650,7 +1650,7 @@ static AnimGoalNode anim_goal_node_rotate = {
     0,
     { -1, -1, -1 },
     {
-        /*  1 */ { sub_42C440, { AGDATA_SELF_OBJ, AGDATA_SCRATCH_VAL1 }, -1, 0x30000000, 0, 0x10000000, 30 },
+        /*  1 */ { AGperformRotateAnim, { AGDATA_SELF_OBJ, AGDATA_SCRATCH_VAL1 }, -1, 0x30000000, 0, 0x10000000, 30 },
         /*  2 */ { 0 },
         /*  3 */ { 0 },
         /*  4 */ { 0 },
@@ -8886,7 +8886,7 @@ bool sub_42C390(AnimRunInfo* run_info)
 }
 
 // 0x42C440
-bool sub_42C440(AnimRunInfo* run_info)
+bool AGperformRotateAnim(AnimRunInfo* run_info)
 {
     int64_t obj;
     int new_rot;
