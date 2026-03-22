@@ -39,7 +39,7 @@ typedef struct WmapPathInfo {
 
 int path_make(PathCreateInfo* path_create_info);
 unsigned int path_translate_flags(PathFlags flags);
-int sub_4201C0(int64_t from, int64_t to, int8_t* rotations);
+int path_make_straight(int64_t from, int64_t to, int8_t* rotations);
 int wmap_path_make(WmapPathInfo* path_info);
 bool path_set_limit(int value);
 bool path_set_time_limit(int value);

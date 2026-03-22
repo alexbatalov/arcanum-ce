@@ -5289,7 +5289,7 @@ bool sub_426840(AnimRunInfo* run_info)
     }
 
     source_loc = obj_field_int64_get(obj, OBJ_F_LOCATION);
-    run_info->path.max = sub_4201C0(source_loc, target_loc, run_info->path.rotations);
+    run_info->path.max = path_make_straight(source_loc, target_loc, run_info->path.rotations);
     if (run_info->path.max == 0) {
         return false;
     }
@@ -5324,7 +5324,7 @@ bool sub_4268F0(AnimRunInfo* run_info)
 
     source_loc = obj_field_int64_get(obj, OBJ_F_LOCATION);
     run_info->path.baseRot = location_rot(source_loc, target_loc);
-    run_info->path.max = sub_4201C0(source_loc, target_loc, run_info->path.rotations);
+    run_info->path.max = path_make_straight(source_loc, target_loc, run_info->path.rotations);
     if (run_info->path.max == 0) {
         return false;
     }
@@ -5354,7 +5354,7 @@ bool sub_4269D0(AnimRunInfo* run_info)
         return false;
     }
 
-    run_info->path.max = sub_4201C0(obj_field_int64_get(obj, OBJ_F_LOCATION),
+    run_info->path.max = path_make_straight(obj_field_int64_get(obj, OBJ_F_LOCATION),
         run_info->params[1].loc,
         run_info->path.rotations);
     if (run_info->path.max == 0) {

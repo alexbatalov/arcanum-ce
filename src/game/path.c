@@ -9,23 +9,22 @@
 #include "game/townmap.h"
 #include "game/trap.h"
 
-typedef struct S420330 {
-    /* 0000 */ int field_0;
-    /* 0004 */ int field_4;
-    /* 0008 */ int field_8;
-    /* 000C */ int field_C;
-    /* 0010 */ int64_t field_10;
-    /* 0018 */ int64_t field_18;
+typedef struct StraightPathState {
+    /* 0000 */ int sample_counter;
+    /* 0004 */ int sample_interval;
+    /* 0008 */ int cnt;
+    /* 0010 */ int64_t last_x;
+    /* 0018 */ int64_t last_y;
     /* 0020 */ int8_t* rotations;
-} S420330;
+} StraightPathState;
 
 static int sub_41F6C0(PathCreateInfo* path_create_info);
 static int sub_41F840(PathCreateInfo* path_create_info);
 static int sub_41F9F0(PathCreateInfo* path_create_info);
 static int path_dist(int src, int dst, int width);
 static int sub_420110(int a1, int a2, int a3);
-static void sub_420330(int64_t x, int64_t y, S420330* a5);
-static void sub_4203B0(int64_t from_x, int64_t from_y, int64_t to_x, int64_t to_y, S420330* a5, void (*fn)(int64_t, int64_t, S420330*));
+static void sub_420330(int64_t x, int64_t y, StraightPathState* a5);
+static void sub_4203B0(int64_t from_x, int64_t from_y, int64_t to_x, int64_t to_y, StraightPathState* a5, void (*fn)(int64_t, int64_t, StraightPathState*));
 static int sub_420660(int64_t from, int64_t to, int8_t* rotations);
 static int sub_420900(WmapPathInfo* path_info);
 static int sub_4209C0(WmapPathInfo* path_info);
@@ -84,7 +83,7 @@ int path_make(PathCreateInfo* path_create_info)
     }
 
     if ((path_create_info->flags & PATH_FLAG_0x0100) != 0) {
-        return sub_4201C0(path_create_info->from, path_create_info->to, path_create_info->rotations);
+        return path_make_straight(path_create_info->from, path_create_info->to, path_create_info->rotations);
     }
 
     if ((path_create_info->flags & (PATH_FLAG_0x0040 | PATH_FLAG_0x0001)) == 0) {
@@ -613,20 +612,20 @@ int sub_420110(int a1, int a2, int a3)
 }
 
 // 0x4201C0
-int sub_4201C0(int64_t from, int64_t to, int8_t* rotations)
+int path_make_straight(int64_t from, int64_t to, int8_t* rotations)
 {
-    S420330 v1;
+    StraightPathState state;
     int64_t from_x;
     int64_t from_y;
     int64_t to_x;
     int64_t to_y;
 
-    v1.field_0 = 0;
-    v1.field_4 = 10;
-    v1.field_8 = 0;
-    v1.field_10 = 0;
-    v1.field_18 = 0;
-    v1.rotations = rotations;
+    state.sample_counter = 0;
+    state.sample_interval = 10;
+    state.cnt = 0;
+    state.last_x = 0;
+    state.last_y = 0;
+    state.rotations = rotations;
 
     location_xy(from, &from_x, &from_y);
     from_x += 40;
@@ -636,46 +635,46 @@ int sub_4201C0(int64_t from, int64_t to, int8_t* rotations)
     to_x += 40;
     to_y += 20;
 
-    v1.field_10 = from_x;
-    v1.field_18 = from_y;
+    state.last_x = from_x;
+    state.last_y = from_y;
 
-    sub_4203B0(from_x, from_y, to_x, to_y, &v1, sub_420330);
+    sub_4203B0(from_x, from_y, to_x, to_y, &state, sub_420330);
 
-    if (v1.field_8 == -1) {
+    if (state.cnt == -1) {
         return 0;
     }
 
-    while (v1.field_0 != 0) {
-        sub_420330(to_x, to_y, &v1);
+    while (state.sample_counter != 0) {
+        sub_420330(to_x, to_y, &state);
     }
 
-    if (v1.field_8 == -1) {
+    if (state.cnt == -1) {
         return 0;
     }
 
-    return v1.field_8;
+    return state.cnt;
 }
 
 // 0x420330
-void sub_420330(int64_t x, int64_t y, S420330* a5)
+void sub_420330(int64_t x, int64_t y, StraightPathState* state)
 {
-    if (a5->field_8 == -1 || a5->field_8 >= 200) {
-        a5->field_8 = -1;
+    if (state->cnt == -1 || state->cnt >= 200) {
+        state->cnt = -1;
     } else {
-        a5->field_0++;
-        if (a5->field_0 == a5->field_4) {
-            a5->rotations[a5->field_8] = (x & 0xFF) - (a5->field_10 & 0xFF);
-            a5->rotations[a5->field_8 + 1] = (y & 0xFF) - (a5->field_18 & 0xFF);
-            a5->field_10 = x;
-            a5->field_18 = y;
-            a5->field_8 += 2;
-            a5->field_0 = 0;
+        state->sample_counter++;
+        if (state->sample_counter == state->sample_interval) {
+            state->rotations[state->cnt] = (x & 0xFF) - (state->last_x & 0xFF);
+            state->rotations[state->cnt + 1] = (y & 0xFF) - (state->last_y & 0xFF);
+            state->last_x = x;
+            state->last_y = y;
+            state->cnt += 2;
+            state->sample_counter = 0;
         }
     }
 }
 
 // 0x4203B0
-void sub_4203B0(int64_t from_x, int64_t from_y, int64_t to_x, int64_t to_y, S420330* a5, void (*fn)(int64_t, int64_t, S420330*))
+void sub_4203B0(int64_t from_x, int64_t from_y, int64_t to_x, int64_t to_y, StraightPathState* a5, void (*fn)(int64_t, int64_t, StraightPathState*))
 {
     int64_t dx;
     int64_t dy;
@@ -739,18 +738,18 @@ void sub_4203B0(int64_t from_x, int64_t from_y, int64_t to_x, int64_t to_y, S420
 // 0x420660
 int sub_420660(int64_t from, int64_t to, int8_t* rotations)
 {
-    S420330 v1;
+    StraightPathState state;
     int64_t from_x;
     int64_t from_y;
     int64_t to_x;
     int64_t to_y;
 
-    v1.field_0 = 0;
-    v1.field_4 = 10;
-    v1.field_8 = 0;
-    v1.field_10 = 0;
-    v1.field_18 = 0;
-    v1.rotations = NULL;
+    state.sample_counter = 0;
+    state.sample_interval = 10;
+    state.cnt = 0;
+    state.last_x = 0;
+    state.last_y = 0;
+    state.rotations = NULL;
 
     location_xy(from, &from_x, &from_y);
     from_x += 40;
@@ -760,23 +759,23 @@ int sub_420660(int64_t from, int64_t to, int8_t* rotations)
     to_x += 40;
     to_y += 20;
 
-    v1.field_10 = from_x;
-    v1.field_18 = from_y;
-    sub_4203B0(from_x, from_y, to_x, to_y, &v1, sub_420330);
+    state.last_x = from_x;
+    state.last_y = from_y;
+    sub_4203B0(from_x, from_y, to_x, to_y, &state, sub_420330);
 
-    if (v1.field_8 == -1) {
+    if (state.cnt == -1) {
         return 0;
     }
 
-    while (v1.field_0 != 0) {
-        sub_420330(to_x, to_y, &v1);
+    while (state.sample_counter != 0) {
+        sub_420330(to_x, to_y, &state);
     }
 
-    if (v1.field_8 == -1) {
+    if (state.cnt == -1) {
         return 0;
     }
 
-    return v1.field_8;
+    return state.cnt;
 }
 
 // 0x4207D0

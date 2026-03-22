@@ -3328,7 +3328,7 @@ int sub_4ADE00(int64_t source_obj, int64_t target_loc, int64_t* block_obj_ptr)
         return 0;
     }
 
-    cnt = sub_4201C0(source_loc, target_loc, offsets);
+    cnt = path_make_straight(source_loc, target_loc, offsets);
     if (cnt == 0) {
         return 100;
     }
@@ -4137,7 +4137,7 @@ int sub_4AF640(int64_t source_obj, int64_t target_obj)
     int cost = 0;
     int64_t source_loc;
     int64_t target_loc;
-    int v1;
+    int cnt;
     int8_t offsets[200];
     unsigned int flags;
     int offset_x;
@@ -4156,8 +4156,8 @@ int sub_4AF640(int64_t source_obj, int64_t target_obj)
         return 0;
     }
 
-    v1 = sub_4201C0(source_loc, target_loc, offsets);
-    if (v1 == 0) {
+    cnt = path_make_straight(source_loc, target_loc, offsets);
+    if (cnt == 0) {
         return 100;
     }
 
@@ -4167,7 +4167,7 @@ int sub_4AF640(int64_t source_obj, int64_t target_obj)
     offset_y = obj_field_int32_get(source_obj, OBJ_F_OFFSET_Y);
     location_xy(source_loc, &source_loc_x, &source_loc_y);
 
-    for (idx = 0; idx < v1; idx += 2) {
+    for (idx = 0; idx < cnt; idx += 2) {
         if (source_loc == target_loc) {
             break;
         }
