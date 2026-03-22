@@ -211,7 +211,7 @@ static bool AGbeginKnockDownAnim(AnimRunInfo* run_info);
 static bool AGbeginGetUpAnim(AnimRunInfo* run_info);
 static bool sub_42E6B0(AnimRunInfo* run_info);
 static bool AGbeginAnimAnimReverse(AnimRunInfo* run_info);
-static bool sub_42E8B0(AnimRunInfo* run_info);
+static bool AGupdateAnimAnimReverse(AnimRunInfo* run_info);
 static bool sub_42E9B0(AnimRunInfo* run_info);
 static void sub_42EDC0(AnimRunInfo* run_info, int64_t obj, tig_art_id_t* art_id_ptr, bool a4, int* a5);
 static void sub_42EE90(int64_t obj, DateTime* pause_time);
@@ -1597,7 +1597,7 @@ static AnimGoalNode anim_goal_node_animate_reverse = {
     { -1, -1, -1 },
     {
         /*  1 */ { sub_42CA90, { AGDATA_SELF_OBJ, -1 }, -1, 2, 0, 3, 0 },
-        /*  2 */ { sub_42E8B0, { AGDATA_SELF_OBJ, -1 }, -1, 0x30000000, -2, 0x10000000, -2 },
+        /*  2 */ { AGupdateAnimAnimReverse, { AGDATA_SELF_OBJ, -1 }, -1, 0x30000000, -2, 0x10000000, -2 },
         /*  3 */ { AGbeginAnimAnimReverse, { AGDATA_SELF_OBJ, AGDATA_ANIM_ID }, -1, 4, 0, 0x10000000, 0 },
         /*  4 */ { sub_433270, { AGDATA_SELF_OBJ, -1 }, 1, 0x90000000, 0, 0x90000000, 0 },
         /*  5 */ { 0 },
@@ -1678,7 +1678,7 @@ static AnimGoalNode anim_goal_node_unconceal = {
     { -1, -1, -1 },
     {
         /*  1 */ { sub_42CA90, { AGDATA_SELF_OBJ, -1 }, -1, 2, 0, 3, 0 },
-        /*  2 */ { sub_42E8B0, { AGDATA_SELF_OBJ, -1 }, -1, 0x30000000, -2, 0x10000000, -2 },
+        /*  2 */ { AGupdateAnimAnimReverse, { AGDATA_SELF_OBJ, -1 }, -1, 0x30000000, -2, 0x10000000, -2 },
         /*  3 */ { sub_42E6B0, { AGDATA_SELF_OBJ, -1 }, -1, 5, 0, 4, 0 },
         /*  4 */ { AGbeginAnimAnimReverse, { AGDATA_SELF_OBJ, AGDATA_ANIM_ID }, -1, 5, 0, 0x10000000, 0 },
         /*  5 */ { sub_433270, { AGDATA_SELF_OBJ, -1 }, 1, 0x90000000, 0, 0x90000000, 0 },
@@ -10320,7 +10320,7 @@ bool AGbeginAnimAnimReverse(AnimRunInfo* run_info)
 }
 
 // 0x42E8B0
-bool sub_42E8B0(AnimRunInfo* run_info)
+bool AGupdateAnimAnimReverse(AnimRunInfo* run_info)
 {
     int64_t obj;
     tig_art_id_t art_id;
