@@ -14,6 +14,25 @@
 
 #define OBJ_FILE_VERSION 119
 
+// CE: The type of `data` and `transient_properties` is changed to `intptr_t` to
+// handle complex fields (virtually everything besides plain integers is stored
+// as pointers).
+typedef struct Object {
+    /* 0000 */ int type;
+    /* 0008 */ ObjectID oid;
+    /* 0020 */ ObjectID prototype_oid;
+    /* 0038 */ int64_t prototype_obj;
+    /* 0040 */ int field_40;
+    /* 0044 */ int16_t modified;
+    /* 0046 */ int16_t num_fields;
+    /* 0048 */ int* field_48;
+    /* 004C */ int* field_4C;
+    /* 0050 */ intptr_t* data;
+    /* 0054 */ intptr_t transient_properties[19];
+} Object;
+
+typedef bool(ObjEnumerateCallback)(Object* object, int fld);
+
 typedef struct ObjectFieldInfo {
     /* 0000 */ int simple_array_idx;
     /* 0004 */ int complex_array_idx;
@@ -29,10 +48,14 @@ typedef bool(ObjEnumerateCallbackEx)(Object* object, int fld, ObjectFieldInfo* f
 static void object_field_not_exists(Object* object, int fld);
 static void obj_debug_aid(tig_art_id_t aid);
 static Object* obj_allocate(int64_t* obj_ptr);
+static Object* obj_lock(int64_t obj);
+static void obj_unlock(int64_t obj);
 static void obj_field_store(Object* object, int fld, void* value_ptr);
 static void obj_arrayfield_store(Object* object, int fld, int index, void* value_ptr);
 static void obj_field_fetch(Object* object, int fld, void* value_ptr);
 static void obj_arrayfield_fetch(Object* object, int fld, int index, void* value);
+static void sub_408D60(Object* object, int fld, int* value_ptr);
+static void sub_408E70(Object* object, int fld, int value);
 static bool sub_408F40(Object* object, int fld, SizeableArray*** ptr, int64_t* proto_handle_ptr);
 static void obj_set_defaults(int64_t obj);
 static void set_item_defaults(int64_t obj, int subtype);
@@ -68,6 +91,8 @@ static void sub_40BDB0(Object* object);
 static void sub_40BE70(Object* object);
 static bool sub_40BF00(void* entry, int index);
 static bool sub_40BFC0(void* entry, int index);
+static int sub_40C030(ObjectType object_type);
+static bool object_field_valid(int type, int fld);
 static bool sub_40C560(Object* object, int fld);
 static void sub_40C580(Object* object);
 static void sub_40C5B0(Object* object);
@@ -82,6 +107,7 @@ static bool sub_40C730(Object* object, int fld);
 static bool sub_40C7A0(Object* object, int fld, ObjectFieldInfo* info);
 static void sub_40C7F0(Object* dst, Object* src, int fld);
 static void sub_40C840(Object* object, int fld);
+static bool obj_enumerate_fields(Object* object, ObjEnumerateCallback* callback);
 static bool obj_enumerate_fields_in_range(Object* obj, int begin, int end, ObjEnumerateCallback* callback);
 static int sub_40CB40(Object* object, int fld);
 static bool sub_40CB60(Object* object, int fld, ObjectFieldInfo* info);
@@ -104,6 +130,7 @@ static bool obj_version_read_file(TigFile* stream);
 static void obj_version_write_mem(WriteBuffer* wb);
 static bool obj_version_read_mem(uint8_t** data);
 static bool sub_40D670(Object* object, int a2, ObjectFieldInfo* field_info);
+static int64_t obj_get_prototype_handle(Object* object);
 
 // 0x59BE00
 static int dword_59BE00[] = {

@@ -372,25 +372,6 @@ typedef enum ObjectType {
     OBJ_TYPE_COUNT,
 } ObjectType;
 
-// CE: The type of `data` and `transient_properties` is changed to `intptr_t` to
-// handle complex fields (virtually everything besides plain integers is stored
-// as pointers).
-typedef struct Object {
-    /* 0000 */ int type;
-    /* 0008 */ ObjectID oid;
-    /* 0020 */ ObjectID prototype_oid;
-    /* 0038 */ int64_t prototype_obj;
-    /* 0040 */ int field_40;
-    /* 0044 */ int16_t modified;
-    /* 0046 */ int16_t num_fields;
-    /* 0048 */ int* field_48;
-    /* 004C */ int* field_4C;
-    /* 0050 */ intptr_t* data;
-    /* 0054 */ intptr_t transient_properties[19];
-} Object;
-
-typedef bool(ObjEnumerateCallback)(Object* object, int fld);
-
 bool obj_init(GameInitInfo* init_info);
 void obj_exit(void);
 void obj_reset(void);
@@ -399,8 +380,6 @@ void sub_405790(int64_t obj);
 void obj_create_proto(int type, int64_t* obj_ptr);
 void obj_create_inst(int64_t proto_obj, int64_t loc, int64_t* obj_ptr);
 void obj_create_inst_with_oid(int64_t proto_obj, int64_t loc, ObjectID oid, int64_t* obj_ptr);
-void sub_408D60(Object* object, int fld, int* value_ptr);
-void sub_408E70(Object* object, int fld, int value);
 bool obj_is_proto(int64_t obj);
 void obj_deallocate(int64_t obj);
 void sub_405CC0(int64_t obj);
@@ -450,12 +429,6 @@ ObjectID obj_get_id(int64_t obj);
 ObjectID sub_408020(int64_t obj, int a2);
 bool obj_inst_first(int64_t* obj_ptr, int* iter_ptr);
 bool obj_inst_next(int64_t* obj_ptr, int* iter_ptr);
-Object* obj_lock(int64_t obj);
-void obj_unlock(int64_t obj);
-int sub_40C030(ObjectType object_type);
-bool object_field_valid(int type, int fld);
-bool obj_enumerate_fields(Object* object, ObjEnumerateCallback* callback);
-int64_t obj_get_prototype_handle(Object* object);
 
 void* obj_field_ptr_get(int64_t obj, int field);
 void obj_field_ptr_set(int64_t obj, int field, void* value);
