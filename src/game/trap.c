@@ -689,7 +689,7 @@ void trigger_trap(int64_t obj, ScriptInvocation* invocation)
 
     switch (invocation->script->num) {
     case TRAP_SCRIPT_MAGICAL:
-        magictech_invocation_init(&mt_invocation, OBJ_HANDLE_NULL, (invocation->script->hdr.counters >> 18) & 0xFF);
+        magictech_invocation_init(&mt_invocation, OBJ_HANDLE_NULL, (invocation->script->hdr.counters >> 24) & 0xFF);
         sub_4440E0(obj, &(mt_invocation.target_obj));
         magictech_invocation_run(&mt_invocation);
         return;
@@ -748,8 +748,8 @@ void trigger_trap(int64_t obj, ScriptInvocation* invocation)
         return;
     }
 
-    if (((invocation->script->hdr.counters >> 18) & 0xFF) != 0) {
-        magictech_invocation_init(&mt_invocation, OBJ_HANDLE_NULL, (invocation->script->hdr.counters >> 18) & 0xFF);
+    if (((invocation->script->hdr.counters >> 24) & 0xFF) != 0) {
+        magictech_invocation_init(&mt_invocation, OBJ_HANDLE_NULL, (invocation->script->hdr.counters >> 24) & 0xFF);
         sub_4440E0(obj, &(mt_invocation.target_obj));
         magictech_invocation_run(&mt_invocation);
     }
