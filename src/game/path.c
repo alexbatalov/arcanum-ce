@@ -257,7 +257,7 @@ int sub_41F840(PathCreateInfo* path_create_info)
                     break;
                 }
 
-                if (sub_43FD70(path_create_info->obj, loc, rot, flags, &is_window)) {
+                if (object_traversal_is_blocked(path_create_info->obj, loc, rot, flags, &is_window)) {
                     break;
                 }
 

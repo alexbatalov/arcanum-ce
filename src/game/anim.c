@@ -4744,7 +4744,7 @@ bool sub_425760(int64_t obj, int64_t loc, int64_t adjacent_loc, int rot)
         return true;
     }
 
-    return sub_43FD70(obj, loc, rot, flags, NULL);
+    return object_traversal_is_blocked(obj, loc, rot, flags, NULL);
 }
 
 // 0x4257E0
@@ -5221,7 +5221,7 @@ bool sub_426560(int64_t obj, int64_t from, int64_t to, AnimPath* path, unsigned 
         }
 
         if (!tile_is_blocking(adjacent_loc, false)
-            && !sub_43FD70(obj, from, rot, path_translate_flags(flags), NULL)) {
+            && !object_traversal_is_blocked(obj, from, rot, path_translate_flags(flags), NULL)) {
             from = adjacent_loc;
         } else {
             if (from != adjacent_loc) {
@@ -11057,7 +11057,7 @@ bool sub_42FD70(AnimRunInfo* run_info, int64_t obj, AnimPath* path, int64_t from
         obj_field_int32_get(obj, OBJ_F_SPELL_FLAGS);
 
         if (!tile_is_blocking(to, false)
-            && !sub_43FD70(obj, from, path->baseRot, 0x03, NULL)) {
+            && !object_traversal_is_blocked(obj, from, path->baseRot, 0x03, NULL)) {
             return false;
         }
     }

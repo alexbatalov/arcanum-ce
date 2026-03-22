@@ -148,7 +148,7 @@ void object_overlay_light_frame_set_last(int64_t obj, int index);
 void object_overlay_light_frame_inc(int64_t obj, int index);
 void object_overlay_light_frame_dec(int64_t obj, int index);
 void object_cycle_rotation(int64_t obj);
-bool sub_43FD70(int64_t obj, int64_t loc, int rot, unsigned int flags, bool* is_window_ptr);
+bool object_traversal_is_blocked(int64_t obj, int64_t loc, int rot, unsigned int flags, bool* is_window_ptr);
 int object_calc_traversal_cost(int64_t obj, int64_t loc, int rot, unsigned int flags, int64_t* block_obj_ptr, int* block_obj_type_ptr, bool* is_window_ptr);
 bool sub_440700(int64_t obj, int64_t loc, int rot, unsigned int flags, int64_t* block_obj_ptr);
 void object_list_location(int64_t loc, unsigned int flags, ObjectList* objects);

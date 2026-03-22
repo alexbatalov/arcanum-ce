@@ -2936,7 +2936,7 @@ void object_cycle_rotation(int64_t obj)
 }
 
 // 0x43FD70
-bool sub_43FD70(int64_t obj, int64_t loc, int rot, unsigned int flags, bool* is_window_ptr)
+bool object_traversal_is_blocked(int64_t obj, int64_t loc, int rot, unsigned int flags, bool* is_window_ptr)
 {
     int64_t block_obj;
     int block_obj_type;
