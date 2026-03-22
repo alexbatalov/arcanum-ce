@@ -866,7 +866,7 @@ void obj_create_inst(int64_t proto_obj, int64_t loc, int64_t* obj_ptr)
 }
 
 // 0x405B30
-void sub_405B30(int64_t proto_obj, int64_t loc, ObjectID oid, int64_t* obj_ptr)
+void obj_create_inst_with_oid(int64_t proto_obj, int64_t loc, ObjectID oid, int64_t* obj_ptr)
 {
     Object* object;
 
