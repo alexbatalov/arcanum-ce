@@ -29,10 +29,10 @@ typedef bool(ObjEnumerateCallbackEx)(Object* object, int fld, ObjectFieldInfo* f
 static void object_field_not_exists(Object* object, int fld);
 static void sub_408430(tig_art_id_t aid);
 static Object* obj_allocate(int64_t* obj_ptr);
-static void sub_408760(Object* object, int fld, void* value_ptr);
-static void sub_4088B0(Object* object, int fld, int index, void* value_ptr);
-static void sub_408A20(Object* object, int fld, void* value_ptr);
-static void sub_408BB0(Object* object, int fld, int index, void* value);
+static void obj_field_store(Object* object, int fld, void* value_ptr);
+static void obj_arrayfield_store(Object* object, int fld, int index, void* value_ptr);
+static void obj_field_fetch(Object* object, int fld, void* value_ptr);
+static void obj_arrayfield_fetch(Object* object, int fld, int index, void* value);
 static bool sub_408F40(Object* object, int fld, SizeableArray*** ptr, int64_t* proto_handle_ptr);
 static void sub_409000(int64_t obj);
 static void sub_409640(int64_t obj, int subtype);
@@ -674,7 +674,7 @@ bool obj_validate_system(unsigned int flags)
                         tig_debug_println("!VS  obj_f_critter_inventory_num doesn't match count for obj_f_critter_inventory_list_idx.");
 
                         object = obj_lock(obj);
-                        sub_408760(object, inventory_num_fld, &cnt);
+                        obj_field_store(object, inventory_num_fld, &cnt);
                         obj_unlock(obj);
                     }
 
@@ -686,7 +686,7 @@ bool obj_validate_system(unsigned int flags)
                         int item_type;
 
                         object = obj_lock(obj);
-                        sub_408BB0(object, inventory_list_fld, idx, &oid);
+                        obj_arrayfield_fetch(object, inventory_list_fld, idx, &oid);
                         obj_unlock(obj);
 
                         if (oid.type != OID_TYPE_NULL) {
@@ -742,12 +742,12 @@ bool obj_validate_system(unsigned int flags)
                             tig_debug_println("!VS  Inventory entry is null.");
 
                             object = obj_lock(obj);
-                            sub_408BB0(object, inventory_list_fld, cnt - 1, &oid);
-                            sub_4088B0(object, inventory_list_fld, idx, &oid);
+                            obj_arrayfield_fetch(object, inventory_list_fld, cnt - 1, &oid);
+                            obj_arrayfield_store(object, inventory_list_fld, idx, &oid);
                             sub_408E70(object, inventory_list_fld, cnt - 1);
                             cnt--;
                             idx--;
-                            sub_408760(object, inventory_num_fld, &cnt);
+                            obj_field_store(object, inventory_num_fld, &cnt);
                             obj_unlock(obj);
                         }
                     }
@@ -1146,12 +1146,12 @@ void sub_4064B0(int64_t obj)
     unsigned int flags;
 
     object = obj_lock(obj);
-    sub_408A20(object, OBJ_F_INTERNAL_FLAGS, &flags);
+    obj_field_fetch(object, OBJ_F_INTERNAL_FLAGS, &flags);
     if ((flags & 0x1) == 0) {
         sub_40BBF0(object);
         sub_40BD20(object);
         flags |= 0x1;
-        sub_408760(object, OBJ_F_INTERNAL_FLAGS, &flags);
+        obj_field_store(object, OBJ_F_INTERNAL_FLAGS, &flags);
         // NOTE: Probably should be outside of this condition block, otherwise
         // object might remain locked.
         obj_unlock(obj);
@@ -1165,12 +1165,12 @@ void sub_406520(int64_t obj)
     unsigned int flags;
 
     object = obj_lock(obj);
-    sub_408A20(object, OBJ_F_INTERNAL_FLAGS, &flags);
+    obj_field_fetch(object, OBJ_F_INTERNAL_FLAGS, &flags);
     if ((flags & 0x1) != 0) {
         sub_40BDB0(object);
         sub_40BE70(object);
         flags &= ~0x1;
-        sub_408760(object, OBJ_F_INTERNAL_FLAGS, &flags);
+        obj_field_store(object, OBJ_F_INTERNAL_FLAGS, &flags);
         // NOTE: Probably should be outside of this condition block, otherwise
         // object might remain locked.
         obj_unlock(obj);
@@ -1461,7 +1461,7 @@ int obj_field_int32_get(int64_t obj, int fld)
         return object->type;
     }
 
-    sub_408A20(object, fld, &value);
+    obj_field_fetch(object, fld, &value);
     obj_unlock(obj);
 
     return value;
@@ -1488,7 +1488,7 @@ void obj_field_int32_set(int64_t obj, int fld, int value)
         return;
     }
 
-    sub_408760(object, fld, &value);
+    obj_field_store(object, fld, &value);
     obj_unlock(obj);
 }
 
@@ -1505,7 +1505,7 @@ int64_t obj_field_int64_get(int64_t obj, int fld)
         return 0;
     }
 
-    sub_408A20(object, fld, &value);
+    obj_field_fetch(object, fld, &value);
     obj_unlock(obj);
 
     return value;
@@ -1523,7 +1523,7 @@ void obj_field_int64_set(int64_t obj, int fld, int64_t value)
         return;
     }
 
-    sub_408760(object, fld, &value);
+    obj_field_store(object, fld, &value);
     obj_unlock(obj);
 
     if (fld == OBJ_F_LOCATION) {
@@ -1549,7 +1549,7 @@ int64_t obj_field_handle_get(int64_t obj, int fld)
         return obj_get_prototype_handle(object);
     }
 
-    sub_408A20(object, fld, &oid);
+    obj_field_fetch(object, fld, &oid);
     obj_unlock(obj);
 
     if (oid.type == OID_TYPE_NULL || oid.type != OID_TYPE_HANDLE) {
@@ -1579,7 +1579,7 @@ void obj_field_handle_set(int64_t obj, int fld, int64_t value)
         oid.type = OID_TYPE_NULL;
     }
 
-    sub_408760(object, fld, &oid);
+    obj_field_store(object, fld, &oid);
     obj_unlock(obj);
 }
 
@@ -1607,7 +1607,7 @@ bool obj_field_obj_get(int64_t obj, int fld, int64_t* value_ptr)
         return true; // FIXME: Object not unlocked.
     }
 
-    sub_408A20(object, fld, &oid);
+    obj_field_fetch(object, fld, &oid);
 
     if (oid.type == OID_TYPE_NULL) {
         obj_unlock(obj);
@@ -1618,7 +1618,7 @@ bool obj_field_obj_get(int64_t obj, int fld, int64_t* value_ptr)
     if (oid.type == OID_TYPE_HANDLE) {
         if (!obj_handle_is_valid(oid.d.h)) {
             oid.type = OID_TYPE_NULL;
-            sub_408760(object, fld, &oid);
+            obj_field_store(object, fld, &oid);
             obj_unlock(obj);
             *value_ptr = OBJ_HANDLE_NULL;
             return false;
@@ -1652,7 +1652,7 @@ ObjectID sub_407100(int64_t obj, int fld)
         return object->prototype_oid;
     }
 
-    sub_408A20(object, fld, &oid);
+    obj_field_fetch(object, fld, &oid);
     obj_unlock(obj);
 
     return oid;
@@ -1674,12 +1674,12 @@ void obj_field_string_get(int64_t obj, int fld, char** value_ptr)
     }
 
     if (fld == OBJ_F_NAME) {
-        sub_408A20(object, OBJ_F_NAME, &name_num);
+        obj_field_fetch(object, OBJ_F_NAME, &name_num);
         name_str = o_name_get(name_num);
         *value_ptr = (char*)MALLOC(strlen(name_str) + 1);
         strcpy(*value_ptr, name_str);
     } else {
-        sub_408A20(object, fld, value_ptr);
+        obj_field_fetch(object, fld, value_ptr);
     }
 
     obj_unlock(obj);
@@ -1697,7 +1697,7 @@ void obj_field_string_set(int64_t obj, int fld, const char* value)
         return;
     }
 
-    sub_408760(object, fld, &value);
+    obj_field_store(object, fld, &value);
     obj_unlock(obj);
 }
 
@@ -1714,7 +1714,7 @@ int obj_arrayfield_int32_get(int64_t obj, int fld, int index)
         return 0;
     }
 
-    sub_408BB0(object, fld, index, &value);
+    obj_arrayfield_fetch(object, fld, index, &value);
     obj_unlock(obj);
 
     return value;
@@ -1732,7 +1732,7 @@ void obj_arrayfield_int32_set(int64_t obj, int fld, int index, int value)
         return;
     }
 
-    sub_4088B0(object, fld, index, &value);
+    obj_arrayfield_store(object, fld, index, &value);
     obj_unlock(obj);
 }
 
@@ -1749,7 +1749,7 @@ unsigned int obj_arrayfield_uint32_get(int64_t obj, int fld, int index)
         return 0;
     }
 
-    sub_408BB0(object, fld, index, &value);
+    obj_arrayfield_fetch(object, fld, index, &value);
     obj_unlock(obj);
 
     return value;
@@ -1767,7 +1767,7 @@ void obj_arrayfield_uint32_set(int64_t obj, int fld, int index, unsigned int val
         return;
     }
 
-    sub_4088B0(object, fld, index, &value);
+    obj_arrayfield_store(object, fld, index, &value);
     obj_unlock(obj);
 }
 
@@ -1784,7 +1784,7 @@ int64_t obj_arrayfield_int64_get(int64_t obj, int fld, int index)
         return 0;
     }
 
-    sub_408BB0(object, fld, index, &value);
+    obj_arrayfield_fetch(object, fld, index, &value);
     obj_unlock(obj);
 
     return value;
@@ -1802,7 +1802,7 @@ void obj_arrayfield_int64_set(int64_t obj, int fld, int index, int64_t value)
         return;
     }
 
-    sub_4088B0(object, fld, index, &value);
+    obj_arrayfield_store(object, fld, index, &value);
     obj_unlock(obj);
 }
 
@@ -1819,7 +1819,7 @@ int64_t obj_arrayfield_handle_get(int64_t obj, int fld, int index)
         return OBJ_HANDLE_NULL;
     }
 
-    sub_408BB0(object, fld, index, &oid);
+    obj_arrayfield_fetch(object, fld, index, &oid);
     obj_unlock(obj);
 
     if (oid.type == OID_TYPE_NULL || oid.type != OID_TYPE_HANDLE) {
@@ -1843,7 +1843,7 @@ bool obj_arrayfield_obj_get(int64_t obj, int fld, int index, int64_t* value_ptr)
         return false;
     }
 
-    sub_408BB0(object, fld, index, &oid);
+    obj_arrayfield_fetch(object, fld, index, &oid);
 
     if (oid.type == OID_TYPE_NULL) {
         obj_unlock(obj);
@@ -1854,7 +1854,7 @@ bool obj_arrayfield_obj_get(int64_t obj, int fld, int index, int64_t* value_ptr)
     if (oid.type == OID_TYPE_HANDLE) {
         if (!obj_handle_is_valid(oid.d.h)) {
             oid.type = OID_TYPE_NULL;
-            sub_4088B0(object, fld, index, &oid);
+            obj_arrayfield_store(object, fld, index, &oid);
             obj_unlock(obj);
             *value_ptr = OBJ_HANDLE_NULL;
             return false;
@@ -1889,7 +1889,7 @@ void obj_arrayfield_obj_set(int64_t obj, int fld, int index, int64_t value)
         oid.type = OID_TYPE_NULL;
     }
 
-    sub_4088B0(object, fld, index, &oid);
+    obj_arrayfield_store(object, fld, index, &oid);
     obj_unlock(obj);
 }
 
@@ -1905,7 +1905,7 @@ void obj_arrayfield_script_get(int64_t obj, int fld, int index, void* value)
         return;
     }
 
-    sub_408BB0(object, fld, index, value);
+    obj_arrayfield_fetch(object, fld, index, value);
     obj_unlock(obj);
 }
 
@@ -1921,7 +1921,7 @@ void obj_arrayfield_script_set(int64_t obj, int fld, int index, void* value)
         return;
     }
 
-    sub_4088B0(object, fld, index, value);
+    obj_arrayfield_store(object, fld, index, value);
     obj_unlock(obj);
 }
 
@@ -1937,7 +1937,7 @@ void obj_arrayfield_pc_quest_get(int64_t obj, int fld, int index, void* value)
         return;
     }
 
-    sub_408BB0(object, fld, index, value);
+    obj_arrayfield_fetch(object, fld, index, value);
     obj_unlock(obj);
 }
 
@@ -1953,7 +1953,7 @@ void obj_arrayfield_pc_quest_set(int64_t obj, int fld, int index, void* value)
         return;
     }
 
-    sub_4088B0(object, fld, index, value);
+    obj_arrayfield_store(object, fld, index, value);
     obj_unlock(obj);
 }
 
@@ -2350,201 +2350,217 @@ void obj_unlock(int64_t obj)
 }
 
 // 0x408760
-void sub_408760(Object* object, int fld, void* value_ptr)
+void obj_field_store(Object* object, int fld, void* value_ptr)
 {
-    ObjDataDescriptor v1;
+    ObjDataDescriptor store_op;
+    int storage_idx;
 
     if (object->prototype_oid.type == OID_TYPE_BLOCKED) {
-        v1.ptr = &(object->data[sub_40CB40(object, fld)]);
+        storage_idx = sub_40CB40(object, fld);
+        store_op.ptr = &(object->data[storage_idx]);
         sub_40D400(object, fld, true);
     } else if (fld > OBJ_F_TRANSIENT_BEGIN && fld < OBJ_F_TRANSIENT_END) {
-        v1.ptr = &(object->transient_properties[fld - OBJ_F_TRANSIENT_BEGIN - 1]);
+        storage_idx = fld - OBJ_F_TRANSIENT_BEGIN - 1;
+        store_op.ptr = &(object->transient_properties[storage_idx]);
     } else {
         if (sub_40D320(object, fld)) {
-            v1.ptr = &(object->data[sub_40D230(object, fld)]);
+            storage_idx = sub_40D230(object, fld);
+            store_op.ptr = &(object->data[storage_idx]);
             sub_40D400(object, fld, true);
         } else {
             sub_40D450(object, fld);
             sub_40D370(object, fld, true);
-            v1.ptr = &(object->data[sub_40D230(object, fld)]);
+            storage_idx = sub_40D230(object, fld);
+            store_op.ptr = &(object->data[storage_idx]);
             sub_40D400(object, fld, true);
         }
         object->modified = true;
     }
 
-    v1.type = object_fields[fld].type;
-    switch (v1.type) {
+    store_op.type = object_fields[fld].type;
+
+    switch (store_op.type) {
     case OD_TYPE_INT32:
-        v1.storage.value = *(int*)value_ptr;
+        store_op.storage.value = *(int*)value_ptr;
         break;
     case OD_TYPE_INT64:
-        v1.storage.value64 = *(int64_t*)value_ptr;
+        store_op.storage.value64 = *(int64_t*)value_ptr;
         break;
     case OD_TYPE_STRING:
-        v1.storage.str = *(char**)value_ptr;
+        store_op.storage.str = *(char**)value_ptr;
         break;
     case OD_TYPE_HANDLE:
-        v1.storage.oid = *(ObjectID*)value_ptr;
+        store_op.storage.oid = *(ObjectID*)value_ptr;
         break;
     case OD_TYPE_PTR:
-        v1.storage.ptr = *(intptr_t*)value_ptr;
+        store_op.storage.ptr = *(intptr_t*)value_ptr;
         break;
     }
 
-    obj_data_store(&v1);
+    obj_data_store(&store_op);
 }
 
 // 0x4088B0
-void sub_4088B0(Object* object, int fld, int index, void* value_ptr)
+void obj_arrayfield_store(Object* object, int fld, int index, void* value_ptr)
 {
-    ObjDataDescriptor v1;
+    ObjDataDescriptor store_op;
+    int storage_idx;
 
     if (object->prototype_oid.type == OID_TYPE_BLOCKED) {
-        v1.ptr = &(object->data[sub_40CB40(object, fld)]);
+        storage_idx = sub_40CB40(object, fld);
+        store_op.ptr = &(object->data[storage_idx]);
         sub_40D400(object, fld, true);
     } else if (fld > OBJ_F_TRANSIENT_BEGIN && fld < OBJ_F_TRANSIENT_END) {
-        v1.ptr = &(object->transient_properties[fld - OBJ_F_TRANSIENT_BEGIN - 1]);
+        storage_idx = fld - OBJ_F_TRANSIENT_BEGIN - 1;
+        store_op.ptr = &(object->transient_properties[storage_idx]);
     } else {
         if (!sub_40D350(object, fld)) {
             if (!sub_40D320(object, fld)) {
                 sub_40D2A0(object, fld);
             }
         }
-        v1.ptr = &(object->data[sub_40D230(object, fld)]);
+        storage_idx = sub_40D230(object, fld);
+        store_op.ptr = &(object->data[storage_idx]);
         sub_40D400(object, fld, true);
         object->modified = true;
     }
 
-    v1.idx = index;
-    v1.type = object_fields[fld].type;
+    store_op.idx = index;
+    store_op.type = object_fields[fld].type;
 
-    switch (v1.type) {
+    switch (store_op.type) {
     case OD_TYPE_INT32_ARRAY:
     case OD_TYPE_UINT32_ARRAY:
-        v1.storage.value = *(int*)value_ptr;
+        store_op.storage.value = *(int*)value_ptr;
         break;
     case OD_TYPE_INT64_ARRAY:
     case OD_TYPE_UINT64_ARRAY:
-        v1.storage.value64 = *(uint64_t*)value_ptr;
+        store_op.storage.value64 = *(uint64_t*)value_ptr;
         break;
     case OD_TYPE_SCRIPT_ARRAY:
-        v1.storage.scr = *(Script*)value_ptr;
+        store_op.storage.scr = *(Script*)value_ptr;
         break;
     case OD_TYPE_QUEST_ARRAY:
-        v1.storage.quest = *(PcQuestState*)value_ptr;
+        store_op.storage.quest = *(PcQuestState*)value_ptr;
         break;
     case OD_TYPE_HANDLE_ARRAY:
-        v1.storage.oid = *(ObjectID*)value_ptr;
+        store_op.storage.oid = *(ObjectID*)value_ptr;
         break;
     case OD_TYPE_PTR_ARRAY:
-        v1.storage.ptr = *(intptr_t*)value_ptr;
+        store_op.storage.ptr = *(intptr_t*)value_ptr;
         break;
     }
 
-    obj_data_store(&v1);
+    obj_data_store(&store_op);
 }
 
 // 0x408A20
-void sub_408A20(Object* object, int fld, void* value_ptr)
+void obj_field_fetch(Object* object, int fld, void* value_ptr)
 {
-    ObjDataDescriptor v1;
-    int index;
+    ObjDataDescriptor fetch_op;
+    int storage_idx;
 
     if (fld == OBJ_F_TYPE) {
         *(int*)value_ptr = object->type;
         return;
     }
 
-    v1.type = object_fields[fld].type;
+    fetch_op.type = object_fields[fld].type;
     if (object->prototype_oid.type == OID_TYPE_BLOCKED) {
-        index = sub_40CB40(object, fld);
-        v1.ptr = &(object->data[index]);
-        obj_data_fetch(&v1);
+        storage_idx = sub_40CB40(object, fld);
+        fetch_op.ptr = &(object->data[storage_idx]);
+        obj_data_fetch(&fetch_op);
     } else if (fld > OBJ_F_TRANSIENT_BEGIN && fld < OBJ_F_TRANSIENT_END) {
-        v1.ptr = &(object->transient_properties[fld - OBJ_F_TRANSIENT_BEGIN - 1]);
-        obj_data_fetch(&v1);
+        fetch_op.ptr = &(object->transient_properties[fld - OBJ_F_TRANSIENT_BEGIN - 1]);
+        obj_data_fetch(&fetch_op);
     } else if (sub_40D320(object, fld)) {
-        index = sub_40D230(object, fld);
-        v1.ptr = &(object->data[index]);
-        obj_data_fetch(&v1);
+        storage_idx = sub_40D230(object, fld);
+        fetch_op.ptr = &(object->data[storage_idx]);
+        obj_data_fetch(&fetch_op);
     } else {
         int64_t proto_handle;
         Object* proto;
 
         proto_handle = obj_get_prototype_handle(object);
         proto = obj_lock(proto_handle);
-        index = sub_40CB40(proto, fld);
-        v1.ptr = &(proto->data[index]);
-        obj_data_fetch(&v1);
+        storage_idx = sub_40CB40(proto, fld);
+        fetch_op.ptr = &(proto->data[storage_idx]);
+        obj_data_fetch(&fetch_op);
         obj_unlock(proto_handle);
     }
 
-    switch (v1.type) {
+    switch (fetch_op.type) {
     case OD_TYPE_INT32:
-        *(int*)value_ptr = v1.storage.value;
+        *(int*)value_ptr = fetch_op.storage.value;
         break;
     case OD_TYPE_INT64:
-        *(int64_t*)value_ptr = v1.storage.value64;
+        *(int64_t*)value_ptr = fetch_op.storage.value64;
         break;
     case OD_TYPE_STRING:
-        *(char**)value_ptr = v1.storage.str;
+        *(char**)value_ptr = fetch_op.storage.str;
         break;
     case OD_TYPE_HANDLE:
-        *(ObjectID*)value_ptr = v1.storage.oid;
+        *(ObjectID*)value_ptr = fetch_op.storage.oid;
         break;
     case OD_TYPE_PTR:
-        *(intptr_t*)value_ptr = v1.storage.ptr;
+        *(intptr_t*)value_ptr = fetch_op.storage.ptr;
         break;
     }
 }
 
 // 0x408BB0
-void sub_408BB0(Object* object, int fld, int index, void* value)
+void obj_arrayfield_fetch(Object* object, int fld, int index, void* value)
 {
-    ObjDataDescriptor v1;
-    int64_t proto_handle;
-    Object* proto;
+    ObjDataDescriptor fetch_op;
+    int storage_idx;
 
-    v1.idx = index;
-    v1.type = object_fields[fld].type;
+    fetch_op.idx = index;
+    fetch_op.type = object_fields[fld].type;
 
     if (object->prototype_oid.type == OID_TYPE_BLOCKED) {
-        v1.ptr = &(object->data[sub_40CB40(object, fld)]);
-        obj_data_fetch(&v1);
+        storage_idx = sub_40CB40(object, fld);
+        fetch_op.ptr = &(object->data[storage_idx]);
+        obj_data_fetch(&fetch_op);
     } else if (fld > OBJ_F_TRANSIENT_BEGIN && fld < OBJ_F_TRANSIENT_END) {
-        v1.ptr = &(object->transient_properties[fld - OBJ_F_TRANSIENT_BEGIN - 1]);
-        obj_data_fetch(&v1);
+        storage_idx = fld - OBJ_F_TRANSIENT_BEGIN - 1;
+        fetch_op.ptr = &(object->transient_properties[storage_idx]);
+        obj_data_fetch(&fetch_op);
     } else if (sub_40D350(object, fld)) {
-        v1.ptr = &(object->data[sub_40D230(object, fld)]);
-        obj_data_fetch(&v1);
+        storage_idx = sub_40D230(object, fld);
+        fetch_op.ptr = &(object->data[storage_idx]);
+        obj_data_fetch(&fetch_op);
     } else {
+        int64_t proto_handle;
+        Object* proto;
+
         proto_handle = obj_get_prototype_handle(object);
         proto = obj_lock(proto_handle);
-        v1.ptr = &(proto->data[sub_40CB40(proto, fld)]);
-        obj_data_fetch(&v1);
+        storage_idx = sub_40CB40(proto, fld);
+        fetch_op.ptr = &(proto->data[storage_idx]);
+        obj_data_fetch(&fetch_op);
         obj_unlock(proto_handle);
     }
 
-    switch (v1.type) {
+    switch (fetch_op.type) {
     case OD_TYPE_INT32_ARRAY:
     case OD_TYPE_UINT32_ARRAY:
-        *(int*)value = v1.storage.value;
+        *(int*)value = fetch_op.storage.value;
         break;
     case OD_TYPE_INT64_ARRAY:
     case OD_TYPE_UINT64_ARRAY:
-        *(int64_t*)value = v1.storage.value64;
+        *(int64_t*)value = fetch_op.storage.value64;
         break;
     case OD_TYPE_SCRIPT_ARRAY:
-        *(Script*)value = v1.storage.scr;
+        *(Script*)value = fetch_op.storage.scr;
         break;
     case OD_TYPE_QUEST_ARRAY:
-        *(PcQuestState*)value = v1.storage.quest;
+        *(PcQuestState*)value = fetch_op.storage.quest;
         break;
     case OD_TYPE_HANDLE_ARRAY:
-        *(ObjectID*)value = v1.storage.oid;
+        *(ObjectID*)value = fetch_op.storage.oid;
         break;
     case OD_TYPE_PTR_ARRAY:
-        *(intptr_t*)value = v1.storage.ptr;
+        *(intptr_t*)value = fetch_op.storage.ptr;
         break;
     }
 }
@@ -3948,7 +3964,7 @@ void sub_40BBF0(Object* object)
         fld = dword_5D1128[idx];
         if (object_field_valid(object->type, fld)
             && sub_40D320(object, fld)) {
-            sub_408A20(object, fld, &oid);
+            obj_field_fetch(object, fld, &oid);
             if (oid.type != OID_TYPE_NULL) {
                 if (oid.type == OID_TYPE_HANDLE) {
                     if (obj_handle_is_valid(oid.d.h)) {
@@ -3956,19 +3972,19 @@ void sub_40BBF0(Object* object)
                         if ((flags & OF_DESTROYED) == 0
                             || (flags & OF_EXTINCT) != 0) {
                             oid = obj_get_id(oid.d.h);
-                            sub_408760(object, fld, &oid);
+                            obj_field_store(object, fld, &oid);
                         } else {
                             oid.type = OID_TYPE_NULL;
-                            sub_408760(object, fld, &oid);
+                            obj_field_store(object, fld, &oid);
                         }
                     } else {
                         oid = obj_pool_perm_reverse_lookup(oid.d.h);
-                        sub_408760(object, fld, &oid);
+                        obj_field_store(object, fld, &oid);
                     }
                 } else {
                     tig_debug_println("Found something other than a handle converting fields to ids.");
                     oid.type = OID_TYPE_NULL;
-                    sub_408760(object, fld, &oid);
+                    obj_field_store(object, fld, &oid);
                 }
             }
         }
@@ -4007,7 +4023,7 @@ void sub_40BDB0(Object* object)
         fld = dword_5D1128[idx];
         if (object_field_valid(object->type, fld)
             && sub_40D320(object, fld)) {
-            sub_408A20(object, fld, &oid);
+            obj_field_fetch(object, fld, &oid);
             if (oid.type != OID_TYPE_NULL) {
                 obj = obj_pool_perm_lookup(oid);
                 if (obj != OBJ_HANDLE_NULL) {
@@ -4016,7 +4032,7 @@ void sub_40BDB0(Object* object)
                 } else {
                     oid.type = OID_TYPE_NULL;
                 }
-                sub_408760(object, fld, &oid);
+                obj_field_store(object, fld, &oid);
             }
         }
     }
@@ -5107,7 +5123,7 @@ bool sub_40D670(Object* object, int a2, ObjectFieldInfo* field_info)
 void* obj_field_ptr_get(int64_t obj, int fld)
 {
     Object* object;
-    intptr_t value;
+    void* value;
 
     object = obj_lock(obj);
     if (!object_field_valid(object->type, fld)) {
@@ -5116,10 +5132,10 @@ void* obj_field_ptr_get(int64_t obj, int fld)
         return 0;
     }
 
-    sub_408A20(object, fld, &value);
+    obj_field_fetch(object, fld, &value);
     obj_unlock(obj);
 
-    return (void*)value;
+    return value;
 }
 
 void obj_field_ptr_set(int64_t obj, int fld, void* value)
@@ -5133,7 +5149,7 @@ void obj_field_ptr_set(int64_t obj, int fld, void* value)
         return;
     }
 
-    sub_408760(object, fld, &value);
+    obj_field_store(object, fld, &value);
     obj_unlock(obj);
 }
 
@@ -5149,7 +5165,7 @@ void* obj_arrayfield_ptr_get(int64_t obj, int fld, int index)
         return 0;
     }
 
-    sub_408BB0(object, fld, index, &value);
+    obj_arrayfield_fetch(object, fld, index, &value);
     obj_unlock(obj);
 
     return value;
@@ -5166,6 +5182,6 @@ void obj_arrayfield_ptr_set(int64_t obj, int fld, int index, void* value)
         return;
     }
 
-    sub_4088B0(object, fld, index, &value);
+    obj_arrayfield_store(object, fld, index, &value);
     obj_unlock(obj);
 }
