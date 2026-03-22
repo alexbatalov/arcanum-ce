@@ -3317,7 +3317,7 @@ int sub_4ADE00(int64_t source_obj, int64_t target_loc, int64_t* block_obj_ptr)
     int rot;
     int64_t block_obj;
     int block_obj_type;
-    int v1 = 0;
+    int cost = 0;
 
     if (block_obj_ptr != NULL) {
         *block_obj_ptr = OBJ_HANDLE_NULL;
@@ -3352,19 +3352,19 @@ int sub_4ADE00(int64_t source_obj, int64_t target_loc, int64_t* block_obj_ptr)
                 flags |= 0x10;
             }
 
-            v1 += sub_43FDC0(OBJ_HANDLE_NULL, source_loc, rot, flags, &block_obj, &block_obj_type, NULL);
+            cost += object_calc_traversal_cost(OBJ_HANDLE_NULL, source_loc, rot, flags, &block_obj, &block_obj_type, NULL);
 
             if (block_obj != OBJ_HANDLE_NULL
                 && block_obj_ptr != NULL) {
                 *block_obj_ptr = block_obj;
-                return v1;
+                return cost;
             }
 
             source_loc = new_loc;
         }
     }
 
-    return v1;
+    return cost;
 }
 
 // 0x4ADFF0
@@ -4134,7 +4134,7 @@ int ai_can_hear(int64_t source_obj, int64_t target_obj, int loudness)
 // 0x4AF640
 int sub_4AF640(int64_t source_obj, int64_t target_obj)
 {
-    int cnt = 0;
+    int cost = 0;
     int64_t source_loc;
     int64_t target_loc;
     int v1;
@@ -4181,7 +4181,7 @@ int sub_4AF640(int64_t source_obj, int64_t target_obj)
                 flags |= 0x10;
             }
 
-            cnt += sub_43FDC0(OBJ_HANDLE_NULL,
+            cost += object_calc_traversal_cost(OBJ_HANDLE_NULL,
                 source_loc,
                 rot,
                 flags,
@@ -4192,7 +4192,7 @@ int sub_4AF640(int64_t source_obj, int64_t target_obj)
         }
     }
 
-    return cnt;
+    return cost;
 }
 
 // 0x4AF800

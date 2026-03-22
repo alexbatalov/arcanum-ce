@@ -635,7 +635,7 @@ bool sub_4B2870(int64_t attacker_obj, int64_t target_obj, int64_t target_loc, in
         }
     } else {
         if ((proj_flags & 0x20) != 0) {
-            sub_43FDC0(proj_obj,
+            object_calc_traversal_cost(proj_obj,
                 proj_obj,
                 location_rot(proj_loc, cur_loc),
                 0x08 | 0x04 | 0x01,

@@ -71,7 +71,7 @@ static void sub_43C5C0(GameDrawInfo* draw_info);
 static void sub_43CEA0(int64_t obj, unsigned int flags, const char* path);
 static int sub_43D690(int64_t obj);
 static int sub_43D630(int64_t obj);
-static int sub_43FE00(int64_t a1, int64_t a2, int a3, int a4, unsigned int flags, int64_t* a6, int* a7, int* a8);
+static int object_calc_traversal_cost_func(int64_t obj, int64_t loc, int rot, int orig_rot, unsigned int flags, int64_t* block_obj_ptr, int* block_obj_type_ptr, bool* is_window_ptr);
 static void object_list_vicinity_loc(int64_t loc, unsigned int flags, ObjectList* objects);
 static bool object_create_func(int64_t proto_obj, int64_t loc, int64_t* obj_ptr, ObjectID oid);
 static bool object_duplicate_func(int64_t proto_obj, int64_t loc, ObjectID* oids, int64_t* obj_ptr);
@@ -2936,23 +2936,23 @@ void object_cycle_rotation(int64_t obj)
 }
 
 // 0x43FD70
-bool sub_43FD70(int64_t a1, int64_t a2, int rotation, unsigned int flags, int* a5)
+bool sub_43FD70(int64_t obj, int64_t loc, int rot, unsigned int flags, bool* is_window_ptr)
 {
     int64_t block_obj;
     int block_obj_type;
 
-    return sub_43FDC0(a1, a2, rotation, flags, &block_obj, &block_obj_type, a5) != 0
+    return object_calc_traversal_cost(obj, loc, rot, flags, &block_obj, &block_obj_type, is_window_ptr) != 0
         || block_obj != OBJ_HANDLE_NULL;
 }
 
 // 0x43FDC0
-int sub_43FDC0(int64_t a1, int64_t a2, int rotation, unsigned int flags, int64_t* block_obj_ptr, int* block_obj_type_ptr, int* a7)
+int object_calc_traversal_cost(int64_t obj, int64_t loc, int rot, unsigned int flags, int64_t* block_obj_ptr, int* block_obj_type_ptr, bool* is_window_ptr)
 {
-    return sub_43FE00(a1, a2, rotation, rotation, flags, block_obj_ptr, block_obj_type_ptr, a7);
+    return object_calc_traversal_cost_func(obj, loc, rot, rot, flags, block_obj_ptr, block_obj_type_ptr, is_window_ptr);
 }
 
 // 0x43FE00
-int sub_43FE00(int64_t a1, int64_t a2, int a3, int a4, unsigned int flags, int64_t* block_obj_ptr, int* block_obj_type_ptr, int* a8)
+int object_calc_traversal_cost_func(int64_t obj, int64_t loc, int rot, int orig_rot, unsigned int flags, int64_t* block_obj_ptr, int* block_obj_type_ptr, bool* is_window_ptr)
 {
     bool done = false;
     int cost = 0;
@@ -2967,43 +2967,43 @@ int sub_43FE00(int64_t a1, int64_t a2, int a3, int a4, unsigned int flags, int64
 
     *block_obj_ptr = OBJ_HANDLE_NULL;
 
-    if (a8 != NULL) {
-        *a8 = 0;
+    if (is_window_ptr != NULL) {
+        *is_window_ptr = false;
     }
 
-    if ((a3 & 1) == 0) {
-        int ccw_rot = (a3 + 7) % 8;
-        int cw_rot = a3 + 1;
+    if ((rot & 1) == 0) {
+        int ccw_rot = (rot + 7) % 8;
+        int cw_rot = rot + 1;
 
-        cost += sub_43FE00(a1, a2, ccw_rot, a4, flags, block_obj_ptr, block_obj_type_ptr, a8);
+        cost += object_calc_traversal_cost_func(obj, loc, ccw_rot, orig_rot, flags, block_obj_ptr, block_obj_type_ptr, is_window_ptr);
         if (*block_obj_ptr != OBJ_HANDLE_NULL) {
             return cost;
         }
 
-        if (!location_in_dir(a2, ccw_rot, &tmp_loc)) {
+        if (!location_in_dir(loc, ccw_rot, &tmp_loc)) {
             return 1;
         }
 
-        cost += sub_43FE00(a1, tmp_loc, cw_rot, a4, flags, block_obj_ptr, block_obj_type_ptr, a8);
+        cost += object_calc_traversal_cost_func(obj, tmp_loc, cw_rot, orig_rot, flags, block_obj_ptr, block_obj_type_ptr, is_window_ptr);
         if (*block_obj_ptr != OBJ_HANDLE_NULL) {
             return cost;
         }
 
-        cost += sub_43FE00(a1, a2, cw_rot, a4, flags, block_obj_ptr, block_obj_type_ptr, a8);
+        cost += object_calc_traversal_cost_func(obj, loc, cw_rot, orig_rot, flags, block_obj_ptr, block_obj_type_ptr, is_window_ptr);
         if (*block_obj_ptr != OBJ_HANDLE_NULL) {
             return cost;
         }
 
-        if (!location_in_dir(a2, cw_rot, &tmp_loc)) {
+        if (!location_in_dir(loc, cw_rot, &tmp_loc)) {
             return 1;
         }
 
-        cost += sub_43FE00(a1, tmp_loc, ccw_rot, a4, flags, block_obj_ptr, block_obj_type_ptr, a8);
+        cost += object_calc_traversal_cost_func(obj, tmp_loc, ccw_rot, orig_rot, flags, block_obj_ptr, block_obj_type_ptr, is_window_ptr);
 
         return cost;
     }
 
-    object_list_location(a2, OBJ_TM_WALL | OBJ_TM_PORTAL, &objects);
+    object_list_location(loc, OBJ_TM_WALL | OBJ_TM_PORTAL, &objects);
     node = objects.head;
     while (node != NULL) {
         bool v1 = false;
@@ -3015,7 +3015,7 @@ int sub_43FE00(int64_t a1, int64_t a2, int a3, int a4, unsigned int flags, int64
             art_rot++;
         }
 
-        if (art_rot == a3) {
+        if (art_rot == rot) {
             if (obj_type == OBJ_TYPE_WALL) {
                 if ((flags & 0x20) != 0) {
                     cost += 2;
@@ -3034,7 +3034,7 @@ int sub_43FE00(int64_t a1, int64_t a2, int a3, int a4, unsigned int flags, int64
                         || p_piece == 30
                         || p_piece == 31
                         || p_piece == 32) {
-                        if ((flags & 0x02) != 0 || (a4 & 1) == 0) {
+                        if ((flags & 0x02) != 0 || (orig_rot & 1) == 0) {
                             if (p_piece == 10
                                 || p_piece == 13
                                 || p_piece == 14
@@ -3047,14 +3047,14 @@ int sub_43FE00(int64_t a1, int64_t a2, int a3, int a4, unsigned int flags, int64
                                 break;
                             }
                         } else {
-                            if (a8 != NULL
+                            if (is_window_ptr != NULL
                                 && (p_piece == 10
                                     || p_piece == 13
                                     || p_piece == 14
                                     || p_piece == 17
                                     || p_piece == 18
                                     || p_piece == 19)) {
-                                *a8 = 1;
+                                *is_window_ptr = true;
                             }
                         }
                     } else {
@@ -3077,8 +3077,8 @@ int sub_43FE00(int64_t a1, int64_t a2, int a3, int a4, unsigned int flags, int64
                         v1 = true;
                         if ((flags & 0x01) != 0
                             || ((flags & 0x08) == 0
-                                && a1 != OBJ_HANDLE_NULL
-                                && ai_attempt_open_portal(a1, node->obj, a3) != AI_ATTEMPT_OPEN_PORTAL_OK)) {
+                                && obj != OBJ_HANDLE_NULL
+                                && ai_attempt_open_portal(obj, node->obj, rot) != AI_ATTEMPT_OPEN_PORTAL_OK)) {
                             done = true;
                             *block_obj_ptr = node->obj;
                             *block_obj_type_ptr = OBJ_TYPE_PORTAL;
@@ -3116,7 +3116,7 @@ int sub_43FE00(int64_t a1, int64_t a2, int a3, int a4, unsigned int flags, int64
         return cost;
     }
 
-    if (!location_in_dir(a2, a3, &tmp_loc)) {
+    if (!location_in_dir(loc, rot, &tmp_loc)) {
         return 1;
     }
 
@@ -3139,7 +3139,7 @@ int sub_43FE00(int64_t a1, int64_t a2, int a3, int a4, unsigned int flags, int64
                 art_rot++;
             }
 
-            if ((art_rot + 4) % 8 == a3) {
+            if ((art_rot + 4) % 8 == rot) {
                 if (obj_type == OBJ_TYPE_WALL) {
                     if ((flags & 0x20) != 0) {
                         cost += 2;
@@ -3159,7 +3159,7 @@ int sub_43FE00(int64_t a1, int64_t a2, int a3, int a4, unsigned int flags, int64
                             || p_piece == 31
                             || p_piece == 32) {
                             if ((flags & 0x02) != 0
-                                || (a4 & 1) == 0) {
+                                || (orig_rot & 1) == 0) {
                                 if (p_piece == 10
                                     || p_piece == 13
                                     || p_piece == 14
@@ -3171,14 +3171,14 @@ int sub_43FE00(int64_t a1, int64_t a2, int a3, int a4, unsigned int flags, int64
                                     break;
                                 }
                             } else {
-                                if (a8 != NULL
+                                if (is_window_ptr != NULL
                                     && (p_piece == 10
                                         || p_piece == 13
                                         || p_piece == 14
                                         || p_piece == 17
                                         || p_piece == 18
                                         || p_piece == 19)) {
-                                    *a8 = 1;
+                                    *is_window_ptr = true;
                                 }
                             }
                         } else {
@@ -3200,8 +3200,8 @@ int sub_43FE00(int64_t a1, int64_t a2, int a3, int a4, unsigned int flags, int64
                             v2 = 1;
                             if ((flags & 0x01) != 0
                                 || ((flags & 0x08) == 0
-                                    && a1 != OBJ_HANDLE_NULL
-                                    && ai_attempt_open_portal(a1, node->obj, a3) != AI_ATTEMPT_OPEN_PORTAL_OK)) {
+                                    && obj != OBJ_HANDLE_NULL
+                                    && ai_attempt_open_portal(obj, node->obj, rot) != AI_ATTEMPT_OPEN_PORTAL_OK)) {
                                 *block_obj_ptr = node->obj;
                                 *block_obj_type_ptr = obj_type;
                                 break;
@@ -3264,7 +3264,7 @@ bool sub_440700(int64_t obj, int64_t loc, int rot, unsigned int flags, int64_t* 
 {
     int block_obj_type;
 
-    sub_43FE00(obj, loc, rot, rot, flags | 0x4 | 0x1, block_obj_ptr, &block_obj_type, NULL);
+    object_calc_traversal_cost_func(obj, loc, rot, rot, flags | 0x4 | 0x1, block_obj_ptr, &block_obj_type, NULL);
 
     if (*block_obj_ptr == OBJ_HANDLE_NULL) {
         return false;

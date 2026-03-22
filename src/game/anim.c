@@ -4783,7 +4783,7 @@ bool sub_425840(int64_t a1, int64_t a2, int64_t a3, int a4, int64_t a5)
         v1 = false;
     }
 
-    if ((sub_43FDC0(a1, a2, a4, flags, &v3, &v4, 0) || v3) && !v4) {
+    if ((object_calc_traversal_cost(a1, a2, a4, flags, &v3, &v4, NULL) || v3) && !v4) {
         v2 = true;
     }
 

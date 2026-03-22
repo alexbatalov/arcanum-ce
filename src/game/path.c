@@ -226,7 +226,7 @@ int sub_41F840(PathCreateInfo* path_create_info)
     int64_t loc;
     int rot;
     int64_t adjacent_loc;
-    int v2;
+    bool is_window;
     int64_t trap_obj;
 
     if (location_dist(path_create_info->from, path_create_info->to) > 32) {
@@ -257,11 +257,11 @@ int sub_41F840(PathCreateInfo* path_create_info)
                     break;
                 }
 
-                if (sub_43FD70(path_create_info->obj, loc, rot, flags, &v2)) {
+                if (sub_43FD70(path_create_info->obj, loc, rot, flags, &is_window)) {
                     break;
                 }
 
-                if (v2) {
+                if (is_window) {
                     break;
                 }
 
@@ -435,7 +435,7 @@ int sub_41F9F0(PathCreateInfo* path_create_info)
                 continue;
             }
 
-            int v46 = 0;
+            bool is_window = false;
             if ((path_create_info->flags & PATH_FLAG_0x0040) == 0) {
                 if (adjacent_loc != path_create_info->to
                     || (path_create_info->flags & PATH_FLAG_0x0001) == 0) {
@@ -447,7 +447,7 @@ int sub_41F9F0(PathCreateInfo* path_create_info)
 
                     int64_t block_obj;
                     int block_obj_type;
-                    if (sub_43FDC0(path_create_info->obj, loc, rot, flags, &block_obj, &block_obj_type, &v46)
+                    if (object_calc_traversal_cost(path_create_info->obj, loc, rot, flags, &block_obj, &block_obj_type, &is_window)
                         || block_obj != OBJ_HANDLE_NULL) {
                         if ((rot & 1) != 0
                             && block_obj != OBJ_HANDLE_NULL
@@ -471,7 +471,7 @@ int sub_41F9F0(PathCreateInfo* path_create_info)
                 }
             }
 
-            if (v46) {
+            if (is_window) {
                 cost += 50;
             }
 
