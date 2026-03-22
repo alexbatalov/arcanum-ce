@@ -82,7 +82,7 @@ static bool sub_4269D0(AnimRunInfo* run_info);
 static bool sub_426A80(AnimRunInfo* run_info);
 static bool sub_426E80(AnimRunInfo* run_info);
 static bool sub_426F10(AnimRunInfo* run_info);
-static bool sub_426F60(AnimRunInfo* run_info);
+static bool AGendAnimStunAnim(AnimRunInfo* run_info);
 static bool sub_4270B0(AnimRunInfo* run_info);
 static bool sub_427110(AnimRunInfo* run_info, int64_t obj, int64_t loc);
 static bool sub_4272E0(AnimRunInfo* run_info);
@@ -1764,7 +1764,7 @@ static AnimGoalNode anim_goal_node_animate_stunned = {
         /*  4 */ { sub_426E80, { AGDATA_SELF_OBJ, -1 }, -1, 5, 0, 0x40000000 | AG_UNCONCEAL, 0 },
         /*  5 */ { AGbeginStunAnim, { AGDATA_SELF_OBJ, AGDATA_ANIM_ID }, -1, 6, 0, 0x10000000, 0 },
         /*  6 */ { sub_433270, { AGDATA_SELF_OBJ, -1 }, 1, 0x90000000, 0, 0x90000000, 0 },
-        /*  7 */ { sub_426F60, { AGDATA_SELF_OBJ, -1 }, -1, 5, 0, 0x90000000, 0 },
+        /*  7 */ { AGendAnimStunAnim, { AGDATA_SELF_OBJ, -1 }, -1, 5, 0, 0x90000000, 0 },
         /*  8 */ { 0 },
         /*  9 */ { 0 },
         /* 10 */ { 0 },
@@ -5539,7 +5539,7 @@ bool sub_426F10(AnimRunInfo* run_info)
 }
 
 // 0x426F60
-bool sub_426F60(AnimRunInfo* run_info)
+bool AGendAnimStunAnim(AnimRunInfo* run_info)
 {
     int64_t obj;
     unsigned int flags;
