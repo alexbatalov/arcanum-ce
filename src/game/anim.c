@@ -200,7 +200,7 @@ static bool AGbeginAnimJump(AnimRunInfo* run_info);
 static bool AGupdateAnimJump(AnimRunInfo* run_info);
 static bool AGbeginAnimLoopAnim(AnimRunInfo* run_info);
 static bool sub_42DCF0(AnimRunInfo* run_info);
-static bool sub_42DDE0(AnimRunInfo* run_info);
+static bool AGupdateAnimLoopAnim(AnimRunInfo* run_info);
 static bool sub_42DED0(AnimRunInfo* run_info);
 static bool AGbeginStunAnim(AnimRunInfo* run_info);
 static bool AGupdateStunAnim(AnimRunInfo* run_info);
@@ -302,7 +302,7 @@ static AnimGoalNode anim_goal_node_animate_loop = {
     {
         /*  1 */ { sub_42CA90, { AGDATA_SELF_OBJ, -1 }, -1, 2, 0, 4, 0 },
         /*  2 */ { sub_42DCF0, { AGDATA_SELF_OBJ, -1 }, -1, 0x10000000, 800, 3, 0 },
-        /*  3 */ { sub_42DDE0, { AGDATA_SELF_OBJ, -1 }, -1, 0x10000000, -2, 0x10000000, -2 },
+        /*  3 */ { AGupdateAnimLoopAnim, { AGDATA_SELF_OBJ, -1 }, -1, 0x10000000, -2, 0x10000000, -2 },
         /*  4 */ { AGbeginAnimLoopAnim, { AGDATA_SELF_OBJ, AGDATA_ANIM_ID }, -1, 0x90000000, 0, 0x10000000, -2 },
         /*  5 */ { 0 },
         /*  6 */ { 0 },
@@ -2300,7 +2300,7 @@ static AnimGoalNode anim_goal_node_animate_loop_fire_dmg = {
     {
         /*  1 */ { sub_42CA90, { AGDATA_SELF_OBJ, -1 }, -1, 2, 0, 4, 0 },
         /*  2 */ { sub_42DCF0, { AGDATA_SELF_OBJ, -1 }, -1, 0x10000000, 800, 3, 0 },
-        /*  3 */ { sub_42DDE0, { AGDATA_SELF_OBJ, -1 }, -1, 5, 0, 0x10000000, -2 },
+        /*  3 */ { AGupdateAnimLoopAnim, { AGDATA_SELF_OBJ, -1 }, -1, 5, 0, 0x10000000, -2 },
         /*  4 */ { AGbeginAnimLoopAnim, { AGDATA_SELF_OBJ, AGDATA_ANIM_ID }, -1, 0x90000000, 0, 5, 0 },
         /*  5 */ { AGapplyFireDmg, { AGDATA_SELF_OBJ, AGDATA_PARENT_OBJ }, -1, 0x90000000, 0, 0x10000000, -2 },
         /*  6 */ { 0 },
@@ -9902,7 +9902,7 @@ bool sub_42DCF0(AnimRunInfo* run_info)
 }
 
 // 0x42DDE0
-bool sub_42DDE0(AnimRunInfo* run_info)
+bool AGupdateAnimLoopAnim(AnimRunInfo* run_info)
 {
     int64_t obj;
     int obj_type;
