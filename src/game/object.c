@@ -4195,7 +4195,7 @@ bool sub_4420D0(uint8_t* data, int64_t* obj_ptr, int64_t loc)
 bool object_create_func(int64_t proto_obj, int64_t loc, int64_t* obj_ptr, ObjectID oid)
 {
     if (oid.type == OID_TYPE_BLOCKED) {
-        sub_4058E0(proto_obj, loc, obj_ptr);
+        obj_create_inst(proto_obj, loc, obj_ptr);
     } else {
         sub_405B30(proto_obj, loc, oid, obj_ptr);
     }

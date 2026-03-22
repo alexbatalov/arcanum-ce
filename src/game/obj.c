@@ -812,7 +812,7 @@ void obj_create_proto(int type, int64_t* obj_ptr)
 }
 
 // 0x4058E0
-void sub_4058E0(int64_t proto_obj, int64_t loc, int64_t* obj_ptr)
+void obj_create_inst(int64_t proto_obj, int64_t loc, int64_t* obj_ptr)
 {
     Object* object;
     int64_t obj;
@@ -870,7 +870,7 @@ void sub_405B30(int64_t proto_obj, int64_t loc, ObjectID oid, int64_t* obj_ptr)
 {
     Object* object;
 
-    sub_4058E0(proto_obj, loc, obj_ptr);
+    obj_create_inst(proto_obj, loc, obj_ptr);
 
     object = obj_lock(*obj_ptr);
     if (object->oid.type != OID_TYPE_NULL) {

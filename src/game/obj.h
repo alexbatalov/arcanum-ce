@@ -397,7 +397,7 @@ void obj_reset(void);
 bool obj_validate_system(unsigned int flags);
 void sub_405790(int64_t obj);
 void obj_create_proto(int type, int64_t* obj_ptr);
-void sub_4058E0(int64_t proto_obj, int64_t loc, int64_t* obj_ptr);
+void obj_create_inst(int64_t proto_obj, int64_t loc, int64_t* obj_ptr);
 void sub_405B30(int64_t proto_obj, int64_t loc, ObjectID oid, int64_t* obj_ptr);
 void sub_408D60(Object* object, int fld, int* value_ptr);
 void sub_408E70(Object* object, int fld, int value);
