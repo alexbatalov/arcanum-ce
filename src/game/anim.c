@@ -196,7 +196,7 @@ static bool sub_42D300(AnimRunInfo* run_info);
 static bool sub_42D440(AnimRunInfo* run_info);
 static bool sub_42D570(AnimRunInfo* run_info);
 static bool sub_42D6F0(AnimRunInfo* run_info);
-static bool sub_42D7D0(AnimRunInfo* run_info);
+static bool AGbeginAnimJump(AnimRunInfo* run_info);
 static bool sub_42D910(AnimRunInfo* run_info);
 static bool AGbeginAnimLoopAnim(AnimRunInfo* run_info);
 static bool sub_42DCF0(AnimRunInfo* run_info);
@@ -628,7 +628,7 @@ static AnimGoalNode anim_goal_node_jump_window = {
         /*  2 */ { sub_42D910, { AGDATA_SELF_OBJ, -1 }, -1, 6, -2, 7, 0 },
         /*  3 */ { sub_42BD40, { AGDATA_SELF_OBJ, -1 }, 0xD, 0x90000000, 0, 4, 0 },
         /*  4 */ { sub_42C780, { AGDATA_SELF_OBJ, -1 }, -1, 0x90000000, 0, 11, 0 },
-        /*  5 */ { sub_42D7D0, { AGDATA_SELF_OBJ, AGDATA_ANIM_ID }, -1, 10, 0, 0x10000000, 0 },
+        /*  5 */ { AGbeginAnimJump, { AGDATA_SELF_OBJ, AGDATA_ANIM_ID }, -1, 10, 0, 0x10000000, 0 },
         /*  6 */ { sub_42BD40, { AGDATA_SELF_OBJ, -1 }, 1, 0x90000000, 0, 9, 0 },
         /*  7 */ { sub_42CAA0, { AGDATA_SELF_OBJ, AGDATA_ANIM_ID }, -1, 0x10000000, -2, 8, 0 },
         /*  8 */ { sub_42F000, { AGDATA_SELF_OBJ, AGDATA_ANIM_ID }, -1, 0x10000000, -2, 0x10000000, -2 },
@@ -9667,7 +9667,7 @@ bool sub_42D6F0(AnimRunInfo* run_info)
 }
 
 // 0x42D7D0
-bool sub_42D7D0(AnimRunInfo* run_info)
+bool AGbeginAnimJump(AnimRunInfo* run_info)
 {
     int64_t obj;
     tig_art_id_t art_id;
