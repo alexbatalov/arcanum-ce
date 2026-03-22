@@ -194,7 +194,7 @@ static bool AGbeginAnimCloseDoor(AnimRunInfo* run_info);
 static bool AGupdateAnimCloseDoor(AnimRunInfo* run_info);
 static bool AGbeginAnimPickLock(AnimRunInfo* run_info);
 static bool AGupdateAnimPickLock(AnimRunInfo* run_info);
-static bool sub_42D570(AnimRunInfo* run_info);
+static bool AGbeginAnimDying(AnimRunInfo* run_info);
 static bool sub_42D6F0(AnimRunInfo* run_info);
 static bool AGbeginAnimJump(AnimRunInfo* run_info);
 static bool AGupdateAnimJump(AnimRunInfo* run_info);
@@ -1061,7 +1061,7 @@ static AnimGoalNode anim_goal_node_dying = {
         /*  3 */ { sub_426F10, { AGDATA_SELF_OBJ, -1 }, -1, 4, 0, 7, 0 },
         /*  4 */ { sub_426E80, { AGDATA_SELF_OBJ, -1 }, -1, 5, 0, 5, 0 },
         /*  5 */ { sub_42BC10, { AGDATA_SELF_OBJ, -1 }, -1, 7, 0, 6, 0 },
-        /*  6 */ { sub_42D570, { AGDATA_SELF_OBJ, AGDATA_ANIM_ID }, -1, 7, 0, 0x10000000, 0 },
+        /*  6 */ { AGbeginAnimDying, { AGDATA_SELF_OBJ, AGDATA_ANIM_ID }, -1, 7, 0, 0x10000000, 0 },
         /*  7 */ { sub_42FED0, { AGDATA_SELF_OBJ, -1 }, -1, 8, 0, 9, 0 },
         /*  8 */ { sub_433270, { AGDATA_SELF_OBJ, -1 }, 1, 0x90000000, 0, 0x90000000, 0 },
         /*  9 */ { sub_42FF40, { AGDATA_SELF_OBJ, -1 }, -1, 0x90000000, 0, 0x90000000, 0 },
@@ -9565,7 +9565,7 @@ bool AGupdateAnimPickLock(AnimRunInfo* run_info)
 }
 
 // 0x42D570
-bool sub_42D570(AnimRunInfo* run_info)
+bool AGbeginAnimDying(AnimRunInfo* run_info)
 {
     int64_t obj;
     int obj_type;
