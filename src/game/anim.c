@@ -205,7 +205,7 @@ static bool sub_42DED0(AnimRunInfo* run_info);
 static bool AGbeginStunAnim(AnimRunInfo* run_info);
 static bool AGupdateStunAnim(AnimRunInfo* run_info);
 static bool AGbeginKneelMagicHandsAnim(AnimRunInfo* run_info);
-static bool sub_42E2D0(AnimRunInfo* run_info);
+static bool AGupdateKneelMagicHandsAnim(AnimRunInfo* run_info);
 static bool sub_42E460(AnimRunInfo* run_info);
 static bool AGbeginKnockDownAnim(AnimRunInfo* run_info);
 static bool AGbeginGetUpAnim(AnimRunInfo* run_info);
@@ -1840,7 +1840,7 @@ static AnimGoalNode anim_goal_node_animate_kneel_magic_hands = {
     { -1, -1, -1 },
     {
         /*  1 */ { sub_42CA90, { AGDATA_SELF_OBJ, -1 }, -1, 2, 0, 3, 0 },
-        /*  2 */ { sub_42E2D0, { AGDATA_SELF_OBJ, -1 }, -1, 0x70000000 | AG_ANIMATE_REVERSE, 0, 0x10000000, -2 },
+        /*  2 */ { AGupdateKneelMagicHandsAnim, { AGDATA_SELF_OBJ, -1 }, -1, 0x70000000 | AG_ANIMATE_REVERSE, 0, 0x10000000, -2 },
         /*  3 */ { sub_426F10, { AGDATA_SELF_OBJ, -1 }, -1, 4, 0, 0x40000000 | AG_ANIM_GET_UP, 0 },
         /*  4 */ { sub_426E80, { AGDATA_SELF_OBJ, -1 }, -1, 5, 0, 0x40000000 | AG_UNCONCEAL, 0 },
         /*  5 */ { AGbeginKneelMagicHandsAnim, { AGDATA_SELF_OBJ, -1 }, -1, 6, 0, 0x10000000, 0 },
@@ -10099,7 +10099,7 @@ bool AGbeginKneelMagicHandsAnim(AnimRunInfo* run_info)
 }
 
 // 0x42E2D0
-bool sub_42E2D0(AnimRunInfo* run_info)
+bool AGupdateKneelMagicHandsAnim(AnimRunInfo* run_info)
 {
     int64_t obj;
     tig_art_id_t art_id;
