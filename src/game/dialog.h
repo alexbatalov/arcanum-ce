@@ -27,32 +27,6 @@ typedef struct DialogState {
     /* 1844 */ int seed;
 } DialogState;
 
-typedef struct DialogSerializedData {
-    /* 0000 */ int field_0;
-    /* 0004 */ int field_4;
-    /* 0008 */ ObjectID field_8;
-    /* 0020 */ ObjectID field_20;
-    /* 0038 */ int field_38;
-    /* 003C */ int field_3C;
-    /* 0040 */ int field_40;
-    /* 0044 */ int field_44;
-    /* 0048 */ int field_48;
-    /* 004C */ int field_4C;
-    /* 0050 */ int field_50[5];
-    /* 0064 */ int field_64[5];
-    /* 0078 */ int field_78;
-    /* 007C */ int field_7C;
-    /* 0080 */ int field_80[5];
-    /* 0094 */ int field_94[5];
-    /* 00A8 */ int field_A8[5];
-    /* 00BC */ int field_BC;
-    /* 00C0 */ int field_C0;
-    /* 00C4 */ int padding_C4;
-} DialogSerializedData;
-
-// Serializeable.
-static_assert(sizeof(DialogSerializedData) == 0xC8, "wrong size");
-
 bool dialog_init(GameInitInfo* init_info);
 void dialog_exit(void);
 bool dialog_load(const char* path, int* dlg_ptr);
