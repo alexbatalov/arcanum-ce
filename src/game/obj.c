@@ -590,7 +590,7 @@ void obj_exit(void)
 }
 
 // 0x405250
-void sub_405250(void)
+void obj_reset(void)
 {
     obj_pool_exit();
     obj_data_exit();
