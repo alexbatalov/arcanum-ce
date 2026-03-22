@@ -5682,7 +5682,7 @@ bool sub_4272E0(AnimRunInfo* run_info)
     tig_art_id_t art_id;
     int64_t loc;
     int rotation;
-    int64_t v1;
+    int64_t door_obj;
 
     obj = run_info->params[0].obj;
 
@@ -5701,11 +5701,11 @@ bool sub_4272E0(AnimRunInfo* run_info)
         rotation = run_info->path.rotations[run_info->path.curr];
     }
 
-    if (!sub_440700(obj, loc, rotation, 0, &v1)) {
+    if (!object_traversal_check_blocking_door(obj, loc, rotation, 0, &door_obj)) {
         return false;
     }
 
-    run_info->cur_stack_data->params[AGDATA_SCRATCH_OBJ].obj = v1;
+    run_info->cur_stack_data->params[AGDATA_SCRATCH_OBJ].obj = door_obj;
 
     return true;
 }

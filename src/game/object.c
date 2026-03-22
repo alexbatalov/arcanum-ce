@@ -3260,7 +3260,7 @@ int object_calc_traversal_cost_func(int64_t obj, int64_t loc, int rot, int orig_
 }
 
 // 0x440700
-bool sub_440700(int64_t obj, int64_t loc, int rot, unsigned int flags, int64_t* block_obj_ptr)
+bool object_traversal_check_blocking_door(int64_t obj, int64_t loc, int rot, unsigned int flags, int64_t* block_obj_ptr)
 {
     int block_obj_type;
 
