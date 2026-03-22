@@ -27,7 +27,7 @@ typedef struct ObjectFieldInfo {
 typedef bool(ObjEnumerateCallbackEx)(Object* object, int fld, ObjectFieldInfo* field_info);
 
 static void object_field_not_exists(Object* object, int fld);
-static void sub_408430(tig_art_id_t aid);
+static void obj_debug_aid(tig_art_id_t aid);
 static Object* obj_allocate(int64_t* obj_ptr);
 static void obj_field_store(Object* object, int fld, void* value_ptr);
 static void obj_arrayfield_store(Object* object, int fld, int index, void* value_ptr);
@@ -766,7 +766,7 @@ void sub_405790(int64_t obj)
 
     object = obj_lock(obj);
     tig_debug_printf("{{ Difs on object w/ aid:");
-    sub_408430(obj_field_int32_get(obj, OBJ_F_AID));
+    obj_debug_aid(obj_field_int32_get(obj, OBJ_F_AID));
     if (object->modified) {
         sub_40CBA0(object, sub_40D670);
         obj_unlock(obj);
@@ -2093,7 +2093,7 @@ ObjectID obj_get_id(int64_t obj)
         if (!objid_is_valid(oid)) {
             tig_debug_println("! obj_get_id found invalid id");
             tig_debug_printf("! -- object with bad id has base aid of: ");
-            sub_408430(obj_field_int32_get(obj, OBJ_F_AID));
+            obj_debug_aid(obj_field_int32_get(obj, OBJ_F_AID));
             oid.type = OID_TYPE_NULL;
         }
     } else {
@@ -2104,7 +2104,7 @@ ObjectID obj_get_id(int64_t obj)
 }
 
 // 0x408430
-void sub_408430(tig_art_id_t aid)
+void obj_debug_aid(tig_art_id_t aid)
 {
     int type;
     int palette;
