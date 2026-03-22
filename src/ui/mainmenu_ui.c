@@ -3572,6 +3572,7 @@ void mainmenu_ui_pick_new_or_pregen_create(void)
 void mainmenu_ui_new_char_create(void)
 {
     PlayerCreateInfo player_create_info;
+    MesFileEntry mes_file_entry;
 
     mainmenu_ui_new_char_hover_mode = MMUI_NEW_CHAR_HOVER_MODE_BACKGROUND;
     mainmenu_ui_window_type = MM_WINDOW_NEW_CHAR;
@@ -3583,6 +3584,13 @@ void mainmenu_ui_new_char_create(void)
         tig_debug_printf("MainMenu-UI: mainmenu_ui_create_pick_new_or_pregen: ERROR: Player Creation Failed!\n");
         exit(EXIT_FAILURE);
     }
+
+    // CE: There's a bug in the original game — the name persists when
+    // navigating back and forth to the "New Char" screen. Everything else
+    // (gender/race/background, just a moment above) resets, but not the name.
+    mes_file_entry.num = 500; // "Choose Name"
+    mes_get_msg(mainmenu_ui_mainmenu_mes_file, &mes_file_entry);
+    strncpy(mainmenu_ui_textedit_buffer, mes_file_entry.str, 23);
 
     mainmenu_ui_create_window();
     if (!main_menu_button_create(&mainmenu_ui_new_char_name_button, mainmenu_ui_new_char_name_rect.width + 2, mainmenu_ui_new_char_name_rect.height + 2)) {
