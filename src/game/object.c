@@ -3006,7 +3006,7 @@ int object_calc_traversal_cost_func(int64_t obj, int64_t loc, int rot, int orig_
     object_list_location(loc, OBJ_TM_WALL | OBJ_TM_PORTAL, &objects);
     node = objects.head;
     while (node != NULL) {
-        bool v1 = false;
+        bool found_obstacle = false;
 
         obj_type = obj_field_int32_get(node->obj, OBJ_F_TYPE);
         art_id = obj_field_int32_get(node->obj, OBJ_F_CURRENT_AID);
@@ -3017,7 +3017,7 @@ int object_calc_traversal_cost_func(int64_t obj, int64_t loc, int rot, int orig_
 
         if (art_rot == rot) {
             if (obj_type == OBJ_TYPE_WALL) {
-                if ((flags & 0x20) != 0) {
+                if ((flags & OBJ_TRAVERSAL_SOUND) != 0) {
                     cost += 2;
                 } else {
                     p_piece = tig_art_wall_id_p_piece_get(art_id);
@@ -3034,7 +3034,7 @@ int object_calc_traversal_cost_func(int64_t obj, int64_t loc, int rot, int orig_
                         || p_piece == 30
                         || p_piece == 31
                         || p_piece == 32) {
-                        if ((flags & 0x02) != 0 || (orig_rot & 1) == 0) {
+                        if ((flags & OBJ_TRAVERSAL_WINDOW_BLOCKS) != 0 || (orig_rot & 1) == 0) {
                             if (p_piece == 10
                                 || p_piece == 13
                                 || p_piece == 14
@@ -3065,18 +3065,18 @@ int object_calc_traversal_cost_func(int64_t obj, int64_t loc, int rot, int orig_
                             break;
                         }
 
-                        v1 = true;
+                        found_obstacle = true;
                     }
                 }
             } else {
                 if (tig_art_id_damaged_get(art_id) != 512
                     && !portal_is_open(node->obj)) {
-                    if ((flags & 0x20) != 0) {
+                    if ((flags & OBJ_TRAVERSAL_SOUND) != 0) {
                         cost += 1;
                     } else {
-                        v1 = true;
-                        if ((flags & 0x01) != 0
-                            || ((flags & 0x08) == 0
+                        found_obstacle = true;
+                        if ((flags & OBJ_TRAVERSAL_PORTAL_BLOCKS) != 0
+                            || ((flags & OBJ_TRAVERSAL_PROJECTILE) == 0
                                 && obj != OBJ_HANDLE_NULL
                                 && ai_attempt_open_portal(obj, node->obj, rot) != AI_ATTEMPT_OPEN_PORTAL_OK)) {
                             done = true;
@@ -3089,7 +3089,7 @@ int object_calc_traversal_cost_func(int64_t obj, int64_t loc, int rot, int orig_
             }
         }
 
-        if ((flags & 0x08) != 0 && v1) {
+        if ((flags & OBJ_TRAVERSAL_PROJECTILE) != 0 && found_obstacle) {
             obj_flags = obj_field_int32_get(node->obj, OBJ_F_FLAGS);
 
             if ((obj_flags & OF_SHOOT_THROUGH) != 0) {
@@ -3120,7 +3120,7 @@ int object_calc_traversal_cost_func(int64_t obj, int64_t loc, int rot, int orig_
         return 1;
     }
 
-    if ((flags & 0x20) != 0) {
+    if ((flags & OBJ_TRAVERSAL_SOUND) != 0) {
         if (tile_is_soundproof(tmp_loc)) {
             cost += 8;
         }
@@ -3129,7 +3129,7 @@ int object_calc_traversal_cost_func(int64_t obj, int64_t loc, int rot, int orig_
     object_list_location(tmp_loc, 0x3801F, &objects);
     node = objects.head;
     while (node != NULL) {
-        bool v2 = false;
+        bool found_obstacle = false;
 
         obj_type = obj_field_int32_get(node->obj, OBJ_F_TYPE);
         if (obj_type == OBJ_TYPE_WALL || obj_type == OBJ_TYPE_PORTAL) {
@@ -3141,7 +3141,7 @@ int object_calc_traversal_cost_func(int64_t obj, int64_t loc, int rot, int orig_
 
             if ((art_rot + 4) % 8 == rot) {
                 if (obj_type == OBJ_TYPE_WALL) {
-                    if ((flags & 0x20) != 0) {
+                    if ((flags & OBJ_TRAVERSAL_SOUND) != 0) {
                         cost += 2;
                     } else {
                         p_piece = tig_art_wall_id_p_piece_get(art_id);
@@ -3158,7 +3158,7 @@ int object_calc_traversal_cost_func(int64_t obj, int64_t loc, int rot, int orig_
                             || p_piece == 30
                             || p_piece == 31
                             || p_piece == 32) {
-                            if ((flags & 0x02) != 0
+                            if ((flags & OBJ_TRAVERSAL_WINDOW_BLOCKS) != 0
                                 || (orig_rot & 1) == 0) {
                                 if (p_piece == 10
                                     || p_piece == 13
@@ -3188,18 +3188,18 @@ int object_calc_traversal_cost_func(int64_t obj, int64_t loc, int rot, int orig_
                                 break;
                             }
 
-                            v2 = true;
+                            found_obstacle = true;
                         }
                     }
                 } else {
                     if (tig_art_id_damaged_get(art_id) != 512
                         && !portal_is_open(node->obj)) {
-                        if ((flags & 0x20) != 0) {
+                        if ((flags & OBJ_TRAVERSAL_SOUND) != 0) {
                             cost += 1;
                         } else {
-                            v2 = 1;
-                            if ((flags & 0x01) != 0
-                                || ((flags & 0x08) == 0
+                            found_obstacle = true;
+                            if ((flags & OBJ_TRAVERSAL_PORTAL_BLOCKS) != 0
+                                || ((flags & OBJ_TRAVERSAL_PROJECTILE) == 0
                                     && obj != OBJ_HANDLE_NULL
                                     && ai_attempt_open_portal(obj, node->obj, rot) != AI_ATTEMPT_OPEN_PORTAL_OK)) {
                                 *block_obj_ptr = node->obj;
@@ -3210,20 +3210,20 @@ int object_calc_traversal_cost_func(int64_t obj, int64_t loc, int rot, int orig_
                     }
                 }
             }
-        } else if ((flags & 0x30) == 0) {
+        } else if ((flags & (OBJ_TRAVERSAL_SKIP_OBJECTS | OBJ_TRAVERSAL_SOUND)) == 0) {
             if (obj_type_is_critter(obj_type)) {
-                v2 = true;
-                if ((flags & 0x04) == 0
+                found_obstacle = true;
+                if ((flags & OBJ_TRAVERSAL_IGNORE_CRITTERS) == 0
                     && !critter_is_dead(node->obj)) {
                     *block_obj_ptr = node->obj;
                     *block_obj_type_ptr = obj_type;
                     break;
                 }
             } else {
-                v2 = true;
+                found_obstacle = true;
                 obj_flags = obj_field_int32_get(node->obj, OBJ_F_FLAGS);
                 if ((obj_flags & OF_NO_BLOCK) == 0
-                    && ((flags & 0x08) == 0
+                    && ((flags & OBJ_TRAVERSAL_PROJECTILE) == 0
                         || (obj_flags & OF_SHOOT_THROUGH) == 0)) {
                     *block_obj_ptr = node->obj;
                     *block_obj_type_ptr = obj_type;
@@ -3233,8 +3233,8 @@ int object_calc_traversal_cost_func(int64_t obj, int64_t loc, int rot, int orig_
         }
 
         // 0x44063F
-        if ((flags & 0x08) != 0
-            && v2
+        if ((flags & OBJ_TRAVERSAL_PROJECTILE) != 0
+            && found_obstacle
             && (!obj_type_is_critter(obj_type) || !critter_is_dead(node->obj))) {
             obj_flags = obj_field_int32_get(node->obj, OBJ_F_FLAGS);
             if ((obj_flags & OF_SHOOT_THROUGH) == 0) {
@@ -3264,7 +3264,7 @@ bool object_traversal_check_blocking_door(int64_t obj, int64_t loc, int rot, uns
 {
     int block_obj_type;
 
-    object_calc_traversal_cost_func(obj, loc, rot, rot, flags | 0x4 | 0x1, block_obj_ptr, &block_obj_type, NULL);
+    object_calc_traversal_cost_func(obj, loc, rot, rot, flags | OBJ_TRAVERSAL_PORTAL_BLOCKS | OBJ_TRAVERSAL_IGNORE_CRITTERS, block_obj_ptr, &block_obj_type, NULL);
 
     if (*block_obj_ptr == OBJ_HANDLE_NULL) {
         return false;

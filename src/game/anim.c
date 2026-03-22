@@ -4751,15 +4751,15 @@ bool sub_425760(int64_t obj, int64_t loc, int64_t adjacent_loc, int rot)
 void sub_4257E0(int64_t obj, unsigned int* flags_ptr)
 {
     if ((obj_field_int32_get(obj, OBJ_F_SPELL_FLAGS) & OSF_POLYMORPHED) != 0) {
-        *flags_ptr |= 0x3;
+        *flags_ptr |= OBJ_TRAVERSAL_PORTAL_BLOCKS | OBJ_TRAVERSAL_WINDOW_BLOCKS;
     }
 
     if (!critter_can_open_portals(obj)) {
-        *flags_ptr |= 0x1;
+        *flags_ptr |= OBJ_TRAVERSAL_PORTAL_BLOCKS;
     }
 
     if (!critter_can_jump_window(obj)) {
-        *flags_ptr |= 0x2;
+        *flags_ptr |= OBJ_TRAVERSAL_WINDOW_BLOCKS;
     }
 }
 

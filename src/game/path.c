@@ -144,15 +144,15 @@ unsigned int path_translate_flags(PathFlags flags)
     unsigned int new_flags = 0;
 
     if ((flags & PATH_FLAG_0x0002) != 0) {
-        new_flags |= 0x01;
+        new_flags |= OBJ_TRAVERSAL_PORTAL_BLOCKS;
     }
 
     if ((flags & PATH_FLAG_0x0004) != 0) {
-        new_flags |= 0x02;
+        new_flags |= OBJ_TRAVERSAL_WINDOW_BLOCKS;
     }
 
     if ((flags & PATH_FLAG_0x0010) != 0) {
-        new_flags |= 0x04;
+        new_flags |= OBJ_TRAVERSAL_IGNORE_CRITTERS;
     }
 
     return new_flags;

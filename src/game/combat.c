@@ -638,7 +638,7 @@ bool sub_4B2870(int64_t attacker_obj, int64_t target_obj, int64_t target_loc, in
             object_calc_traversal_cost(proj_obj,
                 proj_obj,
                 location_rot(proj_loc, cur_loc),
-                0x08 | 0x04 | 0x01,
+                OBJ_TRAVERSAL_PORTAL_BLOCKS | OBJ_TRAVERSAL_IGNORE_CRITTERS | OBJ_TRAVERSAL_PROJECTILE,
                 &block_obj,
                 &block_obj_type,
                 NULL);

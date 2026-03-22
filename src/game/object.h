@@ -50,6 +50,13 @@
     | OBJ_TM_NPC                \
     | OBJ_TM_TRAP)
 
+#define OBJ_TRAVERSAL_PORTAL_BLOCKS 0x01u
+#define OBJ_TRAVERSAL_WINDOW_BLOCKS 0x02u
+#define OBJ_TRAVERSAL_IGNORE_CRITTERS 0x04u
+#define OBJ_TRAVERSAL_PROJECTILE 0x08u
+#define OBJ_TRAVERSAL_SKIP_OBJECTS 0x10u
+#define OBJ_TRAVERSAL_SOUND 0x20u
+
 // TODO: Better name.
 typedef struct Ryan {
     /* 0000 */ ObjectID objid;

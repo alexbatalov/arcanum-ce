@@ -3333,7 +3333,7 @@ int sub_4ADE00(int64_t source_obj, int64_t target_loc, int64_t* block_obj_ptr)
         return 100;
     }
 
-    flags = 0x08 | 0x04;
+    flags = OBJ_TRAVERSAL_IGNORE_CRITTERS | OBJ_TRAVERSAL_PROJECTILE;
     offset_x = obj_field_int32_get(source_obj, OBJ_F_OFFSET_X);
     offset_y = obj_field_int32_get(source_obj, OBJ_F_OFFSET_Y);
     location_xy(source_loc, &source_loc_x, &source_loc_y);
@@ -3349,7 +3349,7 @@ int sub_4ADE00(int64_t source_obj, int64_t target_loc, int64_t* block_obj_ptr)
         if (new_loc != source_loc) {
             rot = location_rot(source_loc, new_loc);
             if (new_loc == target_loc) {
-                flags |= 0x10;
+                flags |= OBJ_TRAVERSAL_SKIP_OBJECTS;
             }
 
             cost += object_calc_traversal_cost(OBJ_HANDLE_NULL, source_loc, rot, flags, &block_obj, &block_obj_type, NULL);
@@ -4161,7 +4161,7 @@ int sub_4AF640(int64_t source_obj, int64_t target_obj)
         return 100;
     }
 
-    flags = 0x20;
+    flags = OBJ_TRAVERSAL_SOUND;
 
     offset_x = obj_field_int32_get(source_obj, OBJ_F_OFFSET_X);
     offset_y = obj_field_int32_get(source_obj, OBJ_F_OFFSET_Y);
@@ -4178,7 +4178,7 @@ int sub_4AF640(int64_t source_obj, int64_t target_obj)
         if (new_loc != source_loc) {
             rot = location_rot(source_loc, new_loc);
             if (new_loc == target_loc) {
-                flags |= 0x10;
+                flags |= OBJ_TRAVERSAL_SKIP_OBJECTS;
             }
 
             cost += object_calc_traversal_cost(OBJ_HANDLE_NULL,
