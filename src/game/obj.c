@@ -3946,11 +3946,11 @@ void obj_handle_field_lists_init(void)
     }
 
     if (obj_scalar_handle_field_cnt != 0) {
-        obj_scalar_handle_fields = (int*)MALLOC(sizeof(int) * obj_scalar_handle_field_cnt);
+        obj_scalar_handle_fields = (ObjectField*)MALLOC(sizeof(*obj_scalar_handle_fields) * obj_scalar_handle_field_cnt);
     }
 
     if (obj_array_handle_field_cnt != 0) {
-        obj_array_handle_fields = (int*)MALLOC(sizeof(int) * obj_array_handle_field_cnt);
+        obj_array_handle_fields = (ObjectField*)MALLOC(sizeof(*obj_array_handle_fields) * obj_array_handle_field_cnt);
     }
 
     obj_scalar_handle_field_cnt = 0;
