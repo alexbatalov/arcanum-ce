@@ -34,8 +34,8 @@ static void obj_arrayfield_store(Object* object, int fld, int index, void* value
 static void obj_field_fetch(Object* object, int fld, void* value_ptr);
 static void obj_arrayfield_fetch(Object* object, int fld, int index, void* value);
 static bool sub_408F40(Object* object, int fld, SizeableArray*** ptr, int64_t* proto_handle_ptr);
-static void sub_409000(int64_t obj);
-static void sub_409640(int64_t obj, int subtype);
+static void obj_set_defaults(int64_t obj);
+static void set_item_defaults(int64_t obj, int subtype);
 static bool obj_proto_write_file(TigFile* stream, int64_t obj);
 static bool obj_proto_read_file(TigFile* stream, int64_t* obj_ptr, ObjectID oid);
 static bool obj_inst_write_file(TigFile* stream, int64_t obj);
@@ -805,7 +805,7 @@ void obj_create_proto(int type, int64_t* obj_ptr)
 
     obj_unlock(handle);
 
-    sub_409000(handle);
+    obj_set_defaults(handle);
     sub_40C690(object);
 
     *obj_ptr = handle;
@@ -2652,7 +2652,7 @@ bool sub_408F40(Object* object, int fld, SizeableArray*** ptr, int64_t* proto_ha
 }
 
 // 0x409000
-void sub_409000(int64_t obj)
+void obj_set_defaults(int64_t obj)
 {
     int index;
     int type;
@@ -2710,7 +2710,7 @@ void sub_409000(int64_t obj)
         obj_field_int32_set(obj, OBJ_F_ITEM_SPELL_5, 10000);
 
         flags = obj_field_int32_get(obj, OBJ_F_FLAGS);
-        flags |= 0x434;
+        flags |= OF_NO_BLOCK | OF_SHOOT_THROUGH | OF_SEE_THROUGH | OF_FLAT;
         obj_field_int32_set(obj, OBJ_F_FLAGS, flags);
         break;
     case OBJ_TYPE_PC:
@@ -2721,7 +2721,7 @@ void sub_409000(int64_t obj)
         tech_set_defaults(obj);
 
         flags = obj_field_int32_get(obj, OBJ_F_FLAGS);
-        flags |= 0x4030;
+        flags |= OF_PROVIDES_COVER | OF_SHOOT_THROUGH | OF_SEE_THROUGH;
         obj_field_int32_set(obj, OBJ_F_FLAGS, flags);
         break;
     }
@@ -2731,7 +2731,7 @@ void sub_409000(int64_t obj)
         obj_field_int32_set(obj, OBJ_F_HP_PTS, 500);
 
         flags = obj_field_int32_get(obj, OBJ_F_FLAGS);
-        flags |= 0x4000;
+        flags |= OF_PROVIDES_COVER;
         obj_field_int32_set(obj, OBJ_F_FLAGS, flags);
 
         tig_art_wall_id_create(0, 0, 0, 6, 0, 0, &art_id);
@@ -2740,7 +2740,7 @@ void sub_409000(int64_t obj)
         obj_field_int32_set(obj, OBJ_F_HP_PTS, 100);
 
         flags = obj_field_int32_get(obj, OBJ_F_FLAGS);
-        flags |= 0x4000;
+        flags |= OF_PROVIDES_COVER;
         obj_field_int32_set(obj, OBJ_F_FLAGS, flags);
 
         tig_art_portal_id_create(0, 1, 0, 0, 6, 0, &art_id);
@@ -2749,7 +2749,7 @@ void sub_409000(int64_t obj)
         obj_field_int32_set(obj, OBJ_F_HP_PTS, 100);
 
         flags = obj_field_int32_get(obj, OBJ_F_FLAGS);
-        flags |= 0x4030;
+        flags |= OF_PROVIDES_COVER | OF_SHOOT_THROUGH | OF_SEE_THROUGH;
         obj_field_int32_set(obj, OBJ_F_FLAGS, flags);
 
         tig_art_container_id_create(0, 1, 0, 0, 0, &art_id);
@@ -2758,20 +2758,20 @@ void sub_409000(int64_t obj)
         obj_field_int32_set(obj, OBJ_F_HP_PTS, 100);
 
         flags = obj_field_int32_get(obj, OBJ_F_FLAGS);
-        flags |= 0x4830;
+        flags |= OF_PROVIDES_COVER | OF_CLICK_THROUGH | OF_SHOOT_THROUGH | OF_SEE_THROUGH;
         obj_field_int32_set(obj, OBJ_F_FLAGS, flags);
 
         tig_art_scenery_id_create(0, 0, 0, 0, 0, &art_id);
         break;
     case OBJ_TYPE_PROJECTILE:
         flags = obj_field_int32_get(obj, OBJ_F_FLAGS);
-        flags |= 0x430;
+        flags |= OF_NO_BLOCK | OF_SHOOT_THROUGH | OF_SEE_THROUGH;
         obj_field_int32_set(obj, OBJ_F_FLAGS, flags);
 
         tig_art_scenery_id_create(0, 0, 0, 0, 0, &art_id);
         break;
     case OBJ_TYPE_WEAPON:
-        sub_409640(obj, TIG_ART_ITEM_TYPE_WEAPON);
+        set_item_defaults(obj, TIG_ART_ITEM_TYPE_WEAPON);
         obj_field_int32_set(obj, OBJ_F_WEAPON_AMMO_TYPE, 10000);
         obj_field_int32_set(obj, OBJ_F_WEAPON_SPEED_FACTOR, 10);
         obj_arrayfield_int32_set(obj, OBJ_F_WEAPON_DAMAGE_LOWER_IDX, 0, 1);
@@ -2786,11 +2786,11 @@ void sub_409000(int64_t obj)
         obj_field_int32_set(obj, OBJ_F_WEAPON_VISUAL_EFFECT_AID, TIG_ART_ID_INVALID);
         break;
     case OBJ_TYPE_AMMO:
-        sub_409640(obj, TIG_ART_ITEM_TYPE_AMMO);
+        set_item_defaults(obj, TIG_ART_ITEM_TYPE_AMMO);
         tig_art_item_id_create(0, 0, 0, 0, 0, 1, 0, 0, &art_id);
         break;
     case OBJ_TYPE_ARMOR:
-        sub_409640(obj, TIG_ART_ITEM_TYPE_ARMOR);
+        set_item_defaults(obj, TIG_ART_ITEM_TYPE_ARMOR);
         tig_art_item_id_create(0, 1, 0, 0, 4, 2, 0, 0, &art_id);
         obj_field_int32_set(obj, OBJ_F_ITEM_INV_AID, art_id);
         tig_art_item_id_create(0, 2, 0, 0, 4, 2, 0, 0, &art_id);
@@ -2800,32 +2800,32 @@ void sub_409000(int64_t obj)
         obj_field_int32_set(obj, OBJ_F_ARMOR_FLAGS, OARF_SIZE_MEDIUM);
         break;
     case OBJ_TYPE_GOLD:
-        sub_409640(obj, TIG_ART_ITEM_TYPE_GOLD);
+        set_item_defaults(obj, TIG_ART_ITEM_TYPE_GOLD);
         obj_field_int32_set(obj, OBJ_F_GOLD_QUANTITY, 1);
         tig_art_item_id_create(0, 0, 0, 0, 0, 3, 0, 0, &art_id);
         break;
     case OBJ_TYPE_FOOD:
-        sub_409640(obj, TIG_ART_ITEM_TYPE_FOOD);
+        set_item_defaults(obj, TIG_ART_ITEM_TYPE_FOOD);
         tig_art_item_id_create(0, 0, 0, 0, 0, 4, 0, 0, &art_id);
         break;
     case OBJ_TYPE_SCROLL:
-        sub_409640(obj, TIG_ART_ITEM_TYPE_SCROLL);
+        set_item_defaults(obj, TIG_ART_ITEM_TYPE_SCROLL);
         tig_art_item_id_create(0, 0, 0, 0, 0, 5, 0, 0, &art_id);
         break;
     case OBJ_TYPE_KEY:
-        sub_409640(obj, TIG_ART_ITEM_TYPE_KEY);
+        set_item_defaults(obj, TIG_ART_ITEM_TYPE_KEY);
         tig_art_item_id_create(0, 0, 0, 0, 0, 6, 0, 0, &art_id);
         break;
     case OBJ_TYPE_KEY_RING:
-        sub_409640(obj, TIG_ART_ITEM_TYPE_KEY_RING);
+        set_item_defaults(obj, TIG_ART_ITEM_TYPE_KEY_RING);
         tig_art_item_id_create(0, 0, 0, 0, 0, 7, 0, 0, &art_id);
         break;
     case OBJ_TYPE_WRITTEN:
-        sub_409640(obj, TIG_ART_ITEM_TYPE_WRITTEN);
+        set_item_defaults(obj, TIG_ART_ITEM_TYPE_WRITTEN);
         tig_art_item_id_create(0, 0, 0, 0, 0, 8, 0, 0, &art_id);
         break;
     case OBJ_TYPE_GENERIC:
-        sub_409640(obj, TIG_ART_ITEM_TYPE_GENERIC);
+        set_item_defaults(obj, TIG_ART_ITEM_TYPE_GENERIC);
         tig_art_item_id_create(0, 0, 0, 0, 0, 9, 0, 0, &art_id);
         break;
     case OBJ_TYPE_PC:
@@ -2836,7 +2836,7 @@ void sub_409000(int64_t obj)
         obj_field_int32_set(obj, OBJ_F_HP_PTS, 100);
 
         flags = obj_field_int32_get(obj, OBJ_F_FLAGS);
-        flags |= 0x100434;
+        flags |= OF_DONTLIGHT | OF_NO_BLOCK | OF_SHOOT_THROUGH | OF_SEE_THROUGH | OF_FLAT;
         obj_field_int32_set(obj, OBJ_F_FLAGS, flags);
 
         tig_art_scenery_id_create(0, 0, 0, 0, 0, &art_id);
@@ -2848,7 +2848,7 @@ void sub_409000(int64_t obj)
 }
 
 // 0x409640
-void sub_409640(int64_t obj, int subtype)
+void set_item_defaults(int64_t obj, int subtype)
 {
     tig_art_id_t art_id;
 
