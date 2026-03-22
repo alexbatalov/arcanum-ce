@@ -162,7 +162,7 @@ bool objlist_load(SectorObjectList* list, TigFile* stream, int64_t sector_id)
             sub_406B80(obj);
         }
 
-        sub_406520(obj);
+        obj_load_postprocess(obj);
         obj_field_int32_set(obj, OBJ_F_TEMP_ID, list->next_temp_id);
 
         if (!objlist_insert_internal(list, obj)) {
@@ -276,7 +276,7 @@ bool objlist_load_with_difs(SectorObjectList* list, TigFile* sec_stream, TigFile
                 return false;
             }
 
-            sub_406520(obj);
+            obj_load_postprocess(obj);
         } else {
             obj_deallocate(obj);
         }
@@ -313,11 +313,11 @@ bool objlist_save(SectorObjectList* list, TigFile* stream)
         node = list->heads[index];
         while (node != NULL) {
             if (object_is_static(node->obj)) {
-                sub_4064B0(node->obj);
+                obj_save_preprocess(node->obj);
                 if (!obj_write(stream, node->obj)) {
                     return false;
                 }
-                sub_406520(node->obj);
+                obj_load_postprocess(node->obj);
                 sub_406B80(node->obj);
                 cnt++;
             }
@@ -371,7 +371,7 @@ bool objlist_save_with_dif(SectorObjectList* list, TigFile* stream)
         node = list->heads[idx];
         while (node != NULL) {
             if (object_is_static(node->obj)) {
-                sub_4064B0(node->obj);
+                obj_save_preprocess(node->obj);
                 if (obj_is_modified(node->obj)) {
                     if (!dif) {
                         if (extent != 0) {
@@ -421,7 +421,7 @@ bool objlist_save_with_dif(SectorObjectList* list, TigFile* stream)
                     }
                 }
 
-                sub_406520(node->obj);
+                obj_load_postprocess(node->obj);
                 extent++;
             }
             node = node->next;

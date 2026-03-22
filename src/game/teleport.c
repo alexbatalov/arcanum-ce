@@ -405,7 +405,7 @@ bool sub_4D39A0(TeleportData* teleport_data)
 
         node = teleport_obj_node_head;
         while (node != NULL) {
-            sub_4064B0(node->obj);
+            obj_save_preprocess(node->obj);
             node = node->next;
         }
 
@@ -442,7 +442,7 @@ bool sub_4D39A0(TeleportData* teleport_data)
 
         node = teleport_obj_node_head;
         while (node != NULL) {
-            sub_406520(node->obj);
+            obj_load_postprocess(node->obj);
             node = node->next;
         }
 

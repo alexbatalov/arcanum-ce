@@ -83,14 +83,14 @@ static int sub_40A790(int a1);
 static void sub_40A7B0(void);
 static void sub_40A8A0(void);
 static void sub_40B8E0(int fld);
-static void sub_40BAC0(void);
-static void sub_40BBB0(void);
-static void sub_40BBF0(Object* object);
-static void sub_40BD20(Object* object);
-static void sub_40BDB0(Object* object);
-static void sub_40BE70(Object* object);
-static bool sub_40BF00(void* entry, int index);
-static bool sub_40BFC0(void* entry, int index);
+static void obj_handle_field_lists_init(void);
+static void obj_handle_field_lists_exit(void);
+static void object_convert_scalar_handles_to_ids(Object* object);
+static void object_convert_array_handles_to_ids(Object* object);
+static void object_convert_scalar_ids_to_handles(Object* object);
+static void object_convert_array_ids_to_handles(Object* object);
+static bool convert_handle_to_id(void* entry, int index);
+static bool convert_id_to_handle(void* entry, int index);
 static int sub_40C030(ObjectType object_type);
 static bool object_field_valid(int type, int fld);
 static bool sub_40C560(Object* object, int fld);
@@ -556,16 +556,16 @@ static int16_t* object_fields_count_per_type;
 static bool obj_initialized;
 
 // 0x5D1128
-static int* dword_5D1128;
+static ObjectField* obj_scalar_handle_fields;
 
 // 0x5D112C
-static int* dword_5D112C;
+static ObjectField* obj_array_handle_fields;
 
 // 0x5D1130
-static int dword_5D1130;
+static int obj_scalar_handle_field_cnt;
 
 // 0x5D1134
-static int dword_5D1134;
+static int obj_array_handle_field_cnt;
 
 // 0x405110
 bool obj_init(GameInitInfo* init_info)
@@ -583,7 +583,7 @@ bool obj_init(GameInitInfo* init_info)
     obj_data_init();
     obj_find_init();
     sub_40A400();
-    sub_40BAC0();
+    obj_handle_field_lists_init();
 
     object.prototype_oid.type = OID_TYPE_BLOCKED;
     for (index = 0; index < 18; index++) {
@@ -602,7 +602,7 @@ bool obj_init(GameInitInfo* init_info)
 // 0x4051F0
 void obj_exit(void)
 {
-    sub_40BBB0();
+    obj_handle_field_lists_exit();
     obj_find_exit();
     obj_pool_exit();
     obj_data_exit();
@@ -1167,7 +1167,7 @@ void sub_4063A0(int64_t obj, ObjectID** oids_ptr, int* cnt_ptr)
 }
 
 // 0x4064B0
-void sub_4064B0(int64_t obj)
+void obj_save_preprocess(int64_t obj)
 {
     Object* object;
     unsigned int flags;
@@ -1175,8 +1175,8 @@ void sub_4064B0(int64_t obj)
     object = obj_lock(obj);
     obj_field_fetch(object, OBJ_F_INTERNAL_FLAGS, &flags);
     if ((flags & 0x1) == 0) {
-        sub_40BBF0(object);
-        sub_40BD20(object);
+        object_convert_scalar_handles_to_ids(object);
+        object_convert_array_handles_to_ids(object);
         flags |= 0x1;
         obj_field_store(object, OBJ_F_INTERNAL_FLAGS, &flags);
         // NOTE: Probably should be outside of this condition block, otherwise
@@ -1186,7 +1186,7 @@ void sub_4064B0(int64_t obj)
 }
 
 // 0x406520
-void sub_406520(int64_t obj)
+void obj_load_postprocess(int64_t obj)
 {
     Object* object;
     unsigned int flags;
@@ -1194,8 +1194,8 @@ void sub_406520(int64_t obj)
     object = obj_lock(obj);
     obj_field_fetch(object, OBJ_F_INTERNAL_FLAGS, &flags);
     if ((flags & 0x1) != 0) {
-        sub_40BDB0(object);
-        sub_40BE70(object);
+        object_convert_scalar_ids_to_handles(object);
+        object_convert_array_ids_to_handles(object);
         flags &= ~0x1;
         obj_field_store(object, OBJ_F_INTERNAL_FLAGS, &flags);
         // NOTE: Probably should be outside of this condition block, otherwise
@@ -3930,65 +3930,65 @@ void sub_40B8E0(int fld)
 }
 
 // 0x40BAC0
-void sub_40BAC0(void)
+void obj_handle_field_lists_init(void)
 {
     int fld;
 
-    dword_5D1130 = 0;
-    dword_5D1134 = 0;
+    obj_scalar_handle_field_cnt = 0;
+    obj_array_handle_field_cnt = 0;
 
     for (fld = 0; fld < OBJ_F_TOTAL_NORMAL; fld++) {
         if (object_fields[fld].type == OD_TYPE_HANDLE) {
-            dword_5D1130++;
+            obj_scalar_handle_field_cnt++;
         } else if (object_fields[fld].type == OD_TYPE_HANDLE_ARRAY) {
-            dword_5D1134++;
+            obj_array_handle_field_cnt++;
         }
     }
 
-    if (dword_5D1130 != 0) {
-        dword_5D1128 = (int*)MALLOC(sizeof(int) * dword_5D1130);
+    if (obj_scalar_handle_field_cnt != 0) {
+        obj_scalar_handle_fields = (int*)MALLOC(sizeof(int) * obj_scalar_handle_field_cnt);
     }
 
-    if (dword_5D1134 != 0) {
-        dword_5D112C = (int*)MALLOC(sizeof(int) * dword_5D1134);
+    if (obj_array_handle_field_cnt != 0) {
+        obj_array_handle_fields = (int*)MALLOC(sizeof(int) * obj_array_handle_field_cnt);
     }
 
-    dword_5D1130 = 0;
-    dword_5D1134 = 0;
+    obj_scalar_handle_field_cnt = 0;
+    obj_array_handle_field_cnt = 0;
 
     for (fld = 0; fld < OBJ_F_TOTAL_NORMAL; fld++) {
         if (object_fields[fld].type == OD_TYPE_HANDLE) {
-            dword_5D1128[dword_5D1130++] = fld;
+            obj_scalar_handle_fields[obj_scalar_handle_field_cnt++] = fld;
         } else if (object_fields[fld].type == OD_TYPE_HANDLE_ARRAY) {
-            dword_5D112C[dword_5D1134++] = fld;
+            obj_array_handle_fields[obj_array_handle_field_cnt++] = fld;
         }
     }
 }
 
 // 0x40BBB0
-void sub_40BBB0(void)
+void obj_handle_field_lists_exit(void)
 {
-    if (dword_5D1128 != NULL) {
-        FREE(dword_5D1128);
-        dword_5D1128 = NULL;
+    if (obj_scalar_handle_fields != NULL) {
+        FREE(obj_scalar_handle_fields);
+        obj_scalar_handle_fields = NULL;
     }
 
-    if (dword_5D112C != NULL) {
-        FREE(dword_5D112C);
-        dword_5D112C = NULL;
+    if (obj_array_handle_fields != NULL) {
+        FREE(obj_array_handle_fields);
+        obj_array_handle_fields = NULL;
     }
 }
 
 // 0x40BBF0
-void sub_40BBF0(Object* object)
+void object_convert_scalar_handles_to_ids(Object* object)
 {
     int idx;
     int fld;
     ObjectID oid;
     unsigned int flags;
 
-    for (idx = 0; idx < dword_5D1130; idx++) {
-        fld = dword_5D1128[idx];
+    for (idx = 0; idx < obj_scalar_handle_field_cnt; idx++) {
+        fld = obj_scalar_handle_fields[idx];
         if (object_field_valid(object->type, fld)
             && sub_40D320(object, fld)) {
             obj_field_fetch(object, fld, &oid);
@@ -4019,19 +4019,21 @@ void sub_40BBF0(Object* object)
 }
 
 // 0x40BD20
-void sub_40BD20(Object* object)
+void object_convert_array_handles_to_ids(Object* object)
 {
-    int index;
+    int idx;
+    int fld;
     SizeableArray** sa_ptr;
     int64_t prototype_obj;
 
-    for (index = 0; index < dword_5D1134; index++) {
-        if (object_field_valid(object->type, dword_5D112C[index])
-            && sub_40D320(object, dword_5D112C[index])) {
-            sub_408F40(object, dword_5D112C[index], &sa_ptr, &prototype_obj);
+    for (idx = 0; idx < obj_array_handle_field_cnt; idx++) {
+        fld = obj_array_handle_fields[idx];
+        if (object_field_valid(object->type, fld)
+            && sub_40D320(object, fld)) {
+            sub_408F40(object, fld, &sa_ptr, &prototype_obj);
             if (*sa_ptr != NULL) {
-                if (!sa_enumerate(sa_ptr, sub_40BF00)) {
-                    tig_debug_printf("Error converting array of object handles to ids (oft_as_count: %d)", index);
+                if (!sa_enumerate(sa_ptr, convert_handle_to_id)) {
+                    tig_debug_printf("Error converting array of object handles to ids (oft_as_count: %d)", idx);
                 }
             }
         }
@@ -4039,15 +4041,15 @@ void sub_40BD20(Object* object)
 }
 
 // 0x40BDB0
-void sub_40BDB0(Object* object)
+void object_convert_scalar_ids_to_handles(Object* object)
 {
     int idx;
     int fld;
     ObjectID oid;
     int64_t obj;
 
-    for (idx = 0; idx < dword_5D1130; idx++) {
-        fld = dword_5D1128[idx];
+    for (idx = 0; idx < obj_scalar_handle_field_cnt; idx++) {
+        fld = obj_scalar_handle_fields[idx];
         if (object_field_valid(object->type, fld)
             && sub_40D320(object, fld)) {
             obj_field_fetch(object, fld, &oid);
@@ -4066,19 +4068,21 @@ void sub_40BDB0(Object* object)
 }
 
 // 0x40BE70
-void sub_40BE70(Object* object)
+void object_convert_array_ids_to_handles(Object* object)
 {
-    int index;
+    int idx;
+    int fld;
     SizeableArray** sa_ptr;
     int64_t prototype_obj;
 
-    for (index = 0; index < dword_5D1134; index++) {
-        if (object_field_valid(object->type, dword_5D112C[index])
-            && sub_40D320(object, dword_5D112C[index])) {
-            sub_408F40(object, dword_5D112C[index], &sa_ptr, &prototype_obj);
+    for (idx = 0; idx < obj_array_handle_field_cnt; idx++) {
+        fld = obj_array_handle_fields[idx];
+        if (object_field_valid(object->type, fld)
+            && sub_40D320(object, fld)) {
+            sub_408F40(object, fld, &sa_ptr, &prototype_obj);
             if (*sa_ptr != NULL) {
-                if (!sa_enumerate(sa_ptr, sub_40BFC0)) {
-                    tig_debug_printf("Can't convert sizeable array of objects to handles (oft_as_count: %d)\n", index);
+                if (!sa_enumerate(sa_ptr, convert_id_to_handle)) {
+                    tig_debug_printf("Can't convert sizeable array of objects to handles (oft_as_count: %d)\n", idx);
                 }
             }
         }
@@ -4086,10 +4090,12 @@ void sub_40BE70(Object* object)
 }
 
 // 0x40BF00
-bool sub_40BF00(void* entry, int index)
+bool convert_handle_to_id(void* entry, int index)
 {
     ObjectID oid;
     unsigned int flags;
+
+    (void)index;
 
     oid = *(ObjectID*)entry;
 
@@ -4117,7 +4123,7 @@ bool sub_40BF00(void* entry, int index)
 }
 
 // 0x40BFC0
-bool sub_40BFC0(void* entry, int index)
+bool convert_id_to_handle(void* entry, int index)
 {
     ObjectID oid;
     int64_t obj;
@@ -4125,6 +4131,7 @@ bool sub_40BFC0(void* entry, int index)
     (void)index;
 
     memcpy(&oid, entry, sizeof(oid));
+
     if (oid.type != OID_TYPE_NULL) {
         obj = obj_pool_perm_lookup(oid);
         if (obj != OBJ_HANDLE_NULL) {
@@ -4133,6 +4140,7 @@ bool sub_40BFC0(void* entry, int index)
         } else {
             oid.type = OID_TYPE_NULL;
         }
+
         memcpy(entry, &oid, sizeof(oid));
     }
 

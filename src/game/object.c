@@ -4170,9 +4170,9 @@ int object_blit_flags_get(void)
 // 0x442050
 void sub_442050(uint8_t** data_ptr, int* size_ptr, int64_t obj)
 {
-    sub_4064B0(obj);
+    obj_save_preprocess(obj);
     obj_write_mem(data_ptr, size_ptr, obj);
-    sub_406520(obj);
+    obj_load_postprocess(obj);
 }
 
 // 0x4420D0
@@ -4182,7 +4182,7 @@ bool sub_4420D0(uint8_t* data, int64_t* obj_ptr, int64_t loc)
         return false;
     }
 
-    sub_406520(*obj_ptr);
+    obj_load_postprocess(*obj_ptr);
     obj_field_int64_set(*obj_ptr, OBJ_F_LOCATION, loc);
     if (!sub_442260(*obj_ptr, loc)) {
         return false;

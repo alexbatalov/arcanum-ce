@@ -1167,7 +1167,7 @@ bool map_save_preprocess(void)
     if (obj_inst_first(&obj, &iter)) {
         do {
             if (!object_is_static(obj)) {
-                sub_4064B0(obj);
+                obj_save_preprocess(obj);
             }
         } while (obj_inst_next(&obj, &iter));
     }
@@ -1335,7 +1335,7 @@ void map_load_postprocess(void)
     if (obj_inst_first(&obj, &iter)) {
         do {
             if (!object_is_static(obj)) {
-                sub_406520(obj);
+                obj_load_postprocess(obj);
             }
 
             flags = obj_field_int32_get(obj, OBJ_F_FLAGS);
