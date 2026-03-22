@@ -233,7 +233,7 @@ bool animfx_has(AnimFxNode* node)
         for (index = 0; index < 7; index++) {
             art_id = obj_arrayfield_uint32_get(node->obj, OBJ_F_OVERLAY_FORE, index);
             if (art_id == TIG_ART_ID_INVALID) {
-                break;
+                continue;
             }
 
             if (tig_art_num_get(art_id) == num) {
@@ -246,7 +246,7 @@ bool animfx_has(AnimFxNode* node)
         for (index = 0; index < 7; index++) {
             art_id = obj_arrayfield_uint32_get(node->obj, OBJ_F_OVERLAY_BACK, index);
             if (art_id == TIG_ART_ID_INVALID) {
-                break;
+                continue;
             }
 
             if (tig_art_num_get(art_id) == num) {
@@ -259,7 +259,7 @@ bool animfx_has(AnimFxNode* node)
         for (index = 0; index < 4; index++) {
             art_id = obj_arrayfield_uint32_get(node->obj, OBJ_F_UNDERLAY, index);
             if (art_id == TIG_ART_ID_INVALID) {
-                break;
+                continue;
             }
 
             if (tig_art_num_get(art_id) == num) {
@@ -276,7 +276,7 @@ bool animfx_has(AnimFxNode* node)
             // is set to `num`, which is obviously wrong.
             art_id = obj_arrayfield_uint32_get(node->obj, OBJ_F_OVERLAY_LIGHT_AID, index);
             if (art_id == TIG_ART_ID_INVALID) {
-                break;
+                continue;
             }
 
             if (tig_art_num_get(art_id) == num) {
@@ -848,7 +848,7 @@ bool sub_4CD9C0(AnimFxListEntry* entry, int64_t obj)
         for (index = 0; index < 7; index++) {
             art_id = obj_arrayfield_uint32_get(obj, OBJ_F_OVERLAY_FORE, index);
             if (art_id == TIG_ART_ID_INVALID) {
-                break;
+                continue;
             }
 
             if (tig_art_num_get(art_id) == num) {
@@ -862,7 +862,7 @@ bool sub_4CD9C0(AnimFxListEntry* entry, int64_t obj)
         for (index = 0; index < 7; index++) {
             art_id = obj_arrayfield_uint32_get(obj, OBJ_F_OVERLAY_BACK, index);
             if (art_id == TIG_ART_ID_INVALID) {
-                break;
+                continue;
             }
 
             if (tig_art_num_get(art_id) == num) {
@@ -876,7 +876,7 @@ bool sub_4CD9C0(AnimFxListEntry* entry, int64_t obj)
         for (index = 0; index < 4; index++) {
             art_id = obj_arrayfield_uint32_get(obj, OBJ_F_UNDERLAY, index);
             if (art_id == TIG_ART_ID_INVALID) {
-                break;
+                continue;
             }
 
             if (tig_art_num_get(art_id) == num) {
@@ -894,7 +894,7 @@ bool sub_4CD9C0(AnimFxListEntry* entry, int64_t obj)
             // is set to memory address of `entry`, which is obviously wrong.
             art_id = obj_arrayfield_uint32_get(obj, OBJ_F_OVERLAY_LIGHT_AID, index);
             if (art_id == TIG_ART_ID_INVALID) {
-                break;
+                continue;
             }
 
             if (tig_art_num_get(art_id) == num) {
