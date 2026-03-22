@@ -252,7 +252,7 @@ static bool AGbeginAnimEyeCandyReverse(AnimRunInfo* run_info);
 static bool AGendAnimEyeCandyReverse(AnimRunInfo* run_info);
 static bool AGupdateAnimEyeCandyFireDmg(AnimRunInfo* run_info);
 static bool AGupdateAnimEyeCandyReverseFireDmg(AnimRunInfo* run_info);
-static bool sub_432700(AnimRunInfo* run_info);
+static bool AGbeginAnimAttack(AnimRunInfo* run_info);
 static bool sub_432990(AnimRunInfo* run_info);
 static bool sub_432CF0(int64_t critter_obj);
 static bool sub_432D50(AnimRunInfo* run_info);
@@ -764,7 +764,7 @@ static AnimGoalNode anim_goal_node_attempt_attack = {
         /*  3 */ { sub_42C0F0, { AGDATA_SELF_OBJ, AGDATA_TARGET_OBJ }, -1, 10, 0, 4, 0 },
         /*  4 */ { sub_429960, { AGDATA_SELF_OBJ, AGDATA_TARGET_OBJ }, -1, 12, 0, 5, 0 },
         /*  5 */ { sub_42B9C0, { AGDATA_SELF_OBJ, AGDATA_TARGET_OBJ }, -1, 10, 0, 6, 0 },
-        /*  6 */ { sub_432700, { AGDATA_SELF_OBJ, AGDATA_ANIM_ID }, -1, 10, 0, 0x10000000, 0 },
+        /*  6 */ { AGbeginAnimAttack, { AGDATA_SELF_OBJ, AGDATA_ANIM_ID }, -1, 10, 0, 0x10000000, 0 },
         /*  7 */ { sub_42CAA0, { AGDATA_SELF_OBJ, AGDATA_ANIM_ID }, -1, 0x10000000, -2, 13, 0 },
         /*  8 */ { sub_42A630, { AGDATA_SELF_OBJ, AGDATA_TARGET_OBJ }, -1, 10, 0, 0x10000000, -2 },
         /*  9 */ { sub_42A930, { AGDATA_SELF_OBJ, -1 }, -1, 10, 0, 10, 0 },
@@ -12731,7 +12731,7 @@ bool AGupdateAnimEyeCandyReverseFireDmg(AnimRunInfo* run_info)
 }
 
 // 0x432700
-bool sub_432700(AnimRunInfo* run_info)
+bool AGbeginAnimAttack(AnimRunInfo* run_info)
 {
     int64_t source_obj;
     int64_t target_obj;
