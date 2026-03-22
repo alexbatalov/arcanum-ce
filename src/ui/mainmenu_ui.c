@@ -3341,9 +3341,9 @@ void sub_544100(const char* str, TigRect* rect, tig_font_handle_t font)
     char mutable_str[200];
     TigFont font_desc;
     TigRect text_rect;
+    int pos;
 
     strcpy(mutable_str, str);
-    strcat(mutable_str, "|");
 
     tig_font_push(font);
     font_desc.width = 0;
@@ -3359,6 +3359,33 @@ void sub_544100(const char* str, TigRect* rect, tig_font_handle_t font)
         text_rect.width = font_desc.width;
         sub_5418A0(mutable_str, &text_rect, font, 0);
     }
+
+    // CE: There's a bug in the original game regarding cursor positioning. It
+    // simply places the cursor at the end of the editable string, but the
+    // text-edit UI actually keeps track of the cursor position with the
+    // keyboard arrow keys. This isn't reflected in the UI, though backspace and
+    // delete operate at the correct indexes. The fix is to render cursor
+    // separately in a second pass over the already rendered text.
+    pos = textedit_ui_pos_get();
+
+    // Clamp editable string at cursor position, and re-measure part of the
+    // string before I-beam.
+    mutable_str[pos] = '\0';
+    font_desc.width = 0;
+    font_desc.height = 0;
+    tig_font_measure(&font_desc);
+    text_rect.x += font_desc.width;
+
+    // Measure the width of I-beam.
+    mutable_str[0] = '|';
+    mutable_str[1] = '\0';
+    font_desc.width = 0;
+    font_desc.height = 0;
+    tig_font_measure(&font_desc);
+    text_rect.width = font_desc.width;
+
+    // Put I-beam into the right place.
+    sub_5418A0(mutable_str, &text_rect, font, 0);
 
     tig_font_pop();
 }

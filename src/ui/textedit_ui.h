@@ -31,5 +31,6 @@ bool textedit_ui_process_message(TigMessage* msg);
 void textedit_ui_clear(void);
 void textedit_ui_restore(void);
 void textedit_ui_submit(void);
+int textedit_ui_pos_get(void);
 
 #endif /* ARCANUM_UI_TEXTEDIT_UI_H_ */

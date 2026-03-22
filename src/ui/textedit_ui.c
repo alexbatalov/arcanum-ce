@@ -352,3 +352,11 @@ void textedit_ui_submit(void)
         textedit_ui_current_textedit->on_enter(textedit_ui_current_textedit);
     }
 }
+
+/**
+ * Returns the current cursor position.
+ */
+int textedit_ui_pos_get(void)
+{
+    return textedit_ui_pos;
+}
