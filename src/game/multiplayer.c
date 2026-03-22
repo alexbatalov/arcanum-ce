@@ -258,7 +258,7 @@ static const struct {
 } stru_5B3FF0[8] = {
     { "Anim", anim_save, anim_load, sub_4A54A0 },
     { "MagicTech", magictech_post_save, magictech_post_load, sub_4A54E0 },
-    { "Trap", mp_save, mp_load, NULL },
+    { "Trap", NULL, NULL, NULL },
     { "Quest", quest_save, quest_load, NULL },
     { "Rumor", rumor_save, rumor_load, NULL },
     { "Party", party_save, party_load, NULL },

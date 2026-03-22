@@ -31,8 +31,5 @@ bool trap_is_trap_device(int64_t obj);
 int64_t get_trap_at_location(int64_t loc);
 void trap_invoke(int64_t triggerer_obj, int64_t attachee_obj);
 bool trap_script_execute(ScriptInvocation* invocation);
-bool mp_load(GameLoadInfo* load_info);
-bool mp_save(TigFile* stream);
-void sub_4BD850(int64_t obj);
 
 #endif /* ARCANUM_GAME_TRAP_H_ */

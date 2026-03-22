@@ -93,18 +93,6 @@ void sub_4EDA60(UiMessage* ui_message, int player, int a3)
     FREE(pkt);
 }
 
-// 0x4EDC70
-void mp_trap_mark_known(int64_t pc_obj, int64_t trap_obj, int reason)
-{
-    PacketTrapMarkKnown pkt;
-
-    pkt.type = 90;
-    pkt.pc_oid = obj_get_id(pc_obj);
-    pkt.trap_oid = obj_get_id(trap_obj);
-    pkt.reason = reason;
-    tig_net_send_app_all(&pkt, sizeof(pkt));
-}
-
 // 0x4EDCE0
 void sub_4EDCE0(int64_t obj, tig_art_id_t art_id)
 {

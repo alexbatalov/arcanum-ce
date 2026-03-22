@@ -467,18 +467,6 @@ typedef struct Packet84 {
 static_assert(sizeof(Packet84) == 0x28, "wrong size");
 #endif
 
-typedef struct PacketTrapMarkKnown {
-    /* 0000 */ int type;
-    /* 0004 */ int padding_4;
-    /* 0008 */ ObjectID pc_oid;
-    /* 0020 */ ObjectID trap_oid;
-    /* 0038 */ int reason;
-    /* 003C */ int padding_3C;
-} PacketTrapMarkKnown;
-
-// Serializeable.
-static_assert(sizeof(PacketTrapMarkKnown) == 0x40, "wrong size");
-
 typedef struct Packet92 {
     /* 0000 */ int type;
     /* 0004 */ int padding_4;
@@ -699,7 +687,6 @@ bool sub_4ED6C0(int64_t obj);
 bool mp_object_create(int name, int64_t loc, int64_t* obj_ptr);
 void mp_object_destroy(int64_t obj);
 void sub_4EDA60(UiMessage* ui_message, int player, int a3);
-void mp_trap_mark_known(int64_t pc_obj, int64_t trap_obj, int reason);
 void sub_4EDCE0(int64_t obj, tig_art_id_t art_id);
 void mp_ui_update_inven(int64_t obj);
 void sub_4EDF20(int64_t obj, int64_t location, int dx, int dy, bool a7);

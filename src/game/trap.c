@@ -8,8 +8,6 @@
 #include "game/item.h"
 #include "game/magictech.h"
 #include "game/mes.h"
-#include "game/mp_utils.h"
-#include "game/multiplayer.h"
 #include "game/obj.h"
 #include "game/obj_private.h"
 #include "game/object.h"
@@ -20,9 +18,6 @@
 #include "game/skill.h"
 #include "game/stat.h"
 #include "game/ui.h"
-
-#define TRAP_START_SENTINEL 0x81726354
-#define TRAP_END_SENTINEL 0x81726354
 
 typedef enum TrapEyeCandyType {
     TRAP_EYE_CANDY_TYPE_TRIGGER_EFFECT,
@@ -46,22 +41,12 @@ typedef enum TrapScript {
     TRAP_SCRIPT_LAST = TRAP_SCRIPT_POISON,
 } TrapScript;
 
-typedef struct TrapListNode {
-    /* 0000 */ ObjectID trap_oid;
-    /* 0018 */ ObjectID pc_oid;
-    /* 0030 */ struct TrapListNode* next;
-} TrapListNode;
-
 static int trap_type_from_scr(Script* scr);
 static void trap_remove_internal(int64_t trap_obj);
 static void trap_timeevent_schedule(int spl, int64_t loc, int delay, int64_t item_obj);
 static bool get_disarm_item_name(int64_t obj, int* name_ptr);
 void trigger_trap(int64_t obj, ScriptInvocation* invocation);
 static int64_t find_trap_source(int64_t obj, uint8_t id);
-static TrapListNode* sub_4BD1E0(int64_t pc_obj, int64_t trap_obj);
-static int sub_4BD340(int64_t trap_obj);
-static bool sub_4BD430(int64_t pc_obj, int64_t trap_obj);
-static TrapListNode* sub_4BD480(int64_t pc_obj, int64_t trap_obj);
 static int64_t sub_4BD950(int64_t obj);
 
 // 0x5B5F60
@@ -93,9 +78,6 @@ static mes_file_handle_t trap_mes_file;
 // 0x5FC460
 static AnimFxList trap_eye_candies;
 
-// 0x5FC48C
-static TrapListNode* dword_5FC48C;
-
 // 0x4BBD00
 bool trap_init(GameInitInfo* init_info)
 {
@@ -118,24 +100,14 @@ bool trap_init(GameInitInfo* init_info)
         return false;
     }
 
-    dword_5FC48C = NULL;
-
     return true;
 }
 
 // 0x4BBD90
 void trap_exit(void)
 {
-    TrapListNode* node;
-
     animfx_list_exit(&trap_eye_candies);
     mes_unload(trap_mes_file);
-
-    while (dword_5FC48C != NULL) {
-        node = dword_5FC48C;
-        dword_5FC48C = dword_5FC48C->next;
-        FREE(node);
-    }
 }
 
 // 0x4BBDD0
@@ -253,10 +225,6 @@ bool trap_is_spotted(int64_t pc_obj, int64_t trap_obj)
         return (flags & OF_TRAP_PC) == 0;
     }
 
-    if (tig_net_is_active()) {
-        return sub_4BD430(pc_obj, trap_obj);
-    }
-
     if ((flags & (OF_TRAP_PC | OF_TRAP_SPOTTED)) == 0) {
         return false;
     }
@@ -273,19 +241,9 @@ void trap_mark_known(int64_t pc_obj, int64_t trap_obj, int reason)
     MesFileEntry mes_file_entry;
     UiMessage ui_message;
 
-    if (!multiplayer_is_locked()) {
-        if (!tig_net_is_host()) {
-            return;
-        }
-
-        mp_trap_mark_known(pc_obj, trap_obj, reason);
-    }
-
     if (pc_obj == OBJ_HANDLE_NULL) {
         return;
     }
-
-    sub_4BD1E0(pc_obj, trap_obj);
 
     type = obj_field_int32_get(pc_obj, OBJ_F_TYPE);
     switch (type) {
@@ -334,10 +292,6 @@ void trap_mark_known(int64_t pc_obj, int64_t trap_obj, int reason)
 void trap_remove_internal(int64_t trap_obj)
 {
     Script scr;
-
-    if (tig_net_is_active()) {
-        sub_4BD340(trap_obj);
-    }
 
     if (trap_type(trap_obj) != TRAP_TYPE_INVALID) {
         if (obj_field_int32_get(trap_obj, OBJ_F_TYPE) == OBJ_TYPE_TRAP) {
@@ -542,22 +496,7 @@ void trap_handle_disarm(int64_t pc_obj, int64_t trap_obj, bool* is_success_ptr, 
             prototype_handle = sub_4685A0(disarm_item_name);
             loc = obj_field_int64_get(pc_obj, OBJ_F_LOCATION);
             if (object_create(prototype_handle, loc, &disarm_item_obj)) {
-                if (tig_net_is_active() && tig_net_is_host()) {
-                    Packet70 pkt;
-
-                    pkt.type = 70;
-                    pkt.subtype = 0;
-                    pkt.s0.name = disarm_item_name;
-                    pkt.s0.oid = obj_get_id(pc_obj);
-                    pkt.s0.loc = loc;
-                    pkt.s0.field_38 = obj_get_id(trap_obj);
-                    pkt.s0.field_30 = 1;
-                    tig_net_send_app_all(&pkt, sizeof(pkt));
-                }
-
-                multiplayer_lock();
                 item_transfer(disarm_item_obj, pc_obj);
-                multiplayer_unlock();
             }
         }
         trap_remove_internal(trap_obj);
@@ -839,228 +778,6 @@ int64_t find_trap_source(int64_t obj, uint8_t id)
 
     object_list_destroy(&objects);
     return trap_source_obj;
-}
-
-// 0x4BD1E0
-TrapListNode* sub_4BD1E0(int64_t pc_obj, int64_t trap_obj)
-{
-    TrapListNode* node;
-
-    node = (TrapListNode*)MALLOC(sizeof(*node));
-    node->pc_oid = obj_get_id(pc_obj);
-    node->trap_oid = obj_get_id(trap_obj);
-    node->next = dword_5FC48C;
-    dword_5FC48C = node;
-
-    return node;
-}
-
-// 0x4BD340
-int sub_4BD340(int64_t trap_obj)
-{
-    int cnt = 0;
-    ObjectID trap_oid;
-    TrapListNode* node;
-    TrapListNode* tmp;
-
-    trap_oid = obj_get_id(trap_obj);
-
-    while (dword_5FC48C != NULL) {
-        if (!objid_is_equal(dword_5FC48C->trap_oid, trap_oid)) {
-            break;
-        }
-
-        tmp = dword_5FC48C;
-        dword_5FC48C = dword_5FC48C->next;
-        FREE(tmp);
-        cnt++;
-    }
-
-    node = dword_5FC48C;
-    while (node != NULL && node->next != NULL) {
-        if (objid_is_equal(node->trap_oid, trap_oid)) {
-            tmp = node->next;
-            node->next = tmp->next;
-            FREE(tmp);
-            cnt++;
-        }
-        node = node->next;
-    }
-
-    return cnt;
-}
-
-// 0x4BD430
-bool sub_4BD430(int64_t pc_obj, int64_t trap_obj)
-{
-    if (obj_field_int32_get(pc_obj, OBJ_F_TYPE) != OBJ_TYPE_PC) {
-        pc_obj = critter_pc_leader_get(pc_obj);
-    }
-
-    return sub_4BD480(pc_obj, trap_obj) != 0;
-}
-
-// 0x4BD480
-TrapListNode* sub_4BD480(int64_t pc_obj, int64_t trap_obj)
-{
-    ObjectID trap_oid;
-    ObjectID pc_oid;
-    TrapListNode* node;
-
-    trap_oid = obj_get_id(trap_obj);
-    pc_oid = obj_get_id(pc_obj);
-
-    node = dword_5FC48C;
-    while (node != NULL) {
-        if (objid_is_equal(pc_oid, node->pc_oid)
-            && objid_is_equal(trap_oid, node->trap_oid)) {
-            return node;
-        }
-        node = node->next;
-    }
-
-    return NULL;
-}
-
-// 0x4BD550
-bool mp_load(GameLoadInfo* load_info)
-{
-    unsigned int sentinel;
-    int cnt;
-    ObjectID pc_oid;
-    ObjectID trap_oid;
-    TrapListNode* node;
-
-    if (load_info->stream == NULL) {
-        return false;
-    }
-
-    if (tig_file_fread(&sentinel, sizeof(sentinel), 1, load_info->stream) != 1) {
-        tig_debug_printf("TRAP: mp_load: FAILURE: could not read START sentinel.\n");
-        return false;
-    }
-
-    if (sentinel != TRAP_START_SENTINEL) {
-        tig_debug_printf("TRAP: mp_load: FAILURE: START sentinel read (0x%08X) does not match expected (0x%08X)!\n", sentinel, TRAP_START_SENTINEL);
-        return false;
-    }
-
-    if (tig_file_fread(&cnt, sizeof(cnt), 1, load_info->stream) != 1) {
-        tig_debug_printf("TRAP: mp_load: FAILURE: could not read count.\n");
-        return false;
-    }
-
-    while (cnt != 0) {
-        if (tig_file_fread(&pc_oid, sizeof(pc_oid), 1, load_info->stream) != 1) {
-            tig_debug_printf("TRAP: mp_load: FAILURE: could not read pc_id for entry %d.\n", cnt);
-            return false;
-        }
-
-        if (tig_file_fread(&trap_oid, sizeof(trap_oid), 1, load_info->stream) != 1) {
-            tig_debug_printf("TRAP: mp_load: FAILURE: could not read trap_id for entry %d.\n", cnt);
-            return false;
-        }
-
-        node = (TrapListNode*)MALLOC(sizeof(*node));
-        node->pc_oid = pc_oid;
-        node->trap_oid = trap_oid;
-        node->next = dword_5FC48C;
-        dword_5FC48C = node;
-
-        cnt--;
-    }
-
-    if (tig_file_fread(&sentinel, sizeof(sentinel), 1, load_info->stream) != 1) {
-        tig_debug_printf("TRAP: mp_load: FAILURE: could not read END sentinel.\n");
-        return false;
-    }
-
-    if (sentinel != TRAP_END_SENTINEL) {
-        tig_debug_printf("TRAP: mp_load: FAILURE: END sentinel read (0x%08X) does not match expected (0x%08X)!\n", sentinel, TRAP_END_SENTINEL);
-        return false;
-    }
-
-    return true;
-}
-
-// 0x4BD710
-bool mp_save(TigFile* stream)
-{
-    unsigned int sentinel;
-    int cnt;
-    TrapListNode* node;
-
-    if (stream == NULL) {
-        return false;
-    }
-
-    sentinel = TRAP_START_SENTINEL;
-    if (tig_file_fwrite(&sentinel, sizeof(sentinel), 1, stream) != 1) {
-        tig_debug_printf("TRAP: mp_save: FAILURE: could not write START sentinel.\n");
-        return false;
-    }
-
-    cnt = 0;
-    node = dword_5FC48C;
-    while (node != NULL) {
-        cnt++;
-        node = node->next;
-    }
-
-    if (tig_file_fwrite(&cnt, sizeof(cnt), 1, stream) != 1) {
-        tig_debug_printf("TRAP: mp_save: FAILURE: could not write count.\n");
-        return false;
-    }
-
-    node = dword_5FC48C;
-    while (node != NULL) {
-        if (tig_file_fwrite(&(node->pc_oid), sizeof(node->pc_oid), 1, stream) != 1) {
-            tig_debug_printf("TRAP: mp_save: FAILURE: could not write pc_id for entry %d.\n", cnt);
-            return false;
-        }
-
-        if (tig_file_fwrite(&(node->trap_oid), sizeof(node->pc_oid), 1, stream) != 1) {
-            tig_debug_printf("TRAP: mp_save: FAILURE: could not write trap_id for entry %d.\n", cnt);
-            return false;
-        }
-
-        cnt--;
-        node = node->next;
-    }
-
-    sentinel = TRAP_END_SENTINEL;
-    if (tig_file_fwrite(&sentinel, sizeof(sentinel), 1, stream) != 1) {
-        tig_debug_printf("TRAP: mp_save: FAILURE: could not write END sentinel.\n");
-        return false;
-    }
-
-    return true;
-}
-
-// 0x4BD850
-void sub_4BD850(int64_t obj)
-{
-    ObjectID oid;
-    TrapListNode* node;
-    int64_t trap_obj;
-
-    oid = obj_get_id(obj);
-    node = dword_5FC48C;
-    while (node != NULL) {
-        trap_obj = obj_pool_perm_lookup(node->trap_oid);
-        if (objid_is_equal(oid, node->pc_oid)) {
-            object_flags_set(trap_obj, OF_TRAP_SPOTTED);
-            if (obj_field_int32_get(trap_obj, OBJ_F_TYPE) == OBJ_TYPE_TRAP) {
-                object_flags_unset(trap_obj, OF_DONTDRAW);
-            }
-        } else {
-            object_flags_unset(trap_obj, OF_TRAP_SPOTTED);
-            if (obj_field_int32_get(trap_obj, OBJ_F_TYPE) == OBJ_TYPE_TRAP) {
-                object_flags_set(trap_obj, OF_DONTDRAW);
-            }
-        }
-        node = node->next;
-    }
 }
 
 // 0x4BD950
