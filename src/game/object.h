@@ -199,4 +199,6 @@ bool sub_444130(FollowerInfo* a1);
 int64_t get_fire_at_location(int64_t loc);
 void sub_4445A0(int64_t a1, int64_t a2);
 
+void object_highlight_mode_set(bool enabled);
+
 #endif /* ARCANUM_GAME_OBJECT_H_ */

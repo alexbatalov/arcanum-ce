@@ -414,6 +414,11 @@ void main_loop(void)
             }
 
             if (message.type == TIG_MESSAGE_KEYBOARD) {
+                // CE: Toggle highlight mode when Left Alt is pressed.
+                if (message.data.keyboard.scancode == SDL_SCANCODE_LALT) {
+                    object_highlight_mode_set(message.data.keyboard.pressed);
+                }
+
                 if (!message.data.keyboard.pressed) {
                     switch (message.data.keyboard.scancode) {
                     case SDL_SCANCODE_ESCAPE: {

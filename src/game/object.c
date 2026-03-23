@@ -212,6 +212,11 @@ int64_t object_hover_obj;
 // 0x5E2F98
 static int dword_5E2F98;
 
+/**
+ * Flag indicating whether the "highlight interactive objects" mode is on.
+ */
+static bool object_highlight_mode;
+
 // 0x43A330
 bool object_init(GameInitInfo* init_info)
 {
@@ -822,6 +827,11 @@ void object_draw(GameDrawInfo* draw_info)
 
                                                     // 0x43BF8F
                                                     if (!v71) {
+                                                        TigArtBlitInfo highlight_art_blit_info;
+                                                        bool highlight = object_highlight_mode
+                                                            && obj_type != OBJ_TYPE_WALL
+                                                            && (obj_flags & OF_CLICK_THROUGH) == 0;
+
                                                         art_blit_info_initialized = false;
 
                                                         rect_node = *draw_info->rects;
@@ -838,6 +848,25 @@ void object_draw(GameDrawInfo* draw_info)
                                                                         order = non_flat_order++;
                                                                     } else {
                                                                         order = flat_order++;
+                                                                    }
+
+                                                                    // CE: Setup additional blit info that is exactly the same
+                                                                    // as in highlighting hovered obj.
+                                                                    if (highlight) {
+                                                                        highlight_art_blit_info = art_blit_info;
+                                                                        highlight_art_blit_info.color = tig_color_make(200, 200, 200);
+                                                                        highlight_art_blit_info.flags &= ~0x3DF80;
+                                                                        highlight_art_blit_info.flags |= TIG_ART_BLT_BLEND_COLOR_CONST | TIG_ART_BLT_BLEND_ADD;
+
+                                                                        if (!object_hardware_accelerated) {
+                                                                            highlight_art_blit_info.flags |= TIG_ART_BLT_PALETTE_ORIGINAL;
+                                                                        }
+
+                                                                        if ((obj_flags & OF_FLAT) == 0) {
+                                                                            non_flat_order++;
+                                                                        } else {
+                                                                            flat_order++;
+                                                                        }
                                                                     }
                                                                 }
 
@@ -862,6 +891,14 @@ void object_draw(GameDrawInfo* draw_info)
                                                                 }
 
                                                                 object_enqueue_blit(&art_blit_info, order);
+
+                                                                // CE: Highlight in a second pass if needed. Unlike the hovered obj, which
+                                                                // is rendered at `INT_MAX`, the highlighted object is rendered just one
+                                                                // level above, preventing leakage of some objects that should be hidden by
+                                                                // walls and roofs.
+                                                                if (highlight) {
+                                                                    object_enqueue_blit(&highlight_art_blit_info, order + 1);
+                                                                }
                                                             }
                                                             rect_node = rect_node->next;
                                                         }
@@ -5328,4 +5365,18 @@ void object_lighting_changed(void)
     }
 
     object_iso_invalidate_rect(NULL);
+}
+
+/**
+ * Sets the "highlight interactive objects" mode.
+ */
+void object_highlight_mode_set(bool enabled)
+{
+    if (object_highlight_mode == enabled) {
+        return;
+    }
+
+    object_highlight_mode = enabled;
+
+    object_invalidate_rect(NULL);
 }
