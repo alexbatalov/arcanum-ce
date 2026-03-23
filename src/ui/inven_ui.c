@@ -111,15 +111,15 @@ static TigRect inven_ui_inventory_paperdoll_inv_slot_rects[9] = {
 
 // 0x5CACE8
 static TigRect inven_ui_barter_pc_paperdoll_inv_slot_rects[9] = {
-    /*    HELMET */ { 499, 107, 64, 64 },
-    /*     RING1 */ { 595, 107, 32, 32 },
-    /*     RING2 */ { 627, 107, 32, 32 },
-    /* MEDALLION */ { 595, 139, 64, 32 },
-    /*    WEAPON */ { 371, 170, 96, 128 },
-    /*    SHIELD */ { 595, 171, 96, 128 },
-    /*     ARMOR */ { 467, 171, 128, 160 },
-    /*  GAUNTLET */ { 403, 107, 64, 64 },
-    /*     BOOTS */ { 498, 331, 64, 64 },
+    /*    HELMET */ { 496, 107, 64, 64 },
+    /*     RING1 */ { 592, 107, 32, 32 },
+    /*     RING2 */ { 624, 107, 32, 32 },
+    /* MEDALLION */ { 592, 139, 64, 32 },
+    /*    WEAPON */ { 368, 170, 96, 128 },
+    /*    SHIELD */ { 592, 171, 96, 128 },
+    /*     ARMOR */ { 464, 171, 128, 160 },
+    /*  GAUNTLET */ { 400, 107, 64, 64 },
+    /*     BOOTS */ { 495, 331, 64, 64 },
 };
 
 // 0x5CAD78
@@ -157,9 +157,9 @@ static TigRect inven_ui_inventory_summary_rects[] = {
 
 // 0x5CAEC8
 static TigRect inven_ui_barter_pc_summary_rects[] = {
-    /*      WEIGHT */ { 431, 32, 185, 15 },
-    /* ENCUMBRANCE */ { 431, 47, 185, 15 },
-    /*  INFO_SPEED */ { 431, 62, 185, 15 },
+    /*      WEIGHT */ { 428, 32, 185, 15 },
+    /* ENCUMBRANCE */ { 428, 47, 185, 15 },
+    /*  INFO_SPEED */ { 428, 62, 185, 15 },
 };
 
 // 0x5CAEF8
@@ -170,8 +170,8 @@ static TigRect inven_ui_inventory_total_stat_rects[] = {
 
 // 0x5CAF18
 static TigRect inven_ui_barter_pc_total_stat_rects[] = {
-    /*  ATTACK */ { 425, 358, 23, 35 },
-    /* DEFENSE */ { 609, 358, 23, 35 },
+    /*  ATTACK */ { 422, 358, 23, 35 },
+    /* DEFENSE */ { 606, 358, 23, 35 },
 };
 
 // 0x5CAF38
@@ -3114,7 +3114,7 @@ void redraw_inven(bool a1)
         src_rect.width = art_frame_data.width;
         src_rect.height = art_frame_data.height;
 
-        dst_rect.x = 361;
+        dst_rect.x = 358;
         dst_rect.y = 0;
         dst_rect.width = art_frame_data.width;
         dst_rect.height = art_frame_data.height;
