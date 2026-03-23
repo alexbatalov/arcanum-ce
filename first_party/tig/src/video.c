@@ -957,8 +957,8 @@ int tig_video_buffer_get_pixel_color(TigVideoBuffer* video_buffer, int x, int y,
 
     switch (tig_video_bpp) {
     case 32:
-        index = y * video_buffer->surface->pitch + x;
-        *color = ((uint32_t*)video_buffer->surface->pixels)[index];
+        index = y * video_buffer->surface->pitch + 4 * x;
+        *color = *(uint32_t*)((uint8_t*)video_buffer->surface->pixels + index);
         break;
     }
 
