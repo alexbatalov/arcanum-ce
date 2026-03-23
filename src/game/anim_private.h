@@ -263,7 +263,7 @@ bool sub_44CB60(void);
 bool anim_goal_restart(AnimID* anim_id);
 bool mp_deallocate_run_index(AnimID* anim_id);
 void sub_44C8F0(AnimRunInfo* run_info, AnimGoalNode* goal_node);
-bool sub_44CCB0(AnimID* anim_id);
+bool anim_allocate_new_run_index(AnimID* anim_id);
 void sub_44D0C0(AnimRunInfo* run_info);
 int anim_find_first(int64_t obj);
 int anim_find_next(int prev, int64_t obj);

@@ -3426,7 +3426,7 @@ void anim_load_nodes_from_map(const char* map)
         }
 
         if ((anim_run_info[run_info.id.slot_num].flags & 0x1) != 0) {
-            if (!sub_44CCB0(&anim_id)) {
+            if (!anim_allocate_new_run_index(&anim_id)) {
                 tig_debug_printf("Anim: anim_load_nodes_from_map: ERROR: Failed to allocate a run slot!\n");
                 ASSERT(0); // 1282, "0"
                 break;

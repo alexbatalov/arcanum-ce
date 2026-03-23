@@ -357,7 +357,7 @@ bool anim_goal_restart(AnimID* anim_id)
 }
 
 // 0x44CCB0
-bool sub_44CCB0(AnimID* anim_id)
+bool anim_allocate_new_run_index(AnimID* anim_id)
 {
     int index;
     AnimRunInfo* run_info;
@@ -702,7 +702,7 @@ bool anim_goal_add_func(AnimGoalData* goal_data, AnimID* anim_id, bool a3, unsig
     }
 
     if (a3) {
-        if (!sub_44CCB0(&new_anim_id)) {
+        if (!anim_allocate_new_run_index(&new_anim_id)) {
             return false;
         }
 
