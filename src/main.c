@@ -425,8 +425,7 @@ void main_loop(void)
                     case SDL_SCANCODE_ESCAPE: {
                         IntgameMode esc_mode = intgame_mode_get();
                         if (esc_mode != INTGAME_MODE_MAIN
-                            && esc_mode != INTGAME_MODE_DIALOG
-                            && esc_mode != INTGAME_MODE_BARTER) {
+                            && esc_mode != INTGAME_MODE_DIALOG) {
                             intgame_mode_set(INTGAME_MODE_MAIN);
                             break;
                         }

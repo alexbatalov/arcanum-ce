@@ -5279,13 +5279,6 @@ bool mainmenu_ui_message_filter(TigMessage* msg)
                 mainmenu_ui_open();
                 return true;
             case MM_WINDOW_MAINMENU:
-                if (msg->data.keyboard.scancode == SDL_SCANCODE_ESCAPE
-                    && dword_64C43C > 1) {
-                    gsound_play_sfx(0, 1);
-                    sub_5412D0();
-                    mainmenu_ui_window_type = 0;
-                    mainmenu_ui_exit_game();
-                }
                 return false;
             case MM_WINDOW_OPTIONS:
                 if (msg->data.keyboard.scancode == SDL_SCANCODE_O) {
