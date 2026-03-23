@@ -5,7 +5,6 @@
 #include "game/gamelib.h"
 #include "game/item.h"
 #include "game/map.h"
-#include "game/mp_utils.h"
 #include "game/obj_private.h"
 #include "game/player.h"
 #include "game/random.h"
@@ -537,33 +536,6 @@ void sub_44D0C0(AnimRunInfo* run_info)
     (void)run_info;
 }
 
-// 0x44D0D0
-void sub_44D0D0(AnimID* anim_id, int a2)
-{
-    (void)anim_id;
-    (void)a2;
-}
-
-// 0x44D0E0
-bool anim_mp_reap_run_index(AnimID* anim_id)
-{
-    AnimRunInfo* run_info;
-    char str[ANIM_ID_STR_SIZE];
-
-    ASSERT(tig_net_is_active()); // tig_net_is_active()
-    ASSERT(anim_id != NULL); // pAnimID != NULL
-
-    if (!anim_id_to_run_info(anim_id, &run_info)) {
-        anim_id_to_str(anim_id, str);
-        tig_debug_printf("Anim: anim_mp_reap_run_index: could not turn animID into a AnimRunInfo %s.\n", str);
-        return false;
-    }
-
-    mp_deallocate_run_index(anim_id);
-
-    return true;
-}
-
 // 0x44D180
 bool anim_free_run_index(AnimID* anim_id)
 {
@@ -576,16 +548,6 @@ bool anim_free_run_index(AnimID* anim_id)
         anim_id_to_str(anim_id, str);
         tig_debug_printf("Anim: anim_free_run_index: could not turn animID into a AnimRunInfo %s.\n", str);
         return false;
-    }
-
-    if (tig_net_is_active()) {
-        if (tig_net_is_host()) {
-            sub_44D0D0(&(run_info->id), 0);
-        }
-
-        anim_mp_reap_run_index(&(run_info->id));
-
-        return true;
     }
 
     return mp_deallocate_run_index(anim_id);
@@ -712,56 +674,11 @@ bool anim_goal_add(AnimGoalData* anim_data, AnimID* anim_id)
 // 0x44D540
 bool anim_goal_add_ex(AnimGoalData* anim_data, AnimID* anim_id, unsigned int flags)
 {
-    Packet5 pkt;
-    int index;
-    AnimID v1;
-
     if (anim_private_editor) {
         return false;
     }
 
-    if (!tig_net_is_active()) {
-        return anim_goal_add_func(anim_data, anim_id, true, flags);
-    }
-
-    if (sub_45B300()
-        || (!tig_net_is_host() && !player_is_local_pc_obj(anim_data->params[AGDATA_SELF_OBJ].obj))
-        || (!tig_net_is_host() && anim_data->type == AG_DYING)) {
-        return true;
-    }
-
-    pkt.type = 5;
-    pkt.loc = obj_field_int64_get(anim_data->params[AGDATA_SELF_OBJ].obj, OBJ_F_LOCATION);
-    pkt.offset_x = obj_field_int32_get(anim_data->params[AGDATA_SELF_OBJ].obj, OBJ_F_OFFSET_X);
-    pkt.offset_y = obj_field_int32_get(anim_data->params[AGDATA_SELF_OBJ].obj, OBJ_F_OFFSET_Y);
-    pkt.field_8 = sub_45A7C0();
-    pkt.field_1A4 = flags;
-    anim_id_init(&(pkt.field_198));
-    for (index = 0; index < 5; index++) {
-        sub_443EB0(anim_data->params[index].obj, &(anim_data->field_B0[index]));
-    }
-
-    pkt.field_10 = *anim_data;
-
-    if (tig_net_is_host()) {
-        if (!anim_goal_add_func(anim_data, &v1, true, flags)) {
-            return false;
-        }
-
-        pkt.field_198 = v1;
-        if (anim_id != NULL) {
-            *anim_id = v1;
-        }
-
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-        return true;
-    } else {
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-        if (anim_id != NULL) {
-            anim_id_init(anim_id);
-        }
-        return true;
-    }
+    return anim_goal_add_func(anim_data, anim_id, true, flags);
 }
 
 // 0x44D730
@@ -853,12 +770,7 @@ bool anim_subgoal_add_func(AnimID anim_id, AnimGoalData* goal_data)
     ASSERT(goal_data->type < ANIM_GOAL_MAX); // 3656, "pGoalRegData->goal_type < anim_goal_max"
 
     if (anim_id.slot_num == -1) {
-        if (!tig_net_is_active()
-            || tig_net_is_host()) {
-            return false;
-        }
-
-        return anim_goal_add_func(goal_data, &anim_id, false, 0);
+        return false;
     }
 
     if (!anim_id_to_run_info(&anim_id, &run_info)) {
@@ -867,10 +779,8 @@ bool anim_subgoal_add_func(AnimID anim_id, AnimGoalData* goal_data)
         return false;
     }
 
-    if (!tig_net_is_active()) {
-        if (run_info->current_goal >= 7) {
-            return false;
-        }
+    if (run_info->current_goal >= 7) {
+        return false;
     }
 
     ASSERT(run_info->current_goal < 7); // 3675, "pRunInfo->current_goal < (ANIM_MAX_GOAL_STACK_SIZE - 1)"
@@ -900,47 +810,10 @@ bool anim_subgoal_add_func(AnimID anim_id, AnimGoalData* goal_data)
 // 0x44DBE0
 bool anim_subgoal_add(AnimID anim_id, AnimGoalData* goal_data, const char* file, int line)
 {
-    Packet7 pkt;
-    int64_t obj;
-    int idx;
-
     (void)file;
     (void)line;
 
-    if (!tig_net_is_active()) {
-        return anim_subgoal_add_func(anim_id, goal_data);
-    }
-
-    if (!tig_net_is_host()
-        && !player_is_local_pc_obj(goal_data->params[AGDATA_SELF_OBJ].obj)) {
-        return true;
-    }
-
-    obj = goal_data->params[AGDATA_SELF_OBJ].obj;
-
-    pkt.type = 7;
-    pkt.anim_id = anim_id;
-    pkt.loc = obj_field_int64_get(obj, OBJ_F_LOCATION);
-    pkt.offset_x = obj_field_int32_get(obj, OBJ_F_OFFSET_X);
-    pkt.offset_y = obj_field_int32_get(obj, OBJ_F_OFFSET_Y);
-
-    for (idx = 0; idx < 5; idx++) {
-        sub_443EB0(goal_data->params[idx].obj, &(goal_data->field_B0[idx]));
-    }
-
-    pkt.goal_data = *goal_data;
-
-    if (!tig_net_is_host()) {
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-        return false;
-    }
-
-    if (!anim_subgoal_add_func(anim_id, goal_data)) {
-        return false;
-    }
-
-    tig_net_send_app_all(&pkt, sizeof(pkt));
-    return true;
+    return anim_subgoal_add_func(anim_id, goal_data);
 }
 
 // 0x44DD80
@@ -1443,8 +1316,6 @@ bool anim_is_attacking(int64_t attacker_obj, AnimID* anim_id, int64_t target_obj
     int idx;
     int64_t leader_obj;
     int64_t target_leader_obj;
-    ObjectList objects;
-    ObjectNode* node;
 
     if (attacker_obj == OBJ_HANDLE_NULL) {
         return false;
@@ -1492,26 +1363,6 @@ bool anim_is_attacking(int64_t attacker_obj, AnimID* anim_id, int64_t target_obj
                     *anim_id = run_info->id;
                 }
                 return true;
-            }
-
-            if (tig_net_is_active()
-                && obj_field_int32_get(target_obj, OBJ_F_TYPE) == OBJ_TYPE_PC) {
-                object_list_party(target_obj, &objects);
-                node = objects.head;
-                while (node != NULL) {
-                    if (node->obj == run_info->goals[0].params[AGDATA_TARGET_OBJ].obj) {
-                        break;
-                    }
-                    node = node->next;
-                }
-                object_list_destroy(&objects);
-
-                if (node != NULL) {
-                    if (anim_id != NULL) {
-                        *anim_id = run_info->id;
-                    }
-                    return true;
-                }
             }
 
             return false;
