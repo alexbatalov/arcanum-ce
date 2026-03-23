@@ -571,19 +571,19 @@ int tig_art_blit(TigArtBlitInfo* blit_info)
         && sub_520FB0(mut_art_blit_info.dst_video_buffer, vb_blit_info.flags) == TIG_OK
         && art_get_video_buffer(cache_entry_index, mut_art_blit_info.art_id, &video_buffer) == TIG_OK) {
         if ((mut_art_blit_info.flags & TIG_ART_BLT_BLEND_COLOR_CONST) != 0) {
-            vb_blit_info.field_10 = mut_art_blit_info.color;
+            vb_blit_info.lerp_colors[0] = mut_art_blit_info.color;
         } else if ((mut_art_blit_info.flags & TIG_ART_BLT_BLEND_COLOR_LERP) != 0) {
-            vb_blit_info.field_10 = mut_art_blit_info.field_14[0];
-            vb_blit_info.field_14 = mut_art_blit_info.field_14[1];
-            vb_blit_info.field_18 = mut_art_blit_info.field_14[2];
-            vb_blit_info.field_1C = mut_art_blit_info.field_14[3];
-            vb_blit_info.field_20 = mut_art_blit_info.field_18;
+            vb_blit_info.lerp_colors[0] = mut_art_blit_info.field_14[0];
+            vb_blit_info.lerp_colors[1] = mut_art_blit_info.field_14[1];
+            vb_blit_info.lerp_colors[2] = mut_art_blit_info.field_14[2];
+            vb_blit_info.lerp_colors[3] = mut_art_blit_info.field_14[3];
+            vb_blit_info.lerp_rect = mut_art_blit_info.field_18;
         } else if ((mut_art_blit_info.flags & TIG_ART_BLT_BLEND_COLOR_ARRAY) != 0) {
-            vb_blit_info.field_10 = mut_art_blit_info.field_14[0];
-            vb_blit_info.field_14 = mut_art_blit_info.field_14[1];
-            vb_blit_info.field_18 = mut_art_blit_info.field_14[1];
-            vb_blit_info.field_1C = mut_art_blit_info.field_14[0];
-            vb_blit_info.field_20 = 0;
+            vb_blit_info.lerp_colors[0] = mut_art_blit_info.field_14[0];
+            vb_blit_info.lerp_colors[1] = mut_art_blit_info.field_14[1];
+            vb_blit_info.lerp_colors[2] = mut_art_blit_info.field_14[1];
+            vb_blit_info.lerp_colors[3] = mut_art_blit_info.field_14[0];
+            vb_blit_info.lerp_rect = NULL;
         }
 
         if ((mut_art_blit_info.flags & TIG_ART_BLT_BLEND_ALPHA_CONST) != 0) {

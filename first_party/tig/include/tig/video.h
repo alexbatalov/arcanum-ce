@@ -78,11 +78,8 @@ typedef struct TigVideoBufferBlitInfo {
     /* 0004 */ TigVideoBuffer* src_video_buffer;
     /* 0008 */ TigRect* src_rect;
     /* 000C */ uint8_t alpha[4];
-    /* 0010 */ int field_10;
-    /* 0014 */ int field_14;
-    /* 0018 */ int field_18;
-    /* 001C */ int field_1C;
-    /* 0020 */ TigRect* field_20;
+    /* 0010 */ tig_color_t lerp_colors[4];
+    /* 0020 */ TigRect* lerp_rect;
     /* 0024 */ TigVideoBuffer* dst_video_buffer;
     /* 0028 */ TigRect* dst_rect;
 } TigVideoBufferBlitInfo;

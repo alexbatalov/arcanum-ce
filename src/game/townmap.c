@@ -551,11 +551,11 @@ bool townmap_tile_blit_info(int map, int index, TigVideoBufferBlitInfo* vb_blit_
 
     // Specify blending properties.
     vb_blit_info->flags = TIG_VIDEO_BUFFER_BLIT_BLEND_COLOR_LERP;
-    vb_blit_info->field_20 = &townmap_tile_bounds;
-    vb_blit_info->field_10 = (flags & 0x8) != 0 ? color : 0;
-    vb_blit_info->field_14 = (flags & 0x4) != 0 ? color : 0;
-    vb_blit_info->field_18 = (flags & 0x2) != 0 ? color : 0;
-    vb_blit_info->field_1C = (flags & 0x1) != 0 ? color : 0;
+    vb_blit_info->lerp_rect = &townmap_tile_bounds;
+    vb_blit_info->lerp_colors[0] = (flags & 0x8) != 0 ? color : 0;
+    vb_blit_info->lerp_colors[1] = (flags & 0x4) != 0 ? color : 0;
+    vb_blit_info->lerp_colors[2] = (flags & 0x2) != 0 ? color : 0;
+    vb_blit_info->lerp_colors[3] = (flags & 0x1) != 0 ? color : 0;
 
     return true;
 }

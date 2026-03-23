@@ -924,6 +924,92 @@ int tig_video_buffer_blit(TigVideoBufferBlitInfo* blit_info)
     native_dst_rect.w = blit_dst_rect.width;
     native_dst_rect.h = blit_dst_rect.height;
 
+    if ((blit_info->flags & TIG_VIDEO_BUFFER_BLIT_BLEND_COLOR_LERP) != 0) {
+        // 0x5221A2
+        // The algorithm is adopted from `TIG_ART_BLT_BLEND_COLOR_LERP` blitter.
+        // It is used to blit townmap tiles with partially obscured edges. These
+        // tiles are loaded from a bunch of .bmp files, so it bypass art system
+        // entirely.
+        int tl_r = tig_color_get_red(blit_info->lerp_colors[0]);
+        int tl_g = tig_color_get_green(blit_info->lerp_colors[0]);
+        int tl_b = tig_color_get_blue(blit_info->lerp_colors[0]);
+
+        int tr_r = tig_color_get_red(blit_info->lerp_colors[1]);
+        int tr_g = tig_color_get_green(blit_info->lerp_colors[1]);
+        int tr_b = tig_color_get_blue(blit_info->lerp_colors[1]);
+
+        int br_r = tig_color_get_red(blit_info->lerp_colors[2]);
+        int br_g = tig_color_get_green(blit_info->lerp_colors[2]);
+        int br_b = tig_color_get_blue(blit_info->lerp_colors[2]);
+
+        int bl_r = tig_color_get_red(blit_info->lerp_colors[3]);
+        int bl_g = tig_color_get_green(blit_info->lerp_colors[3]);
+        int bl_b = tig_color_get_blue(blit_info->lerp_colors[3]);
+
+        float vert_start_step_r = (float)(bl_r - tl_r) / blit_info->lerp_rect->height;
+        float vert_start_r = vert_start_step_r * (blit_src_rect.y - blit_info->lerp_rect->y) + tl_r;
+        float vert_end_step_r = (float)(br_r - tr_r) / blit_info->lerp_rect->height;
+        float vert_end_r = vert_end_step_r * (blit_src_rect.y - blit_info->lerp_rect->y) + tr_r;
+
+        float vert_start_step_g = (float)(bl_g - tl_g) / blit_info->lerp_rect->height;
+        float vert_start_g = vert_start_step_g * (blit_src_rect.y - blit_info->lerp_rect->y) + tl_g;
+        float vert_end_step_g = (float)(br_g - tr_g) / blit_info->lerp_rect->height;
+        float vert_end_g = vert_end_step_g * (blit_src_rect.y - blit_info->lerp_rect->y) + tr_g;
+
+        float vert_start_step_b = (float)(bl_b - tl_b) / blit_info->lerp_rect->height;
+        float vert_start_b = vert_start_step_b * (blit_src_rect.y - blit_info->lerp_rect->y) + tl_b;
+        float vert_end_step_b = (float)(br_b - tr_b) / blit_info->lerp_rect->height;
+        float vert_end_b = vert_end_step_b * (blit_src_rect.y - blit_info->lerp_rect->y) + tr_b;
+
+        int x;
+        int y;
+
+        uint32_t* src = (uint32_t*)((uint8_t*)blit_info->src_video_buffer->surface->pixels
+            + blit_info->src_video_buffer->surface->pitch * blit_src_rect.y
+            + 4 * blit_src_rect.x);
+        uint32_t* dst = (uint32_t*)((uint8_t*)blit_info->dst_video_buffer->surface->pixels
+            + blit_info->dst_video_buffer->surface->pitch * blit_dst_rect.y
+            + 4 * blit_dst_rect.x);
+
+        for (y = 0; y < blit_dst_rect.height; ++y) {
+            float hor_step_r = (vert_end_r - vert_start_r) / blit_info->lerp_rect->width;
+            float hor_step_g = (vert_end_g - vert_start_g) / blit_info->lerp_rect->width;
+            float hor_step_b = (vert_end_b - vert_start_b) / blit_info->lerp_rect->width;
+
+            float r = vert_start_r + hor_step_r * (blit_src_rect.x - blit_info->lerp_rect->x);
+            float g = vert_start_g + hor_step_g * (blit_src_rect.x - blit_info->lerp_rect->x);
+            float b = vert_start_b + hor_step_b * (blit_src_rect.x - blit_info->lerp_rect->x);
+
+            for (x = 0; x < blit_dst_rect.width; ++x) {
+                if ((blit_info->src_video_buffer->flags & TIG_VIDEO_BUFFER_COLOR_KEY) == 0
+                    || *src != blit_info->src_video_buffer->color_key) {
+                    *dst = tig_color_mul(*src, tig_color_make((uint8_t)r, (uint8_t)g, (uint8_t)b));
+                }
+
+                r += hor_step_r;
+                g += hor_step_g;
+                b += hor_step_b;
+
+                src++;
+                dst++;
+            }
+
+            vert_start_r += vert_start_step_r;
+            vert_end_r += vert_end_step_r;
+
+            vert_start_g += vert_start_step_g;
+            vert_end_g += vert_end_step_g;
+
+            vert_start_b += vert_start_step_b;
+            vert_end_b += vert_end_step_b;
+
+            src = (uint32_t*)((uint8_t*)src + blit_info->src_video_buffer->surface->pitch - 4 * blit_src_rect.width);
+            dst = (uint32_t*)((uint8_t*)dst + blit_info->dst_video_buffer->surface->pitch - 4 * blit_dst_rect.width);
+        }
+
+        return TIG_OK;
+    }
+
     if (stretched) {
         if (!SDL_BlitSurfaceScaled(blit_info->src_video_buffer->surface, &native_src_rect, blit_info->dst_video_buffer->surface, &native_dst_rect, SDL_SCALEMODE_NEAREST)) {
             return TIG_ERR_GENERIC;
