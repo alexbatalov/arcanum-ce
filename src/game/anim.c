@@ -3043,7 +3043,7 @@ bool anim_load(GameLoadInfo* load_info)
     loaded = anim_load_internal(load_info);
     in_anim_load = false;
 
-    sub_423E60("Anim Load");
+    anim_validate_active_goals("Anim Load");
 
     return loaded;
 }
@@ -3719,7 +3719,7 @@ bool anim_timeevent_process(TimeEvent* timeevent)
                     goal_data->type = state_change & 0xFFF;
                     goal_node = anim_goal_nodes[goal_data->type];
                     sub_44C840(run_info, goal_node);
-                    sub_423E60("Running: PushGoal");
+                    anim_validate_active_goals("Running: PushGoal");
                 } else {
                     anim_id_to_str(&(run_info->id), str);
                     tig_debug_printf("Anim: ERROR: Attempt to PushGoal: Goal Stack too LARGE!!!  Killing the Animation Slot: AnimID: %s!\n", str);
@@ -3742,7 +3742,7 @@ bool anim_timeevent_process(TimeEvent* timeevent)
                 }
 
                 for (int idx = 1; idx <= run_info->current_goal; idx++) {
-                    sub_423E60("Running: Goal Terminate");
+                    anim_validate_active_goals("Running: Goal Terminate");
 
                     goal_subnode = &(anim_goal_nodes[run_info->goals[idx].type]->subnodes[14]);
                     if (goal_subnode->func != NULL
@@ -3890,7 +3890,7 @@ void sub_423D10(AnimRunInfo* run_info, unsigned int* flags_ptr, AnimGoalNode** g
 }
 
 // 0x423E60
-void sub_423E60(const char* msg)
+void anim_validate_active_goals(const char* msg)
 {
     int cnt;
 

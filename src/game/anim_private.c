@@ -511,7 +511,7 @@ bool mp_deallocate_run_index(AnimID* anim_id)
         run_info->path.flags = 1;
 
         dword_5E3500--;
-        sub_423E60("Free Run Index");
+        anim_validate_active_goals("Free Run Index");
 
         if (animNumActiveGoals == 0) {
             if (dword_5E34F8 != NULL) {
@@ -739,7 +739,7 @@ bool anim_goal_add_func(AnimGoalData* goal_data, AnimID* anim_id, bool a3, unsig
         sub_443EB0(run_info->goals[0].params[idx].obj, &(run_info->goals[0].field_B0[idx]));
     }
     sub_44C840(run_info, anim_goal_nodes[run_info->goals[0].type]);
-    sub_423E60("GoalAdd");
+    anim_validate_active_goals("GoalAdd");
     if ((goal_data->type == AG_ATTACK
             || goal_data->type == AG_ATTEMPT_ATTACK)
         && player_is_local_pc_obj(run_info->anim_obj)) {
@@ -802,7 +802,7 @@ bool anim_subgoal_add_func(AnimID anim_id, AnimGoalData* goal_data)
     }
 
     sub_44C840(run_info, anim_goal_nodes[goal_data->type]);
-    sub_423E60("SubGoal Add");
+    anim_validate_active_goals("SubGoal Add");
 
     return true;
 }
@@ -1071,7 +1071,7 @@ bool anim_interrupt(AnimID* anim_id, int priority)
     }
 
     freed = anim_free_run_index(anim_id);
-    sub_423E60("Interrupt Slot");
+    anim_validate_active_goals("Interrupt Slot");
 
     return freed;
 }

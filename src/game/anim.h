@@ -72,7 +72,7 @@ int sub_4233D0(int64_t obj);
 bool anim_is_idle(int64_t obj);
 bool anim_is_fidgeting(int64_t obj);
 bool anim_timeevent_process(TimeEvent* timeevent);
-void sub_423E60(const char* msg);
+void anim_validate_active_goals(const char* msg);
 void anim_catch_up_enable(void);
 void anim_catch_up_disable(void);
 void sub_423FE0(void (*func)(void));
