@@ -877,10 +877,30 @@ void object_draw(GameDrawInfo* draw_info)
 
                                                                 if (scale != 100) {
                                                                     object_iso_invalidate_rect(&eye_candy_rect);
-                                                                    src_rect.x = (int)((float)src_rect.x / (float)scale * 100.0f);
-                                                                    src_rect.y = (int)((float)src_rect.y / (float)scale * 100.0f);
-                                                                    src_rect.width = (int)((float)src_rect.width / (float)scale * 100.0f);
-                                                                    src_rect.height = (int)((float)src_rect.height / (float)scale * 100.0f);
+
+                                                                    // CE: The dirty rects and scaling does play well together. When a scaled sprite
+                                                                    // intersects a dirty rectangle, an attempt is made to determine the source
+                                                                    // rectangle of the original unscaled sprite that produced that intersection.
+                                                                    // This calculation may introduce rounding errors. The subsequent blitting
+                                                                    // operation then samples from this computed source rectangle, stretching or
+                                                                    // shrinking pixels into the destination. However, that sampling results differ
+                                                                    // from what would occur if the entire sprite were scaled first and then a
+                                                                    // portion of the result were extracted. This discrepancy causes visual artifacts
+                                                                    // on scaled sprites, particularly when the cursor moves over the dead bodies or
+                                                                    // when a PC is moving next to them.
+                                                                    //
+                                                                    // The temporary solution is to bypass dirty rectangles entirely for scaled
+                                                                    // sprites. Instead, blit the entire scaled sprite (usually outside the
+                                                                    // designated dirty rectangle) and mark entire object's rectangle as dirty for
+                                                                    // the next frame (so we can properly render adjacent objects, that may not be on
+                                                                    // the dirty rects list this frame). In theory this can cause a rendering
+                                                                    // problems of its own, but at least they won't last more than one frame.
+                                                                    src_rect.x = 0;
+                                                                    src_rect.y = 0;
+                                                                    src_rect.width = (int)((float)eye_candy_rect.width / (float)scale * 100.0f);
+                                                                    src_rect.height = (int)((float)eye_candy_rect.height / (float)scale * 100.0f);
+
+                                                                    dst_rect = eye_candy_rect;
                                                                 }
 
                                                                 if ((obj_flags & OF_SHRUNK) != 0) {
@@ -898,6 +918,12 @@ void object_draw(GameDrawInfo* draw_info)
                                                                 // walls and roofs.
                                                                 if (highlight) {
                                                                     object_enqueue_blit(&highlight_art_blit_info, order + 1);
+                                                                }
+
+                                                                if (scale != 100) {
+                                                                    // No need to continue, entire sprite has already been scheduled for blitting.
+                                                                    // See above.
+                                                                    break;
                                                                 }
                                                             }
                                                             rect_node = rect_node->next;
