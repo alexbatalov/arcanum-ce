@@ -720,7 +720,7 @@ bool obj_validate_system(unsigned int flags)
                             if (oid.type == OID_TYPE_HANDLE) {
                                 item_obj = oid.d.h;
                                 if (!obj_handle_is_valid(item_obj)) {
-                                    tig_debug_printf("!VS  Inventory entry is an invalid handle.  handle: % " PRIx64 "\n", oid.d.h);
+                                    tig_debug_printf("!VS  Inventory entry is an invalid handle.  handle: %" PRIx64 "\n", oid.d.h);
                                     return false;
                                 }
 

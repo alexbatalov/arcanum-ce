@@ -1,5 +1,7 @@
 #include "game/player.h"
 
+#include <inttypes.h>
+
 #include "game/item.h"
 #include "game/level.h"
 #include "game/location.h"
@@ -282,7 +284,7 @@ bool player_obj_create_player(PlayerCreateInfo* player_create_info)
     if ((player_create_info->flags & PLAYER_CREATE_INFO_NETWORK) == 0) {
         player_pc_obj = player_create_info->obj;
         player_pc_oid = obj_get_id(player_pc_obj);
-        tig_debug_printf("pcObj == %I64u\n", player_pc_obj);
+        tig_debug_printf("pcObj == %" PRIu64 "\n", player_pc_obj);
     }
 
     level_set(player_create_info->obj, 1);
