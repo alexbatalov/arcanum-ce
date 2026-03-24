@@ -85,7 +85,7 @@ static void mainmenu_ui_load_game_refresh(TigRect* rect);
 static void sub_542D00(char* str, TigRect* rect, tig_font_handle_t font);
 static void sub_542DF0(char* str, TigRect* rect, tig_font_handle_t font);
 static void sub_542EA0(char* str, TigRect* rect, tig_font_handle_t font);
-static void mmUITextWriteCenteredToArray(const char* str, TigRect* rects, int cnt, tig_font_handle_t font);
+static void mmUITextWriteCenteredToArray(char* str, TigRect* rects, int cnt, tig_font_handle_t font);
 static char* sub_543040(int index);
 static void sub_543060(void);
 static void sub_5430D0(void);
@@ -2714,9 +2714,58 @@ void sub_542EA0(char* str, TigRect* rect, tig_font_handle_t font)
 }
 
 // 0x542F50
-void mmUITextWriteCenteredToArray(const char* str, TigRect* rects, int cnt, tig_font_handle_t font)
+void mmUITextWriteCenteredToArray(char* str, TigRect* rects, int cnt, tig_font_handle_t font)
 {
-    // TODO: Incomplete.
+    TigFont font_desc;
+    TigRect text_rect;
+    char* curr = str;
+    char* space = NULL;
+    char* pch;
+
+    // NOTE: Original code is slightly different but does the same thing.
+    while (*curr != '\0' && cnt > 0) {
+        font_desc.width = 0;
+        font_desc.height = 0;
+        font_desc.flags = 0;
+        font_desc.str = curr;
+        tig_font_measure(&font_desc);
+
+        text_rect = *rects;
+        if (font_desc.width < text_rect.width) {
+            text_rect.x += (text_rect.width - font_desc.width) / 2;
+            text_rect.width = font_desc.width;
+            sub_5418A0(curr, &text_rect, font, 0);
+            rects++;
+            cnt--;
+
+            if (space == NULL) {
+                break;
+            }
+
+            curr = space + 1;
+
+            *space = ' ';
+            space = NULL;
+        } else {
+            pch = strrchr(str, ' ');
+            if (pch == NULL) {
+                tig_debug_printf("MainMenuUI: mmUITextWriteCenteredToArray: ERROR: Coudn't fit entire to string to print: '%s'!\n", str);
+                break;
+            }
+
+            if (space != NULL) {
+                *space = ' ';
+            }
+
+            space = pch;
+            *space = '\0';
+        }
+    }
+
+    if (space != NULL) {
+        *space = ' ';
+        space = NULL;
+    }
 }
 
 // 0x543040
