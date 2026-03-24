@@ -4027,19 +4027,21 @@ void item_arrange_inventory(int64_t parent_obj, bool vertical)
     }
 
     for (idx = 1; idx < cnt; idx++) {
-        int prev_width;
-        int prev_height;
-        int width;
-        int height;
+        for (int j = idx; j < cnt; j++) {
+            int prev_width;
+            int prev_height;
+            int width;
+            int height;
 
-        item_inv_icon_size(items[idx - 1], &prev_width, &prev_height);
-        item_inv_icon_size(items[idx], &width, &height);
+            item_inv_icon_size(items[idx - 1], &prev_width, &prev_height);
+            item_inv_icon_size(items[j], &width, &height);
 
-        if (height > prev_height
-            || (height == prev_height && width > prev_width)) {
-            item_obj = items[idx - 1];
-            items[idx - 1] = items[idx];
-            items[idx] = item_obj;
+            if (height > prev_height
+                || (height == prev_height && width > prev_width)) {
+                item_obj = items[idx - 1];
+                items[idx - 1] = items[j];
+                items[j] = item_obj;
+            }
         }
     }
 
