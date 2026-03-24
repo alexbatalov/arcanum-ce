@@ -3151,7 +3151,7 @@ bool item_ammo_transfer(int64_t from_obj, int64_t to_obj, int qty, int ammo_type
         to_ammo_obj = item_ammo_obj(to_obj, ammo_type);
         if (to_ammo_obj != OBJ_HANDLE_NULL) {
             remaining_qty = obj_field_int32_get(ammo_obj, OBJ_F_AMMO_QUANTITY);
-            obj_field_int32_set(ammo_obj, OBJ_F_AMMO_QUANTITY, remaining_qty + qty);
+            obj_field_int32_set(to_ammo_obj, OBJ_F_AMMO_QUANTITY, remaining_qty + qty);
         } else {
             to_ammo_obj = item_ammo_create(qty,
                 ammo_type,
