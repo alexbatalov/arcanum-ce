@@ -372,8 +372,18 @@ bool follower_ui_init(GameInitInfo* init_info)
     tig_art_id_t art_id;
     TigArtFrameData art_frame_data;
     TigFont font_desc;
+    TigWindowData window_data;
 
-    (void)init_info;
+    if (tig_window_data(init_info->iso_window_handle, &window_data) != TIG_OK) {
+        return false;
+    }
+
+    // Force compact layout for wide-screen resolutions.
+    if (window_data.rect.width - 800 >= FOLLOWER_UI_WIDESCREEN_EXTRA_WIDTH_THRESHOLD) {
+        for (index = FOLLOWER_UI_SLOTS; index < FOLLOWER_UI_BUTTON_COUNT; index++) {
+            follower_ui_button_rects[index] = follower_ui_special_button_rects_compact_mode[index - FOLLOWER_UI_SLOTS];
+        }
+    }
 
     if (!mes_load("mes\\follower_ui.mes", &follower_ui_mes_file)) {
         return false;
