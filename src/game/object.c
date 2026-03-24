@@ -878,7 +878,7 @@ void object_draw(GameDrawInfo* draw_info)
                                                                 if (scale != 100) {
                                                                     object_iso_invalidate_rect(&eye_candy_rect);
 
-                                                                    // CE: The dirty rects and scaling does play well together. When a scaled sprite
+                                                                    // CE: The dirty rects and scaling does not play well together. When a scaled sprite
                                                                     // intersects a dirty rectangle, an attempt is made to determine the source
                                                                     // rectangle of the original unscaled sprite that produced that intersection.
                                                                     // This calculation may introduce rounding errors. The subsequent blitting
