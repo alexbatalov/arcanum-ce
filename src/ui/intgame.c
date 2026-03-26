@@ -1968,6 +1968,23 @@ bool sub_54B5D0(TigMessage* msg)
 
     if (msg->type == TIG_MESSAGE_BUTTON) {
         if (msg->data.button.state == TIG_BUTTON_STATE_RELEASED) {
+            // CE: There is no dedicated "menu" button in the default UI, so
+            // it's impossible to open the main menu to save/load game on mobile
+            // platforms. For now, use the clock for that.
+            if (msg->data.button.button_handle == intgame_clock_button_info.button_handle) {
+                if (intgame_mode_get() == INTGAME_MODE_MAIN) {
+                    if (dialog_ui_is_local_pc_in_dialog()
+                        || wmap_ui_is_created()
+                        || (combat_turn_based_is_active()
+                            && player_get_local_pc_obj() != combat_turn_based_whos_turn_get())) {
+                        mainmenu_ui_start(MM_TYPE_IN_PLAY_LOCKED);
+                    } else {
+                        mainmenu_ui_start(MM_TYPE_IN_PLAY);
+                    }
+                }
+                return true;
+            }
+
             if (msg->data.button.button_handle == intgame_secondary_buttons[INTGAME_SECONDARY_BUTTON_SPELLS].button_handle) {
                 iso_interface_window_set(ROTWIN_TYPE_SPELLS);
                 return true;
