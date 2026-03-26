@@ -445,7 +445,7 @@ int sub_535850(TigVideoBuffer* video_buffer, const char* str, int length, TigArt
         blit_info->dst_rect->y = blt_dst_rect_y;
 
         if ((tig_font_stack[tig_font_stack_index]->flags & TIG_FONT_SCALE) != 0) {
-            blit_info->dst_rect->y += (int)((float)glyph_dy * tig_font_stack[tig_font_stack_index]->scale / 2.0);
+            blit_info->dst_rect->y += (int)((float)glyph_dy * tig_font_stack[tig_font_stack_index]->scale / 2.0f);
         } else {
             blit_info->dst_rect->y += glyph_dy / 2;
         }

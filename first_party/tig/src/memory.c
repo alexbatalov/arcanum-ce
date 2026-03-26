@@ -20,8 +20,8 @@ typedef struct TigMemoryBlock {
 // Size of block plus a pair of guards.
 #define OVERHEAD_SIZE (sizeof(TigMemoryBlock) + START_GUARD_SIZE + END_GUARD_SIZE)
 
-static int tig_memory_sort_blocks(const void* a1, const void* a2);
-static void tig_memory_fatal_error(const char* format, ...);
+static int tig_memory_sort_blocks(const void* va, const void* vb);
+static SDL_NORETURN void tig_memory_fatal_error(const char* format, ...);
 static void tig_memory_validate(TigMemoryBlock* block, const char* file, int line);
 
 // 0x603DE8
@@ -388,10 +388,10 @@ void tig_memory_print_stats(TigMemoryPrintStatsOptions opts)
 }
 
 // 0x4FE990
-int tig_memory_sort_blocks(const void* a1, const void* a2)
+int tig_memory_sort_blocks(const void* va, const void* vb)
 {
-    TigMemoryBlock* block1 = *(TigMemoryBlock**)a1;
-    TigMemoryBlock* block2 = *(TigMemoryBlock**)a2;
+    const TigMemoryBlock* block1 = *(const TigMemoryBlock**)va;
+    const TigMemoryBlock* block2 = *(const TigMemoryBlock**)vb;
     int cmp;
 
     cmp = SDL_strcasecmp(block1->file, block2->file);
@@ -434,7 +434,7 @@ void tig_memory_get_system_status(size_t* total, size_t* available)
 }
 
 // 0x4FEA60
-void tig_memory_fatal_error(const char* format, ...)
+SDL_NORETURN void tig_memory_fatal_error(const char* format, ...)
 {
     va_list args;
     va_start(args, format);

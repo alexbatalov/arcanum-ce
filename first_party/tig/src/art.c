@@ -163,8 +163,8 @@ static int sub_5059F0(int cache_entry_index, TigArtBlitInfo* blit_info);
 static int art_blit(int cache_entry_index, TigArtBlitInfo* blit_info);
 static int sub_51AA90(tig_art_id_t art_id);
 static void tig_art_cache_check_fullness(void);
-static int tig_art_cache_entry_compare_time(const void* a1, const void* a2);
-static int tig_art_cache_entry_compare_name(const void* a1, const void* a2);
+static int tig_art_cache_entry_compare_time(const void* va, const void* vb);
+static int tig_art_cache_entry_compare_name(const void* va, const void* vb);
 static int tig_art_build_path(unsigned int art_id, char* path);
 static bool tig_art_cache_find(const char* path, int* index);
 static bool tig_art_cache_entry_load(tig_art_id_t art_id, const char* path, int index);
@@ -318,7 +318,7 @@ static int dword_5BEA28[4] = {
 };
 
 // 0x5BEA38
-float tig_art_cache_video_memory_fullness = 0.3f;
+static float tig_art_cache_video_memory_fullness = 0.3f;
 
 // 0x604710
 static TigArtFilePathResolver tig_art_file_path_resolver;
@@ -5510,18 +5510,18 @@ void tig_art_cache_check_fullness(void)
 }
 
 // 0x51ADE0
-int tig_art_cache_entry_compare_time(const void* a1, const void* a2)
+int tig_art_cache_entry_compare_time(const void* va, const void* vb)
 {
-    TigArtCacheEntry* a = (TigArtCacheEntry*)a1;
-    TigArtCacheEntry* b = (TigArtCacheEntry*)a2;
+    const TigArtCacheEntry* a = (const TigArtCacheEntry*)va;
+    const TigArtCacheEntry* b = (const TigArtCacheEntry*)vb;
     return a->time - b->time;
 }
 
 // 0x51AE00
-int tig_art_cache_entry_compare_name(const void* a1, const void* a2)
+int tig_art_cache_entry_compare_name(const void* va, const void* vb)
 {
-    TigArtCacheEntry* a = (TigArtCacheEntry*)a1;
-    TigArtCacheEntry* b = (TigArtCacheEntry*)a2;
+    const TigArtCacheEntry* a = (const TigArtCacheEntry*)va;
+    const TigArtCacheEntry* b = (const TigArtCacheEntry*)vb;
     return strcmp(a->path, b->path);
 }
 
