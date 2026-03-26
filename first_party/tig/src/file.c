@@ -198,7 +198,7 @@ bool tig_file_copy_directory(const char* dst, const char* src)
     TigFileList list;
     unsigned int index;
 
-    sprintf(path1, "%s\\*.*", src);
+    SDL_snprintf(path1, sizeof(path1), "%s\\*.*", src);
     tig_file_list_create(&list, path1);
 
     if (list.count != 0) {
@@ -208,8 +208,8 @@ bool tig_file_copy_directory(const char* dst, const char* src)
         }
 
         for (index = 0; index < list.count; index++) {
-            sprintf(path1, "%s\\%s", src, list.entries[index].path);
-            sprintf(path2, "%s\\%s", dst, list.entries[index].path);
+            SDL_snprintf(path1, sizeof(path1), "%s\\%s", src, list.entries[index].path);
+            SDL_snprintf(path2, sizeof(path2), "%s\\%s", dst, list.entries[index].path);
 
             if ((list.entries[index].attributes & TIG_FILE_ATTRIBUTE_SUBDIR) != 0) {
                 if (strcmp(list.entries[index].path, ".") != 0
@@ -246,13 +246,13 @@ bool tig_file_archive_native(const char* dst, const char* src)
         return false;
     }
 
-    sprintf(index_path, "%s.tfai", dst);
+    SDL_snprintf(index_path, sizeof(index_path), "%s.tfai", dst);
     index_stream = tig_file_fopen_native(index_path, "wb");
     if (index_stream == NULL) {
         return false;
     }
 
-    sprintf(data_path, "%s.tfaf", dst);
+    SDL_snprintf(data_path, sizeof(data_path), "%s.tfaf", dst);
     data_stream = tig_file_fopen_native(data_path, "wb");
     if (data_stream == NULL) {
         tig_file_fclose(index_stream);
@@ -293,13 +293,13 @@ bool tig_file_unarchive_native(const char* src, const char* dst)
 
     tig_file_mkdir(dst);
 
-    sprintf(path1, "%s.tfai", src);
+    SDL_snprintf(path1, sizeof(path1), "%s.tfai", src);
     index_stream = tig_file_fopen_native(path1, "rb");
     if (index_stream == NULL) {
         return false;
     }
 
-    sprintf(path1, "%s.tfaf", src);
+    SDL_snprintf(path1, sizeof(path1), "%s.tfaf", src);
     data_stream = tig_file_fopen_native(path1, "rb");
     if (data_stream == NULL) {
         // FIXME: Leaks `stream1`.
@@ -1599,7 +1599,7 @@ bool tig_file_lock(const char* filename, const void* owner, size_t size)
             return false;
         }
 
-        sprintf(path, "%s\\%s", repo->path, filename);
+        SDL_snprintf(path, sizeof(path), "%s\\%s", repo->path, filename);
     }
 
     stream = fopen(path, "wbx");
@@ -1675,7 +1675,7 @@ bool tig_file_locked_by(const char* filename, const void* owner, size_t size)
             return false;
         }
 
-        sprintf(path, "%s\\%s", repo->path, filename);
+        SDL_snprintf(path, sizeof(path), "%s\\%s", repo->path, filename);
     }
 
     return sub_5310C0(path, owner, size);

@@ -797,7 +797,7 @@ const char* tig_sound_cache_stats(void)
     // 0x62B2C4
     static char buffer[100];
 
-    sprintf(buffer,
+    SDL_snprintf(buffer, sizeof(buffer),
         "Sound Cache: %u items, %u bytes",
         tig_sound_cache->items_count,
         tig_sound_cache->bytes);

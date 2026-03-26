@@ -1363,7 +1363,7 @@ int tig_video_screenshot_make_internal(int key)
     }
 
     for (index = 0; index < INT_MAX; index++) {
-        sprintf(path, "screen%04d.bmp", index);
+        SDL_snprintf(path, sizeof(path), "screen%04d.bmp", index);
         if (!tig_file_exists(path, NULL)) {
             break;
         }

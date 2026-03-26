@@ -302,24 +302,24 @@ void tig_memory_print_stats(TigMemoryPrintStatsOptions opts)
     tig_memory_output_func("\n--- Dynamic memory usage: ---");
 
     if ((opts & TIG_MEMORY_STATS_PRINT_OVERHEAD) != 0) {
-        sprintf(tig_memory_output_buffer,
+        SDL_snprintf(tig_memory_output_buffer, sizeof(tig_memory_output_buffer),
             "Peak memory management overhead: %zu bytes.",
             tig_memory_max_overhead);
         tig_memory_output_func(tig_memory_output_buffer);
 
-        sprintf(tig_memory_output_buffer,
+        SDL_snprintf(tig_memory_output_buffer, sizeof(tig_memory_output_buffer),
             "Current memory management overhead: %zu bytes.",
             tig_memory_current_overhead);
         tig_memory_output_func(tig_memory_output_buffer);
     }
 
-    sprintf(tig_memory_output_buffer,
+    SDL_snprintf(tig_memory_output_buffer, sizeof(tig_memory_output_buffer),
         "Peak program memory usage: %zu blocks, %zu bytes.",
         tig_memory_max_blocks,
         tig_memory_max_allocated);
     tig_memory_output_func(tig_memory_output_buffer);
 
-    sprintf(tig_memory_output_buffer,
+    SDL_snprintf(tig_memory_output_buffer, sizeof(tig_memory_output_buffer),
         "Current program memory usage: %zu blocks totaling %zu bytes.",
         tig_memory_current_blocks,
         tig_memory_current_allocated);
@@ -333,7 +333,7 @@ void tig_memory_print_stats(TigMemoryPrintStatsOptions opts)
             // NOTE: Format is slightly modified for VS Code to recognize file
             // path. In addition %08x is replaced with %p to prevent compiler
             // warning.
-            sprintf(tig_memory_output_buffer,
+            SDL_snprintf(tig_memory_output_buffer, sizeof(tig_memory_output_buffer),
                 "    %s:%d:  %zu bytes at %p.",
                 curr->file,
                 curr->line,
@@ -371,7 +371,7 @@ void tig_memory_print_stats(TigMemoryPrintStatsOptions opts)
                 || array[index]->line != array[index + 1]->line) {
                 // NOTE: Format is slightly modified for VS Code to recognize
                 // file path.
-                sprintf(tig_memory_output_buffer,
+                SDL_snprintf(tig_memory_output_buffer, sizeof(tig_memory_output_buffer),
                     "    %s:%d:  %zu blocks totaling %zu bytes.",
                     array[index]->file,
                     array[index]->line,
@@ -440,7 +440,7 @@ void tig_memory_fatal_error(const char* format, ...)
     va_start(args, format);
 
     if (tig_memory_output_func != NULL) {
-        vsprintf(tig_memory_output_buffer, format, args);
+        SDL_vsnprintf(tig_memory_output_buffer, sizeof(tig_memory_output_buffer), format, args);
         tig_memory_output_func(tig_memory_output_buffer);
     }
 
