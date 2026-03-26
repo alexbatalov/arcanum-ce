@@ -1427,6 +1427,7 @@ bool gamelib_saveinfo_init(const char* name, const char* description, GameSaveIn
     int64_t pc_obj;
     TigVideoBufferCreateInfo vb_create_info;
     TigWindowBlitInfo win_blit_info;
+    TigRect src_rect;
     TigRect dst_rect;
     char* pc_name;
 
@@ -1449,6 +1450,14 @@ bool gamelib_saveinfo_init(const char* name, const char* description, GameSaveIn
         return false;
     }
 
+    // CE: Source rect for thumbnails is always centered 800x600 regardless of
+    // the actual window size. This makes thubnails taken at any resolution show
+    // the same area.
+    src_rect.x = (gamelib_iso_content_rect.width - 800) / 2;
+    src_rect.y = (gamelib_iso_content_rect.height - 600) / 2;
+    src_rect.width = 800;
+    src_rect.height = 600;
+
     dst_rect.x = 0;
     dst_rect.y = 0;
     dst_rect.width = gamelib_thumbnail_width;
@@ -1456,10 +1465,10 @@ bool gamelib_saveinfo_init(const char* name, const char* description, GameSaveIn
 
     win_blit_info.type = TIG_WINDOW_BLT_WINDOW_TO_VIDEO_BUFFER;
     win_blit_info.src_window_handle = gamelib_init_info.iso_window_handle;
-    win_blit_info.src_rect = &gamelib_iso_content_rect;
+    win_blit_info.src_rect = &src_rect;
     win_blit_info.dst_video_buffer = save_info->thumbnail_video_buffer;
     win_blit_info.dst_rect = &dst_rect;
-    win_blit_info.vb_blit_flags = 0;
+    win_blit_info.vb_blit_flags = TIG_VIDEO_BUFFER_BLIT_SCALE_LINEAR;
     if (tig_window_blit(&win_blit_info) != TIG_OK) {
         tig_debug_printf("gamelib: ERROR: Build thumbnail FAILED to Blit!\n");
         if (tig_video_buffer_destroy(save_info->thumbnail_video_buffer) != TIG_OK) {

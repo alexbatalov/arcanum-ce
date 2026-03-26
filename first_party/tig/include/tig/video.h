@@ -44,6 +44,12 @@ typedef unsigned int TigVideoBufferBlitFlags;
 #define TIG_VIDEO_BUFFER_BLIT_BLEND_COLOR_CONST 0x0200
 #define TIG_VIDEO_BUFFER_BLIT_BLEND_COLOR_LERP 0x0400
 
+// CE: Special case - use linear filtering instead of nearest pixel sampling.
+// This is only required when creating save-game thumbnails. Default nearest
+// pixel sampling produces ugly blank lines when a PC is inside a structure
+// (which makes walls semitransparent).
+#define TIG_VIDEO_BUFFER_BLIT_SCALE_LINEAR 0x80000000u
+
 #define TIG_VIDEO_BUFFER_BLIT_FLIP_ANY (TIG_VIDEO_BUFFER_BLIT_FLIP_X | TIG_VIDEO_BUFFER_BLIT_FLIP_Y)
 
 // Opaque handle.

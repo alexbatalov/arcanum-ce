@@ -1011,7 +1011,11 @@ int tig_video_buffer_blit(TigVideoBufferBlitInfo* blit_info)
     }
 
     if (stretched) {
-        if (!SDL_BlitSurfaceScaled(blit_info->src_video_buffer->surface, &native_src_rect, blit_info->dst_video_buffer->surface, &native_dst_rect, SDL_SCALEMODE_NEAREST)) {
+        SDL_ScaleMode scale_mode = (blit_info->flags & TIG_VIDEO_BUFFER_BLIT_SCALE_LINEAR)
+            ? SDL_SCALEMODE_LINEAR
+            : SDL_SCALEMODE_NEAREST;
+
+        if (!SDL_BlitSurfaceScaled(blit_info->src_video_buffer->surface, &native_src_rect, blit_info->dst_video_buffer->surface, &native_dst_rect, scale_mode)) {
             return TIG_ERR_GENERIC;
         }
     } else {
