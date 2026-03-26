@@ -413,7 +413,7 @@ typedef struct TigArtBlitInfo {
     /* 0028 */ TigVideoBuffer* scratch_video_buffer;
 } TigArtBlitInfo;
 
-typedef bool(TigArtBlitPaletteAdjustCallback)(tig_art_id_t art_id, TigPaletteModifyInfo* modify_info);
+typedef bool (*TigArtBlitPaletteAdjustCallback)(tig_art_id_t art_id, TigPaletteModifyInfo* modify_info);
 
 int tig_art_init(TigInitInfo* init_info);
 void tig_art_exit(void);
@@ -422,8 +422,8 @@ int tig_art_misc_id_create(unsigned int num, unsigned int palette, tig_art_id_t*
 void tig_art_flush(void);
 int tig_art_exists(tig_art_id_t art_id);
 int tig_art_touch(tig_art_id_t art_id);
-void sub_5022B0(TigArtBlitPaletteAdjustCallback* callback);
-TigArtBlitPaletteAdjustCallback* sub_5022C0(void);
+void sub_5022B0(TigArtBlitPaletteAdjustCallback callback);
+TigArtBlitPaletteAdjustCallback sub_5022C0(void);
 void sub_5022D0(void);
 int tig_art_blit(TigArtBlitInfo* blit_info);
 int tig_art_type(tig_art_id_t art_id);

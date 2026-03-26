@@ -185,7 +185,7 @@ bool tig_idxtable_read(TigIdxTable* idxtable, TigFile* stream)
 }
 
 // 0x534650
-bool tig_idxtable_enumerate(TigIdxTable* idxtable, TigIdxTableEnumerateCallback* callback, void* context)
+bool tig_idxtable_enumerate(TigIdxTable* idxtable, TigIdxTableEnumerateCallback callback, void* context)
 {
     int index;
     TigIdxTableEntry* entry;

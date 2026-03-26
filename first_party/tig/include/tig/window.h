@@ -23,14 +23,14 @@ typedef unsigned int TigWindowFlags;
 #define TIG_WINDOW_RENDER_TARGET 0x0040
 #define TIG_WINDOW_ALWAYS_ON_BOTTOM 0x0080
 
-typedef bool(TigWindowMessageFilterFunc)(TigMessage* msg);
+typedef bool (*TigWindowMessageFilterFunc)(TigMessage* msg);
 
 typedef struct TigWindowData {
     /* 0000 */ TigWindowFlags flags;
     /* 0004 */ TigRect rect;
     /* 0014 */ unsigned int background_color;
     /* 0018 */ unsigned int color_key;
-    /* 001C */ TigWindowMessageFilterFunc* message_filter;
+    /* 001C */ TigWindowMessageFilterFunc message_filter;
 } TigWindowData;
 
 typedef enum TigWindowBltType {
@@ -74,17 +74,17 @@ typedef enum TigWindowModalDialogChoice {
     TIG_WINDOW_MODAL_DIALOG_CHOICE_COUNT,
 } TigWindowModalDialogChoice;
 
-typedef bool(TigWindowDialogProcess)(TigWindowModalDialogChoice* choice_ptr);
-typedef void(TigWindowDialogRedraw)(void);
+typedef bool (*TigWindowDialogProcess)(TigWindowModalDialogChoice* choice_ptr);
+typedef void (*TigWindowDialogRedraw)(void);
 
 typedef struct TigWindowModalDialogInfo {
     /* 0000 */ int type;
     /* 0004 */ int x;
     /* 0008 */ int y;
     /* 000C */ const char* text;
-    /* 0010 */ TigWindowDialogProcess* process;
+    /* 0010 */ TigWindowDialogProcess process;
     /* 0014 */ unsigned char keys[2];
-    /* 0018 */ TigWindowDialogRedraw* redraw;
+    /* 0018 */ TigWindowDialogRedraw redraw;
 } TigWindowModalDialogInfo;
 
 int tig_window_init(TigInitInfo* init_info);
@@ -92,7 +92,7 @@ void tig_window_exit(void);
 int tig_window_create(TigWindowData* window_data, tig_window_handle_t* window_handle_ptr);
 int tig_window_destroy(tig_window_handle_t window_handle);
 int tig_window_button_destroy(tig_window_handle_t window_handle);
-int tig_window_message_filter_set(tig_window_handle_t window_handle, TigWindowMessageFilterFunc* func);
+int tig_window_message_filter_set(tig_window_handle_t window_handle, TigWindowMessageFilterFunc func);
 int tig_window_data(tig_window_handle_t window_handle, TigWindowData* window_data);
 int tig_window_display(void);
 void sub_51D050(TigRect* src_rect, TigVideoBuffer* dst_video_buffer, int dx, int dy, int top_window_index);

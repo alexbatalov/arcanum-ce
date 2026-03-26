@@ -28,7 +28,7 @@ typedef enum TigSoundPositionalSize {
 } TigSoundPositionalSize;
 
 // Signature of a callback used by `tig_sound_enumerate_positional`.
-typedef void(TigSoundEnumerateFunc)(tig_sound_handle_t sound_handle);
+typedef void (*TigSoundEnumerateFunc)(tig_sound_handle_t sound_handle);
 
 // Initializes the sound subsystem.
 int tig_sound_init(TigInitInfo* init_info);
@@ -40,7 +40,7 @@ void tig_sound_exit(void);
 void tig_sound_ping(void);
 
 // Sets a callback function to resolve sound ID to a file path.
-void tig_sound_set_file_path_resolver(TigSoundFilePathResolver* func);
+void tig_sound_set_file_path_resolver(TigSoundFilePathResolver func);
 
 // Returns `true` if SOUND subsystem is initialized.
 bool tig_sound_is_initialized(void);
@@ -169,7 +169,7 @@ void tig_sound_get_position(tig_sound_handle_t sound_handle, int64_t* x, int64_t
 bool tig_sound_is_positional(tig_sound_handle_t sound_handle);
 
 // Executes a given callback for each active positional sound.
-void tig_sound_enumerate_positional(TigSoundEnumerateFunc* func);
+void tig_sound_enumerate_positional(TigSoundEnumerateFunc func);
 
 // Sets volume for sound effects played with `tig_sound_quick_play`.
 void tig_sound_quick_play_set_volume(int volume);

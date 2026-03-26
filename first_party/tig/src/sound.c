@@ -67,7 +67,7 @@ static TigSoundFlags tig_sound_type_flags[TIG_SOUND_TYPE_COUNT] = {
 };
 
 // 0x62B2C0
-static TigSoundFilePathResolver* tig_sound_file_path_resolver;
+static TigSoundFilePathResolver tig_sound_file_path_resolver;
 
 // 0x62B328
 static TigSound tig_sounds[SOUND_HANDLE_MAX];
@@ -214,7 +214,7 @@ void tig_sound_update(void)
 }
 
 // 0x533000
-void tig_sound_set_file_path_resolver(TigSoundFilePathResolver* func)
+void tig_sound_set_file_path_resolver(TigSoundFilePathResolver func)
 {
     tig_sound_file_path_resolver = func;
 }
@@ -859,7 +859,7 @@ bool tig_sound_is_positional(tig_sound_handle_t sound_handle)
 }
 
 // 0x533BF0
-void tig_sound_enumerate_positional(TigSoundEnumerateFunc* func)
+void tig_sound_enumerate_positional(TigSoundEnumerateFunc func)
 {
     int index;
     TigSound* snd;

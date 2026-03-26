@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
-typedef int(TigMessageKeyboardCallback)(int);
+typedef int (*TigMessageKeyboardCallback)(int);
 
 typedef enum TigMessageType {
     TIG_MESSAGE_MOUSE,
@@ -79,7 +79,7 @@ int tig_message_init(TigInitInfo* init_info);
 void tig_message_exit(void);
 void tig_message_ping(void);
 int tig_message_enqueue(TigMessage* message);
-int tig_message_set_key_handler(TigMessageKeyboardCallback* callback, int key);
+int tig_message_set_key_handler(TigMessageKeyboardCallback callback, int key);
 
 // Pulls next message from the game's message queue and returns `TIG_OK`.
 //

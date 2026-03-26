@@ -8152,7 +8152,7 @@ bool intgame_big_window_message_filter(TigMessage* msg)
 }
 
 // 0x5572D0
-bool intgame_big_window_lock(TigWindowMessageFilterFunc* func, tig_window_handle_t* window_handle_ptr)
+bool intgame_big_window_lock(TigWindowMessageFilterFunc func, tig_window_handle_t* window_handle_ptr)
 {
     if (intgame_big_window_locked) {
         return false;

@@ -24,7 +24,7 @@ typedef struct CompactUiComponent {
     /* 0004 */ tig_window_handle_t window_handle;
     /* 0008 */ CompactUiComponentInit* init;
     /* 000C */ void (*field_C)(void);
-    /* 0010 */ TigWindowMessageFilterFunc* message_filter;
+    /* 0010 */ TigWindowMessageFilterFunc message_filter;
     /* 0014 */ CompactUiComponentDraw* draw;
     /* 0018 */ TigRect rect;
     Gravity gravity;

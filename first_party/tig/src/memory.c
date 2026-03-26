@@ -43,7 +43,7 @@ static size_t tig_memory_current_allocated;
 static size_t tig_memory_current_blocks;
 
 // 0x0603E00
-static TigMemoryOutputFunc* tig_memory_output_func;
+static TigMemoryOutputFunc tig_memory_output_func;
 
 // 0x603E04
 static char tig_memory_output_buffer[1024];
@@ -287,7 +287,7 @@ char* tig_memory_strdup(const char* str, const char* file, int line)
 }
 
 // 0x4FE790
-void tig_memory_set_output_func(TigMemoryOutputFunc* func)
+void tig_memory_set_output_func(TigMemoryOutputFunc func)
 {
     tig_memory_output_func = func;
 }
@@ -512,7 +512,7 @@ static void validate_memory_leaks_output_callback(const char* str)
 
 bool tig_memory_validate_memory_leaks(void)
 {
-    TigMemoryOutputFunc* fn;
+    TigMemoryOutputFunc fn;
 
     if (tig_memory_current_blocks == 0 || tig_memory_current_allocated == 0) {
         return true;

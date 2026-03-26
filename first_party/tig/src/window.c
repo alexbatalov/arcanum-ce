@@ -60,7 +60,7 @@ typedef struct TigWindow {
     /* 0034 */ TigVideoBuffer* secondary_video_buffer;
     /* 0038 */ int num_buttons;
     /* 003C */ tig_button_handle_t buttons[TIG_WINDOW_BUTTON_MAX];
-    /* 035C */ TigWindowMessageFilterFunc* message_filter;
+    /* 035C */ TigWindowMessageFilterFunc message_filter;
 } TigWindow;
 
 static int tig_window_free_index(void);
@@ -317,7 +317,7 @@ int tig_window_button_destroy(tig_window_handle_t window_handle)
 }
 
 // 0x51CE50
-int tig_window_message_filter_set(tig_window_handle_t window_handle, TigWindowMessageFilterFunc* func)
+int tig_window_message_filter_set(tig_window_handle_t window_handle, TigWindowMessageFilterFunc func)
 {
     int window_index;
     TigWindow* win;
@@ -1405,7 +1405,7 @@ bool tig_window_filter_message(TigMessage* msg)
     int window_index;
     TigWindow* win;
     unsigned int flags[TIG_WINDOW_MAX];
-    TigWindowMessageFilterFunc* filters[TIG_WINDOW_MAX];
+    TigWindowMessageFilterFunc filters[TIG_WINDOW_MAX];
     int cnt;
 
     cnt = 0;

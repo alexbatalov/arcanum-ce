@@ -321,7 +321,7 @@ static int dword_5BEA28[4] = {
 float tig_art_cache_video_memory_fullness = 0.3f;
 
 // 0x604710
-static TigArtFilePathResolver* tig_art_file_path_resolver;
+static TigArtFilePathResolver tig_art_file_path_resolver;
 
 // 0x604714
 static int dword_604714;
@@ -345,7 +345,7 @@ static int tig_art_cache_entries_capacity;
 static art_size_t tig_art_available_video_memory;
 
 // 0x604744
-static TigArtBlitPaletteAdjustCallback* dword_604744;
+static TigArtBlitPaletteAdjustCallback dword_604744;
 
 // 0x604738
 static int tig_art_bytes_per_pixel;
@@ -363,7 +363,7 @@ static art_size_t tig_art_total_video_memory;
 static int tig_art_bits_per_pixel;
 
 // 0x604750
-static TigArtIdResetFunc* tig_art_id_reset_func;
+static TigArtIdResetFunc tig_art_id_reset_func;
 
 // 0x604754
 static int dword_604754;
@@ -490,13 +490,13 @@ int tig_art_touch(tig_art_id_t art_id)
 }
 
 // 0x5022B0
-void sub_5022B0(TigArtBlitPaletteAdjustCallback* callback)
+void sub_5022B0(TigArtBlitPaletteAdjustCallback callback)
 {
     dword_604744 = callback;
 }
 
 // 0x5022C0
-TigArtBlitPaletteAdjustCallback* sub_5022C0(void)
+TigArtBlitPaletteAdjustCallback sub_5022C0(void)
 {
     return dword_604744;
 }

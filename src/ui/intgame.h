@@ -135,7 +135,7 @@ void sub_556E60(void);
 void sub_5570A0(int64_t obj);
 void intgame_notify_item_inserted_or_removed(int64_t item_obj, bool removed, int inventory_location);
 void intgame_refresh_health_bar(int64_t obj);
-bool intgame_big_window_lock(TigWindowMessageFilterFunc* func, tig_window_handle_t* window_handle_ptr);
+bool intgame_big_window_lock(TigWindowMessageFilterFunc func, tig_window_handle_t* window_handle_ptr);
 void intgame_big_window_unlock(void);
 void sub_557370(int64_t source_obj, int64_t target_obj);
 void intgame_there_is_nothing_to_loot(void);

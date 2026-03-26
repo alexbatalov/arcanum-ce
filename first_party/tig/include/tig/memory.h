@@ -10,7 +10,7 @@ extern "C" {
 #endif
 
 // Signature of function used during `tig_memory_print_stats`.
-typedef void(TigMemoryOutputFunc)(const char*);
+typedef void (*TigMemoryOutputFunc)(const char*);
 
 // Level of details during `tig_memory_print_stats`.
 //
@@ -29,7 +29,7 @@ void tig_memory_free(void* ptr, const char* file, int line);
 void* tig_memory_alloc(size_t size, const char* file, int line);
 void* tig_memory_realloc(void* ptr, size_t size, const char* file, int line);
 char* tig_memory_strdup(const char* str, const char* file, int line);
-void tig_memory_set_output_func(TigMemoryOutputFunc* func);
+void tig_memory_set_output_func(TigMemoryOutputFunc func);
 void tig_memory_print_stats(TigMemoryPrintStatsOptions opts);
 void tig_memory_validate_all(const char* file, int line);
 void tig_memory_get_system_status(size_t* total, size_t* available);

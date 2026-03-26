@@ -110,9 +110,9 @@ typedef unsigned int TigInitFlags;
 // the executable name).
 #define TIG_INITIALIZE_SET_WINDOW_NAME 0x4000u
 
-typedef int(TigArtFilePathResolver)(tig_art_id_t art_id, char* path);
-typedef tig_art_id_t(TigArtIdResetFunc)(tig_art_id_t art_id);
-typedef int(TigSoundFilePathResolver)(int sound_id, char* path);
+typedef int (*TigArtFilePathResolver)(tig_art_id_t art_id, char* path);
+typedef tig_art_id_t (*TigArtIdResetFunc)(tig_art_id_t art_id);
+typedef int (*TigSoundFilePathResolver)(int sound_id, char* path);
 
 typedef struct TigInitInfo {
     TigInitFlags flags;
@@ -121,9 +121,9 @@ typedef struct TigInitInfo {
     int width;
     int height;
     int bpp;
-    TigArtFilePathResolver* art_file_path_resolver;
-    TigArtIdResetFunc* art_id_reset_func;
-    TigSoundFilePathResolver* sound_file_path_resolver;
+    TigArtFilePathResolver art_file_path_resolver;
+    TigArtIdResetFunc art_id_reset_func;
+    TigSoundFilePathResolver sound_file_path_resolver;
     const char* mss_redist_path;
     unsigned int texture_width;
     unsigned int texture_height;

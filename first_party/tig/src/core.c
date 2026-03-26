@@ -22,13 +22,13 @@
 #include "tig/video.h"
 #include "tig/window.h"
 
-typedef int(TigInitFunc)(TigInitInfo* init_info);
-typedef void(TigExitFunc)(void);
+typedef int (*TigInitFunc)(TigInitInfo* init_info);
+typedef void (*TigExitFunc)(void);
 
 typedef struct TigModule {
     const char* name;
-    TigInitFunc* init_func;
-    TigExitFunc* exit_func;
+    TigInitFunc init_func;
+    TigExitFunc exit_func;
 } TigModule;
 
 // NOTE: Original code is slightly different. It has two separate arrays of

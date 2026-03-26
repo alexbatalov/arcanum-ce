@@ -20,7 +20,7 @@ typedef struct TigMessageListNode {
 
 typedef struct TigMessageKeyboardHandler {
     /* 0000 */ int key;
-    /* 0004 */ TigMessageKeyboardCallback* callback;
+    /* 0004 */ TigMessageKeyboardCallback callback;
 } TigMessageKeyboardHandler;
 
 static TigMessageListNode* tig_message_node_acquire(void);
@@ -185,7 +185,7 @@ int tig_message_enqueue(TigMessage* message)
 }
 
 // 0x52B920
-int tig_message_set_key_handler(TigMessageKeyboardCallback* callback, int key)
+int tig_message_set_key_handler(TigMessageKeyboardCallback callback, int key)
 {
     int index;
 

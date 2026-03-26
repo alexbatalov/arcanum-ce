@@ -33,14 +33,14 @@ typedef struct TigIdxTable {
 //
 // The callback should return `true` to continue enumeration, or `false` to
 // stop it.
-typedef bool(TigIdxTableEnumerateCallback)(void* value, int key, void* context);
+typedef bool (*TigIdxTableEnumerateCallback)(void* value, int key, void* context);
 
 void tig_idxtable_init(TigIdxTable* idxtable, int value_size);
 void tig_idxtable_exit(TigIdxTable* idxtable);
 void tig_idxtable_copy(TigIdxTable* dst, TigIdxTable* src);
 size_t tig_idxtable_write(TigIdxTable* idxtable, TigFile* stream);
 bool tig_idxtable_read(TigIdxTable* idxtable, TigFile* stream);
-bool tig_idxtable_enumerate(TigIdxTable* idxtable, TigIdxTableEnumerateCallback* callback, void* context);
+bool tig_idxtable_enumerate(TigIdxTable* idxtable, TigIdxTableEnumerateCallback callback, void* context);
 void tig_idxtable_set(TigIdxTable* idxtable, int key, void* value);
 bool tig_idxtable_get(TigIdxTable* idxtable, int key, void* value);
 bool tig_idxtable_contains(TigIdxTable* idxtable, int key);
