@@ -1803,6 +1803,13 @@ void gamelib_splash(tig_window_handle_t window_handle)
         tig_window_invalidate_rect(NULL);
         tig_window_display();
 
+        // CE: macOS and iOS require dequeuing events for the window to be
+        // presented by the window manager. I'm not sure whether there is a
+        // specific event to wait for or if it's just a matter of time.
+        for (int i = 0; i < 3; i++) {
+            SDL_PumpEvents();
+        }
+
         settings_set_value(&settings, SPLASH_KEY, value + 1);
     }
 
