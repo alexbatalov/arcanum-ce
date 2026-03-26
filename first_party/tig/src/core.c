@@ -23,7 +23,7 @@
 #include "tig/window.h"
 
 typedef int(TigInitFunc)(TigInitInfo* init_info);
-typedef void(TigExitFunc)();
+typedef void(TigExitFunc)(void);
 
 typedef struct TigModule {
     const char* name;
