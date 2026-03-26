@@ -188,32 +188,32 @@ static int mainmenu_ui_pregen_char_cnt = 9;
 static bool dword_5C3620 = true;
 
 // 0x5C3624
-static tig_window_handle_t dword_5C3624 = TIG_WINDOW_HANDLE_INVALID;
+static tig_window_handle_t mainmenu_ui_window_handle = TIG_WINDOW_HANDLE_INVALID;
 
 // 0x5C3628
-static TigRect stru_5C3628 = { 0, 0, 800, 600 };
+static TigRect mainmenu_ui_window_rect = { 0, 0, 800, 600 };
 
 // 0x5C3638
-static TigRect stru_5C3638 = { 0, 0, 800, 600 };
+static TigRect mainmenu_ui_window_fullscreen_rect = { 0, 0, 800, 600 };
 
 // 0x5C3648
-static TigRect stru_5C3648 = { 0, 41, 800, 400 };
+static TigRect mainmenu_ui_window_partial_rect = { 0, 41, 800, 400 };
 
 // 0x5C3658
-static tig_window_handle_t dword_5C3658 = TIG_WINDOW_HANDLE_INVALID;
+static tig_window_handle_t mainmenu_ui_top_bar_cover_window_handle = TIG_WINDOW_HANDLE_INVALID;
 
 // 0x5C3660
-static TigRect stru_5C3660 = { 0, 0, 800, 41 };
+static TigRect mainmenu_ui_top_bar_cover_rect = { 0, 0, 800, 41 };
 
 // 0x5C3670
-static tig_window_handle_t dword_5C3670[3] = {
+static tig_window_handle_t mainmenu_ui_bottom_bar_cover_window_handles[3] = {
     TIG_WINDOW_HANDLE_INVALID,
     TIG_WINDOW_HANDLE_INVALID,
     TIG_WINDOW_HANDLE_INVALID,
 };
 
 // 0x5C3680
-static TigRect stru_5C3680[3] = {
+static TigRect mainmenu_ui_bottom_bar_cover_rects[3] = {
     { 200, 441, 400, 47 },
     { 0, 441, 200, 159 },
     { 600, 441, 200, 159 },
@@ -1901,7 +1901,7 @@ void sub_5418A0(char* str, TigRect* rect, tig_font_handle_t font, unsigned int f
     TigFont font_desc;
     size_t pos;
 
-    if (tig_window_vbid_get(dword_5C3624, &vb) != TIG_OK) {
+    if (tig_window_vbid_get(mainmenu_ui_window_handle, &vb) != TIG_OK) {
         return;
     }
 
@@ -2002,7 +2002,7 @@ void mainmenu_ui_draw_version(void)
     rect.height = 20;
 
     tig_font_push(dword_64BC04[0]);
-    if (tig_window_text_write(dword_5C3624, version, &rect) != TIG_OK) {
+    if (tig_window_text_write(mainmenu_ui_window_handle, version, &rect) != TIG_OK) {
         tig_debug_printf("MainMenuUI: ERROR: GameLib_Version_String Failed to draw!\n");
     }
     tig_font_pop();
@@ -2089,10 +2089,10 @@ void mainmenu_ui_create_options(void)
     mainmenu_ui_window_type = MM_WINDOW_OPTIONS;
     mainmenu_ui_create_window_func(false);
     dword_64C440 = 0;
-    options_ui_start(OPTIONS_UI_TAB_GAME, dword_5C3624, stru_5C36B0[mainmenu_ui_type][1] == 0);
+    options_ui_start(OPTIONS_UI_TAB_GAME, mainmenu_ui_window_handle, stru_5C36B0[mainmenu_ui_type][1] == 0);
     mainmenu_ui_draw_version();
 
-    pc_lens.window_handle = dword_5C3624;
+    pc_lens.window_handle = mainmenu_ui_window_handle;
     pc_lens.rect = &stru_5C4490;
     tig_art_interface_id_create(670, 0, 0, 0, &pc_lens.art_id);
     if (stru_5C36B0[mainmenu_ui_type][0]) {
@@ -2173,13 +2173,13 @@ void sub_541E20(int a1)
         dword_64C440 = a1;
         switch (dword_64C440) {
         case 0:
-            options_ui_start(OPTIONS_UI_TAB_GAME, dword_5C3624, stru_5C36B0[mainmenu_ui_type][1] == 0);
+            options_ui_start(OPTIONS_UI_TAB_GAME, mainmenu_ui_window_handle, stru_5C36B0[mainmenu_ui_type][1] == 0);
             break;
         case 1:
-            options_ui_start(OPTIONS_UI_TAB_VIDEO, dword_5C3624, stru_5C36B0[mainmenu_ui_type][1] == 0);
+            options_ui_start(OPTIONS_UI_TAB_VIDEO, mainmenu_ui_window_handle, stru_5C36B0[mainmenu_ui_type][1] == 0);
             break;
         case 2:
-            options_ui_start(OPTIONS_UI_TAB_AUDIO, dword_5C3624, stru_5C36B0[mainmenu_ui_type][1] == 0);
+            options_ui_start(OPTIONS_UI_TAB_AUDIO, mainmenu_ui_window_handle, stru_5C36B0[mainmenu_ui_type][1] == 0);
             break;
         }
     }
@@ -2261,13 +2261,13 @@ void mainmenu_ui_load_game_create(void)
     stru_64C260.content_rect.y = 110;
     stru_64C260.content_rect.width = 195;
     stru_64C260.content_rect.height = 232;
-    scrollbar_ui_control_create(&stru_64C220, &stru_64C260, dword_5C3624);
+    scrollbar_ui_control_create(&stru_64C220, &stru_64C260, mainmenu_ui_window_handle);
 
     dword_64C450 = false;
 
     pc_obj = player_get_local_pc_obj();
 
-    pc_lens.window_handle = dword_5C3624;
+    pc_lens.window_handle = mainmenu_ui_window_handle;
     pc_lens.rect = &stru_5C4780;
     tig_art_interface_id_create(746, 0, 0, 0, &(pc_lens.art_id));
 
@@ -2463,7 +2463,7 @@ void mainmenu_ui_load_game_refresh(TigRect* rect)
         art_blit_info.flags = 0;
         art_blit_info.src_rect = &src_rect;
         art_blit_info.dst_rect = &dst_rect;
-        tig_window_blit_art(dword_5C3624, &art_blit_info);
+        tig_window_blit_art(mainmenu_ui_window_handle, &art_blit_info);
     }
 
     if (rect == NULL
@@ -2476,7 +2476,7 @@ void mainmenu_ui_load_game_refresh(TigRect* rect)
         dst_rect.width = window->content_rect.width;
         dst_rect.height = window->content_rect.height + 5;
 
-        if (tig_window_fill(dword_5C3624, &dst_rect, tig_color_make(0, 0, 0)) != TIG_OK) {
+        if (tig_window_fill(mainmenu_ui_window_handle, &dst_rect, tig_color_make(0, 0, 0)) != TIG_OK) {
             tig_debug_printf("mmUIMPLoadGameRefreshFunc: ERROR: tig_window_fill2 failed!\n");
             exit(EXIT_FAILURE);
         }
@@ -2535,7 +2535,7 @@ void mainmenu_ui_load_game_refresh(TigRect* rect)
                         win_blit_info.vb_blit_flags = 0;
                         win_blit_info.src_video_buffer = mainmenu_ui_gsi.thumbnail_video_buffer;
                         win_blit_info.src_rect = &stru_5C46B0;
-                        win_blit_info.dst_window_handle = dword_5C3624;
+                        win_blit_info.dst_window_handle = mainmenu_ui_window_handle;
                         win_blit_info.dst_rect = &stru_5C46C0;
 
                         if (tig_window_blit(&win_blit_info) != TIG_OK) {
@@ -2553,7 +2553,7 @@ void mainmenu_ui_load_game_refresh(TigRect* rect)
                         if (mainmenu_ui_gsi.pc_portrait != 0) {
                             portrait_draw_native(OBJ_HANDLE_NULL,
                                 mainmenu_ui_gsi.pc_portrait,
-                                dword_5C3624,
+                                mainmenu_ui_window_handle,
                                 stru_5C46E0.x,
                                 stru_5C46E0.y);
                         }
@@ -2599,7 +2599,7 @@ void mainmenu_ui_load_game_refresh(TigRect* rect)
                 }
                 tig_font_pop();
             } else {
-                tig_window_fill(dword_5C3624, &stru_5C46C0, tig_color_make(0, 0, 0));
+                tig_window_fill(mainmenu_ui_window_handle, &stru_5C46C0, tig_color_make(0, 0, 0));
 
                 font = dword_64C218[0];
                 tig_font_push(font);
@@ -2609,7 +2609,7 @@ void mainmenu_ui_load_game_refresh(TigRect* rect)
                 tig_font_pop();
             }
         } else {
-            tig_window_fill(dword_5C3624, &stru_5C46C0, tig_color_make(0, 0, 0));
+            tig_window_fill(mainmenu_ui_window_handle, &stru_5C46C0, tig_color_make(0, 0, 0));
         }
 
         tig_art_interface_id_create(748, 0, 0, 0, &art_id);
@@ -2629,7 +2629,7 @@ void mainmenu_ui_load_game_refresh(TigRect* rect)
             art_blit_info.flags = 0;
             art_blit_info.src_rect = &src_rect;
             art_blit_info.dst_rect = &dst_rect;
-            if (tig_window_blit_art(dword_5C3624, &art_blit_info) != TIG_OK) {
+            if (tig_window_blit_art(mainmenu_ui_window_handle, &art_blit_info) != TIG_OK) {
                 tig_debug_printf("MMUI: mmUIMPLoadGameRefreshFunc: ERROR: FAILED to refresh!\n");
             }
         }
@@ -2975,11 +2975,11 @@ void mainmenu_ui_save_game_create(void)
     stru_64C260.content_rect.y = 110;
     stru_64C260.content_rect.width = 195;
     stru_64C260.content_rect.height = 232;
-    scrollbar_ui_control_create(&stru_64C220, &stru_64C260, dword_5C3624);
+    scrollbar_ui_control_create(&stru_64C220, &stru_64C260, mainmenu_ui_window_handle);
 
     pc_obj = player_get_local_pc_obj();
 
-    pc_lens.window_handle = dword_5C3624;
+    pc_lens.window_handle = mainmenu_ui_window_handle;
     pc_lens.rect = &stru_5C4780;
     tig_art_interface_id_create(746, 0, 0, 0, &(pc_lens.art_id));
 
@@ -3209,7 +3209,7 @@ void mainmenu_ui_save_game_refresh(TigRect* rect)
         art_blit_info.flags = 0;
         art_blit_info.src_rect = &src_rect;
         art_blit_info.dst_rect = &dst_rect;
-        tig_window_blit_art(dword_5C3624, &art_blit_info);
+        tig_window_blit_art(mainmenu_ui_window_handle, &art_blit_info);
     }
 
     if (rect == NULL
@@ -3219,7 +3219,7 @@ void mainmenu_ui_save_game_refresh(TigRect* rect)
             && rect->y < window->content_rect.y + window->content_rect.height)) {
         dst_rect = window->content_rect;
 
-        if (tig_window_fill(dword_5C3624, &dst_rect, tig_color_make(0, 0, 0)) != TIG_OK) {
+        if (tig_window_fill(mainmenu_ui_window_handle, &dst_rect, tig_color_make(0, 0, 0)) != TIG_OK) {
             tig_debug_printf("mmUIMPSaveGameRefreshFunc: ERROR: tig_window_fill2 failed!\n");
             exit(EXIT_FAILURE);
         }
@@ -3285,7 +3285,7 @@ void mainmenu_ui_save_game_refresh(TigRect* rect)
                         win_blit_info.vb_blit_flags = 0;
                         win_blit_info.src_video_buffer = mainmenu_ui_gsi.thumbnail_video_buffer;
                         win_blit_info.src_rect = &stru_5C46B0;
-                        win_blit_info.dst_window_handle = dword_5C3624;
+                        win_blit_info.dst_window_handle = mainmenu_ui_window_handle;
                         win_blit_info.dst_rect = &stru_5C46C0;
 
                         if (tig_window_blit(&win_blit_info) != TIG_OK) {
@@ -3302,7 +3302,7 @@ void mainmenu_ui_save_game_refresh(TigRect* rect)
                     if (mainmenu_ui_gsi.pc_portrait != 0) {
                         portrait_draw_native(OBJ_HANDLE_NULL,
                             mainmenu_ui_gsi.pc_portrait,
-                            dword_5C3624,
+                            mainmenu_ui_window_handle,
                             stru_5C46E0.x,
                             stru_5C46E0.y);
                     }
@@ -3344,7 +3344,7 @@ void mainmenu_ui_save_game_refresh(TigRect* rect)
 
                 tig_font_pop();
             } else {
-                tig_window_fill(dword_5C3624, &stru_5C46C0, tig_color_make(0, 0, 0));
+                tig_window_fill(mainmenu_ui_window_handle, &stru_5C46C0, tig_color_make(0, 0, 0));
 
                 font = dword_64C218[0];
                 tig_font_push(font);
@@ -3354,7 +3354,7 @@ void mainmenu_ui_save_game_refresh(TigRect* rect)
                 tig_font_pop();
             }
         } else {
-            tig_window_fill(dword_5C3624, &stru_5C46C0, tig_color_make(0, 0, 0));
+            tig_window_fill(mainmenu_ui_window_handle, &stru_5C46C0, tig_color_make(0, 0, 0));
         }
 
         tig_art_interface_id_create(748, 0, 0, 0, &art_id);
@@ -3374,7 +3374,7 @@ void mainmenu_ui_save_game_refresh(TigRect* rect)
             art_blit_info.flags = 0;
             art_blit_info.src_rect = &src_rect;
             art_blit_info.dst_rect = &dst_rect;
-            if (tig_window_blit_art(dword_5C3624, &art_blit_info) != TIG_OK) {
+            if (tig_window_blit_art(mainmenu_ui_window_handle, &art_blit_info) != TIG_OK) {
                 // FIXME: Misleading message.
                 tig_debug_printf("MMUI: mmUIMPLoadGameRefreshFunc: ERROR: FAILED to refresh!\n");
             }
@@ -3558,7 +3558,7 @@ void mainmenu_ui_last_save_create(void)
             rect.y = 0;
             rect.width = 800;
             rect.height = 600;
-            tig_window_fill(dword_5C3624, &rect, tig_color_make(0, 0, 0));
+            tig_window_fill(mainmenu_ui_window_handle, &rect, tig_color_make(0, 0, 0));
 
             rect.x = 340;
             rect.y = 210;
@@ -3567,7 +3567,7 @@ void mainmenu_ui_last_save_create(void)
 
             mes_file_entry.num = 5; // "Loading Save Game..."
             mes_get_msg(mainmenu_ui_mainmenu_mes_file, &mes_file_entry);
-            tig_window_text_write(dword_5C3624, mes_file_entry.str, &rect);
+            tig_window_text_write(mainmenu_ui_window_handle, mes_file_entry.str, &rect);
 
             tig_mouse_hide();
             tig_window_display();
@@ -3689,7 +3689,7 @@ void mainmenu_ui_new_char_refresh(TigRect* rect)
             && mainmenu_ui_shared_char_name_rect.y < rect->y + rect->height
             && rect->x < mainmenu_ui_shared_char_name_rect.x + mainmenu_ui_shared_char_name_rect.width
             && rect->y < mainmenu_ui_shared_char_name_rect.y + mainmenu_ui_shared_char_name_rect.height)) {
-        if (tig_window_fill(dword_5C3624, &mainmenu_ui_shared_char_name_rect, tig_color_make(0, 0, 0)) != TIG_OK) {
+        if (tig_window_fill(mainmenu_ui_window_handle, &mainmenu_ui_shared_char_name_rect, tig_color_make(0, 0, 0)) != TIG_OK) {
             tig_debug_printf("MainMenu-UI: mmUINewCharRefreshFunc: ERROR: Window Fill Failed.\n");
         }
 
@@ -3728,12 +3728,12 @@ void mmUISharedCharRefreshFunc(int64_t obj, TigRect* rect)
             && rect->x < mainmenu_ui_shared_char_portrait_rect.x + mainmenu_ui_shared_char_portrait_rect.width
             && rect->y < mainmenu_ui_shared_char_portrait_rect.y + mainmenu_ui_shared_char_portrait_rect.height)) {
         portrait = portrait_get(obj);
-        if (tig_window_fill(dword_5C3624, &mainmenu_ui_shared_char_portrait_rect, tig_color_make(0, 0, 0)) != TIG_OK) {
+        if (tig_window_fill(mainmenu_ui_window_handle, &mainmenu_ui_shared_char_portrait_rect, tig_color_make(0, 0, 0)) != TIG_OK) {
             tig_debug_printf("MainMenu-UI: mmUINewCharRefreshFunc: ERROR: Window Fill #0 Failed.\n");
         }
         portrait_draw_128x128(obj,
             portrait,
-            dword_5C3624,
+            mainmenu_ui_window_handle,
             mainmenu_ui_shared_char_portrait_rect.x,
             mainmenu_ui_shared_char_portrait_rect.y);
     }
@@ -3745,7 +3745,7 @@ void mmUISharedCharRefreshFunc(int64_t obj, TigRect* rect)
             && mainmenu_ui_shared_char_gender_rect.y < rect->y + rect->height
             && rect->x < mainmenu_ui_shared_char_gender_rect.x + mainmenu_ui_shared_char_gender_rect.width
             && rect->y < mainmenu_ui_shared_char_gender_rect.y + mainmenu_ui_shared_char_gender_rect.height)) {
-        if (tig_window_fill(dword_5C3624, &mainmenu_ui_shared_char_gender_rect, tig_color_make(0, 0, 0)) == TIG_OK) {
+        if (tig_window_fill(mainmenu_ui_window_handle, &mainmenu_ui_shared_char_gender_rect, tig_color_make(0, 0, 0)) == TIG_OK) {
             mes_file_entry.num = 740 + gender; // "Female", "Male"
             mes_get_msg(mainmenu_ui_mainmenu_mes_file, &mes_file_entry);
             sub_542DF0(mes_file_entry.str, &mainmenu_ui_shared_char_gender_rect, font);
@@ -3757,7 +3757,7 @@ void mmUISharedCharRefreshFunc(int64_t obj, TigRect* rect)
             && mainmenu_ui_shared_char_race_rect.y < rect->y + rect->height
             && rect->x < mainmenu_ui_shared_char_race_rect.x + mainmenu_ui_shared_char_race_rect.width
             && rect->y < mainmenu_ui_shared_char_race_rect.y + mainmenu_ui_shared_char_race_rect.height)) {
-        if (tig_window_fill(dword_5C3624, &mainmenu_ui_shared_char_race_rect, tig_color_make(0, 0, 0)) == TIG_OK) {
+        if (tig_window_fill(mainmenu_ui_window_handle, &mainmenu_ui_shared_char_race_rect, tig_color_make(0, 0, 0)) == TIG_OK) {
             mes_file_entry.num = 720 + race; // "Human", "Dwarf", "Elf", etc.
             mes_get_msg(mainmenu_ui_mainmenu_mes_file, &mes_file_entry);
             sub_542DF0(mes_file_entry.str, &mainmenu_ui_shared_char_race_rect, font);
@@ -3769,7 +3769,7 @@ void mmUISharedCharRefreshFunc(int64_t obj, TigRect* rect)
             && mainmenu_ui_shared_char_background_rect.y < rect->y + rect->height
             && rect->x < mainmenu_ui_shared_char_background_rect.x + mainmenu_ui_shared_char_background_rect.width
             && rect->y < mainmenu_ui_shared_char_background_rect.y + mainmenu_ui_shared_char_background_rect.height)) {
-        if (tig_window_fill(dword_5C3624, &mainmenu_ui_shared_char_background_rect, tig_color_make(0, 0, 0)) == TIG_OK) {
+        if (tig_window_fill(mainmenu_ui_window_handle, &mainmenu_ui_shared_char_background_rect, tig_color_make(0, 0, 0)) == TIG_OK) {
             background = background_text_get(obj);
             sub_542DF0(background_description_get_name(background),
                 &mainmenu_ui_shared_char_background_rect,
@@ -3783,7 +3783,7 @@ void mmUISharedCharRefreshFunc(int64_t obj, TigRect* rect)
             && mainmenu_ui_shared_char_desc_view_rect.y < rect->y + rect->height
             && rect->x < mainmenu_ui_shared_char_desc_view_rect.x + mainmenu_ui_shared_char_desc_view_rect.width
             && rect->y < mainmenu_ui_shared_char_desc_view_rect.y + mainmenu_ui_shared_char_desc_view_rect.height)) {
-        if (tig_window_fill(dword_5C3624, &mainmenu_ui_shared_char_desc_view_rect, tig_color_make(0, 0, 0)) == TIG_OK) {
+        if (tig_window_fill(mainmenu_ui_window_handle, &mainmenu_ui_shared_char_desc_view_rect, tig_color_make(0, 0, 0)) == TIG_OK) {
             if (mainmenu_ui_new_char_hover_mode == MMUI_NEW_CHAR_HOVER_MODE_GENDER) {
                 font = dword_64C210[0];
                 tig_font_push(font);
@@ -3838,7 +3838,7 @@ void mmUISharedCharRefreshFunc(int64_t obj, TigRect* rect)
             && rect->y < mainmenu_ui_shared_char_stats_view_rect.y + mainmenu_ui_shared_char_stats_view_rect.height)) {
         font = dword_64C210[1];
         tig_font_push(font);
-        if (tig_window_fill(dword_5C3624, &mainmenu_ui_shared_char_stats_title_rect, tig_color_make(0, 0, 0)) == TIG_OK) {
+        if (tig_window_fill(mainmenu_ui_window_handle, &mainmenu_ui_shared_char_stats_title_rect, tig_color_make(0, 0, 0)) == TIG_OK) {
             mes_file_entry.num = 739; // "Initial Stats"
             mes_get_msg(mainmenu_ui_mainmenu_mes_file, &mes_file_entry);
             sub_542DF0(mes_file_entry.str,
@@ -3850,7 +3850,7 @@ void mmUISharedCharRefreshFunc(int64_t obj, TigRect* rect)
         font = dword_64C210[0];
         tig_font_push(font);
         for (index = 0; index < 15; index++) {
-            if (tig_window_fill(dword_5C3624, &(stru_5C4F50[index]), tig_color_make(0, 0, 0)) == TIG_OK) {
+            if (tig_window_fill(mainmenu_ui_window_handle, &(stru_5C4F50[index]), tig_color_make(0, 0, 0)) == TIG_OK) {
                 sprintf(str,
                     "%s: %d",
                     stat_short_name(dword_5C5130[index]),
@@ -4251,7 +4251,7 @@ void mainmenu_ui_pregen_char_refresh(TigRect* rect)
             && rect->x < mainmenu_ui_shared_char_name_rect.x + mainmenu_ui_shared_char_name_rect.width
             && rect->y < mainmenu_ui_shared_char_name_rect.y + mainmenu_ui_shared_char_name_rect.height)) {
         tig_font_push(dword_64C218[1]);
-        if (tig_window_fill(dword_5C3624, &mainmenu_ui_shared_char_name_rect, tig_color_make(0, 0, 0)) == TIG_OK) {
+        if (tig_window_fill(mainmenu_ui_window_handle, &mainmenu_ui_shared_char_name_rect, tig_color_make(0, 0, 0)) == TIG_OK) {
             obj_field_string_get(qword_64C460, OBJ_F_PC_PLAYER_NAME, &name);
             if (name != NULL) {
                 sub_542DF0(name, &mainmenu_ui_shared_char_name_rect, dword_64C218[1]);
@@ -4503,10 +4503,10 @@ bool main_menu_button_create_ex(MainMenuButtonInfo* info, int width, int height,
 
     if ((info->flags & 0x1) != 0) {
         for (index = 0; index < 3; index++) {
-            if (info->x >= stru_5C3680[index].x
-                && info->x < stru_5C3680[index].x + stru_5C3680[index].width
-                && info->y + 441 >= stru_5C3680[index].y
-                && info->y + 441 < stru_5C3680[index].y + stru_5C3680[index].height) {
+            if (info->x >= mainmenu_ui_bottom_bar_cover_rects[index].x
+                && info->x < mainmenu_ui_bottom_bar_cover_rects[index].x + mainmenu_ui_bottom_bar_cover_rects[index].width
+                && info->y + 441 >= mainmenu_ui_bottom_bar_cover_rects[index].y
+                && info->y + 441 < mainmenu_ui_bottom_bar_cover_rects[index].y + mainmenu_ui_bottom_bar_cover_rects[index].height) {
                 break;
             }
         }
@@ -4515,11 +4515,11 @@ bool main_menu_button_create_ex(MainMenuButtonInfo* info, int width, int height,
             return false;
         }
 
-        button_data.window_handle = dword_5C3670[index];
-        button_data.x -= stru_5C3680[index].x;
+        button_data.window_handle = mainmenu_ui_bottom_bar_cover_window_handles[index];
+        button_data.x -= mainmenu_ui_bottom_bar_cover_rects[index].x;
     } else {
-        button_data.window_handle = dword_5C3624;
-        button_data.y -= stru_5C3628.y;
+        button_data.window_handle = mainmenu_ui_window_handle;
+        button_data.y -= mainmenu_ui_window_rect.y;
     }
 
     if ((info->flags & 0x2) != 0) {
@@ -4581,42 +4581,42 @@ void mainmenu_ui_create_window_func(bool should_display)
         tig_art_interface_id_create(window->background_art_num, 0, 0, 0, &art_id);
         if (tig_art_frame_data(art_id, &art_frame_data) == TIG_OK) {
             if (art_frame_data.height == 600) {
-                stru_5C3628 = stru_5C3638;
+                mainmenu_ui_window_rect = mainmenu_ui_window_fullscreen_rect;
             } else {
-                stru_5C3628 = stru_5C3648;
+                mainmenu_ui_window_rect = mainmenu_ui_window_partial_rect;
                 v1 = true;
             }
         }
 
         if (tig_art_anim_data(art_id, &art_anim_data) == TIG_OK) {
             window_data.flags = TIG_WINDOW_ALWAYS_ON_TOP | TIG_WINDOW_MESSAGE_FILTER;
-            window_data.rect = stru_5C3628;
+            window_data.rect = mainmenu_ui_window_rect;
             window_data.background_color = art_anim_data.color_key;
             window_data.color_key = art_anim_data.color_key;
             window_data.message_filter = sub_546EE0;
             hrp_apply(&(window_data.rect), GRAVITY_CENTER_HORIZONTAL | GRAVITY_CENTER_VERTICAL);
 
-            src_rect.x = stru_5C3628.x;
+            src_rect.x = mainmenu_ui_window_rect.x;
             src_rect.y = 0;
-            src_rect.width = stru_5C3628.width;
-            src_rect.height = stru_5C3628.height;
+            src_rect.width = mainmenu_ui_window_rect.width;
+            src_rect.height = mainmenu_ui_window_rect.height;
 
             dst_rect.x = 0;
             dst_rect.y = 0;
-            dst_rect.width = stru_5C3628.width;
-            dst_rect.height = stru_5C3628.height;
+            dst_rect.width = mainmenu_ui_window_rect.width;
+            dst_rect.height = mainmenu_ui_window_rect.height;
 
             art_blit_info.flags = 0;
             art_blit_info.art_id = art_id;
             art_blit_info.src_rect = &src_rect;
             art_blit_info.dst_rect = &dst_rect;
 
-            if (tig_window_create(&window_data, &dword_5C3624) != TIG_OK) {
+            if (tig_window_create(&window_data, &mainmenu_ui_window_handle) != TIG_OK) {
                 tig_debug_printf("mainmenu_ui_create_window_func: ERROR: tig_art_anim_data failed!\n");
                 exit(EXIT_SUCCESS); // FIXME: Should be `EXIT_FAILURE`.
             }
 
-            tig_window_blit_art(dword_5C3624, &art_blit_info);
+            tig_window_blit_art(mainmenu_ui_window_handle, &art_blit_info);
         }
     } else {
         v1 = true;
@@ -4633,16 +4633,16 @@ void mainmenu_ui_create_window_func(bool should_display)
             window_data.message_filter = sub_546EE0;
 
             for (idx = 0; idx < 3; idx++) {
-                window_data.rect.x = stru_5C3680[idx].x;
-                window_data.rect.y = stru_5C3680[idx].y;
-                window_data.rect.width = stru_5C3680[idx].width;
-                window_data.rect.height = stru_5C3680[idx].height;
+                window_data.rect.x = mainmenu_ui_bottom_bar_cover_rects[idx].x;
+                window_data.rect.y = mainmenu_ui_bottom_bar_cover_rects[idx].y;
+                window_data.rect.width = mainmenu_ui_bottom_bar_cover_rects[idx].width;
+                window_data.rect.height = mainmenu_ui_bottom_bar_cover_rects[idx].height;
                 hrp_apply(&(window_data.rect), GRAVITY_CENTER_HORIZONTAL | GRAVITY_CENTER_VERTICAL);
 
-                src_rect.x = stru_5C3680[idx].x;
+                src_rect.x = mainmenu_ui_bottom_bar_cover_rects[idx].x;
                 src_rect.y = 0;
-                src_rect.width = stru_5C3680[idx].width;
-                src_rect.height = stru_5C3680[idx].height;
+                src_rect.width = mainmenu_ui_bottom_bar_cover_rects[idx].width;
+                src_rect.height = mainmenu_ui_bottom_bar_cover_rects[idx].height;
 
                 dst_rect.x = 0;
                 dst_rect.y = 0;
@@ -4654,13 +4654,13 @@ void mainmenu_ui_create_window_func(bool should_display)
                 art_blit_info.src_rect = &src_rect;
                 art_blit_info.dst_rect = &dst_rect;
 
-                rc = tig_window_create(&window_data, &(dword_5C3670[idx]));
+                rc = tig_window_create(&window_data, &(mainmenu_ui_bottom_bar_cover_window_handles[idx]));
                 if (rc != TIG_OK) {
                     tig_debug_printf("MainMenu-UI: mainmenu_ui_create_window_func: ERROR: tig_window_create failed: Result: %d!\n", rc);
                     exit(EXIT_FAILURE);
                 }
 
-                tig_window_blit_art(dword_5C3670[idx], &art_blit_info);
+                tig_window_blit_art(mainmenu_ui_bottom_bar_cover_window_handles[idx], &art_blit_info);
 
                 v1 = true;
             }
@@ -4669,35 +4669,35 @@ void mainmenu_ui_create_window_func(bool should_display)
         tig_art_interface_id_create(336, 0, 0, 0, &art_id);
         if (tig_art_anim_data(art_id, &art_anim_data) == TIG_OK) {
             window_data.flags = TIG_WINDOW_ALWAYS_ON_TOP | TIG_WINDOW_MESSAGE_FILTER;
-            window_data.rect = stru_5C3660;
+            window_data.rect = mainmenu_ui_top_bar_cover_rect;
             window_data.background_color = art_anim_data.color_key;
             window_data.color_key = art_anim_data.color_key;
             window_data.message_filter = sub_546EE0;
             hrp_apply(&(window_data.rect), GRAVITY_CENTER_HORIZONTAL | GRAVITY_CENTER_VERTICAL);
 
-            src_rect.x = stru_5C3660.x;
+            src_rect.x = mainmenu_ui_top_bar_cover_rect.x;
             src_rect.y = 0;
-            src_rect.width = stru_5C3660.width;
-            src_rect.height = stru_5C3660.height;
+            src_rect.width = mainmenu_ui_top_bar_cover_rect.width;
+            src_rect.height = mainmenu_ui_top_bar_cover_rect.height;
 
             dst_rect.x = 0;
             dst_rect.y = 0;
-            dst_rect.width = stru_5C3660.width;
-            dst_rect.height = stru_5C3660.height;
+            dst_rect.width = mainmenu_ui_top_bar_cover_rect.width;
+            dst_rect.height = mainmenu_ui_top_bar_cover_rect.height;
 
             art_blit_info.flags = 0;
             art_blit_info.art_id = art_id;
             art_blit_info.src_rect = &src_rect;
             art_blit_info.dst_rect = &dst_rect;
 
-            if (tig_window_create(&window_data, &dword_5C3658) != TIG_OK) {
+            if (tig_window_create(&window_data, &mainmenu_ui_top_bar_cover_window_handle) != TIG_OK) {
                 if (!v1) {
                     tig_debug_printf("mainmenu_ui_create_window_func: ERROR: tig_art_anim_data2 failed!\n");
                     exit(EXIT_SUCCESS); // FIXME: Should be `EXIT_FAILURE`.
                 }
             }
 
-            tig_window_blit_art(dword_5C3658, &art_blit_info);
+            tig_window_blit_art(mainmenu_ui_top_bar_cover_window_handle, &art_blit_info);
         } else {
             if (!v1) {
                 tig_debug_printf("mainmenu_ui_create_window_func: ERROR: tig_art_anim_data2 failed!\n");
@@ -4729,7 +4729,7 @@ void mainmenu_ui_create_window_func(bool should_display)
                 dst_rect.height = art_frame_data.height;
 
                 art_blit_info.art_id = art_id;
-                tig_window_blit_art(dword_5C3624, &art_blit_info);
+                tig_window_blit_art(mainmenu_ui_window_handle, &art_blit_info);
             }
         }
 
@@ -4761,10 +4761,10 @@ void mainmenu_ui_create_window_func(bool should_display)
             int j;
 
             for (j = 0; j < 3; j++) {
-                if (button->x >= stru_5C3680[j].x
-                    && button->y + 441 >= stru_5C3680[j].y
-                    && button->x < stru_5C3680[j].x + stru_5C3680[j].width
-                    && button->y + 441 < stru_5C3680[j].y + stru_5C3680[j].height) {
+                if (button->x >= mainmenu_ui_bottom_bar_cover_rects[j].x
+                    && button->y + 441 >= mainmenu_ui_bottom_bar_cover_rects[j].y
+                    && button->x < mainmenu_ui_bottom_bar_cover_rects[j].x + mainmenu_ui_bottom_bar_cover_rects[j].width
+                    && button->y + 441 < mainmenu_ui_bottom_bar_cover_rects[j].y + mainmenu_ui_bottom_bar_cover_rects[j].height) {
                     break;
                 }
             }
@@ -4773,9 +4773,9 @@ void mainmenu_ui_create_window_func(bool should_display)
                 tig_debug_printf("mainmenu_ui_create_window_func: ERROR: j >= MM_UI_NUM_ROTWIN_COVERS!\n");
                 exit(EXIT_FAILURE);
             }
-            window_handle = dword_5C3670[j];
+            window_handle = mainmenu_ui_bottom_bar_cover_window_handles[j];
         } else {
-            window_handle = dword_5C3624;
+            window_handle = mainmenu_ui_window_handle;
         }
 
         if (mes_file_entry.num != -1
@@ -4918,7 +4918,7 @@ void mainmenu_ui_refresh_text(tig_window_handle_t window_handle, const char* str
                 art_blit_info.art_id = art_id;
                 art_blit_info.src_rect = &src_rect;
                 art_blit_info.dst_rect = &dst_rect;
-                tig_window_blit_art(dword_5C3624, &art_blit_info);
+                tig_window_blit_art(mainmenu_ui_window_handle, &art_blit_info);
             }
         }
 
@@ -4947,21 +4947,21 @@ void sub_546DD0(void)
             stru_64B870[index].art_id = TIG_ART_ID_INVALID;
         }
 
-        if (dword_5C3624 != TIG_WINDOW_HANDLE_INVALID
-            && tig_window_destroy(dword_5C3624) == TIG_OK) {
-            dword_5C3624 = TIG_WINDOW_HANDLE_INVALID;
+        if (mainmenu_ui_window_handle != TIG_WINDOW_HANDLE_INVALID
+            && tig_window_destroy(mainmenu_ui_window_handle) == TIG_OK) {
+            mainmenu_ui_window_handle = TIG_WINDOW_HANDLE_INVALID;
         }
 
         for (index = 0; index < 3; index++) {
-            if (dword_5C3670[index] != TIG_WINDOW_HANDLE_INVALID
-                && tig_window_destroy(dword_5C3670[index]) == TIG_OK) {
-                dword_5C3670[index] = TIG_WINDOW_HANDLE_INVALID;
+            if (mainmenu_ui_bottom_bar_cover_window_handles[index] != TIG_WINDOW_HANDLE_INVALID
+                && tig_window_destroy(mainmenu_ui_bottom_bar_cover_window_handles[index]) == TIG_OK) {
+                mainmenu_ui_bottom_bar_cover_window_handles[index] = TIG_WINDOW_HANDLE_INVALID;
             }
         }
 
-        if (dword_5C3658 != TIG_WINDOW_HANDLE_INVALID
-            && tig_window_destroy(dword_5C3658) == TIG_OK) {
-            dword_5C3658 = TIG_WINDOW_HANDLE_INVALID;
+        if (mainmenu_ui_top_bar_cover_window_handle != TIG_WINDOW_HANDLE_INVALID
+            && tig_window_destroy(mainmenu_ui_top_bar_cover_window_handle) == TIG_OK) {
+            mainmenu_ui_top_bar_cover_window_handle = TIG_WINDOW_HANDLE_INVALID;
         }
 
         mainmenu_ui_active = false;
@@ -5018,16 +5018,16 @@ bool sub_546EE0(TigMessage* msg)
                 && msg->data.mouse.x < window->content_rect.x + window->content_rect.width
                 && msg->data.mouse.y < window->content_rect.y + window->content_rect.height) {
                 if (window->mouse_down_func != NULL) {
-                    window->mouse_down_func(msg->data.mouse.x - window->scrollbar_rect.x, msg->data.mouse.y - window->scrollbar_rect.y - stru_5C3628.y);
+                    window->mouse_down_func(msg->data.mouse.x - window->scrollbar_rect.x, msg->data.mouse.y - window->scrollbar_rect.y - mainmenu_ui_window_rect.y);
                     return true;
                 }
             }
 
             if (mainmenu_ui_window_type != MM_WINDOW_SAVE_GAME
-                || (msg->data.mouse.x < stru_5C3648.x
-                    || msg->data.mouse.y < stru_5C3648.y
-                    || msg->data.mouse.x >= stru_5C3648.x + stru_5C3648.width
-                    || msg->data.mouse.y >= stru_5C3648.y + stru_5C3648.height)) {
+                || (msg->data.mouse.x < mainmenu_ui_window_partial_rect.x
+                    || msg->data.mouse.y < mainmenu_ui_window_partial_rect.y
+                    || msg->data.mouse.x >= mainmenu_ui_window_partial_rect.x + mainmenu_ui_window_partial_rect.width
+                    || msg->data.mouse.y >= mainmenu_ui_window_partial_rect.y + mainmenu_ui_window_partial_rect.height)) {
                 sub_549450();
             }
         }
@@ -5077,11 +5077,11 @@ bool sub_546EE0(TigMessage* msg)
             if (window->mouse_up_func != NULL
                 && window->content_rect.width > 0
                 && msg->data.mouse.x >= window->content_rect.x
-                && msg->data.mouse.y - stru_5C3628.y >= window->content_rect.y
+                && msg->data.mouse.y - mainmenu_ui_window_rect.y >= window->content_rect.y
                 && msg->data.mouse.x < window->content_rect.x + window->content_rect.width
-                && msg->data.mouse.y - stru_5C3628.y < window->content_rect.y + window->content_rect.height) {
+                && msg->data.mouse.y - mainmenu_ui_window_rect.y < window->content_rect.y + window->content_rect.height) {
                 gsound_play_sfx(0, 1);
-                window->mouse_up_func(msg->data.mouse.x - window->content_rect.x, msg->data.mouse.y - window->content_rect.y - stru_5C3628.y);
+                window->mouse_up_func(msg->data.mouse.x - window->content_rect.x, msg->data.mouse.y - window->content_rect.y - mainmenu_ui_window_rect.y);
                 return true;
             }
 
@@ -5503,7 +5503,7 @@ void mainmenu_ui_refresh_button_text(int btn, unsigned int flags)
             rect = button->rect;
             rect.x = button->x - window->field_30;
             rect.y = button->y - window->field_34;
-            mainmenu_ui_refresh_text(dword_5C3624,
+            mainmenu_ui_refresh_text(mainmenu_ui_window_handle,
                 mes_file_entry.str,
                 &rect,
                 window->refresh_text_flags | flags);
@@ -5572,7 +5572,7 @@ bool mainmenu_ui_process_callback(TimeEvent* timeevent)
         art_blit_info.art_id = next_art_id;
         art_blit_info.src_rect = &src_rect;
         art_blit_info.dst_rect = &dst_rect;
-        tig_window_blit_art(dword_5C3624, &art_blit_info);
+        tig_window_blit_art(mainmenu_ui_window_handle, &art_blit_info);
     } else {
         tig_debug_printf("main_menu_ui_process_callback: ERROR: tig_art_frame_data failed!\n");
     }
@@ -5684,7 +5684,7 @@ void mmUIWinRefreshScrollBar(void)
         blit_info.src_rect = &src_rect;
         blit_info.dst_rect = &dst_rect;
 
-        tig_window_blit_art(dword_5C3624, &blit_info);
+        tig_window_blit_art(mainmenu_ui_window_handle, &blit_info);
     }
 }
 
@@ -5919,7 +5919,7 @@ void mainmenu_ui_feedback_loading_completed(void)
 // 0x549820
 tig_window_handle_t sub_549820(void)
 {
-    return dword_5C3624;
+    return mainmenu_ui_window_handle;
 }
 
 // 0x549830
