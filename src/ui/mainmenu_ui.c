@@ -142,7 +142,7 @@ static bool main_menu_button_create_ex(MainMenuButtonInfo* info, int width, int 
 static void mainmenu_ui_refresh_text(tig_window_handle_t window_handle, const char* str, TigRect* rect, unsigned int flags);
 static void sub_546DD0(void);
 static void mainmenu_ui_create_shared_radio_buttons(void);
-static bool sub_546EE0(TigMessage* msg);
+static bool mainmenu_ui_message_filter(TigMessage* msg);
 static void mainmenu_ui_refresh_button_text(int btn, unsigned int flags);
 static void sub_547EF0(void);
 static void sub_5480C0(int a1);
@@ -4593,7 +4593,7 @@ void mainmenu_ui_create_window_func(bool should_display)
             window_data.rect = mainmenu_ui_window_rect;
             window_data.background_color = art_anim_data.color_key;
             window_data.color_key = art_anim_data.color_key;
-            window_data.message_filter = sub_546EE0;
+            window_data.message_filter = mainmenu_ui_message_filter;
             hrp_apply(&(window_data.rect), GRAVITY_CENTER_HORIZONTAL | GRAVITY_CENTER_VERTICAL);
 
             src_rect.x = mainmenu_ui_window_rect.x;
@@ -4630,7 +4630,7 @@ void mainmenu_ui_create_window_func(bool should_display)
             window_data.flags = TIG_WINDOW_ALWAYS_ON_TOP | TIG_WINDOW_MESSAGE_FILTER;
             window_data.background_color = art_anim_data.color_key;
             window_data.color_key = art_anim_data.color_key;
-            window_data.message_filter = sub_546EE0;
+            window_data.message_filter = mainmenu_ui_message_filter;
 
             for (idx = 0; idx < 3; idx++) {
                 window_data.rect.x = mainmenu_ui_bottom_bar_cover_rects[idx].x;
@@ -4672,7 +4672,7 @@ void mainmenu_ui_create_window_func(bool should_display)
             window_data.rect = mainmenu_ui_top_bar_cover_rect;
             window_data.background_color = art_anim_data.color_key;
             window_data.color_key = art_anim_data.color_key;
-            window_data.message_filter = sub_546EE0;
+            window_data.message_filter = mainmenu_ui_message_filter;
             hrp_apply(&(window_data.rect), GRAVITY_CENTER_HORIZONTAL | GRAVITY_CENTER_VERTICAL);
 
             src_rect.x = mainmenu_ui_top_bar_cover_rect.x;
@@ -4983,7 +4983,7 @@ void mainmenu_ui_create_shared_radio_buttons(void)
 }
 
 // 0x546EE0
-bool sub_546EE0(TigMessage* msg)
+bool mainmenu_ui_message_filter(TigMessage* msg)
 {
     MainMenuWindowInfo* window;
     int idx;
