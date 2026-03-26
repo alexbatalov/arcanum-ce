@@ -16,11 +16,11 @@ typedef void (*TigMemoryOutputFunc)(const char*);
 //
 // `TIG_MEMORY_STATS_PRINT_ALL_BLOCKS` and
 // `TIG_MEMORY_STATS_PRINT_GROUPED_BLOCKS` are mutually exclusive.
-typedef enum TigMemoryPrintStatsOptions {
-    TIG_MEMORY_STATS_PRINT_OVERHEAD = 1 << 0,
-    TIG_MEMORY_STATS_PRINT_ALL_BLOCKS = 1 << 1,
-    TIG_MEMORY_STATS_PRINT_GROUPED_BLOCKS = 1 << 2,
-} TigMemoryPrintStatsOptions;
+typedef uint32_t TigMemoryPrintStatsOptions;
+
+#define TIG_MEMORY_STATS_PRINT_OVERHEAD 0x01u
+#define TIG_MEMORY_STATS_PRINT_ALL_BLOCKS 0x02u
+#define TIG_MEMORY_STATS_PRINT_GROUPED_BLOCKS 0x04u
 
 int tig_memory_init(TigInitInfo* init_info);
 void tig_memory_exit(void);
