@@ -1835,43 +1835,6 @@ bool wmap_ui_message_filter(TigMessage* msg)
                         return true;
                     }
 
-                    if (!wmap_ui_selecting) {
-                        return true;
-                    }
-
-                    wmap_info->field_2BC(msg->data.mouse.x, msg->data.mouse.y, &stru_64E7E8);
-
-                    int64_t loc;
-                    sub_561800(&stru_64E7E8, &loc);
-
-                    int area = area_get_nearest_known_area(loc, player_get_local_pc_obj(), qword_66D850);
-                    if (area <= 0) {
-                        return true;
-                    }
-
-                    loc = area_get_location(area);
-                    if (loc == 0 || wmap_ui_spell == -1) {
-                        return true;
-                    }
-
-                    int64_t pc_obj = player_get_local_pc_obj();
-                    if (antiteleport_check(pc_obj, loc)) {
-                        if (player_is_local_pc_obj(wmap_ui_obj)) {
-                            sub_4507B0(wmap_ui_obj, wmap_ui_spell);
-                        }
-
-                        if (area_get_last_known_area(pc_obj) == area) {
-                            area_reset_last_known_area(pc_obj);
-                        }
-
-                        wmap_ui_teleport(loc);
-                        wmap_ui_close();
-                    } else {
-                        mes_file_entry.num = 640; // "You are unable to teleport to this location. Something is blocking you."
-                        mes_get_msg(wmap_ui_worldmap_mes_file, &mes_file_entry);
-                        ui_display_warning(mes_file_entry.str);
-                    }
-
                     return true;
                 }
                 case WMAP_UI_STATE_1:
@@ -1936,6 +1899,48 @@ bool wmap_ui_message_filter(TigMessage* msg)
                 if (wmap_ui_state == WMAP_UI_STATE_1 || wmap_ui_state == WMAP_UI_STATE_NAVIGATING) {
                     wmap_ui_state_set(WMAP_UI_STATE_NORMAL);
                 }
+
+                // CE: Move selection of the Teleport spell destination out of
+                // the "mouse down" event handler. This prevents delivering a
+                // subsequent "mouse up" event to the destination map (which
+                // may have unexpected consequences like starting a dialog).
+                if (wmap_ui_selecting) {
+                    wmap_info->field_2BC(msg->data.mouse.x, msg->data.mouse.y, &stru_64E7E8);
+
+                    int64_t loc;
+                    sub_561800(&stru_64E7E8, &loc);
+
+                    int area = area_get_nearest_known_area(loc, player_get_local_pc_obj(), qword_66D850);
+                    if (area <= 0) {
+                        return true;
+                    }
+
+                    loc = area_get_location(area);
+                    if (loc == 0 || wmap_ui_spell == -1) {
+                        return true;
+                    }
+
+                    int64_t pc_obj = player_get_local_pc_obj();
+                    if (antiteleport_check(pc_obj, loc)) {
+                        if (player_is_local_pc_obj(wmap_ui_obj)) {
+                            sub_4507B0(wmap_ui_obj, wmap_ui_spell);
+                        }
+
+                        if (area_get_last_known_area(pc_obj) == area) {
+                            area_reset_last_known_area(pc_obj);
+                        }
+
+                        wmap_ui_teleport(loc);
+                        wmap_ui_close();
+                    } else {
+                        mes_file_entry.num = 640; // "You are unable to teleport to this location. Something is blocking you."
+                        mes_get_msg(wmap_ui_worldmap_mes_file, &mes_file_entry);
+                        ui_display_warning(mes_file_entry.str);
+                    }
+
+                    return true;
+                }
+
                 break;
             case WMAP_UI_MODE_CONTINENT:
                 if (wmap_ui_townmap == TOWNMAP_NONE
