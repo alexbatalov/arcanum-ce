@@ -895,12 +895,12 @@ void object_draw(GameDrawInfo* draw_info)
                                                                     // the next frame (so we can properly render adjacent objects, that may not be on
                                                                     // the dirty rects list this frame). In theory this can cause a rendering
                                                                     // problems of its own, but at least they won't last more than one frame.
-                                                                    src_rect.x = 0;
-                                                                    src_rect.y = 0;
-                                                                    src_rect.width = (int)((float)eye_candy_rect.width / (float)scale * 100.0f);
-                                                                    src_rect.height = (int)((float)eye_candy_rect.height / (float)scale * 100.0f);
+                                                                    tig_rect_intersection(&eye_candy_rect, &object_iso_content_rect, &dst_rect);
 
-                                                                    dst_rect = eye_candy_rect;
+                                                                    src_rect.x = (int)((float)(dst_rect.x - eye_candy_rect.x) / (float)scale * 100.0f);
+                                                                    src_rect.y = (int)((float)(dst_rect.y - eye_candy_rect.y) / (float)scale * 100.0f);
+                                                                    src_rect.width = (int)((float)dst_rect.width / (float)scale * 100.0f);
+                                                                    src_rect.height = (int)((float)dst_rect.height / (float)scale * 100.0f);
                                                                 }
 
                                                                 if ((obj_flags & OF_SHRUNK) != 0) {
