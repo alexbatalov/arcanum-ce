@@ -3370,7 +3370,9 @@ bool sub_4537B0(void)
             dword_5E75A0 = 100;
             magictech_cur_run_info->field_144 = 10;
         } else {
-            int resistance = obj_arrayfield_int32_get(stru_5E6D28.target_obj, OBJ_F_RESISTANCE_IDX, RESISTANCE_TYPE_MAGIC);
+            // CE: The original code does not account for magic resistance
+            // adjustments from equipped items.
+            int resistance = object_get_resistance(stru_5E6D28.target_obj, RESISTANCE_TYPE_MAGIC, false);
             if (!magictech_cur_is_fate_maximized) {
                 int aptitude = stat_level_get(stru_5E6D28.target_obj, STAT_MAGICK_TECH_APTITUDE);
                 if (aptitude < 0) {
@@ -3462,7 +3464,10 @@ int magictech_cast_spell_fail_chance(int64_t attacker_obj, int64_t target_obj, i
         if (attacker_obj != target_obj) {
             // Retrieve the target's base magic resistance, which is also the
             // base chance for a spell to fail.
-            resistance = obj_arrayfield_int32_get(target_obj, OBJ_F_RESISTANCE_IDX, RESISTANCE_TYPE_MAGIC);
+
+            // CE: The original code does not account for magic resistance
+            // adjustments from equipped items.
+            resistance = object_get_resistance(target_obj, RESISTANCE_TYPE_MAGIC, false);
 
             if (!magictech_cur_is_fate_maximized) {
                 // Adjust resistance based on the target's tech aptitude: the
@@ -6859,7 +6864,9 @@ bool sub_459C10(int64_t obj, int mt_id)
     if (run_info->parent_obj.obj != obj
         && (obj_field_int32_get(obj, OBJ_F_TYPE) != OBJ_TYPE_PC
             || !fate_resolve(obj, FATE_SAVE_AGAINST_MAGICK))) {
-        resistance = obj_arrayfield_int32_get(obj, OBJ_F_RESISTANCE_IDX, RESISTANCE_TYPE_MAGIC);
+        // CE: The original code does not account for magic resistance
+        // adjustments from equipped items.
+        resistance = object_get_resistance(obj, RESISTANCE_TYPE_MAGIC, false);
         if (!magictech_cur_is_fate_maximized) {
             int aptitude = stat_level_get(obj, STAT_MAGICK_TECH_APTITUDE);
             if (aptitude < 0) {
