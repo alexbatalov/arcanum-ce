@@ -1339,10 +1339,6 @@ bool sub_524830(void)
         return false;
     }
 
-    if (tig_color_set_rgb_settings(r, g, b) != TIG_OK) {
-        return false;
-    }
-
     if (tig_color_set_rgba_settings(r, g, b, a) != TIG_OK) {
         return false;
     }

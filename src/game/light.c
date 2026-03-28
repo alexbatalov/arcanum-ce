@@ -841,9 +841,7 @@ bool shadow_apply(int64_t obj)
         color = light_get_outdoor_color();
     }
 
-    uint8_t gray = tig_color_red_grayscale_table[(color & tig_color_red_mask) >> tig_color_red_shift]
-        + tig_color_green_grayscale_table[(color & tig_color_green_mask) >> tig_color_green_shift]
-        + tig_color_blue_grayscale_table[(color & tig_color_blue_mask) >> tig_color_blue_shift];
+    uint8_t gray = tig_color_rgb_to_grayscale(color);
 
     if (light_shadows_enabled) {
         location_xy(loc, &loc_x, &loc_y);
@@ -892,9 +890,7 @@ bool shadow_apply(int64_t obj)
                             && ly < stru_602ED8.y + stru_602ED8.height) {
                             color_index = ((uint8_t*)light_shadowmap_bmp.pixels)[light_shadowmap_bmp.pitch * (ly - stru_602ED8.y) + lx - stru_602ED8.x];
                             if (color_index != 0) {
-                                uint8_t light_gray = tig_color_red_grayscale_table[(light->tint_color & tig_color_red_mask) >> tig_color_red_shift]
-                                    + tig_color_green_grayscale_table[(light->tint_color & tig_color_green_mask) >> tig_color_green_shift]
-                                    + tig_color_blue_grayscale_table[(light->tint_color & tig_color_blue_mask) >> tig_color_blue_shift];
+                                uint8_t light_gray = tig_color_rgb_to_grayscale(light->tint_color);
                                 int delta = light_gray - gray;
                                 if (delta > 0) {
                                     int v1 = (int)((float)delta * 0.4f);

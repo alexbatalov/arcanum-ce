@@ -3031,77 +3031,25 @@ int sub_5059F0(int cache_entry_index, TigArtBlitInfo* blit_info)
         delta = 1;
     }
 
-    switch (tig_art_bits_per_pixel) {
-    case 8:
-        break;
-    case 16:
-        if (delta > 0) {
-            dst_pixels = (uint8_t*)video_buffer_data.surface_data.pixels;
-            dst_skip = video_buffer_data.pitch / 2 - width;
-        } else {
-            dst_pixels = (uint8_t*)video_buffer_data.surface_data.pixels + video_buffer_data.pitch / 2 * (height - 1);
-            dst_skip = -width - video_buffer_data.pitch / 2;
-        }
-        for (y = 0; y < height; y++) {
-            for (x = 0; x < width; x++) {
-                if (*src_pixels != 0) {
-                    color = tig_color_16_to_32(*((uint16_t*)plt + *src_pixels));
-                } else {
-                    color = 0;
-                }
-                *(uint16_t*)dst_pixels = (uint16_t)color;
-                src_pixels += delta;
-                dst_pixels += 2;
+    if (delta > 0) {
+        dst_pixels = (uint8_t*)video_buffer_data.surface_data.pixels;
+        dst_skip = video_buffer_data.pitch / 4 - width;
+    } else {
+        dst_pixels = (uint8_t*)video_buffer_data.surface_data.pixels + video_buffer_data.pitch / 4 * (height - 1);
+        dst_skip = -width - video_buffer_data.pitch / 4;
+    }
+    for (y = 0; y < height; y++) {
+        for (x = 0; x < width; x++) {
+            if (*src_pixels != 0) {
+                color = ((uint32_t*)plt)[*src_pixels];
+            } else {
+                color = 0;
             }
-            dst_pixels += dst_skip;
+            *(uint32_t*)dst_pixels = (uint32_t)color;
+            src_pixels += delta;
+            dst_pixels += 4;
         }
-        break;
-    case 24:
-        if (delta > 0) {
-            dst_pixels = (uint8_t*)video_buffer_data.surface_data.pixels;
-            dst_skip = video_buffer_data.pitch / 3 - width;
-        } else {
-            dst_pixels = (uint8_t*)video_buffer_data.surface_data.pixels + video_buffer_data.pitch / 3 * (height - 1);
-            dst_skip = -width - video_buffer_data.pitch / 3;
-        }
-        for (y = 0; y < height; y++) {
-            for (x = 0; x < width; x++) {
-                if (*src_pixels != 0) {
-                    color = tig_color_16_to_32(((uint32_t*)plt)[*src_pixels]);
-                } else {
-                    color = 0;
-                }
-                dst_pixels[0] = (uint8_t)color;
-                dst_pixels[1] = (uint8_t)(color >> 8);
-                dst_pixels[2] = (uint8_t)(color >> 16);
-                src_pixels += delta;
-                dst_pixels += 3;
-            }
-            dst_pixels += dst_skip;
-        }
-        break;
-    case 32:
-        if (delta > 0) {
-            dst_pixels = (uint8_t*)video_buffer_data.surface_data.pixels;
-            dst_skip = video_buffer_data.pitch / 4 - width;
-        } else {
-            dst_pixels = (uint8_t*)video_buffer_data.surface_data.pixels + video_buffer_data.pitch / 4 * (height - 1);
-            dst_skip = -width - video_buffer_data.pitch / 4;
-        }
-        for (y = 0; y < height; y++) {
-            for (x = 0; x < width; x++) {
-                if (*src_pixels != 0) {
-                    color = tig_color_16_to_32(((uint32_t*)plt)[*src_pixels]);
-                } else {
-                    color = 0;
-                }
-                *(uint32_t*)dst_pixels = (uint32_t)color;
-                src_pixels += delta;
-                dst_pixels += 4;
-            }
-            dst_pixels += dst_skip;
-        }
-        break;
+        dst_pixels += dst_skip;
     }
 
     tig_video_buffer_unlock(blit_info->dst_video_buffer);
