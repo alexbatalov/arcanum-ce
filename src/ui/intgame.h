@@ -161,5 +161,7 @@ int sub_557B50(int index);
 int sub_557B60(void);
 int sub_557C00(void);
 int sub_557CF0(void);
+void intgame_hide(void);
+void intgame_show(void);
 
 #endif /* ARCANUM_UI_INTGAME_H_ */

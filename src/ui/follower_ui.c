@@ -1337,3 +1337,17 @@ void follower_ui_drop_down_menu_refresh(int highlighted_cmd)
         rect.y += FOLLOWER_UI_DROP_DOWN_MENU_ENTRY_HEIGHT;
     }
 }
+
+void follower_ui_hide(void)
+{
+    if (follower_ui_initialized) {
+        follower_ui_reset();
+    }
+}
+
+void follower_ui_show(void)
+{
+    if (follower_ui_initialized) {
+        follower_ui_refresh();
+    }
+}

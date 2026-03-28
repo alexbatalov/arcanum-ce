@@ -15,5 +15,7 @@ void follower_ui_end_order_mode(void);
 void follower_ui_update(void);
 void follower_ui_update_obj(int64_t obj);
 void follower_ui_refresh(void);
+void follower_ui_hide(void);
+void follower_ui_show(void);
 
 #endif /* ARCANUM_UI_FOLLOWER_UI_H_ */

@@ -1811,3 +1811,26 @@ void tig_window_modal_dialog_exit(void)
         }
     }
 }
+
+int tig_window_move(tig_window_handle_t window_handle, int x, int y)
+{
+    int window_index;
+    TigWindow* win;
+    int index;
+
+    window_index = tig_window_handle_to_index(window_handle);
+    win = &(windows[window_index]);
+
+    if ((win->flags & TIG_WINDOW_HIDDEN) != 0) {
+        tig_window_invalidate_rect(&(win->frame));
+    }
+
+    win->frame.x = x;
+    win->frame.y = y;
+
+    if ((win->flags & TIG_WINDOW_HIDDEN) != 0) {
+        tig_window_invalidate_rect(&(win->frame));
+    }
+
+    return TIG_OK;
+}

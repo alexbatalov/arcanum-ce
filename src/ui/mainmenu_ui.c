@@ -1552,6 +1552,11 @@ void mainmenu_ui_start(MainMenuType type)
     if (!mainmenu_ui_active) {
         mainmenu_ui_num_windows = 0;
 
+        // CE: Hide main interface to prevent world view and top/bottom bars
+        // to be visible while mainmenu is being presented (visible on custom
+        // resolutions).
+        intgame_hide();
+
         if (type != MM_TYPE_OPTIONS) {
             sub_45B320();
         }
@@ -1706,6 +1711,9 @@ void sub_5412E0(bool a1)
         }
     }
     sub_45B340();
+
+    // CE: Restore main interface to its normal state.
+    intgame_show();
 }
 
 // 0x541590
@@ -5255,6 +5263,12 @@ bool mainmenu_ui_message_filter(TigMessage* msg)
     }
 
     if (msg->type == TIG_MESSAGE_KEYBOARD) {
+        // CE: With intgame hidden we have to manually route keyboard events to
+        // textedit ui.
+        if (textedit_ui_is_focused()) {
+            return textedit_ui_process_message(msg);
+        }
+
         if (!msg->data.keyboard.pressed) {
             switch (mainmenu_ui_window_type) {
             case MM_WINDOW_0:
@@ -5470,6 +5484,12 @@ bool mainmenu_ui_message_filter(TigMessage* msg)
 
             return true;
         }
+    }
+
+    // CE: With intgame hidden we have to manually route keyboard events to
+    // textedit ui.
+    if (msg->type == TIG_MESSAGE_TEXT_INPUT) {
+        return textedit_ui_process_message(msg);
     }
 
     return false;

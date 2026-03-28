@@ -1103,6 +1103,10 @@ void intgame_resize(GameResizeInfo* resize_info)
             }
         }
     }
+
+    if (tig_window_is_hidden(dword_64C52C)) {
+        intgame_hide();
+    }
 }
 
 // 0x54A130
@@ -1381,6 +1385,8 @@ void iso_interface_create(tig_window_handle_t window_handle)
             true);
         tig_button_hide(intgame_maintain_fs_buttons[index].button_handle);
     }
+
+    intgame_hide();
 }
 
 // 0x54A9A0
@@ -8465,6 +8471,10 @@ void intgame_toggle_interface(void)
         }
     }
 
+    if (tig_window_is_hidden(dword_64C52C)) {
+        intgame_hide();
+    }
+
     tig_debug_printf("completed.\n");
 }
 
@@ -8677,4 +8687,74 @@ int sub_557CF0(void)
     }
 
     return 5;
+}
+
+void intgame_hide(void)
+{
+    int index;
+    TigRect rect;
+
+    if (!intgame_iso_interface_created) {
+        return;
+    }
+
+    tig_window_hide(dword_64C52C);
+
+    for (index = 0; index < 2; index++) {
+        tig_window_hide(dword_64C4F8[index]);
+    }
+
+    if (intgame_fs_hotkey_window != TIG_WINDOW_HANDLE_INVALID) {
+        tig_window_hide(intgame_fs_hotkey_window);
+    }
+
+    for (index = 0; index < 5; index++) {
+        tig_window_hide(intgame_maintain_fs_windows[index]);
+    }
+
+    follower_ui_hide();
+
+    // Move bottom bar window up so its aligned with mainmenu covers.
+    rect = intgame_interface_window_frames[1];
+    hrp_apply(&rect, GRAVITY_CENTER_HORIZONTAL | GRAVITY_CENTER_VERTICAL);
+    tig_window_move(dword_64C4F8[1], rect.x, rect.y);
+
+    if (!intgame_is_compact_interface()) {
+        tig_window_show(dword_64C4F8[1]);
+    }
+}
+
+void intgame_show(void)
+{
+    int index;
+    TigRect rect;
+
+    if (!intgame_iso_interface_created) {
+        return;
+    }
+
+    tig_window_show(dword_64C52C);
+
+    if (!intgame_is_compact_interface()) {
+        for (index = 0; index < 2; index++) {
+            tig_window_show(dword_64C4F8[index]);
+        }
+    }
+
+    if (intgame_fs_hotkey_window != TIG_WINDOW_HANDLE_INVALID) {
+        tig_window_show(intgame_fs_hotkey_window);
+    }
+
+    for (index = 0; index < 5; index++) {
+        if (spell_ui_maintain_has(index)) {
+            tig_window_show(intgame_maintain_fs_windows[index]);
+        }
+    }
+
+    // Restore bottom bar position.
+    rect = intgame_interface_window_frames[1];
+    hrp_apply(&rect, GRAVITY_CENTER_HORIZONTAL | GRAVITY_BOTTOM);
+    tig_window_move(dword_64C4F8[1], rect.x, rect.y);
+
+    follower_ui_show();
 }
