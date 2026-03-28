@@ -3155,7 +3155,7 @@ int object_calc_traversal_cost_func(int64_t obj, int64_t loc, int rot, int orig_
         if ((flags & OBJ_TRAVERSAL_PROJECTILE) != 0 && found_obstacle) {
             obj_flags = obj_field_int32_get(node->obj, OBJ_F_FLAGS);
 
-            if ((obj_flags & OF_SHOOT_THROUGH) != 0) {
+            if ((obj_flags & OF_SHOOT_THROUGH) == 0) {
                 done = true;
                 *block_obj_ptr = node->obj;
                 *block_obj_type_ptr = obj_type;
