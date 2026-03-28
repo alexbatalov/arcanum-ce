@@ -903,7 +903,7 @@ bool target_context_evaluate(TargetContext* ctx)
             }
 
             if ((tgt & 0x400000000000) != 0
-                && (flags & OSF_SUMMONED) == 0) {
+                && (spell_flags & OSF_SUMMONED) == 0) {
                 return false;
             }
 
