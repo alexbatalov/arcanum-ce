@@ -26,11 +26,7 @@ typedef struct TigPaletteModifyInfo TigPaletteModifyInfo;
 typedef struct TigArtBlitInfo TigArtBlitInfo;
 typedef struct TigMessage TigMessage;
 typedef struct TigBmp TigBmp;
-
-// Palette is rare case of non-opaque pointer. It is an array of 256 elements,
-// either `uint16_t` (in 16 bpp video mode), or `uint32_t` (in 24 and 32 bpp
-// video mode). Be sure to cast appropriately.
-typedef void* TigPalette;
+typedef struct TigPalette TigPalette;
 
 typedef enum TigError {
     // No error.

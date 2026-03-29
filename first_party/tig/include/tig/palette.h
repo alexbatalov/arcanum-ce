@@ -7,6 +7,10 @@
 extern "C" {
 #endif
 
+typedef struct TigPalette {
+    uint32_t colors[256];
+} TigPalette;
+
 typedef unsigned int TigPaletteModifyFlags;
 
 #define TIG_PALETTE_MODIFY_TINT 0x1
@@ -15,8 +19,8 @@ typedef unsigned int TigPaletteModifyFlags;
 typedef struct TigPaletteModifyInfo {
     /* 0000 */ TigPaletteModifyFlags flags;
     /* 0004 */ unsigned int tint_color;
-    /* 0008 */ TigPalette src_palette;
-    /* 000C */ TigPalette dst_palette;
+    /* 0008 */ TigPalette* src_palette;
+    /* 000C */ TigPalette* dst_palette;
 } TigPaletteModifyInfo;
 
 // Initializes PALETTE subsystem.
@@ -32,19 +36,19 @@ void tig_palette_exit(void);
 //
 // It can also be filled manually, be sure to cast to either `uint16_t` for 16
 // bpp video mode, or to `uint32_t` for 24 and 32 bpp video mode.
-TigPalette tig_palette_create(void);
+TigPalette* tig_palette_create(void);
 
 // Releases specified palette object.
-void tig_palette_destroy(TigPalette palette);
+void tig_palette_destroy(TigPalette* palette);
 
 // Fill palette object with specified color.
-void tig_palette_fill(TigPalette palette, unsigned int color);
+void tig_palette_fill(TigPalette* palette, unsigned int color);
 
 // Copy `src` palette into `dst`.
 //
 // The destination palette should be previously allocated with
 // `tig_palette_create`.
-void tig_palette_copy(TigPalette dst, const TigPalette src);
+void tig_palette_copy(TigPalette* dst, const TigPalette* src);
 
 // Performs batch palette operation.
 //

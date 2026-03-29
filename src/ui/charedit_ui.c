@@ -2552,7 +2552,7 @@ void sub_55CA70(int a1, int a2)
     TigRect src_rect;
     TigRect dst_rect;
     TigPaletteModifyInfo palette_modify_info;
-    TigPalette tmp_palette;
+    TigPalette* tmp_palette;
 
     art_num = spell_icon(a1 + 5 * dword_64E024);
     if (art_num != -1) {

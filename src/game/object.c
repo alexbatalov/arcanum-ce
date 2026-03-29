@@ -79,7 +79,7 @@ static bool sub_442260(int64_t obj, int64_t loc);
 static void sub_4423E0(int64_t obj, int offset_x, int offset_y);
 static void object_render_palette_clear(int64_t obj);
 static void sub_442D90(int64_t obj, ObjectRenderColors* colors);
-static TigPalette object_render_palette_get(int64_t obj);
+static TigPalette* object_render_palette_get(int64_t obj);
 static void object_render_colors_set(int64_t obj, ObjectRenderColors* colors);
 static void object_render_colors_clear(int64_t obj);
 static ObjectRenderColors* render_color_array_alloc(void);
@@ -4504,9 +4504,9 @@ void sub_442520(int64_t obj)
 // 0x442D50
 void object_render_palette_clear(int64_t obj)
 {
-    TigPalette palette;
+    TigPalette* palette;
 
-    palette = (TigPalette)obj_field_ptr_get(obj, OBJ_F_RENDER_PALETTE);
+    palette = (TigPalette*)obj_field_ptr_get(obj, OBJ_F_RENDER_PALETTE);
     if (palette != NULL) {
         tig_palette_destroy(palette);
         obj_field_ptr_set(obj, OBJ_F_RENDER_PALETTE, NULL);
@@ -4521,7 +4521,7 @@ void sub_442D90(int64_t obj, ObjectRenderColors* colors)
     unsigned int blit_flags;
     TigPaletteModifyInfo palette_modify_info;
     TigArtAnimData art_anim_data;
-    TigPalette render_palette;
+    TigPalette* render_palette;
 
     palette_modify_info.flags = 0;
     obj_flags = obj_field_int32_get(obj, OBJ_F_FLAGS);
@@ -4578,11 +4578,11 @@ void sub_442D90(int64_t obj, ObjectRenderColors* colors)
 }
 
 // 0x442ED0
-TigPalette object_render_palette_get(int64_t obj)
+TigPalette* object_render_palette_get(int64_t obj)
 {
-    TigPalette palette;
+    TigPalette* palette;
 
-    palette = (TigPalette)obj_field_ptr_get(obj, OBJ_F_RENDER_PALETTE);
+    palette = (TigPalette*)obj_field_ptr_get(obj, OBJ_F_RENDER_PALETTE);
     if (palette == NULL) {
         palette = tig_palette_create();
         obj_field_ptr_set(obj, OBJ_F_RENDER_PALETTE, palette);
@@ -4763,7 +4763,7 @@ void object_setup_blit(int64_t obj, TigArtBlitInfo* blit_info)
     }
 
     if ((blit_info->flags & TIG_ART_BLT_PALETTE_OVERRIDE) != 0) {
-        blit_info->palette = (TigPalette)obj_field_ptr_get(obj, OBJ_F_RENDER_PALETTE);
+        blit_info->palette = (TigPalette*)obj_field_ptr_get(obj, OBJ_F_RENDER_PALETTE);
     }
 
     if ((blit_info->flags & TIG_ART_BLT_BLEND_COLOR_ARRAY) != 0) {

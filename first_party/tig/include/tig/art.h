@@ -294,8 +294,8 @@ typedef struct TigArtAnimData {
     int action_frame;
     int num_frames;
     unsigned int color_key;
-    void* palette1;
-    void* palette2;
+    TigPalette* palette1;
+    TigPalette* palette2;
 } TigArtAnimData;
 
 typedef struct TigArtFrameData {
@@ -403,7 +403,7 @@ typedef struct TigArtBlitInfo {
     /* 0000 */ TigArtBlitFlags flags;
     /* 0004 */ tig_art_id_t art_id;
     /* 0008 */ TigRect* src_rect;
-    /* 000C */ TigPalette palette;
+    /* 000C */ TigPalette* palette;
     /* 0010 */ tig_color_t color;
     /* 0014 */ uint32_t* field_14;
     /* 0018 */ TigRect* field_18;
@@ -525,7 +525,7 @@ tig_art_id_t tig_art_eye_candy_id_translucency_set(tig_art_id_t art_id, int valu
 int tig_art_eye_candy_id_scale_get(tig_art_id_t art_id);
 tig_art_id_t tig_art_eye_candy_id_scale_set(tig_art_id_t art_id, int value);
 int tig_art_id_flags_get(tig_art_id_t art_id);
-void sub_505000(tig_art_id_t art_id, TigPalette src_palette, TigPalette dst_palette);
+void sub_505000(tig_art_id_t art_id, TigPalette* src_palette, TigPalette* dst_palette);
 void tig_art_cache_set_video_memory_fullness(int fullness);
 tig_art_id_t tig_art_id_reset(tig_art_id_t art_id);
 

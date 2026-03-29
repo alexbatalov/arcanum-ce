@@ -17,9 +17,6 @@ static void tig_palette_node_clear(void);
 // 0x6301F8
 static bool tig_palette_initialized;
 
-// 0x6301FC
-static int tig_palette_bpp;
-
 // 0x630200
 static size_t tig_palette_size;
 
@@ -31,26 +28,14 @@ int tig_palette_init(TigInitInfo* init_info)
 {
     int index;
 
+    (void)init_info;
+
     if (tig_palette_initialized) {
         return TIG_ERR_ALREADY_INITIALIZED;
     }
 
-    switch (init_info->bpp) {
-    case 8:
-        break;
-    case 16:
-        tig_palette_size = sizeof(uint16_t) * 256;
-        break;
-    case 24:
-    case 32:
-        tig_palette_size = sizeof(uint32_t) * 256;
-        break;
-    default:
-        tig_debug_println("Unknown BPP in tig_palette_init()\n");
-        return TIG_ERR_INVALID_PARAM;
-    }
+    tig_palette_size = sizeof(TigPalette);
 
-    tig_palette_bpp = init_info->bpp;
     tig_palette_initialized = true;
 
     // Warm palette cache (preallocated 256 palettes).
@@ -71,7 +56,7 @@ void tig_palette_exit(void)
 }
 
 // 0x533DF0
-TigPalette tig_palette_create(void)
+TigPalette* tig_palette_create(void)
 {
     TigPaletteListNode* node;
 
@@ -84,11 +69,11 @@ TigPalette tig_palette_create(void)
     tig_palette_head = node->next;
 
     // Return "entries" area of the palette.
-    return (TigPalette)((unsigned char*)node->data + sizeof(TigPaletteListNode*));
+    return (TigPalette*)((unsigned char*)node->data + sizeof(TigPaletteListNode*));
 }
 
 // 0x533E20
-void tig_palette_destroy(TigPalette palette)
+void tig_palette_destroy(TigPalette* palette)
 {
     TigPaletteListNode* node;
 
@@ -98,29 +83,17 @@ void tig_palette_destroy(TigPalette palette)
 }
 
 // 0x533E40
-void tig_palette_fill(TigPalette palette, unsigned int color)
+void tig_palette_fill(TigPalette* palette, unsigned int color)
 {
     int index;
 
-    switch (tig_palette_bpp) {
-    case 8:
-        break;
-    case 16:
-        for (index = 0; index < 256; index++) {
-            ((uint16_t*)palette)[index] = (uint16_t)color;
-        }
-        break;
-    case 24:
-    case 32:
-        for (index = 0; index < 256; index++) {
-            ((uint32_t*)palette)[index] = color;
-        }
-        break;
+    for (index = 0; index < 256; index++) {
+        palette->colors[index] = color;
     }
 }
 
 // 0x533E90
-void tig_palette_copy(TigPalette dst, const TigPalette src)
+void tig_palette_copy(TigPalette* dst, const TigPalette* src)
 {
     memcpy(dst, src, tig_palette_size);
 }
@@ -134,63 +107,20 @@ void tig_palette_modify(const TigPaletteModifyInfo* modify_info)
         return;
     }
 
-    switch (tig_palette_bpp) {
-    case 16:
-        if (modify_info->dst_palette != modify_info->src_palette) {
-            // NOTE: Does not reuse `tig_palette_copy`.
-            memcpy(modify_info->dst_palette, modify_info->src_palette, sizeof(uint16_t) * 256);
-        }
+    if (modify_info->dst_palette != modify_info->src_palette) {
+        tig_palette_copy(modify_info->dst_palette, modify_info->src_palette);
+    }
 
-        if ((modify_info->flags & TIG_PALETTE_MODIFY_GRAYSCALE) != 0) {
-            for (index = 0; index < 256; index++) {
-                ((uint16_t*)modify_info->dst_palette)[index] = (uint16_t)tig_color_rgb_to_grayscale(((uint16_t*)modify_info->dst_palette)[index]);
-            }
+    if ((modify_info->flags & TIG_PALETTE_MODIFY_GRAYSCALE) != 0) {
+        for (index = 0; index < 256; index++) {
+            modify_info->dst_palette->colors[index] = tig_color_rgb_to_grayscale(modify_info->dst_palette->colors[index]);
         }
+    }
 
-        if ((modify_info->flags & TIG_PALETTE_MODIFY_TINT) != 0) {
-            for (index = 0; index < 256; index++) {
-                ((uint16_t*)modify_info->dst_palette)[index] = (uint16_t)tig_color_mul(((uint16_t*)modify_info->dst_palette)[index], modify_info->tint_color);
-            }
+    if ((modify_info->flags & TIG_PALETTE_MODIFY_TINT) != 0) {
+        for (index = 0; index < 256; index++) {
+            modify_info->dst_palette->colors[index] = tig_color_mul(modify_info->dst_palette->colors[index], modify_info->tint_color);
         }
-        break;
-    case 24:
-        if (modify_info->dst_palette != modify_info->src_palette) {
-            // NOTE: Does not reuse `tig_palette_copy`.
-            memcpy(modify_info->dst_palette, modify_info->src_palette, sizeof(uint32_t) * 256);
-        }
-
-        if ((modify_info->flags & TIG_PALETTE_MODIFY_GRAYSCALE) != 0) {
-            for (index = 0; index < 256; index++) {
-                ((uint32_t*)modify_info->dst_palette)[index] = tig_color_rgb_to_grayscale(((uint32_t*)modify_info->dst_palette)[index]);
-            }
-        }
-
-        if ((modify_info->flags & TIG_PALETTE_MODIFY_TINT) != 0) {
-            for (index = 0; index < 256; index++) {
-                ((uint32_t*)modify_info->dst_palette)[index] = tig_color_mul(((uint32_t*)modify_info->dst_palette)[index], modify_info->tint_color);
-            }
-        }
-        break;
-    case 32:
-        // NOTE: The code in this branch is binary identical to 24 bpp, but for
-        // unknown reason the generated assembly is not collapsed.
-        if (modify_info->dst_palette != modify_info->src_palette) {
-            // NOTE: Does not reuse `tig_palette_copy`.
-            memcpy(modify_info->dst_palette, modify_info->src_palette, sizeof(uint32_t) * 256);
-        }
-
-        if ((modify_info->flags & TIG_PALETTE_MODIFY_GRAYSCALE) != 0) {
-            for (index = 0; index < 256; index++) {
-                ((uint32_t*)modify_info->dst_palette)[index] = tig_color_rgb_to_grayscale(((uint32_t*)modify_info->dst_palette)[index]);
-            }
-        }
-
-        if ((modify_info->flags & TIG_PALETTE_MODIFY_TINT) != 0) {
-            for (index = 0; index < 256; index++) {
-                ((uint32_t*)modify_info->dst_palette)[index] = tig_color_mul(((uint32_t*)modify_info->dst_palette)[index], modify_info->tint_color);
-            }
-        }
-        break;
     }
 }
 

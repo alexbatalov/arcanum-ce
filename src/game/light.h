@@ -33,12 +33,12 @@ typedef struct Light {
     /* 0021 */ uint8_t b;
     /* 0022 */ uint8_t g;
     /* 0024 */ tig_color_t tint_color;
-    /* 0028 */ TigPalette palette;
+    /* 0028 */ TigPalette* palette;
 } Light;
 
 typedef struct Shadow {
     /* 0000 */ tig_art_id_t art_id;
-    /* 0004 */ TigPalette palette;
+    /* 0004 */ TigPalette* palette;
     /* 0008 */ tig_color_t color;
     /* 000C */ struct Shadow* next;
 } Shadow;

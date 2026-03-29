@@ -95,7 +95,7 @@ static TigVideoBufferData darker_vb_data;
 static ViewOptions light_view_options;
 
 // 0x602E40
-static void* light_indoor_palette;
+static TigPalette* light_indoor_palette;
 
 // 0x602E44
 static int dword_602E44;
@@ -104,7 +104,7 @@ static int dword_602E44;
 static TigRect light_iso_content_rect;
 
 // 0x602E58
-static TigPalette* dword_602E58;
+static TigPalette** dword_602E58;
 
 // 0x602E5C
 static TigVideoBuffer* darker_vb;
@@ -116,7 +116,7 @@ static Shadow* shadow_node_head;
 static TigVideoBufferData lighter_vb_data;
 
 // 0x602E88
-static TigPalette light_outdoor_palette;
+static TigPalette* light_outdoor_palette;
 
 // 0x602E8C
 static IsoInvalidateRectFunc* light_iso_window_invalidate_rect;
@@ -192,7 +192,7 @@ bool light_init(GameInitInfo* init_info)
 {
     TigWindowData window_data;
 
-    dword_602E58 = (TigPalette*)CALLOC(7, sizeof(*dword_602E58));
+    dword_602E58 = (TigPalette**)CALLOC(7, sizeof(*dword_602E58));
     sub_4F8330();
     light_iso_window_handle = init_info->iso_window_handle;
     light_iso_window_invalidate_rect = init_info->invalidate_rect_func;

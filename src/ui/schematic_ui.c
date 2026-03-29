@@ -1230,7 +1230,7 @@ void schematic_ui_draw_component(int ingr, SchematicInfo* schematic_info, bool* 
     int64_t item_obj;
     int tech;
     int complexity;
-    TigPalette palette;
+    TigPalette* palette;
     TigPaletteModifyInfo palette_modify_info;
     char str[80];
     float width_ratio;
