@@ -1249,11 +1249,22 @@ bool tig_video_window_create(TigInitInfo* init_info)
     flags |= SDL_WINDOW_FULLSCREEN;
 #endif
 
+// We're using streaming texture which is extremely slow in Metal.
+#if SDL_PLATFORM_MACOS
+    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl,metal");
+#elif SDL_PLATFORM_IOS
+    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengles2,metal");
+#endif
+
     SDL_Window* window;
     SDL_Renderer* renderer;
     if (!SDL_CreateWindowAndRenderer(name, window_width, window_height, flags, &window, &renderer)) {
         return false;
     }
+
+    SDL_PropertiesID renderer_props = SDL_GetRendererProperties(renderer);
+    const char* driver_name = SDL_GetStringProperty(renderer_props, SDL_PROP_RENDERER_NAME_STRING, "");
+    tig_debug_printf("TIG Video: Using '%s' driver\n", driver_name);
 
     if ((init_info->flags & TIG_INITIALIZE_POSITIONED) != 0) {
         SDL_SetWindowPosition(window, init_info->x, init_info->y);
