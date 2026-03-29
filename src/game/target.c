@@ -525,9 +525,13 @@ bool target_context_evaluate(TargetContext* ctx)
                     return false;
                 }
             } else {
-                if ((tgt & 0x10000000) != 0
-                    && ctx->target_obj == ctx->self_obj) {
-                    return false;
+                if ((tgt & 0x10000000) != 0) {
+                    if (ctx->target_obj == ctx->self_obj) {
+                        return false;
+                    }
+                    if (ctx->target_obj == ctx->source_obj) {
+                        return false;
+                    }
                 }
             }
 
@@ -696,7 +700,8 @@ bool target_context_evaluate(TargetContext* ctx)
                         v2 = critter_pc_leader_get(ctx->field_40);
                         if (v1 == ctx->field_40
                             || (v1 == v2 && v1 != OBJ_HANDLE_NULL)
-                            || v2 == ctx->target_obj) {
+                            || v2 == ctx->target_obj
+                            || ctx->target_obj == ctx->field_40) {
                             return false;
                         }
 
@@ -792,7 +797,8 @@ bool target_context_evaluate(TargetContext* ctx)
                         v2 = critter_pc_leader_get(ctx->field_40);
                         if (v1 == ctx->field_40
                             || (v1 == v2 && v1 != OBJ_HANDLE_NULL)
-                            || v2 == ctx->target_obj) {
+                            || v2 == ctx->target_obj
+                            || ctx->target_obj == ctx->field_40) {
                             return false;
                         }
 
