@@ -3450,7 +3450,7 @@ void sub_40A400(void)
             info->simple_array_idx = v2++;
             info->change_array_idx = idx / 32 + dword_5D10F0[sub_40A790(v3)];
             info->bit = idx % 32;
-            info->mask = 1 << info->bit;
+            info->mask = 1u << info->bit;
 
             switch (info->type) {
             case OD_TYPE_INT32:

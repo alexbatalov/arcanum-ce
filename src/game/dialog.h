@@ -24,7 +24,7 @@ typedef struct DialogState {
     /* 1818 */ int field_1818[5];
     /* 182C */ char* actions[5];
     /* 1840 */ int field_1840;
-    /* 1844 */ int seed;
+    /* 1844 */ unsigned int seed;
 } DialogState;
 
 bool dialog_init(GameInitInfo* init_info);

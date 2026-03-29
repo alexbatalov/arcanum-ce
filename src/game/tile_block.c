@@ -321,7 +321,7 @@ bool tileblock_is_tile_blocked(int64_t loc)
     }
 
     tile = tile_id_from_loc(loc);
-    blocked = (sector->blocks.mask[tile / 32] & (1 << (tile % 32))) != 0;
+    blocked = (sector->blocks.mask[tile / 32] & (1u << (tile % 32))) != 0;
     sector_unlock(sec);
 
     return blocked;

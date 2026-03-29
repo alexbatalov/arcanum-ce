@@ -5,9 +5,9 @@
 /**
  * 0x601778
  */
-static int random_prev_value;
+static unsigned int random_prev_value;
 
-static void random_set_prev_value(int value);
+static void random_set_prev_value(unsigned int value);
 
 /**
  * Called when the game is initialized.
@@ -37,7 +37,7 @@ void random_exit(void)
  *
  * 0x4CEED0
  */
-void random_seed(int value)
+void random_seed(unsigned int value)
 {
     random_set_prev_value(value);
 }
@@ -47,9 +47,9 @@ void random_seed(int value)
  *
  * 0x4CEEE0
  */
-int random_seed_generate(void)
+unsigned int random_seed_generate(void)
 {
-    int seed = (int)time(NULL);
+    unsigned int seed = (unsigned int)time(NULL);
 
     random_seed(seed);
 
@@ -77,7 +77,7 @@ int random_between(int lower, int upper)
  *
  * 0x4CEF40
  */
-void random_set_prev_value(int value)
+void random_set_prev_value(unsigned int value)
 {
     random_prev_value = value;
 }
@@ -103,6 +103,6 @@ void random_set_prev_value(int value)
  */
 int random_rand(void)
 {
-    random_prev_value = 1664525 * random_prev_value + 1013904223;
+    random_prev_value = 1664525u * random_prev_value + 1013904223u;
     return (random_prev_value >> 8) & 0x7FFF;
 }

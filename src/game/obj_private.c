@@ -1613,7 +1613,7 @@ int bitset_index_of(int pos)
  */
 int bitset_mask_of(int pos)
 {
-    return 1 << (pos % 32);
+    return 1u << (pos % 32);
 }
 
 /**

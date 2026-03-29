@@ -6047,7 +6047,7 @@ void magictech_build_effect_info(MagicTechInfo* info, char* str)
             tig_str_match_str_to_list(&str, obj_flags_fields_lookup_tbl_keys, OFS_COUNT, &value);
             component_info->data.obj_flag.flags_fld = obj_flags_fields_lookup_tbl_values[value];
             tig_str_match_str_to_list(&str, obj_flags_tbl[value], obj_flags_size_tbl[value], &value);
-            component_info->data.obj_flag.value = 1 << value;
+            component_info->data.obj_flag.value = 1u << value;
             tig_str_match_str_to_list(&str, off_5B0C90, 2, &(component_info->data.obj_flag.state));
             if (component_info->data.obj_flag.flags_fld == OBJ_F_SPELL_FLAGS
                 && component_info->data.obj_flag.state) {
