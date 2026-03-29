@@ -116,12 +116,18 @@ static void* element_data_at_index(int index);
 static void sequence_to_hdr(ObjPoolEntryHeader* hdr, int seq);
 static int sequence_from_hdr(ObjPoolEntryHeader* hdr);
 
+#define ALIGN(x, a) (((x) + ((a) - 1)) & ~((a) - 1))
+
 /**
  * Byte size of `ObjPoolEntryHeader`.
  *
+ * CE: Due to pointer math involved, this value needs to be properly aligned so
+ * that the object data that follows immediately after header the is also
+ * properly aligned.
+ *
  * 0x5B9258
  */
-static int obj_pool_entry_header_byte_size = sizeof(ObjPoolEntryHeader);
+static int obj_pool_entry_header_byte_size = ALIGN(sizeof(ObjPoolEntryHeader), sizeof(void*));
 
 /**
  * Monotonically increasing sequence counter used when minting new handles.
