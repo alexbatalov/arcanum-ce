@@ -187,85 +187,27 @@ int tig_bmp_copy_to_video_buffer(TigBmp* bmp, const TigRect* src_rect, TigVideoB
     src_step_y = (float)blit_src_rect.height / (float)blit_dst_rect.height;
 
     if (bmp->bpp == 8) {
-        switch (video_buffer_data.bpp) {
-        case 8:
-            // TODO: Incomplete.
-            break;
-        case 16:
-            // TODO: Incomplete.
-            break;
-        case 24:
-            // TODO: Incomplete.
-            break;
-        case 32: {
-            uint32_t* palette = (uint32_t*)MALLOC(sizeof(*palette) * 256);
-            for (int idx = 0; idx < 256; idx++) {
-                palette[idx] = tig_color_index_of(bmp->palette[idx]);
-            }
-
-            uint32_t* dst = (uint32_t*)video_buffer_data.surface_data.pixels + blit_dst_rect.y * (video_buffer_data.pitch / 4) + blit_dst_rect.x;
-            int skip = video_buffer_data.pitch / 4 - blit_dst_rect.width;
-
-            float src_y = 0.0f;
-            for (int y = 0; y < blit_dst_rect.height; y++) {
-                float src_x = 0.0f;
-                for (int x = 0; x < blit_dst_rect.width; x++) {
-                    *dst++ = palette[src_pixels[bmp->pitch * (int)src_y + (int)src_x]];
-                    src_x += src_step_x;
-                }
-
-                dst += skip;
-                src_y += src_step_y;
-            }
-
-            FREE(palette);
-            break;
+        uint32_t* palette = (uint32_t*)MALLOC(sizeof(*palette) * 256);
+        for (int idx = 0; idx < 256; idx++) {
+            palette[idx] = tig_color_index_of(bmp->palette[idx]);
         }
-        default:
-            break;
-        }
-    } else {
-        // NOTE: This codepath looks totally broken. Instead of copying bmp to
-        // video buffer, it copies video buffer to bmp, and it does so without
-        // respecting src/dst rects, which leads to memory corruption.
-        if (bmp->bpp == video_buffer_data.bpp) {
-            switch (bmp->bpp) {
-            case 8:
-                for (int y = 0; y < bmp->height; y++) {
-                    for (int x = 0; x < bmp->width; x++) {
-                        *((uint8_t*)bmp->pixels + bmp->pitch * y + x) = *((uint8_t*)video_buffer_data.surface_data.pixels + video_buffer_data.pitch * y + x);
-                    }
-                }
-                break;
-            case 16:
-                for (int y = 0; y < bmp->height; y++) {
-                    for (int x = 0; x < bmp->width; x++) {
-                        *((uint16_t*)bmp->pixels + bmp->pitch * y + x) = *((uint16_t*)video_buffer_data.surface_data.pixels + video_buffer_data.pitch * y + x);
-                    }
-                }
-                break;
-            case 24:
-                for (int y = 0; y < bmp->height; y++) {
-                    for (int x = 0; x < bmp->width; x++) {
-                        *((uint32_t*)bmp->pixels + bmp->pitch * y + x) = *((uint32_t*)video_buffer_data.surface_data.pixels + video_buffer_data.pitch * y + x);
-                    }
-                }
-                break;
-            case 32:
-                for (int y = 0; y < bmp->height; y++) {
-                    for (int x = 0; x < bmp->width; x++) {
-                        *((uint32_t*)bmp->pixels + bmp->pitch * y + x) = *((uint32_t*)video_buffer_data.surface_data.pixels + video_buffer_data.pitch * y + x);
-                    }
-                }
-                break;
+
+        uint32_t* dst = (uint32_t*)video_buffer_data.surface_data.pixels + blit_dst_rect.y * (video_buffer_data.pitch / 4) + blit_dst_rect.x;
+        int skip = video_buffer_data.pitch / 4 - blit_dst_rect.width;
+
+        float src_y = 0.0f;
+        for (int y = 0; y < blit_dst_rect.height; y++) {
+            float src_x = 0.0f;
+            for (int x = 0; x < blit_dst_rect.width; x++) {
+                *dst++ = palette[src_pixels[bmp->pitch * (int)src_y + (int)src_x]];
+                src_x += src_step_x;
             }
-        } else if (bmp->bpp == 24 && video_buffer_data.bpp == 16) {
-            for (int y = 0; y < bmp->height; y++) {
-                for (int x = 0; x < bmp->width; x++) {
-                    *((uint16_t*)video_buffer_data.surface_data.pixels + video_buffer_data.pitch * y + x) = (uint16_t)tig_color_index_of(*((uint16_t*)bmp->pixels + bmp->pitch * y + x));
-                }
-            }
+
+            dst += skip;
+            src_y += src_step_y;
         }
+
+        FREE(palette);
     }
 
     tig_video_buffer_unlock(video_buffer);

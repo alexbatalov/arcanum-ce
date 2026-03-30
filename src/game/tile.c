@@ -328,48 +328,13 @@ void sub_4D7590(tig_art_id_t art_id, TigVideoBuffer* video_buffer)
         tig_video_buffer_lock(video_buffer);
         tig_video_buffer_data(video_buffer, &dst_video_buffer_data);
 
-        switch (src_video_buffer_data.bpp) {
-        case 8:
-            for (int y = 0; y < tile_view_options.zoom; y++) {
-                for (int x = 0; x < tile_view_options.zoom; x++) {
-                    int index = y * tile_view_options.zoom + x;
-                    int src_index = dword_602DE4[index] * src_video_buffer_data.pitch + dword_602DE8[index];
-                    int dst_index = y * dst_video_buffer_data.pitch + x;
-                    dst_video_buffer_data.surface_data.p8[dst_index] = src_video_buffer_data.surface_data.p8[src_index];
-                }
+        for (int y = 0; y < tile_view_options.zoom; y++) {
+            for (int x = 0; x < tile_view_options.zoom; x++) {
+                int index = y * tile_view_options.zoom + x;
+                int src_index = dword_602DE4[index] * src_video_buffer_data.pitch / 4 + dword_602DE8[index];
+                int dst_index = y * dst_video_buffer_data.pitch / 4 + x;
+                dst_video_buffer_data.surface_data.p32[dst_index] = src_video_buffer_data.surface_data.p32[src_index];
             }
-            break;
-        case 16:
-            for (int y = 0; y < tile_view_options.zoom; y++) {
-                for (int x = 0; x < tile_view_options.zoom; x++) {
-                    int index = y * tile_view_options.zoom + x;
-                    int src_index = dword_602DE4[index] * src_video_buffer_data.pitch / 2 + dword_602DE8[index];
-                    int dst_index = y * dst_video_buffer_data.pitch / 2 + x;
-                    dst_video_buffer_data.surface_data.p16[dst_index] = src_video_buffer_data.surface_data.p16[src_index];
-                }
-            }
-            break;
-        case 24:
-            // TODO: Same implementation as in 32bpp, check.
-            for (int y = 0; y < tile_view_options.zoom; y++) {
-                for (int x = 0; x < tile_view_options.zoom; x++) {
-                    int index = y * tile_view_options.zoom + x;
-                    int src_index = dword_602DE4[index] * src_video_buffer_data.pitch / 4 + dword_602DE8[index];
-                    int dst_index = y * dst_video_buffer_data.pitch / 4 + x;
-                    dst_video_buffer_data.surface_data.p32[dst_index] = src_video_buffer_data.surface_data.p32[src_index];
-                }
-            }
-            break;
-        case 32:
-            for (int y = 0; y < tile_view_options.zoom; y++) {
-                for (int x = 0; x < tile_view_options.zoom; x++) {
-                    int index = y * tile_view_options.zoom + x;
-                    int src_index = dword_602DE4[index] * src_video_buffer_data.pitch / 4 + dword_602DE8[index];
-                    int dst_index = y * dst_video_buffer_data.pitch / 4 + x;
-                    dst_video_buffer_data.surface_data.p32[dst_index] = src_video_buffer_data.surface_data.p32[src_index];
-                }
-            }
-            break;
         }
 
         tig_video_buffer_unlock(video_buffer);
