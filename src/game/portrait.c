@@ -147,69 +147,88 @@ void portrait_draw_native(int64_t obj, int num, tig_window_handle_t window_handl
 }
 
 /**
+ * CE: The original code uses TIG BMP API. This implementation prefers to load
+ * portrait directly into the video buffer.
+ *
  * 0x4CE4A0
  */
 void portrait_draw_func(int64_t obj, int num, tig_window_handle_t window_handle, int x, int y, int width, int height)
 {
-    TigBmp bmp;
+    char path[TIG_MAX_PATH];
+    TigVideoBuffer* video_buffer;
+    TigVideoBufferData video_buffer_data;
     int rc;
     char* pch;
     TigRect src_rect;
     TigRect dst_rect;
+    TigWindowBlitInfo blit_info;
 
     // Check if the object is a player character with alternate data.
     if (obj != OBJ_HANDLE_NULL
         && obj_field_int32_get(obj, OBJ_F_TYPE) == OBJ_TYPE_PC
         && (obj_field_int32_get(obj, OBJ_F_PC_FLAGS) & OPCF_USE_ALT_DATA) != 0) {
         // Attempt to construct path for a multiplayer-specific portrait.
-        if (!multiplayer_portrait_path(obj, width, bmp.name)) {
+        if (!multiplayer_portrait_path(obj, width, path)) {
             return;
         }
     } else {
         // Build single-player portrait path.
-        portrait_path(num, bmp.name, width);
+        portrait_path(num, path, width);
     }
 
     // Load bitmap from the portrait path.
-    rc = tig_bmp_create(&bmp);
+    rc = tig_video_buffer_load_from_bmp(path, &video_buffer, 0x01);
     if (rc != TIG_OK) {
         // Something wrong was with the portrait. Check if a big portrait was
         // requested and if so, fallback to normal size portrait.
-        if (strlen(bmp.name) >= 6) {
-            pch = &(bmp.name[strlen(bmp.name) - 6]);
+        if (strlen(path) >= 6) {
+            pch = &(path[strlen(path) - 6]);
             if (SDL_strcasecmp(pch, "_b.bmp") == 0) {
                 *pch = '\0';
-                strcat(bmp.name, ".bmp");
-                rc = tig_bmp_create(&bmp);
+                strcat(path, ".bmp");
+                rc = tig_video_buffer_load_from_bmp(path, &video_buffer, 0x01);
             }
         }
     }
 
-    if (rc == TIG_OK) {
-        // Set up source rect to the full dimensions.
-        src_rect.x = 0;
-        src_rect.y = 0;
-        src_rect.width = bmp.width;
-        src_rect.height = bmp.height;
-
-        // Set up destination rect based on the provided constraints (applies
-        // scaling).
-        dst_rect.x = x;
-        dst_rect.y = y;
-        dst_rect.width = bmp.width;
-        dst_rect.height = bmp.height;
-
-        if (width > 0) {
-            dst_rect.width = width;
-        }
-
-        if (height > 0) {
-            dst_rect.height = height;
-        }
-
-        tig_window_copy_from_bmp(window_handle, &dst_rect, &bmp, &src_rect);
-        tig_bmp_destroy(&bmp);
+    if (rc != TIG_OK) {
+        return;
     }
+
+    if (tig_video_buffer_data(video_buffer, &video_buffer_data) != TIG_OK) {
+        tig_video_buffer_destroy(video_buffer);
+        return;
+    }
+
+    // Set up source rect to the full dimensions.
+    src_rect.x = 0;
+    src_rect.y = 0;
+    src_rect.width = video_buffer_data.width;
+    src_rect.height = video_buffer_data.height;
+
+    // Set up destination rect based on the provided constraints (applies
+    // scaling).
+    dst_rect.x = x;
+    dst_rect.y = y;
+    dst_rect.width = video_buffer_data.width;
+    dst_rect.height = video_buffer_data.height;
+
+    if (width > 0) {
+        dst_rect.width = width;
+    }
+
+    if (height > 0) {
+        dst_rect.height = height;
+    }
+
+    blit_info.type = TIG_WINDOW_BLIT_VIDEO_BUFFER_TO_WINDOW;
+    blit_info.vb_blit_flags = 0;
+    blit_info.src_rect = &src_rect;
+    blit_info.src_video_buffer = video_buffer;
+    blit_info.dst_rect = &dst_rect;
+    blit_info.dst_window_handle = window_handle;
+    tig_window_blit(&blit_info);
+    tig_video_buffer_destroy(video_buffer);
 }
 
 /**

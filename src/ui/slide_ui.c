@@ -185,13 +185,18 @@ void slide_ui_prepare(int type)
  * Returns `true` if slideshow show continue, `false` if slide was interrupted
  * by pressing ESC.
  *
+ * CE: The original code uses TIG BMP API. This implementation prefers to load
+ * slide directly into the video buffer.
+ *
  * 0x569770
  */
 bool slide_ui_do_slide(tig_window_handle_t window_handle, int slide)
 {
     TigMessage msg;
     TigRect rect;
-    TigBmp bmp;
+    TigVideoBuffer* video_buffer;
+    TigWindowBlitInfo blit_info;
+    char bmp_path[TIG_MAX_PATH];
     char speech_path[TIG_MAX_PATH];
     tig_sound_handle_t speech_handle;
     bool cont = true;
@@ -205,12 +210,18 @@ bool slide_ui_do_slide(tig_window_handle_t window_handle, int slide)
     rect.width = 800;
     rect.height = 600;
 
-    if (slide_ui_get_assets(slide, bmp.name, speech_path)) {
+    if (slide_ui_get_assets(slide, bmp_path, speech_path)) {
         // Load image.
-        if (tig_bmp_create(&bmp) == TIG_OK) {
+        if (tig_video_buffer_load_from_bmp(bmp_path, &video_buffer, 0x01) == TIG_OK) {
             // Put image into window.
-            tig_bmp_copy_to_window(&bmp, &rect, window_handle, &rect);
-            tig_bmp_destroy(&bmp);
+            blit_info.type = TIG_WINDOW_BLIT_VIDEO_BUFFER_TO_WINDOW;
+            blit_info.vb_blit_flags = 0;
+            blit_info.src_rect = &rect;
+            blit_info.src_video_buffer = video_buffer;
+            blit_info.dst_rect = &rect;
+            blit_info.dst_window_handle = window_handle;
+            tig_window_blit(&blit_info);
+            tig_video_buffer_destroy(video_buffer);
 
             // Refresh screen.
             sub_51E850(window_handle);
