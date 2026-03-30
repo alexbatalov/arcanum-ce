@@ -19,9 +19,6 @@ typedef struct TigBmp {
 
 int tig_bmp_create(TigBmp* bmp);
 int tig_bmp_destroy(TigBmp* bmp);
-int tig_bmp_copy_to_video_buffer(TigBmp* bmp, const TigRect* src_rect, TigVideoBuffer* video_buffer, const TigRect* dst_rect);
-int tig_bmp_copy_to_bmp(TigBmp* src, TigBmp* dst);
-int tig_bmp_copy_to_window(TigBmp* bmp, const TigRect* src_rect, tig_window_handle_t window_handle, const TigRect* dst_rect);
 
 #ifdef __cplusplus
 }
