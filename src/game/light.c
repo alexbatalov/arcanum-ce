@@ -291,9 +291,9 @@ void light_buffers_lock(void)
         tig_video_buffer_data(darker_vb, &darker_vb_data);
 
         lighter_pitch = lighter_vb_data.pitch / 4;
-        lighter_colors = (uint32_t*)lighter_vb_data.surface_data.pixels;
+        lighter_colors = (uint32_t*)lighter_vb_data.pixels;
         darker_pitch = darker_vb_data.pitch / 4;
-        darker_colors = (uint32_t*)darker_vb_data.surface_data.pixels;
+        darker_colors = (uint32_t*)darker_vb_data.pixels;
     }
 }
 

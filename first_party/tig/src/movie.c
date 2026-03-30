@@ -204,7 +204,7 @@ bool tig_movie_do_frame(void)
 
         // Copy movie pixels to the video buffer.
         BinkCopyToBuffer(tig_movie_bink,
-            video_buffer_data.surface_data.pixels,
+            video_buffer_data.pixels,
             video_buffer_data.pitch,
             video_buffer_data.height,
             0,

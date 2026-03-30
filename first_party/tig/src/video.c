@@ -513,9 +513,9 @@ int tig_video_buffer_data(TigVideoBuffer* video_buffer, TigVideoBufferData* vide
     video_buffer_data->bpp = tig_video_bpp;
 
     if ((video_buffer->flags & TIG_VIDEO_BUFFER_LOCKED) != 0) {
-        video_buffer_data->surface_data.pixels = video_buffer->surface->pixels;
+        video_buffer_data->pixels = video_buffer->surface->pixels;
     } else {
-        video_buffer_data->surface_data.pixels = NULL;
+        video_buffer_data->pixels = NULL;
     }
 
     return TIG_OK;

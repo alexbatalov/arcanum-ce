@@ -333,7 +333,7 @@ void sub_4D7590(tig_art_id_t art_id, TigVideoBuffer* video_buffer)
                 int index = y * tile_view_options.zoom + x;
                 int src_index = dword_602DE4[index] * src_video_buffer_data.pitch / 4 + dword_602DE8[index];
                 int dst_index = y * dst_video_buffer_data.pitch / 4 + x;
-                dst_video_buffer_data.surface_data.p32[dst_index] = src_video_buffer_data.surface_data.p32[src_index];
+                ((uint32_t*)dst_video_buffer_data.pixels)[dst_index] = ((uint32_t*)src_video_buffer_data.pixels)[src_index];
             }
         }
 

@@ -192,7 +192,7 @@ int tig_bmp_copy_to_video_buffer(TigBmp* bmp, const TigRect* src_rect, TigVideoB
             palette[idx] = tig_color_index_of(bmp->palette[idx]);
         }
 
-        uint32_t* dst = (uint32_t*)video_buffer_data.surface_data.pixels + blit_dst_rect.y * (video_buffer_data.pitch / 4) + blit_dst_rect.x;
+        uint32_t* dst = (uint32_t*)video_buffer_data.pixels + blit_dst_rect.y * (video_buffer_data.pitch / 4) + blit_dst_rect.x;
         int skip = video_buffer_data.pitch / 4 - blit_dst_rect.width;
 
         float src_y = 0.0f;

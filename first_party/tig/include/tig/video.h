@@ -71,12 +71,7 @@ typedef struct TigVideoBufferData {
     /* 0010 */ int background_color;
     /* 0014 */ int color_key;
     /* 0018 */ int bpp;
-    /* 001C */ union {
-        void* pixels;
-        uint8_t* p8;
-        uint16_t* p16;
-        uint32_t* p32;
-    } surface_data;
+    /* 001C */ void* pixels;
 } TigVideoBufferData;
 
 typedef struct TigVideoBufferBlitInfo {

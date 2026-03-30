@@ -3007,10 +3007,10 @@ int sub_5059F0(int cache_entry_index, TigArtBlitInfo* blit_info)
     }
 
     if (delta > 0) {
-        dst_pixels = (uint8_t*)video_buffer_data.surface_data.pixels;
+        dst_pixels = (uint8_t*)video_buffer_data.pixels;
         dst_skip = video_buffer_data.pitch / 4 - width;
     } else {
-        dst_pixels = (uint8_t*)video_buffer_data.surface_data.pixels + video_buffer_data.pitch / 4 * (height - 1);
+        dst_pixels = (uint8_t*)video_buffer_data.pixels + video_buffer_data.pitch / 4 * (height - 1);
         dst_skip = -width - video_buffer_data.pitch / 4;
     }
     for (y = 0; y < height; y++) {
@@ -3197,15 +3197,15 @@ int art_blit(int cache_entry_index, TigArtBlitInfo* blit_info)
 
     switch (tig_art_bits_per_pixel) {
     case 16:
-        dst_pixels = (uint8_t*)video_buffer_data.surface_data.pixels + video_buffer_data.pitch * dst_rect.y + 2 * dst_rect.x;
+        dst_pixels = (uint8_t*)video_buffer_data.pixels + video_buffer_data.pitch * dst_rect.y + 2 * dst_rect.x;
         dst_skip = video_buffer_data.pitch - dst_rect.width * 2;
         break;
     case 24:
-        dst_pixels = (uint8_t*)video_buffer_data.surface_data.pixels + video_buffer_data.pitch * dst_rect.y + 3 * dst_rect.x;
+        dst_pixels = (uint8_t*)video_buffer_data.pixels + video_buffer_data.pitch * dst_rect.y + 3 * dst_rect.x;
         dst_skip = video_buffer_data.pitch - dst_rect.width * 3;
         break;
     case 32:
-        dst_pixels = (uint8_t*)video_buffer_data.surface_data.pixels + video_buffer_data.pitch * dst_rect.y + 4 * dst_rect.x;
+        dst_pixels = (uint8_t*)video_buffer_data.pixels + video_buffer_data.pitch * dst_rect.y + 4 * dst_rect.x;
         dst_skip = video_buffer_data.pitch - dst_rect.width * 4;
         break;
     default:
