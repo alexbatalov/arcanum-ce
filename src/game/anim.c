@@ -12883,7 +12883,7 @@ bool AGupdateAnimAttack(AnimRunInfo* run_info)
             && sub_432CF0(obj)
             && (obj_type == OBJ_TYPE_PC
                 || (obj_field_int32_get(obj, OBJ_F_NPC_FLAGS) & ONF_BACKING_OFF) == 0)
-            && !sub_4294F0(obj, target_obj)) {
+            && sub_4294F0(obj, target_obj)) {
             art_id = tig_art_id_frame_set(art_id, frame - 3);
             art_id = tig_art_id_rotation_set(art_id, object_rot(obj, target_obj));
             object_set_current_aid(obj, art_id);
