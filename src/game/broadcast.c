@@ -180,18 +180,6 @@ void broadcast_msg(int64_t obj, Broadcast* bcast)
     broadcast_msg_client(obj, bcast);
 }
 
-// 0x4C2FA0
-void sub_4C2FA0(void)
-{
-    // TODO: Incomplete.
-}
-
-// 0x4C3040
-void sub_4C3040(void)
-{
-    // TODO: Incomplete.
-}
-
 // 0x4C31A0
 void broadcast_msg_client(int64_t pc_obj, Broadcast* bcast)
 {
