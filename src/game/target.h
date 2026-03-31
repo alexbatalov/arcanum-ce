@@ -93,7 +93,7 @@ typedef struct TargetContext {
     /* 0028 */ int64_t target_loc;
     /* 0030 */ int64_t orig_target_obj;
     /* 0038 */ int64_t orig_target_loc;
-    /* 0040 */ int64_t field_40;
+    /* 0040 */ int64_t attacker_obj;
     /* 0048 */ int64_t summoned_obj;
     /* 0050 */ TargetList* targets;
     /* 0054 */ MagicTechObjectNode** obj_list;

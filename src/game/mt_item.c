@@ -83,7 +83,7 @@ static bool mt_item_initialized;
 /**
  * 0x5FF618
  */
-static int64_t qword_5FF618;
+static int64_t store_attacker_obj;
 
 /**
  * Called when the game is initialized.
@@ -258,8 +258,8 @@ void handle_item_event_func(int64_t item_obj, int64_t parent_obj, int64_t extra_
         mt_invocation.trigger = flags;
         mt_invocation.flags |= MAGICTECH_INVOCATION_FRIENDLY;
 
-        if (qword_5FF618 != OBJ_HANDLE_NULL) {
-            sub_4440E0(qword_5FF618, &(mt_invocation.field_A0));
+        if (store_attacker_obj != OBJ_HANDLE_NULL) {
+            sub_4440E0(store_attacker_obj, &(mt_invocation.attacker_obj));
         }
 
         if (mt_invocation.target_obj.obj != OBJ_HANDLE_NULL
@@ -268,7 +268,7 @@ void handle_item_event_func(int64_t item_obj, int64_t parent_obj, int64_t extra_
         }
     }
 
-    qword_5FF618 = OBJ_HANDLE_NULL;
+    store_attacker_obj = OBJ_HANDLE_NULL;
 }
 
 /**
@@ -425,7 +425,7 @@ void mt_item_notify_parent_attacks_obj(int64_t attacker_obj, int64_t target_obj)
     }
 
     // Iterate through equipment slots and fire an event.
-    qword_5FF618 = attacker_obj;
+    store_attacker_obj = attacker_obj;
     for (index = 0; index < 9; index++) {
         item_obj = item_wield_get(attacker_obj, 1000 + index);
         if (item_obj != OBJ_HANDLE_NULL) {
@@ -445,7 +445,7 @@ void mt_item_notify_parent_attacks_loc(int64_t attacker_obj, int64_t weapon_obj,
         return;
     }
 
-    qword_5FF618 = attacker_obj;
+    store_attacker_obj = attacker_obj;
     handle_item_event_func(weapon_obj, attacker_obj, OBJ_HANDLE_NULL, target_loc, MT_ITEM_TRIG_PARENT_ATKS_LOCATION);
 }
 

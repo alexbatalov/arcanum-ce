@@ -272,7 +272,7 @@ typedef struct MagicTechRunInfo {
     /* 0010 */ MagicTechObjectNode source_obj;
     /* 0058 */ MagicTechObjectNode parent_obj;
     /* 00A0 */ MagicTechObjectNode target_obj;
-    /* 00E8 */ MagicTechObjectNode field_E8;
+    /* 00E8 */ MagicTechObjectNode attacker_obj;
     /* 0130 */ MagicTechObjectNode* objlist;
     /* 0134 */ MagicTechObjectNode* summoned_obj;
     /* 0138 */ int field_138;
@@ -297,7 +297,7 @@ typedef struct MagicTechInvocation {
     /* 0038 */ int64_t loc;
     /* 0040 */ FollowerInfo parent_obj;
     /* 0070 */ FollowerInfo target_obj;
-    /* 00A0 */ FollowerInfo field_A0;
+    /* 00A0 */ FollowerInfo attacker_obj;
     /* 00D0 */ int64_t target_loc;
     /* 00D8 */ unsigned int trigger;
     /* 00DC */ MagicTechInvocationFlags flags;

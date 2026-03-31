@@ -151,7 +151,7 @@ void target_context_init(TargetContext* ctx, TargetParams* params, int64_t sourc
 {
     ctx->orig_target_loc = 0;
     ctx->orig_target_obj = OBJ_HANDLE_NULL;
-    ctx->field_40 = OBJ_HANDLE_NULL;
+    ctx->attacker_obj = OBJ_HANDLE_NULL;
     ctx->source_obj = source_obj;
     ctx->self_obj = source_obj;
     ctx->params = params;
@@ -688,13 +688,13 @@ bool target_context_evaluate(TargetContext* ctx)
                         }
                     }
 
-                    if (ctx->field_40 != OBJ_HANDLE_NULL) {
+                    if (ctx->attacker_obj != OBJ_HANDLE_NULL) {
                         int64_t v1;
                         int64_t v2;
 
                         v1 = critter_pc_leader_get(ctx->target_obj);
-                        v2 = critter_pc_leader_get(ctx->field_40);
-                        if (v1 == ctx->field_40
+                        v2 = critter_pc_leader_get(ctx->attacker_obj);
+                        if (v1 == ctx->attacker_obj
                             || (v1 == v2 && v1 != OBJ_HANDLE_NULL)
                             || v2 == ctx->target_obj) {
                             return false;
@@ -702,7 +702,7 @@ bool target_context_evaluate(TargetContext* ctx)
 
                         if (tig_net_is_active()
                             && obj_field_int32_get(v2, OBJ_F_TYPE) == OBJ_TYPE_PC) {
-                            object_list_party(ctx->field_40, &objects);
+                            object_list_party(ctx->attacker_obj, &objects);
                             node = objects.head;
                             while (node != NULL) {
                                 if (node->obj == v1
@@ -784,13 +784,13 @@ bool target_context_evaluate(TargetContext* ctx)
                         }
                     }
 
-                    if (ctx->field_40 != OBJ_HANDLE_NULL) {
+                    if (ctx->attacker_obj != OBJ_HANDLE_NULL) {
                         int64_t v1;
                         int64_t v2;
 
                         v1 = critter_pc_leader_get(ctx->target_obj);
-                        v2 = critter_pc_leader_get(ctx->field_40);
-                        if (v1 == ctx->field_40
+                        v2 = critter_pc_leader_get(ctx->attacker_obj);
+                        if (v1 == ctx->attacker_obj
                             || (v1 == v2 && v1 != OBJ_HANDLE_NULL)
                             || v2 == ctx->target_obj) {
                             return false;
@@ -798,7 +798,7 @@ bool target_context_evaluate(TargetContext* ctx)
 
                         if (tig_net_is_active()
                             && obj_field_int32_get(v2, OBJ_F_TYPE) == OBJ_TYPE_PC) {
-                            object_list_party(ctx->field_40, &objects);
+                            object_list_party(ctx->attacker_obj, &objects);
                             node = objects.head;
                             while (node != NULL) {
                                 if (node->obj == v1
@@ -1203,7 +1203,7 @@ void target_context_build_list(TargetContext* ctx)
         target_context_init(&tmp_target_ctx, &tmp_target_params, ctx->source_obj);
         origin = ctx->orig_target_loc;
         tmp_target_ctx.orig_target_loc = ctx->orig_target_loc;
-        tmp_target_ctx.field_40 = ctx->field_40;
+        tmp_target_ctx.attacker_obj = ctx->attacker_obj;
 
         tmp_target_params.tgt = target_params->tgt & ~Tgt_Tile;
         tmp_target_params.spell_flags = target_params->spell_flags;
@@ -1318,7 +1318,7 @@ void target_context_build_list(TargetContext* ctx)
         int dy2;
 
         target_context_init(&tmp_target_ctx, &tmp_target_params, ctx->source_obj);
-        tmp_target_ctx.field_40 = ctx->field_40;
+        tmp_target_ctx.attacker_obj = ctx->attacker_obj;
         tmp_target_params.tgt = target_params->tgt & ~Tgt_Object;
         tmp_target_params.radius = target_params->radius;
         tmp_target_params.count = target_params->count;
@@ -1408,7 +1408,7 @@ void target_context_build_list(TargetContext* ctx)
     // FIXME: The code below does not look like implementation of cone.
     if ((target_params->tgt & Tgt_Cone) != 0) {
         target_context_init(&tmp_target_ctx, &tmp_target_params, ctx->source_obj);
-        tmp_target_ctx.field_40 = ctx->field_40;
+        tmp_target_ctx.attacker_obj = ctx->attacker_obj;
         tmp_target_params.tgt = target_params->tgt & ~Tgt_Object;
         tmp_target_params.radius = target_params->radius;
         tmp_target_params.count = target_params->count;
