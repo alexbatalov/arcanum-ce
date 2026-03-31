@@ -252,7 +252,7 @@ void broadcast_msg_client(int64_t pc_obj, Broadcast* bcast)
                         if (bcast_str[0] == '#') {
                             found = true;
                             pos = 1;
-                        } else if (strnicmp(bcast_str, candidate_follower_name, pos) == 0) {
+                        } else if (SDL_strncasecmp(bcast_str, candidate_follower_name, pos) == 0) {
                             found = true;
                             done = true;
                         }
@@ -412,7 +412,7 @@ void broadcast_msg_client(int64_t pc_obj, Broadcast* bcast)
                     if (*bcast_str == '#') {
                         found = true;
                         pos = 1;
-                    } else if (strnicmp(bcast_str, candidate_pc_name, pos) == 0) {
+                    } else if (SDL_strncasecmp(bcast_str, candidate_pc_name, pos) == 0) {
                         found = true;
                         done = true;
                     }
