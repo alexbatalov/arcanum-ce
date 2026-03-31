@@ -1787,7 +1787,6 @@ int tig_window_move(tig_window_handle_t window_handle, int x, int y)
 {
     int window_index;
     TigWindow* win;
-    int index;
 
     window_index = tig_window_handle_to_index(window_handle);
     win = &(windows[window_index]);
