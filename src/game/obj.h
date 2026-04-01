@@ -386,7 +386,7 @@ void sub_405CC0(int64_t obj);
 void sub_405D60(int64_t* new_obj_ptr, int64_t obj);
 void obj_perm_dup(int64_t* copy_obj_ptr, int64_t existing_obj);
 void obj_inst_dup(int64_t* copy, int64_t obj, ObjectID* oids);
-void sub_4063A0(int64_t obj, ObjectID** oids_ptr, int* cnt_ptr);
+void obj_collect_oids(int64_t obj, ObjectID** oids_ptr, int* cnt_ptr);
 void obj_save_preprocess(int64_t obj);
 void obj_load_postprocess(int64_t obj);
 bool obj_write(TigFile* stream, int64_t obj);

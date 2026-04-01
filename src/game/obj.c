@@ -1142,7 +1142,7 @@ void obj_inst_dup(int64_t* copy, int64_t obj, ObjectID* oids)
 }
 
 // 0x4063A0
-void sub_4063A0(int64_t obj, ObjectID** oids_ptr, int* cnt_ptr)
+void obj_collect_oids(int64_t obj, ObjectID** oids_ptr, int* cnt_ptr)
 {
     ObjectID* oids;
     int cnt = 0;
