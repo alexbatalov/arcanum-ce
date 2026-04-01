@@ -102,15 +102,15 @@ static void sub_40C640(Object* object);
 static void sub_40C650(Object* dst, Object* src);
 static void sub_40C690(Object* object);
 static bool sub_40C6B0(Object* object, int fld);
-static bool sub_40C6E0(Object* object, int fld);
+static bool object_proto_field_dealloc(Object* object, int fld);
 static bool sub_40C730(Object* object, int fld);
 static bool sub_40C7A0(Object* object, int fld, ObjectFieldInfo* info);
 static void sub_40C7F0(Object* dst, Object* src, int fld);
-static void sub_40C840(Object* object, int fld);
+static void object_transient_field_dealloc(Object* object, int fld);
 static bool object_proto_enumerate_fields(Object* object, ObjectProtoEnumerateFieldsCallback* callback);
 static bool object_proto_enumerate_fields_func(Object* obj, int begin, int end, ObjectProtoEnumerateFieldsCallback* callback);
 static int sub_40CB40(Object* object, int fld);
-static bool sub_40CB60(Object* object, int fld, ObjectFieldInfo* info);
+static bool object_inst_field_dealloc(Object* object, int storage_idx, ObjectFieldInfo* info);
 static bool object_inst_enumerate_overridden_fields(Object* object, ObjectInstEnumerateFieldsCallback* callback);
 static bool object_inst_enumerate_overridden_fields_func(Object* object, int begin, int end, ObjectInstEnumerateFieldsCallback* callback);
 static bool object_inst_enumerate_available_fields(Object* object, ObjectInstEnumerateFieldsCallback* callback);
@@ -939,15 +939,15 @@ void obj_deallocate(int64_t obj)
     }
 
     if (object->prototype_oid.type != OID_TYPE_BLOCKED) {
-        object_inst_enumerate_overridden_fields(object, sub_40CB60);
+        object_inst_enumerate_overridden_fields(object, object_inst_field_dealloc);
         sub_40C5B0(object);
 
         for (fld = OBJ_F_TRANSIENT_BEGIN + 1; fld < OBJ_F_TRANSIENT_END; fld++) {
-            sub_40C840(object, fld);
+            object_transient_field_dealloc(object, fld);
         }
     } else {
         dword_5D10F4 = 0;
-        object_proto_enumerate_fields(object, sub_40C6E0);
+        object_proto_enumerate_fields(object, object_proto_field_dealloc);
         sub_40C640(object);
     }
 
@@ -967,15 +967,15 @@ void sub_405CC0(int64_t obj)
 
     object = obj_lock(obj);
     if (object->prototype_oid.type != OID_TYPE_BLOCKED) {
-        object_inst_enumerate_overridden_fields(object, sub_40CB60);
+        object_inst_enumerate_overridden_fields(object, object_inst_field_dealloc);
         sub_40C5B0(object);
 
         for (fld = OBJ_F_TRANSIENT_BEGIN + 1; fld < OBJ_F_TRANSIENT_END; fld++) {
-            sub_40C840(object, fld);
+            object_transient_field_dealloc(object, fld);
         }
     } else {
         dword_5D10F4 = 0;
-        object_proto_enumerate_fields(object, sub_40C6E0);
+        object_proto_enumerate_fields(object, object_proto_field_dealloc);
         sub_40C640(object);
     }
 
@@ -2069,15 +2069,15 @@ void obj_field_reset(int64_t obj, int fld)
     object = obj_lock(obj);
     if (object_field_valid(object->type, fld)) {
         if (object->prototype_oid.type == OID_TYPE_BLOCKED) {
-            sub_40C6E0(object, fld);
+            object_proto_field_dealloc(object, fld);
             sub_40D400(object, fld, true);
             obj_unlock(obj);
         } else if (fld > OBJ_F_TRANSIENT_BEGIN) {
-            sub_40C840(object, fld);
+            object_transient_field_dealloc(object, fld);
             obj_unlock(obj);
         } else {
             if (sub_40D320(object, fld)) {
-                sub_40CB60(object, sub_40D230(object, fld), &(object_fields[fld]));
+                object_inst_field_dealloc(object, sub_40D230(object, fld), &(object_fields[fld]));
                 sub_40D400(object, fld, true);
             } else {
                 sub_40D450(object, fld);
@@ -4409,13 +4409,13 @@ bool sub_40C6B0(Object* object, int fld)
 }
 
 // 0x40C6E0
-bool sub_40C6E0(Object* object, int fld)
+bool object_proto_field_dealloc(Object* object, int fld)
 {
-    ObjDataDescriptor v1;
+    ObjDataDescriptor free_op;
 
-    v1.type = object_fields[fld].type;
-    v1.ptr = &(object->data[dword_5D10F4]);
-    obj_data_reset(&v1);
+    free_op.type = object_fields[fld].type;
+    free_op.ptr = &(object->data[dword_5D10F4]);
+    obj_data_reset(&free_op);
     dword_5D10F4++;
 
     return true;
@@ -4457,13 +4457,13 @@ void sub_40C7F0(Object* dst, Object* src, int fld)
 }
 
 // 0x40C840
-void sub_40C840(Object* object, int fld)
+void object_transient_field_dealloc(Object* object, int fld)
 {
-    ObjDataDescriptor v1;
+    ObjDataDescriptor free_op;
 
-    v1.type = object_fields[fld].type;
-    v1.ptr = &(object->transient_properties[fld - OBJ_F_TRANSIENT_BEGIN - 1]);
-    obj_data_reset(&v1);
+    free_op.type = object_fields[fld].type;
+    free_op.ptr = &(object->transient_properties[fld - OBJ_F_TRANSIENT_BEGIN - 1]);
+    obj_data_reset(&free_op);
 }
 
 // 0x40C880
@@ -4629,13 +4629,14 @@ int sub_40CB40(Object* object, int fld)
 }
 
 // 0x40CB60
-bool sub_40CB60(Object* object, int fld, ObjectFieldInfo* info)
+bool object_inst_field_dealloc(Object* object, int storage_idx, ObjectFieldInfo* info)
 {
-    ObjDataDescriptor v1;
+    ObjDataDescriptor free_op;
 
-    v1.type = info->type;
-    v1.ptr = &(object->data[fld]);
-    obj_data_reset(&v1);
+    free_op.type = info->type;
+    free_op.ptr = &(object->data[storage_idx]);
+    obj_data_reset(&free_op);
+
     return true;
 }
 
