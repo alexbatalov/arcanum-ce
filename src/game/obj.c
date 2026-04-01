@@ -103,9 +103,9 @@ static void sub_40C650(Object* dst, Object* src);
 static void sub_40C690(Object* object);
 static bool sub_40C6B0(Object* object, int fld);
 static bool object_proto_field_dealloc(Object* object, int fld);
-static bool sub_40C730(Object* object, int fld);
-static bool sub_40C7A0(Object* object, int fld, ObjectFieldInfo* info);
-static void sub_40C7F0(Object* dst, Object* src, int fld);
+static bool object_proto_field_copy(Object* object, int fld);
+static bool object_inst_field_copy(Object* object, int storage_idx, ObjectFieldInfo* info);
+static void object_transient_field_copy(Object* dst, Object* src, int fld);
 static void object_transient_field_dealloc(Object* object, int fld);
 static bool object_proto_enumerate_fields(Object* object, ObjectProtoEnumerateFieldsCallback* callback);
 static bool object_proto_enumerate_fields_func(Object* obj, int begin, int end, ObjectProtoEnumerateFieldsCallback* callback);
@@ -1011,18 +1011,18 @@ void sub_405D60(int64_t* new_obj_ptr, int64_t obj)
         sub_40C5C0(new_object, object);
 
         dword_5D1108 = object;
-        object_inst_enumerate_overridden_fields(new_object, sub_40C7A0);
+        object_inst_enumerate_overridden_fields(new_object, object_inst_field_copy);
 
         memset(new_object->transient_properties, 0, sizeof(new_object->transient_properties));
         for (fld = OBJ_F_TRANSIENT_BEGIN + 1; fld < OBJ_F_TRANSIENT_END; fld++) {
-            sub_40C7F0(new_object, object, fld);
+            object_transient_field_copy(new_object, object, fld);
         }
     } else {
         sub_40C650(new_object, object);
 
         dword_5D10F4 = 0;
         dword_5D1110 = object;
-        object_proto_enumerate_fields(new_object, sub_40C730);
+        object_proto_enumerate_fields(new_object, object_proto_field_copy);
     }
 
     obj_unlock(obj);
@@ -1074,7 +1074,7 @@ void obj_perm_dup(int64_t* copy_obj_ptr, int64_t existing_obj)
     memset(copy_object->field_4C, 0, 4 * sub_40C030(copy_object->type));
 
     dword_5D1108 = existing_object;
-    object_inst_enumerate_overridden_fields(copy_object, sub_40C7A0);
+    object_inst_enumerate_overridden_fields(copy_object, object_inst_field_copy);
     memset(copy_object->transient_properties, 0, sizeof(copy_object->transient_properties));
 
     obj_unlock(existing_obj);
@@ -4422,38 +4422,38 @@ bool object_proto_field_dealloc(Object* object, int fld)
 }
 
 // 0x40C730
-bool sub_40C730(Object* object, int fld)
+bool object_proto_field_copy(Object* object, int fld)
 {
-    ObjDataDescriptor v1;
+    ObjDataDescriptor copy_op;
 
-    v1.type = object_fields[fld].type;
-    v1.ptr = &(dword_5D1110->data[dword_5D10F4]);
-    obj_data_copy(&v1, &(object->data[dword_5D10F4]));
+    copy_op.type = object_fields[fld].type;
+    copy_op.ptr = &(dword_5D1110->data[dword_5D10F4]);
+    obj_data_copy(&copy_op, &(object->data[dword_5D10F4]));
     dword_5D10F4++;
 
     return true;
 }
 
 // 0x40C7A0
-bool sub_40C7A0(Object* object, int fld, ObjectFieldInfo* info)
+bool object_inst_field_copy(Object* object, int storage_idx, ObjectFieldInfo* info)
 {
-    ObjDataDescriptor v1;
+    ObjDataDescriptor copy_op;
 
-    v1.type = info->type;
-    v1.ptr = &(dword_5D1108->data[fld]);
-    obj_data_copy(&v1, &(object->data[fld]));
+    copy_op.type = info->type;
+    copy_op.ptr = &(dword_5D1108->data[storage_idx]);
+    obj_data_copy(&copy_op, &(object->data[storage_idx]));
 
     return true;
 }
 
 // 0x40C7F0
-void sub_40C7F0(Object* dst, Object* src, int fld)
+void object_transient_field_copy(Object* dst, Object* src, int fld)
 {
-    ObjDataDescriptor v1;
+    ObjDataDescriptor copy_op;
 
-    v1.type = object_fields[fld].type;
-    v1.ptr = &(src->transient_properties[fld - OBJ_F_TRANSIENT_BEGIN - 1]);
-    obj_data_copy(&v1, &(dst->transient_properties[fld - OBJ_F_TRANSIENT_BEGIN - 1]));
+    copy_op.type = object_fields[fld].type;
+    copy_op.ptr = &(src->transient_properties[fld - OBJ_F_TRANSIENT_BEGIN - 1]);
+    obj_data_copy(&copy_op, &(dst->transient_properties[fld - OBJ_F_TRANSIENT_BEGIN - 1]));
 }
 
 // 0x40C840
