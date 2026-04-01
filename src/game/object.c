@@ -4216,7 +4216,7 @@ bool object_duplicate_func(int64_t proto_obj, int64_t loc, ObjectID* oids, int64
     if (oids->type == OID_TYPE_BLOCKED) {
         obj_perm_dup(obj_ptr, proto_obj);
     } else {
-        sub_406210(obj_ptr, proto_obj, oids);
+        obj_inst_dup(obj_ptr, proto_obj, oids);
     }
 
     if (!sub_442260(*obj_ptr, loc)) {

@@ -1108,7 +1108,7 @@ void obj_perm_dup(int64_t* copy_obj_ptr, int64_t existing_obj)
 }
 
 // 0x406210
-void sub_406210(int64_t* copy, int64_t obj, ObjectID* oids)
+void obj_inst_dup(int64_t* copy, int64_t obj, ObjectID* oids)
 {
     Object* object;
     int inventory_num_fld;
