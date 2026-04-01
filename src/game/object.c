@@ -12,10 +12,9 @@
 #include "game/gsound.h"
 #include "game/item.h"
 #include "game/light.h"
+#include "game/magictech.h"
 #include "game/map.h"
 #include "game/mes.h"
-#include "game/mp_utils.h"
-#include "game/multiplayer.h"
 #include "game/obj.h"
 #include "game/obj_file.h"
 #include "game/obj_find.h"
@@ -1296,12 +1295,6 @@ void object_destroy(int64_t obj)
         return;
     }
 
-    if (!multiplayer_is_locked() && tig_net_is_host()) {
-        mp_object_destroy(obj);
-    }
-
-    multiplayer_lock();
-
     object_get_rect(obj, 0x7, &rect);
     object_iso_invalidate_rect(&rect);
 
@@ -1347,8 +1340,6 @@ void object_destroy(int64_t obj)
     flags = obj_field_int32_get(obj, OBJ_F_FLAGS);
     flags |= OF_DESTROYED;
     obj_field_int32_set(obj, OBJ_F_FLAGS, flags);
-
-    multiplayer_unlock();
 }
 
 // 0x43CEA0
@@ -1584,20 +1575,6 @@ int object_hp_pts_get(int64_t obj)
 // 0x43D430
 int object_hp_pts_set(int64_t obj, int value)
 {
-    Packet51 pkt;
-
-    if (!multiplayer_is_locked()) {
-        pkt.type = 51;
-        pkt.field_4 = 0;
-        pkt.field_8 = obj_get_id(obj);
-        pkt.field_20 = value;
-        tig_net_send_app_all(&pkt, sizeof(pkt));
-
-        if (!tig_net_is_host()) {
-            return value;
-        }
-    }
-
     if (value < 0) {
         value = 0;
     }
@@ -1632,10 +1609,6 @@ int object_hp_damage_get(int64_t obj)
 int object_hp_damage_set(int64_t obj, int value)
 {
     int obj_type;
-
-    if (tig_net_is_active() && !tig_net_is_host()) {
-        return 0;
-    }
 
     if (value < 0) {
         value = 0;
@@ -2318,19 +2291,6 @@ void sub_43E770(int64_t obj, int64_t loc, int offset_x, int offset_y)
         sub_444270(obj, 1);
     } else {
         sub_444270(obj, 2);
-    }
-}
-
-// 0x43EA20
-void sub_43EA20(int64_t a1, int64_t a2)
-{
-    int64_t v1;
-
-    if (a1 != OBJ_HANDLE_NULL) {
-        if (!sub_4B99C0(a2, &v1)) {
-            v1 = a2;
-        }
-        sub_4EDF20(a1, v1, 0, 0, false);
     }
 }
 
@@ -3731,31 +3691,15 @@ void object_list_all_followers(int64_t obj, ObjectList* objects)
 void object_list_party(int64_t obj, ObjectList* objects)
 {
     ObjectNode* node;
-    int64_t party_member_obj;
-    int party_member_index;
-    ObjectNode** parent_ptr;
 
     objects->num_sectors = 0;
     objects->head = NULL;
-    parent_ptr = &(objects->head);
 
-    if (tig_net_is_active()) {
-        party_member_obj = party_find_first(obj, &party_member_index);
-        do {
-            node = object_node_create();
-            node->obj = party_member_obj;
-            node->next = NULL;
+    node = object_node_create();
+    node->obj = obj;
+    node->next = NULL;
 
-            *parent_ptr = node;
-            parent_ptr = &((*parent_ptr)->next);
-        } while ((party_member_obj = party_find_next(&party_member_index)) != OBJ_HANDLE_NULL);
-    } else {
-        node = object_node_create();
-        node->obj = obj;
-        node->next = NULL;
-
-        objects->head = node;
-    }
+    objects->head = node;
 
     ++dword_5E2F98;
 }
@@ -5363,17 +5307,8 @@ void sub_4445A0(int64_t a1, int64_t a2)
                 sub_4606C0(0);
             }
         } else {
-            if (tig_net_is_active()) {
-                if (tig_net_is_host()) {
-                    loc = obj_field_int64_get(a1, OBJ_F_LOCATION);
-                    sub_4EDF20(a2, loc, 0, 0, false);
-                } else {
-                    sub_4EF830(a1, a2);
-                }
-            } else {
-                loc = obj_field_int64_get(a1, OBJ_F_LOCATION);
-                sub_43E770(a2, loc, 0, 0);
-            }
+            loc = obj_field_int64_get(a1, OBJ_F_LOCATION);
+            sub_43E770(a2, loc, 0, 0);
         }
     }
 }

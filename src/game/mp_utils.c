@@ -66,16 +66,6 @@ bool mp_object_create(int name, int64_t loc, int64_t* obj_ptr)
     return object_create(sub_4685A0(name), loc, obj_ptr);
 }
 
-// 0x4ED9E0
-void mp_object_destroy(int64_t obj)
-{
-    PacketObjectDestroy pkt;
-
-    pkt.type = 72;
-    pkt.oid = obj_get_id(obj);
-    tig_net_send_app_all(&pkt, sizeof(pkt));
-}
-
 // 0x4EDA60
 void sub_4EDA60(UiMessage* ui_message, int player, int a3)
 {
