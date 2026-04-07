@@ -19,13 +19,13 @@
 static void sub_5719F0(int64_t item_obj, uint64_t** tgt_ptr);
 
 // 0x5CAC40
-static uint64_t qword_5CAC40 = Tgt_Object;
+static uint64_t qword_5CAC40 = TGT_OBJECT;
 
 // 0x5CAC48
-static uint64_t qword_5CAC48 = Tgt_Obj_Inven;
+static uint64_t qword_5CAC48 = TGT_OBJECT | TGT_OBJ_INVEN;
 
 // 0x5CAC50
-static uint64_t qword_5CAC50 = Tgt_Tile | Tgt_Object;
+static uint64_t qword_5CAC50 = TGT_OBJECT | TGT_TILE;
 
 // 0x6810D8
 static int64_t qword_6810D8;
@@ -92,7 +92,7 @@ void item_ui_activate(int64_t owner_obj, int64_t item_obj)
 
     sub_5719F0(item_obj, &tgt_ptr);
 
-    if ((*tgt_ptr & (Tgt_Obj_Inven & ~Tgt_Object)) == 0) {
+    if ((*tgt_ptr & TGT_OBJ_INVEN) == 0) {
         inven_ui_destroy();
 
         if (!intgame_mode_set(INTGAME_MODE_MAIN)) {
@@ -101,10 +101,10 @@ void item_ui_activate(int64_t owner_obj, int64_t item_obj)
     }
 
     // TODO: Check, probably wrong.
-    if (*tgt_ptr == Tgt_None
-        || ((*tgt_ptr & Tgt_Self) != 0
-            && (*tgt_ptr & Tgt_Tile) == 0)
-        || *tgt_ptr == Tgt_Obj_Radius) {
+    if (*tgt_ptr == TGT_NONE
+        || ((*tgt_ptr & TGT_SELF) != 0
+            && (*tgt_ptr & TGT_TILE) == 0)
+        || *tgt_ptr == TGT_OBJ_RADIUS) {
         target_descriptor_set_loc(&td, obj_field_int64_get(owner_obj, OBJ_F_LOCATION));
         spell_ui_apply(&td);
         return;
@@ -119,7 +119,7 @@ void item_ui_activate(int64_t owner_obj, int64_t item_obj)
                 intgame_refresh_cursor();
             }
 
-            if ((*tgt_ptr & Tgt_Object) != 0
+            if ((*tgt_ptr & TGT_OBJECT) != 0
                 && tig_kb_get_modifier(SDL_KMOD_SHIFT)) {
                 target_descriptor_set_obj(&td, player_get_local_pc_obj());
                 item_ui_apply(&td);

@@ -148,71 +148,71 @@ static void sub_45A760(int64_t obj, const char* msg);
 
 // 0x596140
 static uint64_t qword_596140[] = {
-    0x00,
-    0x01,
-    0x02,
-    0x04,
-    0x0C,
-    0x10,
-    0x24,
-    0x44,
-    0x0C4,
-    0x144,
-    0x244,
-    0x444,
-    0x844,
-    0x1044,
-    0x2044,
-    0x4044,
-    0x8044,
-    0x10004,
-    0x20004,
-    0x40004,
-    0x80004,
-    0x100004,
-    0x200004,
-    0x400004,
-    0x800004,
-    0x1000004,
-    0x2000004,
-    0x4000004,
-    0x8000004,
-    0x10000004,
-    0x20000004,
-    0x40000044,
-    0x80000004,
-    0x100000044,
-    0x200000044,
-    0x400000044,
-    0x800000044,
-    0x1000000044,
-    0x2000000044,
-    0x4000000044,
-    0x8000000004,
-    0x10000000004,
-    0x20000000004,
-    0x40000000004,
-    0x80000000004,
-    0x100000000004,
-    0x200000000004,
-    0x400000000004,
-    0x800000000000,
-    0x1000000000000,
-    0x2800000000000,
-    0x4800000000000,
-    0x8800000000000,
-    0x10800000000000,
-    0x20800000000000,
-    0x40800000000000,
-    0x80800000000000,
-    0x100800000000000,
-    0x200000000000000,
-    0x400000000000044,
-    0x800000000000044,
-    0x1000000000000004,
-    0x2000000000000004,
-    0x4000000000000004,
-    0x8000000000000000,
+    TGT_NONE,
+    TGT_SELF,
+    TGT_SOURCE,
+    TGT_OBJECT,
+    TGT_OBJ_SELF | TGT_OBJECT,
+    TGT_OBJ_RADIUS,
+    TGT_OBJ_T_PC | TGT_OBJECT,
+    TGT_OBJ_T_CRITTER | TGT_OBJECT,
+    TGT_OBJ_ST_CRITTER_ANIMAL | TGT_OBJ_T_CRITTER | TGT_OBJECT,
+    TGT_OBJ_ST_CRITTER_DEAD | TGT_OBJ_T_CRITTER | TGT_OBJECT,
+    TGT_OBJ_ST_CRITTER_UNDEAD | TGT_OBJ_T_CRITTER | TGT_OBJECT,
+    TGT_OBJ_ST_CRITTER_DEMON | TGT_OBJ_T_CRITTER | TGT_OBJECT,
+    TGT_OBJ_ST_CRITTER_MECHANICAL | TGT_OBJ_T_CRITTER | TGT_OBJECT,
+    TGT_OBJ_ST_CRITTER_GOOD | TGT_OBJ_T_CRITTER | TGT_OBJECT,
+    TGT_OBJ_ST_CRITTER_EVIL | TGT_OBJ_T_CRITTER | TGT_OBJECT,
+    TGT_OBJ_ST_CRITTER_UNREVIVIFIABLE | TGT_OBJ_T_CRITTER | TGT_OBJECT,
+    TGT_OBJ_ST_CRITTER_UNRESURRECTABLE | TGT_OBJ_T_CRITTER | TGT_OBJECT,
+    TGT_OBJ_T_PORTAL | TGT_OBJECT,
+    TGT_OBJ_T_CONTAINER | TGT_OBJECT,
+    TGT_OBJ_ST_OPENABLE_LOCKED | TGT_OBJECT,
+    TGT_OBJ_T_WALL | TGT_OBJECT,
+    TGT_OBJ_DAMAGED | TGT_OBJECT,
+    TGT_OBJ_DAMAGED_POISONED | TGT_OBJECT,
+    TGT_OBJ_POISONED | TGT_OBJECT,
+    TGT_OBJ_M_STONE | TGT_OBJECT,
+    TGT_OBJ_M_FLESH | TGT_OBJECT,
+    TGT_OBJ_INVEN | TGT_OBJECT,
+    TGT_OBJ_WEIGHT_BELOW_5 | TGT_OBJECT,
+    TGT_OBJ_IN_WALL | TGT_OBJECT,
+    TGT_OBJ_NO_SELF | TGT_OBJECT,
+    TGT_OBJ_NO_T_PC | TGT_OBJECT,
+    TGT_OBJ_NO_ST_CRITTER_ANIMAL | TGT_OBJ_T_CRITTER | TGT_OBJECT,
+    TGT_OBJ_NO_ST_CRITTER_DEAD | TGT_OBJECT, // FIXME: Does not include `TGT_OBJ_T_CRITTER`.
+    TGT_OBJ_NO_ST_CRITTER_UNDEAD | TGT_OBJ_T_CRITTER | TGT_OBJECT,
+    TGT_OBJ_NO_ST_CRITTER_DEMON | TGT_OBJ_T_CRITTER | TGT_OBJECT,
+    TGT_OBJ_NO_ST_CRITTER_MECHANICAL | TGT_OBJ_T_CRITTER | TGT_OBJECT,
+    TGT_OBJ_NO_ST_CRITTER_GOOD | TGT_OBJ_T_CRITTER | TGT_OBJECT,
+    TGT_OBJ_NO_ST_CRITTER_EVIL | TGT_OBJ_T_CRITTER | TGT_OBJECT,
+    TGT_OBJ_NO_ST_CRITTER_UNREVIVIFIABLE | TGT_OBJ_T_CRITTER | TGT_OBJECT,
+    TGT_OBJ_NO_ST_CRITTER_UNRESURRECTABLE | TGT_OBJ_T_CRITTER | TGT_OBJECT,
+    TGT_OBJ_NO_ST_OPENABLE_LOCKED | TGT_OBJECT,
+    TGT_OBJ_NO_ST_MAGICALLY_HELD | TGT_OBJECT,
+    TGT_OBJ_NO_T_WALL | TGT_OBJECT,
+    TGT_OBJ_NO_DAMAGED | TGT_OBJECT,
+    TGT_OBJ_NO_M_STONE | TGT_OBJECT,
+    TGT_OBJ_NO_INVEN | TGT_OBJECT,
+    TGT_OBJ_NO_INVULNERABLE | TGT_OBJECT,
+    TGT_SUMMONED | TGT_OBJECT,
+    TGT_TILE,
+    TGT_TILE_SELF,
+    TGT_TILE_PATHABLE_TO | TGT_TILE,
+    TGT_TILE_EMPTY | TGT_TILE,
+    TGT_TILE_EMPTY_IMMOBILES | TGT_TILE,
+    TGT_TILE_NO_EMPTY | TGT_TILE,
+    TGT_TILE_RADIUS | TGT_TILE,
+    TGT_TILE_RADIUS_WALL | TGT_TILE,
+    TGT_TILE_OFFSCREEN | TGT_TILE,
+    TGT_TILE_INDOOR_OR_OUTDOOR_MATCH | TGT_TILE,
+    TGT_CONE,
+    TGT_ALL_PARTY_CRITTERS | TGT_OBJ_T_CRITTER | TGT_OBJECT,
+    TGT_PARTY_CRITTER | TGT_OBJ_T_CRITTER | TGT_OBJECT,
+    TGT_NON_PARTY_CRITTERS | TGT_OBJECT,
+    TGT_PARENT_OBJ | TGT_OBJECT,
+    TGT_ATTACKER_OBJ | TGT_OBJECT,
+    TGT_LIST,
 };
 
 // 0x5B0BA0
@@ -3234,7 +3234,7 @@ bool sub_453410(int mt_id, int spell, int64_t obj, int* other_mt_id_ptr)
                 }
                 return true;
             } else if (magictech_run_info[idx].target_obj.obj == OBJ_HANDLE_NULL
-                && (magictech_spells[magictech_run_info[idx].spell].target_params[MAGICTECH_ACTION_BEGIN].tgt & Tgt_Self) != 0
+                && (magictech_spells[magictech_run_info[idx].spell].target_params[MAGICTECH_ACTION_BEGIN].tgt & TGT_SELF) != 0
                 && magictech_run_info[idx].source_obj.obj == obj
                 && magictech_run_info[idx].spell == spell
                 && magictech_run_info[idx].id != mt_id) {
@@ -3573,33 +3573,33 @@ int magictech_use_item_fail_chance(int64_t attacker_obj, int64_t item_obj, int64
 // 0x453D40
 void sub_453D40(void)
 {
-    if (magictech_cur_component->apply_aoe.tgt == 0) {
+    if (magictech_cur_component->apply_aoe.tgt == TGT_NONE) {
         return;
     }
 
-    if ((magictech_cur_component->apply_aoe.tgt & Tgt_Self) != 0) {
+    if ((magictech_cur_component->apply_aoe.tgt & TGT_SELF) != 0) {
         stru_5E6D28.target_obj = magictech_cur_run_info->parent_obj.obj;
         if (stru_5E6D28.target_obj != OBJ_HANDLE_NULL) {
             magictech_cur_target_obj_type = obj_field_int32_get(stru_5E6D28.target_obj, OBJ_F_TYPE);
         }
     }
 
-    if ((magictech_cur_component->apply_aoe.tgt & Tgt_Source) != 0) {
+    if ((magictech_cur_component->apply_aoe.tgt & TGT_SOURCE) != 0) {
         stru_5E6D28.target_obj = magictech_cur_run_info->source_obj.obj;
         if (stru_5E6D28.target_obj != OBJ_HANDLE_NULL) {
             magictech_cur_target_obj_type = obj_field_int32_get(stru_5E6D28.target_obj, OBJ_F_TYPE);
         }
     }
 
-    if ((magictech_cur_component->apply_aoe.tgt & 0x400000000000) != 0) {
+    if ((magictech_cur_component->apply_aoe.tgt & TGT_SUMMONED) != 0) {
         stru_5E6D28.target_obj = stru_5E6D28.summoned_obj;
         if (stru_5E6D28.target_obj != OBJ_HANDLE_NULL) {
             magictech_cur_target_obj_type = obj_field_int32_get(stru_5E6D28.target_obj, OBJ_F_TYPE);
         }
     }
 
-    if ((magictech_cur_component->apply_aoe.tgt & 0x800000000000) != 0) {
-        if ((magictech_cur_component->apply_aoe.tgt & 0x80000000000000) != 0) {
+    if ((magictech_cur_component->apply_aoe.tgt & TGT_TILE) != 0) {
+        if ((magictech_cur_component->apply_aoe.tgt & TGT_TILE_OFFSCREEN) != 0) {
             if (stru_5E6D28.target_obj != OBJ_HANDLE_NULL) {
                 stru_5E6D28.target_loc = obj_field_int64_get(stru_5E6D28.target_obj, OBJ_F_LOCATION);
             }
@@ -4991,13 +4991,14 @@ bool magictech_invocation_check(MagicTechInvocation* mt_invocation)
                 return false;
             }
 
-            if ((target_params.tgt & 0x800000000000) == 0) {
+            if ((target_params.tgt & TGT_TILE) == 0) {
                 return false;
             }
 
             target_ctx.orig_target_loc = obj_field_int64_get(mt_invocation->target_obj.obj, OBJ_F_LOCATION);
             target_ctx.target_loc = obj_field_int64_get(mt_invocation->target_obj.obj, OBJ_F_LOCATION);
             target_ctx.targets = &targets;
+            target_params.tgt |= TGT_TILE_RADIUS | TGT_TILE_INDOOR_OR_OUTDOOR_MATCH;
             target_context_build_list(&target_ctx);
 
             for (idx = 0; idx < target_ctx.targets->cnt; idx++) {
@@ -5119,10 +5120,10 @@ bool sub_456A90(int mt_id)
 
     sub_459F20(run_info->spell, &tgt_ptr);
 
-    if (*tgt_ptr == Tgt_None
-        || ((*tgt_ptr & Tgt_Self) != 0
-            && (*tgt_ptr & Tgt_Tile) == 0)
-        || *tgt_ptr == Tgt_Obj_Radius) {
+    if (*tgt_ptr == TGT_NONE
+        || ((*tgt_ptr & TGT_SELF) != 0
+            && (*tgt_ptr & TGT_TILE) == 0)
+        || *tgt_ptr == TGT_OBJ_RADIUS) {
         return true;
     }
 
@@ -5553,7 +5554,7 @@ void sub_457580(MagicTechInfo* info, int magictech)
         info->pairs[index].caster = -1;
         info->pairs[index].target = -1;
 
-        info->target_params[index].tgt = 0;
+        info->target_params[index].tgt = TGT_NONE;
         info->target_params[index].spell_flags = 0;
         info->target_params[index].no_spell_flags = 0;
         info->target_params[index].radius = 0;
@@ -5585,7 +5586,7 @@ void magictech_build_aoe_info(MagicTechInfo* info, char* str)
             info->target_params[action].tgt = tgt;
         } else {
             info->target_params[action].tgt = tgt;
-            info->target_params[action].tgt |= 0x200000000000;
+            info->target_params[action].tgt |= TGT_OBJ_NO_INVULNERABLE;
         }
     }
 
@@ -5898,7 +5899,7 @@ void magictech_build_effect_info(MagicTechInfo* info, char* str)
     }
 
     component_info = &(component_list->entries[component_list->cnt++]);
-    component_info->aoe.tgt = 0;
+    component_info->aoe.tgt = TGT_NONE;
     component_info->aoe.spell_flags = 0;
     component_info->aoe.no_spell_flags = 0;
     component_info->aoe.radius = 0;

@@ -913,15 +913,15 @@ void follower_ui_begin_order_mode(int cmd)
 
     if (cmd == FOLLOWER_UI_COMMAND_WALK) {
         // The target must be a walkable tile.
-        tgt = Tgt_Tile;
+        tgt = TGT_TILE;
     } else {
         if (tig_kb_get_modifier(SDL_KMOD_ALT)) {
             // Unsafe targeting mode - any object (except self and walls).
-            tgt = Tgt_Obj_No_Self | Tgt_Obj_No_T_Wall;
+            tgt = TGT_OBJECT | TGT_OBJ_NO_SELF | TGT_OBJ_NO_T_WALL;
         } else {
             // Safe targeting mode - only valid critter enemies, no dead, no
             // self, no walls.
-            tgt = Tgt_Obj_No_ST_Critter_Dead | Tgt_Obj_No_Self | Tgt_Obj_No_T_Wall | Tgt_Non_Party_Critters;
+            tgt = TGT_OBJECT | TGT_OBJ_NO_ST_CRITTER_DEAD | TGT_OBJ_NO_SELF | TGT_OBJ_NO_T_WALL | TGT_NON_PARTY_CRITTERS;
         }
     }
 
