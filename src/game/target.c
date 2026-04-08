@@ -701,7 +701,7 @@ bool target_context_evaluate(TargetContext* ctx)
                         if (v1 == ctx->attacker_obj
                             || (v1 == v2 && v1 != OBJ_HANDLE_NULL)
                             || v2 == ctx->target_obj
-                            || ctx->target_obj == ctx->field_40) {
+                            || ctx->target_obj == ctx->attacker_obj) {
                             return false;
                         }
 
@@ -798,7 +798,7 @@ bool target_context_evaluate(TargetContext* ctx)
                         if (v1 == ctx->attacker_obj
                             || (v1 == v2 && v1 != OBJ_HANDLE_NULL)
                             || v2 == ctx->target_obj
-                            || ctx->target_obj == ctx->field_40) {
+                            || ctx->target_obj == ctx->attacker_obj) {
                             return false;
                         }
 
