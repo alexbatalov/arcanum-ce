@@ -2138,7 +2138,7 @@ void sub_55BD10(int group)
                 stru_5C82F0[4 * dword_64E020 + index].value);
         }
 
-        v2[index] = dword_64CA74[index];
+        v2[index] = dword_64CA74[training];
         trainings[index] = training;
     }
 

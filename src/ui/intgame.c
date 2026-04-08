@@ -696,7 +696,7 @@ static UiButtonInfo stru_5C71D0[10] = {
 static UiButtonInfo stru_5C7270 = { 216, 47, 772, TIG_BUTTON_HANDLE_INVALID };
 
 // 0x5C7280
-static uint64_t qword_5C7280 = Tgt_Object;
+static uint64_t qword_5C7280 = TGT_OBJECT;
 
 // 0x5C7288
 static tig_window_handle_t intgame_fs_hotkey_window = TIG_WINDOW_HANDLE_INVALID;
@@ -1306,7 +1306,7 @@ void iso_interface_create(tig_window_handle_t window_handle)
 
     intgame_mode_stack_size = 0;
     intgame_mode_stack[0] = INTGAME_MODE_MAIN;
-    target_flags_set(Tgt_Obj_No_T_Wall | Tgt_Tile);
+    target_flags_set(TGT_OBJECT | TGT_OBJ_NO_T_WALL | TGT_TILE);
     intgame_pc_lens_mode = PC_LENS_MODE_NONE;
 
     font_desc.str = NULL;
@@ -4787,7 +4787,7 @@ bool intgame_get_location_under_cursor(int64_t* loc_ptr)
 
     if (tig_mouse_get_state(&mouse_state) == TIG_OK
         && sub_5518C0(mouse_state.x, mouse_state.y)
-        && target_pick_at_screen_xy_ex(mouse_state.x, mouse_state.y, &td, Tgt_Tile, intgame_fullscreen)
+        && target_pick_at_screen_xy_ex(mouse_state.x, mouse_state.y, &td, TGT_TILE, intgame_fullscreen)
         && td.is_loc) {
         *loc_ptr = td.loc;
         return true;
@@ -4831,7 +4831,7 @@ void sub_551910(TigMessage* msg)
                     object_hover_obj_set(td.obj);
                 }
             } else if (combat_turn_based_is_active()
-                && target_pick_at_screen_xy_ex(msg->data.mouse.x, msg->data.mouse.y, &td, Tgt_Tile, intgame_fullscreen)
+                && target_pick_at_screen_xy_ex(msg->data.mouse.x, msg->data.mouse.y, &td, TGT_TILE, intgame_fullscreen)
                 && td.is_loc
                 && intgame_mode_get() == INTGAME_MODE_MAIN) {
                 combat_check_move_to(player_get_local_pc_obj(), td.loc);
@@ -4900,7 +4900,7 @@ bool intgame_mode_set(IntgameMode mode)
         case INTGAME_MODE_MAIN:
         case INTGAME_MODE_FOLLOWER:
             v1 = true;
-            target_flags_set(Tgt_Tile | Tgt_Obj_No_T_Wall);
+            target_flags_set(TGT_OBJECT | TGT_OBJ_NO_T_WALL | TGT_TILE);
             break;
         case INTGAME_MODE_SPELL:
             v1 = true;
@@ -5118,24 +5118,24 @@ void sub_551F80(void)
     pc_obj = player_get_local_pc_obj();
     if (pc_obj != OBJ_HANDLE_NULL) {
         if (intgame_mode_get() != INTGAME_MODE_MAIN) {
-            qword_5C7280 = Tgt_Object;
+            qword_5C7280 = TGT_OBJECT;
             return;
         }
 
         if (combat_critter_is_combat_mode_active(pc_obj)) {
             if (tig_kb_get_modifier(SDL_KMOD_ALT)) {
-                target_flags_set(Tgt_Obj_No_Self | Tgt_Obj_No_T_Wall | Tgt_Tile);
-                qword_5C7280 = Tgt_Obj_No_Self | Tgt_Obj_No_T_Wall;
+                target_flags_set(TGT_OBJECT | TGT_OBJ_NO_SELF | TGT_OBJ_NO_T_WALL | TGT_TILE);
+                qword_5C7280 = TGT_OBJECT | TGT_OBJ_NO_SELF | TGT_OBJ_NO_T_WALL;
             } else {
-                target_flags_set(Tgt_Obj_No_Self | Tgt_Obj_No_ST_Critter_Dead | Tgt_Obj_No_T_Wall | Tgt_Tile | Tgt_Non_Party_Critters);
-                qword_5C7280 = Tgt_Obj_No_Self | Tgt_Obj_No_ST_Critter_Dead | Tgt_Obj_No_T_Wall | Tgt_Non_Party_Critters;
+                target_flags_set(TGT_OBJECT | TGT_OBJ_NO_SELF | TGT_OBJ_NO_ST_CRITTER_DEAD | TGT_OBJ_NO_T_WALL | TGT_TILE | TGT_NON_PARTY_CRITTERS);
+                qword_5C7280 = TGT_OBJECT | TGT_OBJ_NO_SELF | TGT_OBJ_NO_ST_CRITTER_DEAD | TGT_OBJ_NO_T_WALL | TGT_NON_PARTY_CRITTERS;
             }
             return;
         }
     }
 
-    target_flags_set(Tgt_Obj_No_T_Wall | Tgt_Tile);
-    qword_5C7280 = Tgt_Object;
+    target_flags_set(TGT_OBJECT | TGT_OBJ_NO_T_WALL | TGT_TILE);
+    qword_5C7280 = TGT_OBJECT;
 }
 
 // 0x552050

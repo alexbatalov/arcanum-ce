@@ -106,7 +106,6 @@ int tig_window_scroll_rect(tig_window_handle_t window_handle, TigRect* rect, int
 int tig_window_copy(tig_window_handle_t dst_window_handle, TigRect* dst_rect, tig_window_handle_t src_window_handle, TigRect* src_rect);
 int tig_window_copy_from_vbuffer(tig_window_handle_t dst_window_handle, TigRect* dst_rect, TigVideoBuffer* src_video_buffer, TigRect* src_rect);
 int tig_window_copy_to_vbuffer(tig_window_handle_t src_window_handle, TigRect* src_rect, TigVideoBuffer* dst_video_buffer, TigRect* dst_rect);
-int tig_window_copy_from_bmp(tig_window_handle_t window_handle, TigRect* dst_rect, TigBmp* bmp, TigRect* src_rect);
 int tig_window_tint(tig_window_handle_t window_handle, TigRect* rect, int a3, int a4);
 int tig_window_text_write(tig_window_handle_t window_handle, const char* text, TigRect* rect);
 void tig_window_invalidate_rect(TigRect* rect);

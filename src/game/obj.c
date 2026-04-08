@@ -31,7 +31,7 @@ typedef struct Object {
     /* 0054 */ intptr_t transient_properties[19];
 } Object;
 
-typedef bool(ObjEnumerateCallback)(Object* object, int fld);
+typedef bool(ObjectProtoEnumerateFieldsCallback)(Object* object, int fld);
 
 typedef struct ObjectFieldInfo {
     /* 0000 */ int simple_array_idx;
@@ -43,7 +43,7 @@ typedef struct ObjectFieldInfo {
     /* 0018 */ int type;
 } ObjectFieldInfo;
 
-typedef bool(ObjEnumerateCallbackEx)(Object* object, int fld, ObjectFieldInfo* field_info);
+typedef bool(ObjectInstEnumerateFieldsCallback)(Object* object, int idx, ObjectFieldInfo* field_info);
 
 static void object_field_not_exists(Object* object, int fld);
 static void obj_debug_aid(tig_art_id_t aid);
@@ -102,19 +102,19 @@ static void sub_40C640(Object* object);
 static void sub_40C650(Object* dst, Object* src);
 static void sub_40C690(Object* object);
 static bool sub_40C6B0(Object* object, int fld);
-static bool sub_40C6E0(Object* object, int fld);
-static bool sub_40C730(Object* object, int fld);
-static bool sub_40C7A0(Object* object, int fld, ObjectFieldInfo* info);
-static void sub_40C7F0(Object* dst, Object* src, int fld);
-static void sub_40C840(Object* object, int fld);
-static bool obj_enumerate_fields(Object* object, ObjEnumerateCallback* callback);
-static bool obj_enumerate_fields_in_range(Object* obj, int begin, int end, ObjEnumerateCallback* callback);
+static bool object_proto_field_dealloc(Object* object, int fld);
+static bool object_proto_field_copy(Object* object, int fld);
+static bool object_inst_field_copy(Object* object, int storage_idx, ObjectFieldInfo* info);
+static void object_transient_field_copy(Object* dst, Object* src, int fld);
+static void object_transient_field_dealloc(Object* object, int fld);
+static bool object_proto_enumerate_fields(Object* object, ObjectProtoEnumerateFieldsCallback* callback);
+static bool object_proto_enumerate_fields_func(Object* obj, int begin, int end, ObjectProtoEnumerateFieldsCallback* callback);
 static int sub_40CB40(Object* object, int fld);
-static bool sub_40CB60(Object* object, int fld, ObjectFieldInfo* info);
-static bool sub_40CBA0(Object* object, ObjEnumerateCallbackEx* callback);
-static bool sub_40CE20(Object* object, int start, int end, ObjEnumerateCallbackEx* callback);
-static bool sub_40CEF0(Object* object, ObjEnumerateCallbackEx* callback);
-static bool sub_40D170(Object* object, int start, int end, ObjEnumerateCallbackEx* callback);
+static bool object_inst_field_dealloc(Object* object, int storage_idx, ObjectFieldInfo* info);
+static bool object_inst_enumerate_overridden_fields(Object* object, ObjectInstEnumerateFieldsCallback* callback);
+static bool object_inst_enumerate_overridden_fields_func(Object* object, int begin, int end, ObjectInstEnumerateFieldsCallback* callback);
+static bool object_inst_enumerate_available_fields(Object* object, ObjectInstEnumerateFieldsCallback* callback);
+static bool object_inst_enumerate_available_fields_func(Object* object, int begin, int end, ObjectInstEnumerateFieldsCallback* callback);
 static int sub_40D230(Object* object, int fld);
 static void sub_40D2A0(Object* object, int fld);
 static bool sub_40D320(Object* object, int fld);
@@ -590,7 +590,7 @@ bool obj_init(GameInitInfo* init_info)
         object.type = index;
         word_5D10FC = 0;
         dword_5D10F4 = 0;
-        obj_enumerate_fields(&object, sub_40C560);
+        object_proto_enumerate_fields(&object, sub_40C560);
         object_fields_count_per_type[index] = word_5D10FC;
     }
 
@@ -795,7 +795,7 @@ void sub_405790(int64_t obj)
     tig_debug_printf("{{ Difs on object w/ aid:");
     obj_debug_aid(obj_field_int32_get(obj, OBJ_F_AID));
     if (object->modified) {
-        sub_40CBA0(object, sub_40D670);
+        object_inst_enumerate_overridden_fields(object, sub_40D670);
         obj_unlock(obj);
         tig_debug_println(" }}");
     } else {
@@ -828,7 +828,7 @@ void obj_create_proto(int type, int64_t* obj_ptr)
     object->data = (intptr_t*)CALLOC(object->num_fields, sizeof(*object->data));
 
     dword_5D10F4 = 0;
-    obj_enumerate_fields(object, sub_40C6B0);
+    object_proto_enumerate_fields(object, sub_40C6B0);
 
     obj_unlock(handle);
 
@@ -939,15 +939,15 @@ void obj_deallocate(int64_t obj)
     }
 
     if (object->prototype_oid.type != OID_TYPE_BLOCKED) {
-        sub_40CBA0(object, sub_40CB60);
+        object_inst_enumerate_overridden_fields(object, object_inst_field_dealloc);
         sub_40C5B0(object);
 
         for (fld = OBJ_F_TRANSIENT_BEGIN + 1; fld < OBJ_F_TRANSIENT_END; fld++) {
-            sub_40C840(object, fld);
+            object_transient_field_dealloc(object, fld);
         }
     } else {
         dword_5D10F4 = 0;
-        obj_enumerate_fields(object, sub_40C6E0);
+        object_proto_enumerate_fields(object, object_proto_field_dealloc);
         sub_40C640(object);
     }
 
@@ -967,15 +967,15 @@ void sub_405CC0(int64_t obj)
 
     object = obj_lock(obj);
     if (object->prototype_oid.type != OID_TYPE_BLOCKED) {
-        sub_40CBA0(object, sub_40CB60);
+        object_inst_enumerate_overridden_fields(object, object_inst_field_dealloc);
         sub_40C5B0(object);
 
         for (fld = OBJ_F_TRANSIENT_BEGIN + 1; fld < OBJ_F_TRANSIENT_END; fld++) {
-            sub_40C840(object, fld);
+            object_transient_field_dealloc(object, fld);
         }
     } else {
         dword_5D10F4 = 0;
-        obj_enumerate_fields(object, sub_40C6E0);
+        object_proto_enumerate_fields(object, object_proto_field_dealloc);
         sub_40C640(object);
     }
 
@@ -1011,18 +1011,18 @@ void sub_405D60(int64_t* new_obj_ptr, int64_t obj)
         sub_40C5C0(new_object, object);
 
         dword_5D1108 = object;
-        sub_40CBA0(new_object, sub_40C7A0);
+        object_inst_enumerate_overridden_fields(new_object, object_inst_field_copy);
 
         memset(new_object->transient_properties, 0, sizeof(new_object->transient_properties));
         for (fld = OBJ_F_TRANSIENT_BEGIN + 1; fld < OBJ_F_TRANSIENT_END; fld++) {
-            sub_40C7F0(new_object, object, fld);
+            object_transient_field_copy(new_object, object, fld);
         }
     } else {
         sub_40C650(new_object, object);
 
         dword_5D10F4 = 0;
         dword_5D1110 = object;
-        obj_enumerate_fields(new_object, sub_40C730);
+        object_proto_enumerate_fields(new_object, object_proto_field_copy);
     }
 
     obj_unlock(obj);
@@ -1074,7 +1074,7 @@ void obj_perm_dup(int64_t* copy_obj_ptr, int64_t existing_obj)
     memset(copy_object->field_4C, 0, 4 * sub_40C030(copy_object->type));
 
     dword_5D1108 = existing_object;
-    sub_40CBA0(copy_object, sub_40C7A0);
+    object_inst_enumerate_overridden_fields(copy_object, object_inst_field_copy);
     memset(copy_object->transient_properties, 0, sizeof(copy_object->transient_properties));
 
     obj_unlock(existing_obj);
@@ -1108,7 +1108,7 @@ void obj_perm_dup(int64_t* copy_obj_ptr, int64_t existing_obj)
 }
 
 // 0x406210
-void sub_406210(int64_t* copy, int64_t obj, ObjectID* oids)
+void obj_inst_dup(int64_t* copy, int64_t obj, ObjectID* oids)
 {
     Object* object;
     int inventory_num_fld;
@@ -1142,7 +1142,7 @@ void sub_406210(int64_t* copy, int64_t obj, ObjectID* oids)
 }
 
 // 0x4063A0
-void sub_4063A0(int64_t obj, ObjectID** oids_ptr, int* cnt_ptr)
+void obj_collect_oids(int64_t obj, ObjectID** oids_ptr, int* cnt_ptr)
 {
     ObjectID* oids;
     int cnt = 0;
@@ -1353,7 +1353,7 @@ bool obj_dif_write(TigFile* stream, int64_t obj)
     }
 
     dword_5D110C = stream;
-    written = sub_40CBA0(object, object_field_write_if_dif);
+    written = object_inst_enumerate_overridden_fields(object, object_field_write_if_dif);
     obj_unlock(obj);
 
     marker = 0x23455432;
@@ -1430,7 +1430,7 @@ bool obj_dif_read(TigFile* stream, int64_t obj)
     object->modified = true;
 
     dword_5D110C = stream;
-    if (!sub_40CEF0(object, object_field_read_if_dif)) {
+    if (!object_inst_enumerate_available_fields(object, object_field_read_if_dif)) {
         tig_debug_println("Error in obj_dif_read:\n  Unable to read one of the fields.");
         obj_unlock(obj);
         return false;
@@ -2069,15 +2069,15 @@ void obj_field_reset(int64_t obj, int fld)
     object = obj_lock(obj);
     if (object_field_valid(object->type, fld)) {
         if (object->prototype_oid.type == OID_TYPE_BLOCKED) {
-            sub_40C6E0(object, fld);
+            object_proto_field_dealloc(object, fld);
             sub_40D400(object, fld, true);
             obj_unlock(obj);
         } else if (fld > OBJ_F_TRANSIENT_BEGIN) {
-            sub_40C840(object, fld);
+            object_transient_field_dealloc(object, fld);
             obj_unlock(obj);
         } else {
             if (sub_40D320(object, fld)) {
-                sub_40CB60(object, sub_40D230(object, fld), &(object_fields[fld]));
+                object_inst_field_dealloc(object, sub_40D230(object, fld), &(object_fields[fld]));
                 sub_40D400(object, fld, true);
             } else {
                 sub_40D450(object, fld);
@@ -2919,7 +2919,7 @@ bool obj_proto_write_file(TigFile* stream, int64_t obj)
 
     dword_5D10F4 = 0;
     dword_5D110C = stream;
-    if (!obj_enumerate_fields(object, obj_proto_field_write_file)) {
+    if (!object_proto_enumerate_fields(object, obj_proto_field_write_file)) {
         obj_unlock(obj);
         return false;
     }
@@ -2966,7 +2966,7 @@ bool obj_proto_read_file(TigFile* stream, int64_t* obj_ptr, ObjectID oid)
 
     dword_5D10F4 = 0;
     dword_5D110C = stream;
-    if (!obj_enumerate_fields(object, obj_proto_field_read_file)) {
+    if (!object_proto_enumerate_fields(object, obj_proto_field_read_file)) {
         obj_unlock(obj);
         obj_pool_deallocate(obj);
         return false;
@@ -3019,7 +3019,7 @@ bool obj_inst_write_file(TigFile* stream, int64_t obj)
     }
 
     dword_5D110C = stream;
-    if (!sub_40CBA0(object, object_field_write)) {
+    if (!object_inst_enumerate_overridden_fields(object, object_field_write)) {
         obj_unlock(obj);
         return false;
     }
@@ -3069,7 +3069,7 @@ bool obj_inst_read_file(TigFile* stream, int64_t* obj_ptr, ObjectID oid)
     }
 
     dword_5D110C = stream;
-    if (!sub_40CBA0(object, object_field_read)) {
+    if (!object_inst_enumerate_overridden_fields(object, object_field_read)) {
         obj_unlock(obj);
         obj_pool_deallocate(obj);
         return false;
@@ -3105,7 +3105,7 @@ void obj_proto_write_mem(WriteBuffer* wb, int64_t obj)
     write_buffer_append(object->field_4C, sizeof(object->field_4C[0]) * cnt, wb);
     dword_5D10F4 = 0;
     dword_5D1118 = wb;
-    obj_enumerate_fields(object, obj_proto_field_write_mem);
+    object_proto_enumerate_fields(object, obj_proto_field_write_mem);
     obj_unlock(obj);
 }
 
@@ -3133,7 +3133,7 @@ bool obj_proto_read_mem(uint8_t* data, int64_t* obj_ptr)
 
     dword_5D10F4 = 0;
     dword_5D111C = data;
-    if (!obj_enumerate_fields(object, obj_proto_field_read_mem)) {
+    if (!object_proto_enumerate_fields(object, obj_proto_field_read_mem)) {
         obj_unlock(obj);
         obj_pool_deallocate(obj);
         return false;
@@ -3166,7 +3166,7 @@ void obj_inst_write_mem(WriteBuffer* wb, int64_t obj)
     write_buffer_append(object->field_48, sizeof(object->field_48[0]) * cnt, wb);
     dword_5D1118 = wb;
 
-    sub_40CBA0(object, obj_inst_field_write_mem);
+    object_inst_enumerate_overridden_fields(object, obj_inst_field_write_mem);
     obj_unlock(obj);
 }
 
@@ -3191,7 +3191,7 @@ bool obj_inst_read_mem(uint8_t* data, int64_t* obj_ptr)
     mem_read_advance(object->field_48, 4 * sub_40C030(object->type), &data);
 
     dword_5D111C = data;
-    if (!sub_40CBA0(object, obj_inst_field_read_mem)) {
+    if (!object_inst_enumerate_overridden_fields(object, obj_inst_field_read_mem)) {
         obj_unlock(obj);
         obj_pool_deallocate(obj);
         return false;
@@ -4409,194 +4409,194 @@ bool sub_40C6B0(Object* object, int fld)
 }
 
 // 0x40C6E0
-bool sub_40C6E0(Object* object, int fld)
+bool object_proto_field_dealloc(Object* object, int fld)
 {
-    ObjDataDescriptor v1;
+    ObjDataDescriptor free_op;
 
-    v1.type = object_fields[fld].type;
-    v1.ptr = &(object->data[dword_5D10F4]);
-    obj_data_reset(&v1);
+    free_op.type = object_fields[fld].type;
+    free_op.ptr = &(object->data[dword_5D10F4]);
+    obj_data_reset(&free_op);
     dword_5D10F4++;
 
     return true;
 }
 
 // 0x40C730
-bool sub_40C730(Object* object, int fld)
+bool object_proto_field_copy(Object* object, int fld)
 {
-    ObjDataDescriptor v1;
+    ObjDataDescriptor copy_op;
 
-    v1.type = object_fields[fld].type;
-    v1.ptr = &(dword_5D1110->data[dword_5D10F4]);
-    obj_data_copy(&v1, &(object->data[dword_5D10F4]));
+    copy_op.type = object_fields[fld].type;
+    copy_op.ptr = &(dword_5D1110->data[dword_5D10F4]);
+    obj_data_copy(&copy_op, &(object->data[dword_5D10F4]));
     dword_5D10F4++;
 
     return true;
 }
 
 // 0x40C7A0
-bool sub_40C7A0(Object* object, int fld, ObjectFieldInfo* info)
+bool object_inst_field_copy(Object* object, int storage_idx, ObjectFieldInfo* info)
 {
-    ObjDataDescriptor v1;
+    ObjDataDescriptor copy_op;
 
-    v1.type = info->type;
-    v1.ptr = &(dword_5D1108->data[fld]);
-    obj_data_copy(&v1, &(object->data[fld]));
+    copy_op.type = info->type;
+    copy_op.ptr = &(dword_5D1108->data[storage_idx]);
+    obj_data_copy(&copy_op, &(object->data[storage_idx]));
 
     return true;
 }
 
 // 0x40C7F0
-void sub_40C7F0(Object* dst, Object* src, int fld)
+void object_transient_field_copy(Object* dst, Object* src, int fld)
 {
-    ObjDataDescriptor v1;
+    ObjDataDescriptor copy_op;
 
-    v1.type = object_fields[fld].type;
-    v1.ptr = &(src->transient_properties[fld - OBJ_F_TRANSIENT_BEGIN - 1]);
-    obj_data_copy(&v1, &(dst->transient_properties[fld - OBJ_F_TRANSIENT_BEGIN - 1]));
+    copy_op.type = object_fields[fld].type;
+    copy_op.ptr = &(src->transient_properties[fld - OBJ_F_TRANSIENT_BEGIN - 1]);
+    obj_data_copy(&copy_op, &(dst->transient_properties[fld - OBJ_F_TRANSIENT_BEGIN - 1]));
 }
 
 // 0x40C840
-void sub_40C840(Object* object, int fld)
+void object_transient_field_dealloc(Object* object, int fld)
 {
-    ObjDataDescriptor v1;
+    ObjDataDescriptor free_op;
 
-    v1.type = object_fields[fld].type;
-    v1.ptr = &(object->transient_properties[fld - OBJ_F_TRANSIENT_BEGIN - 1]);
-    obj_data_reset(&v1);
+    free_op.type = object_fields[fld].type;
+    free_op.ptr = &(object->transient_properties[fld - OBJ_F_TRANSIENT_BEGIN - 1]);
+    obj_data_reset(&free_op);
 }
 
 // 0x40C880
-bool obj_enumerate_fields(Object* object, ObjEnumerateCallback* callback)
+bool object_proto_enumerate_fields(Object* object, ObjectProtoEnumerateFieldsCallback* callback)
 {
-    if (!obj_enumerate_fields_in_range(object, OBJ_F_BEGIN, OBJ_F_END, callback)) {
+    if (!object_proto_enumerate_fields_func(object, OBJ_F_BEGIN, OBJ_F_END, callback)) {
         return false;
     }
 
     switch (object->type) {
     case OBJ_TYPE_WALL:
-        if (!obj_enumerate_fields_in_range(object, OBJ_F_WALL_BEGIN, OBJ_F_WALL_END, callback)) {
+        if (!object_proto_enumerate_fields_func(object, OBJ_F_WALL_BEGIN, OBJ_F_WALL_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_PORTAL:
-        if (!obj_enumerate_fields_in_range(object, OBJ_F_PORTAL_BEGIN, OBJ_F_PORTAL_END, callback)) {
+        if (!object_proto_enumerate_fields_func(object, OBJ_F_PORTAL_BEGIN, OBJ_F_PORTAL_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_CONTAINER:
-        if (!obj_enumerate_fields_in_range(object, OBJ_F_CONTAINER_BEGIN, OBJ_F_CONTAINER_END, callback)) {
+        if (!object_proto_enumerate_fields_func(object, OBJ_F_CONTAINER_BEGIN, OBJ_F_CONTAINER_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_SCENERY:
-        if (!obj_enumerate_fields_in_range(object, OBJ_F_SCENERY_BEGIN, OBJ_F_SCENERY_END, callback)) {
+        if (!object_proto_enumerate_fields_func(object, OBJ_F_SCENERY_BEGIN, OBJ_F_SCENERY_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_PROJECTILE:
-        if (!obj_enumerate_fields_in_range(object, OBJ_F_PROJECTILE_BEGIN, OBJ_F_PROJECTILE_END, callback)) {
+        if (!object_proto_enumerate_fields_func(object, OBJ_F_PROJECTILE_BEGIN, OBJ_F_PROJECTILE_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_WEAPON:
-        if (!obj_enumerate_fields_in_range(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
+        if (!object_proto_enumerate_fields_func(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
             return false;
         }
-        if (!obj_enumerate_fields_in_range(object, OBJ_F_WEAPON_BEGIN, OBJ_F_WEAPON_END, callback)) {
+        if (!object_proto_enumerate_fields_func(object, OBJ_F_WEAPON_BEGIN, OBJ_F_WEAPON_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_AMMO:
-        if (!obj_enumerate_fields_in_range(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
+        if (!object_proto_enumerate_fields_func(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
             return false;
         }
-        if (!obj_enumerate_fields_in_range(object, OBJ_F_AMMO_BEGIN, OBJ_F_AMMO_END, callback)) {
+        if (!object_proto_enumerate_fields_func(object, OBJ_F_AMMO_BEGIN, OBJ_F_AMMO_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_ARMOR:
-        if (!obj_enumerate_fields_in_range(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
+        if (!object_proto_enumerate_fields_func(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
             return false;
         }
-        if (!obj_enumerate_fields_in_range(object, OBJ_F_ARMOR_BEGIN, OBJ_F_ARMOR_END, callback)) {
+        if (!object_proto_enumerate_fields_func(object, OBJ_F_ARMOR_BEGIN, OBJ_F_ARMOR_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_GOLD:
-        if (!obj_enumerate_fields_in_range(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
+        if (!object_proto_enumerate_fields_func(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
             return false;
         }
-        if (!obj_enumerate_fields_in_range(object, OBJ_F_GOLD_BEGIN, OBJ_F_GOLD_END, callback)) {
+        if (!object_proto_enumerate_fields_func(object, OBJ_F_GOLD_BEGIN, OBJ_F_GOLD_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_FOOD:
-        if (!obj_enumerate_fields_in_range(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
+        if (!object_proto_enumerate_fields_func(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
             return false;
         }
-        if (!obj_enumerate_fields_in_range(object, OBJ_F_FOOD_BEGIN, OBJ_F_FOOD_END, callback)) {
+        if (!object_proto_enumerate_fields_func(object, OBJ_F_FOOD_BEGIN, OBJ_F_FOOD_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_SCROLL:
-        if (!obj_enumerate_fields_in_range(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
+        if (!object_proto_enumerate_fields_func(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
             return false;
         }
-        if (!obj_enumerate_fields_in_range(object, OBJ_F_SCROLL_BEGIN, OBJ_F_SCROLL_END, callback)) {
+        if (!object_proto_enumerate_fields_func(object, OBJ_F_SCROLL_BEGIN, OBJ_F_SCROLL_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_KEY:
-        if (!obj_enumerate_fields_in_range(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
+        if (!object_proto_enumerate_fields_func(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
             return false;
         }
-        if (!obj_enumerate_fields_in_range(object, OBJ_F_KEY_BEGIN, OBJ_F_KEY_END, callback)) {
+        if (!object_proto_enumerate_fields_func(object, OBJ_F_KEY_BEGIN, OBJ_F_KEY_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_KEY_RING:
-        if (!obj_enumerate_fields_in_range(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
+        if (!object_proto_enumerate_fields_func(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
             return false;
         }
-        if (!obj_enumerate_fields_in_range(object, OBJ_F_KEY_RING_BEGIN, OBJ_F_KEY_RING_END, callback)) {
+        if (!object_proto_enumerate_fields_func(object, OBJ_F_KEY_RING_BEGIN, OBJ_F_KEY_RING_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_WRITTEN:
-        if (!obj_enumerate_fields_in_range(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
+        if (!object_proto_enumerate_fields_func(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
             return false;
         }
-        if (!obj_enumerate_fields_in_range(object, OBJ_F_WRITTEN_BEGIN, OBJ_F_WRITTEN_END, callback)) {
+        if (!object_proto_enumerate_fields_func(object, OBJ_F_WRITTEN_BEGIN, OBJ_F_WRITTEN_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_GENERIC:
-        if (!obj_enumerate_fields_in_range(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
+        if (!object_proto_enumerate_fields_func(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
             return false;
         }
-        if (!obj_enumerate_fields_in_range(object, OBJ_F_GENERIC_BEGIN, OBJ_F_GENERIC_END, callback)) {
+        if (!object_proto_enumerate_fields_func(object, OBJ_F_GENERIC_BEGIN, OBJ_F_GENERIC_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_PC:
-        if (!obj_enumerate_fields_in_range(object, OBJ_F_CRITTER_BEGIN, OBJ_F_CRITTER_END, callback)) {
+        if (!object_proto_enumerate_fields_func(object, OBJ_F_CRITTER_BEGIN, OBJ_F_CRITTER_END, callback)) {
             return false;
         }
-        if (!obj_enumerate_fields_in_range(object, OBJ_F_PC_BEGIN, OBJ_F_PC_END, callback)) {
+        if (!object_proto_enumerate_fields_func(object, OBJ_F_PC_BEGIN, OBJ_F_PC_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_NPC:
-        if (!obj_enumerate_fields_in_range(object, OBJ_F_CRITTER_BEGIN, OBJ_F_CRITTER_END, callback)) {
+        if (!object_proto_enumerate_fields_func(object, OBJ_F_CRITTER_BEGIN, OBJ_F_CRITTER_END, callback)) {
             return false;
         }
-        if (!obj_enumerate_fields_in_range(object, OBJ_F_NPC_BEGIN, OBJ_F_NPC_END, callback)) {
+        if (!object_proto_enumerate_fields_func(object, OBJ_F_NPC_BEGIN, OBJ_F_NPC_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_TRAP:
-        if (!obj_enumerate_fields_in_range(object, OBJ_F_TRAP_BEGIN, OBJ_F_TRAP_END, callback)) {
+        if (!object_proto_enumerate_fields_func(object, OBJ_F_TRAP_BEGIN, OBJ_F_TRAP_END, callback)) {
             return false;
         }
         break;
@@ -4606,7 +4606,7 @@ bool obj_enumerate_fields(Object* object, ObjEnumerateCallback* callback)
 }
 
 // 0x40CB00
-bool obj_enumerate_fields_in_range(Object* obj, int begin, int end, ObjEnumerateCallback* callback)
+bool object_proto_enumerate_fields_func(Object* obj, int begin, int end, ObjectProtoEnumerateFieldsCallback* callback)
 {
     int index;
 
@@ -4629,147 +4629,148 @@ int sub_40CB40(Object* object, int fld)
 }
 
 // 0x40CB60
-bool sub_40CB60(Object* object, int fld, ObjectFieldInfo* info)
+bool object_inst_field_dealloc(Object* object, int storage_idx, ObjectFieldInfo* info)
 {
-    ObjDataDescriptor v1;
+    ObjDataDescriptor free_op;
 
-    v1.type = info->type;
-    v1.ptr = &(object->data[fld]);
-    obj_data_reset(&v1);
+    free_op.type = info->type;
+    free_op.ptr = &(object->data[storage_idx]);
+    obj_data_reset(&free_op);
+
     return true;
 }
 
 // 0x40CBA0
-bool sub_40CBA0(Object* object, ObjEnumerateCallbackEx* callback)
+bool object_inst_enumerate_overridden_fields(Object* object, ObjectInstEnumerateFieldsCallback* callback)
 {
-    if (!sub_40CE20(object, OBJ_F_BEGIN, OBJ_F_END, callback)) {
+    if (!object_inst_enumerate_overridden_fields_func(object, OBJ_F_BEGIN, OBJ_F_END, callback)) {
         return false;
     }
 
     switch (object->type) {
     case OBJ_TYPE_WALL:
-        if (!sub_40CE20(object, OBJ_F_WALL_BEGIN, OBJ_F_WALL_END, callback)) {
+        if (!object_inst_enumerate_overridden_fields_func(object, OBJ_F_WALL_BEGIN, OBJ_F_WALL_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_PORTAL:
-        if (!sub_40CE20(object, OBJ_F_PORTAL_BEGIN, OBJ_F_PORTAL_END, callback)) {
+        if (!object_inst_enumerate_overridden_fields_func(object, OBJ_F_PORTAL_BEGIN, OBJ_F_PORTAL_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_CONTAINER:
-        if (!sub_40CE20(object, OBJ_F_CONTAINER_BEGIN, OBJ_F_CONTAINER_END, callback)) {
+        if (!object_inst_enumerate_overridden_fields_func(object, OBJ_F_CONTAINER_BEGIN, OBJ_F_CONTAINER_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_SCENERY:
-        if (!sub_40CE20(object, OBJ_F_SCENERY_BEGIN, OBJ_F_SCENERY_END, callback)) {
+        if (!object_inst_enumerate_overridden_fields_func(object, OBJ_F_SCENERY_BEGIN, OBJ_F_SCENERY_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_PROJECTILE:
-        if (!sub_40CE20(object, OBJ_F_PROJECTILE_BEGIN, OBJ_F_PROJECTILE_END, callback)) {
+        if (!object_inst_enumerate_overridden_fields_func(object, OBJ_F_PROJECTILE_BEGIN, OBJ_F_PROJECTILE_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_WEAPON:
-        if (!sub_40CE20(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
+        if (!object_inst_enumerate_overridden_fields_func(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
             return false;
         }
-        if (!sub_40CE20(object, OBJ_F_WEAPON_BEGIN, OBJ_F_WEAPON_END, callback)) {
+        if (!object_inst_enumerate_overridden_fields_func(object, OBJ_F_WEAPON_BEGIN, OBJ_F_WEAPON_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_AMMO:
-        if (!sub_40CE20(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
+        if (!object_inst_enumerate_overridden_fields_func(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
             return false;
         }
-        if (!sub_40CE20(object, OBJ_F_AMMO_BEGIN, OBJ_F_AMMO_END, callback)) {
+        if (!object_inst_enumerate_overridden_fields_func(object, OBJ_F_AMMO_BEGIN, OBJ_F_AMMO_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_ARMOR:
-        if (!sub_40CE20(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
+        if (!object_inst_enumerate_overridden_fields_func(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
             return false;
         }
-        if (!sub_40CE20(object, OBJ_F_ARMOR_BEGIN, OBJ_F_ARMOR_END, callback)) {
+        if (!object_inst_enumerate_overridden_fields_func(object, OBJ_F_ARMOR_BEGIN, OBJ_F_ARMOR_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_GOLD:
-        if (!sub_40CE20(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
+        if (!object_inst_enumerate_overridden_fields_func(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
             return false;
         }
-        if (!sub_40CE20(object, OBJ_F_GOLD_BEGIN, OBJ_F_GOLD_END, callback)) {
+        if (!object_inst_enumerate_overridden_fields_func(object, OBJ_F_GOLD_BEGIN, OBJ_F_GOLD_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_FOOD:
-        if (!sub_40CE20(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
+        if (!object_inst_enumerate_overridden_fields_func(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
             return false;
         }
-        if (!sub_40CE20(object, OBJ_F_FOOD_BEGIN, OBJ_F_FOOD_END, callback)) {
+        if (!object_inst_enumerate_overridden_fields_func(object, OBJ_F_FOOD_BEGIN, OBJ_F_FOOD_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_SCROLL:
-        if (!sub_40CE20(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
+        if (!object_inst_enumerate_overridden_fields_func(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
             return false;
         }
-        if (!sub_40CE20(object, OBJ_F_SCROLL_BEGIN, OBJ_F_SCROLL_END, callback)) {
+        if (!object_inst_enumerate_overridden_fields_func(object, OBJ_F_SCROLL_BEGIN, OBJ_F_SCROLL_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_KEY:
-        if (!sub_40CE20(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
+        if (!object_inst_enumerate_overridden_fields_func(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
             return false;
         }
-        if (!sub_40CE20(object, OBJ_F_KEY_BEGIN, OBJ_F_KEY_END, callback)) {
+        if (!object_inst_enumerate_overridden_fields_func(object, OBJ_F_KEY_BEGIN, OBJ_F_KEY_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_KEY_RING:
-        if (!sub_40CE20(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
+        if (!object_inst_enumerate_overridden_fields_func(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
             return false;
         }
-        if (!sub_40CE20(object, OBJ_F_KEY_RING_BEGIN, OBJ_F_KEY_RING_END, callback)) {
+        if (!object_inst_enumerate_overridden_fields_func(object, OBJ_F_KEY_RING_BEGIN, OBJ_F_KEY_RING_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_WRITTEN:
-        if (!sub_40CE20(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
+        if (!object_inst_enumerate_overridden_fields_func(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
             return false;
         }
-        if (!sub_40CE20(object, OBJ_F_WRITTEN_BEGIN, OBJ_F_WRITTEN_END, callback)) {
+        if (!object_inst_enumerate_overridden_fields_func(object, OBJ_F_WRITTEN_BEGIN, OBJ_F_WRITTEN_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_GENERIC:
-        if (!sub_40CE20(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
+        if (!object_inst_enumerate_overridden_fields_func(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
             return false;
         }
-        if (!sub_40CE20(object, OBJ_F_GENERIC_BEGIN, OBJ_F_GENERIC_END, callback)) {
+        if (!object_inst_enumerate_overridden_fields_func(object, OBJ_F_GENERIC_BEGIN, OBJ_F_GENERIC_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_PC:
-        if (!sub_40CE20(object, OBJ_F_CRITTER_BEGIN, OBJ_F_CRITTER_END, callback)) {
+        if (!object_inst_enumerate_overridden_fields_func(object, OBJ_F_CRITTER_BEGIN, OBJ_F_CRITTER_END, callback)) {
             return false;
         }
-        if (!sub_40CE20(object, OBJ_F_PC_BEGIN, OBJ_F_PC_END, callback)) {
+        if (!object_inst_enumerate_overridden_fields_func(object, OBJ_F_PC_BEGIN, OBJ_F_PC_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_NPC:
-        if (!sub_40CE20(object, OBJ_F_CRITTER_BEGIN, OBJ_F_CRITTER_END, callback)) {
+        if (!object_inst_enumerate_overridden_fields_func(object, OBJ_F_CRITTER_BEGIN, OBJ_F_CRITTER_END, callback)) {
             return false;
         }
-        if (!sub_40CE20(object, OBJ_F_NPC_BEGIN, OBJ_F_NPC_END, callback)) {
+        if (!object_inst_enumerate_overridden_fields_func(object, OBJ_F_NPC_BEGIN, OBJ_F_NPC_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_TRAP:
-        if (!sub_40CE20(object, OBJ_F_TRAP_BEGIN, OBJ_F_TRAP_END, callback)) {
+        if (!object_inst_enumerate_overridden_fields_func(object, OBJ_F_TRAP_BEGIN, OBJ_F_TRAP_END, callback)) {
             return false;
         }
         break;
@@ -4779,19 +4780,19 @@ bool sub_40CBA0(Object* object, ObjEnumerateCallbackEx* callback)
 }
 
 // 0x40CE20
-bool sub_40CE20(Object* object, int start, int end, ObjEnumerateCallbackEx* callback)
+bool object_inst_enumerate_overridden_fields_func(Object* object, int begin, int end, ObjectInstEnumerateFieldsCallback* callback)
 {
     int v1 = 0;
     int index;
     int fld;
 
-    for (index = 0; index < object_fields[start + 1].change_array_idx; index++) {
+    for (index = 0; index < object_fields[begin + 1].change_array_idx; index++) {
         v1 += bitset_count_bits(object->field_48[index], 32);
     }
 
-    v1 += bitset_count_bits(object->field_48[index], object_fields[start + 1].bit);
+    v1 += bitset_count_bits(object->field_48[index], object_fields[begin + 1].bit);
 
-    for (fld = start + 1; fld < end; fld++) {
+    for (fld = begin + 1; fld < end; fld++) {
         if ((object->field_48[object_fields[fld].change_array_idx] & object_fields[fld].mask) != 0) {
             if (!callback(object, v1, &(object_fields[fld]))) {
                 return false;
@@ -4807,136 +4808,136 @@ bool sub_40CE20(Object* object, int start, int end, ObjEnumerateCallbackEx* call
 }
 
 // 0x40CEF0
-bool sub_40CEF0(Object* object, ObjEnumerateCallbackEx* callback)
+bool object_inst_enumerate_available_fields(Object* object, ObjectInstEnumerateFieldsCallback* callback)
 {
-    if (!sub_40D170(object, OBJ_F_BEGIN, OBJ_F_END, callback)) {
+    if (!object_inst_enumerate_available_fields_func(object, OBJ_F_BEGIN, OBJ_F_END, callback)) {
         return false;
     }
 
     switch (object->type) {
     case OBJ_TYPE_WALL:
-        if (!sub_40D170(object, OBJ_F_WALL_BEGIN, OBJ_F_WALL_END, callback)) {
+        if (!object_inst_enumerate_available_fields_func(object, OBJ_F_WALL_BEGIN, OBJ_F_WALL_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_PORTAL:
-        if (!sub_40D170(object, OBJ_F_PORTAL_BEGIN, OBJ_F_PORTAL_END, callback)) {
+        if (!object_inst_enumerate_available_fields_func(object, OBJ_F_PORTAL_BEGIN, OBJ_F_PORTAL_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_CONTAINER:
-        if (!sub_40D170(object, OBJ_F_CONTAINER_BEGIN, OBJ_F_CONTAINER_END, callback)) {
+        if (!object_inst_enumerate_available_fields_func(object, OBJ_F_CONTAINER_BEGIN, OBJ_F_CONTAINER_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_SCENERY:
-        if (!sub_40D170(object, OBJ_F_SCENERY_BEGIN, OBJ_F_SCENERY_END, callback)) {
+        if (!object_inst_enumerate_available_fields_func(object, OBJ_F_SCENERY_BEGIN, OBJ_F_SCENERY_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_PROJECTILE:
-        if (!sub_40D170(object, OBJ_F_PROJECTILE_BEGIN, OBJ_F_PROJECTILE_END, callback)) {
+        if (!object_inst_enumerate_available_fields_func(object, OBJ_F_PROJECTILE_BEGIN, OBJ_F_PROJECTILE_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_WEAPON:
-        if (!sub_40D170(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
+        if (!object_inst_enumerate_available_fields_func(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
             return false;
         }
-        if (!sub_40D170(object, OBJ_F_WEAPON_BEGIN, OBJ_F_WEAPON_END, callback)) {
+        if (!object_inst_enumerate_available_fields_func(object, OBJ_F_WEAPON_BEGIN, OBJ_F_WEAPON_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_AMMO:
-        if (!sub_40D170(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
+        if (!object_inst_enumerate_available_fields_func(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
             return false;
         }
-        if (!sub_40D170(object, OBJ_F_AMMO_BEGIN, OBJ_F_AMMO_END, callback)) {
+        if (!object_inst_enumerate_available_fields_func(object, OBJ_F_AMMO_BEGIN, OBJ_F_AMMO_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_ARMOR:
-        if (!sub_40D170(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
+        if (!object_inst_enumerate_available_fields_func(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
             return false;
         }
-        if (!sub_40D170(object, OBJ_F_ARMOR_BEGIN, OBJ_F_ARMOR_END, callback)) {
+        if (!object_inst_enumerate_available_fields_func(object, OBJ_F_ARMOR_BEGIN, OBJ_F_ARMOR_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_GOLD:
-        if (!sub_40D170(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
+        if (!object_inst_enumerate_available_fields_func(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
             return false;
         }
-        if (!sub_40D170(object, OBJ_F_GOLD_BEGIN, OBJ_F_GOLD_END, callback)) {
+        if (!object_inst_enumerate_available_fields_func(object, OBJ_F_GOLD_BEGIN, OBJ_F_GOLD_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_FOOD:
-        if (!sub_40D170(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
+        if (!object_inst_enumerate_available_fields_func(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
             return false;
         }
-        if (!sub_40D170(object, OBJ_F_FOOD_BEGIN, OBJ_F_FOOD_END, callback)) {
+        if (!object_inst_enumerate_available_fields_func(object, OBJ_F_FOOD_BEGIN, OBJ_F_FOOD_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_SCROLL:
-        if (!sub_40D170(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
+        if (!object_inst_enumerate_available_fields_func(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
             return false;
         }
-        if (!sub_40D170(object, OBJ_F_SCROLL_BEGIN, OBJ_F_SCROLL_END, callback)) {
+        if (!object_inst_enumerate_available_fields_func(object, OBJ_F_SCROLL_BEGIN, OBJ_F_SCROLL_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_KEY:
-        if (!sub_40D170(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
+        if (!object_inst_enumerate_available_fields_func(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
             return false;
         }
-        if (!sub_40D170(object, OBJ_F_KEY_BEGIN, OBJ_F_KEY_END, callback)) {
+        if (!object_inst_enumerate_available_fields_func(object, OBJ_F_KEY_BEGIN, OBJ_F_KEY_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_KEY_RING:
-        if (!sub_40D170(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
+        if (!object_inst_enumerate_available_fields_func(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
             return false;
         }
-        if (!sub_40D170(object, OBJ_F_KEY_RING_BEGIN, OBJ_F_KEY_RING_END, callback)) {
+        if (!object_inst_enumerate_available_fields_func(object, OBJ_F_KEY_RING_BEGIN, OBJ_F_KEY_RING_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_WRITTEN:
-        if (!sub_40D170(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
+        if (!object_inst_enumerate_available_fields_func(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
             return false;
         }
-        if (!sub_40D170(object, OBJ_F_WRITTEN_BEGIN, OBJ_F_WRITTEN_END, callback)) {
+        if (!object_inst_enumerate_available_fields_func(object, OBJ_F_WRITTEN_BEGIN, OBJ_F_WRITTEN_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_GENERIC:
-        if (!sub_40D170(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
+        if (!object_inst_enumerate_available_fields_func(object, OBJ_F_ITEM_BEGIN, OBJ_F_ITEM_END, callback)) {
             return false;
         }
-        if (!sub_40D170(object, OBJ_F_GENERIC_BEGIN, OBJ_F_GENERIC_END, callback)) {
+        if (!object_inst_enumerate_available_fields_func(object, OBJ_F_GENERIC_BEGIN, OBJ_F_GENERIC_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_PC:
-        if (!sub_40D170(object, OBJ_F_CRITTER_BEGIN, OBJ_F_CRITTER_END, callback)) {
+        if (!object_inst_enumerate_available_fields_func(object, OBJ_F_CRITTER_BEGIN, OBJ_F_CRITTER_END, callback)) {
             return false;
         }
-        if (!sub_40D170(object, OBJ_F_PC_BEGIN, OBJ_F_PC_END, callback)) {
+        if (!object_inst_enumerate_available_fields_func(object, OBJ_F_PC_BEGIN, OBJ_F_PC_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_NPC:
-        if (!sub_40D170(object, OBJ_F_CRITTER_BEGIN, OBJ_F_CRITTER_END, callback)) {
+        if (!object_inst_enumerate_available_fields_func(object, OBJ_F_CRITTER_BEGIN, OBJ_F_CRITTER_END, callback)) {
             return false;
         }
-        if (!sub_40D170(object, OBJ_F_NPC_BEGIN, OBJ_F_NPC_END, callback)) {
+        if (!object_inst_enumerate_available_fields_func(object, OBJ_F_NPC_BEGIN, OBJ_F_NPC_END, callback)) {
             return false;
         }
         break;
     case OBJ_TYPE_TRAP:
-        if (!sub_40D170(object, OBJ_F_TRAP_BEGIN, OBJ_F_TRAP_END, callback)) {
+        if (!object_inst_enumerate_available_fields_func(object, OBJ_F_TRAP_BEGIN, OBJ_F_TRAP_END, callback)) {
             return false;
         }
         break;
@@ -4946,19 +4947,19 @@ bool sub_40CEF0(Object* object, ObjEnumerateCallbackEx* callback)
 }
 
 // 0x40D170
-bool sub_40D170(Object* object, int start, int end, ObjEnumerateCallbackEx* callback)
+bool object_inst_enumerate_available_fields_func(Object* object, int begin, int end, ObjectInstEnumerateFieldsCallback* callback)
 {
     int v1 = 0;
     int index;
     int fld;
 
-    for (index = 0; index < object_fields[start + 1].change_array_idx; index++) {
+    for (index = 0; index < object_fields[begin + 1].change_array_idx; index++) {
         v1 += bitset_count_bits(object->field_48[index], 32);
     }
 
-    v1 += bitset_count_bits(object->field_48[index], object_fields[start + 1].bit);
+    v1 += bitset_count_bits(object->field_48[index], object_fields[begin + 1].bit);
 
-    for (fld = start + 1; fld < end; fld++) {
+    for (fld = begin + 1; fld < end; fld++) {
         if (!callback(object, v1, &(object_fields[fld]))) {
             return false;
         }

@@ -441,11 +441,7 @@ void tig_mouse_cursor_fallback(void)
     if (tig_video_buffer_lock(tig_mouse_cursor_video_buffer) == TIG_OK) {
         TigVideoBufferData video_buffer_data;
         if (tig_video_buffer_data(tig_mouse_cursor_video_buffer, &video_buffer_data) == TIG_OK) {
-            switch (video_buffer_data.bpp) {
-            case 32:
-                *video_buffer_data.surface_data.p32 = (uint32_t)tig_color_make(255, 255, 255);
-                break;
-            }
+            *(uint32_t*)video_buffer_data.pixels = (uint32_t)tig_color_make(255, 255, 255);
         }
         tig_video_buffer_unlock(tig_mouse_cursor_video_buffer);
     }

@@ -1142,11 +1142,12 @@ void combat_throw(int64_t attacker_obj, int64_t weapon_obj, int64_t target_obj, 
         sub_4B2210(attacker_obj, target_obj, &combat);
         combat.hit_loc = hit_loc;
         combat.weapon_obj = weapon_obj;
+        combat.skill = BASIC_SKILL_THROWING;
         if (target_obj == OBJ_HANDLE_NULL) {
             combat.target_loc = target_loc;
         }
         combat.flags &= ~0xC000;
-        combat.flags |= 0x4000;
+        combat.flags |= 0x40000;
         combat.flags |= CF_RANGED;
         combat.flags |= 0x40;
         object_flags_set(weapon_obj, OF_OFF);

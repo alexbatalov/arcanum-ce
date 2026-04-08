@@ -3,7 +3,9 @@
 #include "game/ai.h"
 #include "game/anim.h"
 #include "game/critter.h"
+#include "game/dialog.h"
 #include "game/mes.h"
+#include "game/party.h"
 #include "game/player.h"
 #include "game/text_filter.h"
 #include "game/ui.h"
@@ -32,7 +34,7 @@ typedef struct BroadcastCommand {
 } BroadcastCommand;
 
 static int broadcast_match_str_to_base_type(const char* str);
-static int sub_4C3B40(const char* str);
+static int broadcast_match_str_to_cmd_type(const char* str);
 static void sub_4C3B90(void);
 
 // 0x5FDC4C
@@ -178,26 +180,292 @@ void broadcast_msg(int64_t obj, Broadcast* bcast)
     broadcast_msg_client(obj, bcast);
 }
 
-// 0x4C2FA0
-void sub_4C2FA0(void)
-{
-    // TODO: Incomplete.
-}
-
-// 0x4C3040
-void sub_4C3040(void)
-{
-    // TODO: Incomplete.
-}
-
 // 0x4C31A0
-void broadcast_msg_client(int64_t obj, Broadcast* bcast)
+void broadcast_msg_client(int64_t pc_obj, Broadcast* bcast)
 {
-    // TODO: Incomplete.
+    char* bcast_str;
+    size_t pos;
+    int64_t loc;
+    int idx;
+    int iter;
+    int64_t* followers;
+    int num_followers;
+    unsigned int spell_flags;
+    char str[1000];
+    int speech_id;
+    BroadcastCommandType cmd;
+    int64_t target_obj;
+    int64_t candidate_obj;
+    ObjectList pcs;
+    ObjectNode* node;
+    bool done;
+    bool found = false;
+
+    text_filter_process(pc_obj, bcast->str, &bcast_str);
+
+    if (broadcast_float_line_func != NULL) {
+        broadcast_float_line_func(pc_obj, OBJ_HANDLE_NULL, bcast_str, -1);
+    }
+
+    loc = obj_field_int64_get(pc_obj, OBJ_F_LOCATION);
+
+    if (obj_field_int32_get(pc_obj, OBJ_F_TYPE) == OBJ_TYPE_PC) {
+        num_followers = obj_arrayfield_length_get(pc_obj, OBJ_F_CRITTER_FOLLOWER_IDX);
+        followers = (int64_t*)MALLOC(sizeof(*followers) * num_followers);
+        for (idx = 0; idx < num_followers; idx++) {
+            followers[idx] = obj_arrayfield_handle_get(pc_obj, OBJ_F_CRITTER_FOLLOWER_IDX, idx);
+        }
+
+        idx = 0;
+        done = false;
+        for (iter = 0; iter < 200; iter++) {
+            if (done) {
+                break;
+            }
+
+            found = false;
+            while (idx < num_followers) {
+                if (found) {
+                    break;
+                }
+
+                candidate_obj = followers[idx];
+                if (candidate_obj != OBJ_HANDLE_NULL) {
+                    int64_t candidate_loc = obj_field_int64_get(candidate_obj, OBJ_F_LOCATION);
+                    if (location_dist(loc, candidate_loc) <= 10) {
+                        char candidate_follower_name[MAX_STRING];
+
+                        object_examine(candidate_obj, pc_obj, candidate_follower_name);
+                        pos = strlen(candidate_follower_name);
+                        if (bcast_str[0] == '#') {
+                            found = true;
+                            pos = 1;
+                        } else if (SDL_strncasecmp(bcast_str, candidate_follower_name, pos) == 0) {
+                            found = true;
+                            done = true;
+                        }
+                    }
+                }
+
+                idx++;
+            }
+
+            if (idx == num_followers) {
+                done = true;
+            }
+
+            if (found) {
+                cmd = broadcast_match_str_to_cmd_type(&(bcast_str[pos]));
+                spell_flags = obj_field_int32_get(candidate_obj, OBJ_F_SPELL_FLAGS);
+                switch (cmd) {
+                case BROADCAST_CMD_TYPE_NONE:
+                    break;
+                case BROADCAST_CMD_TYPE_LEAVE:
+                    if ((spell_flags & OSF_MIND_CONTROLLED) == 0) {
+                        if (broadcast_float_line_func != NULL) {
+                            dialog_copy_npc_farewell_msg(candidate_obj, pc_obj, str, &speech_id);
+                            broadcast_float_line_func(candidate_obj, pc_obj, str, speech_id);
+                        }
+                        critter_disband(candidate_obj, true);
+                    }
+                    break;
+                case BROADCAST_CMD_TYPE_WAIT:
+                    if ((spell_flags & OSF_MIND_CONTROLLED) == 0) {
+                        if (broadcast_float_line_func != NULL) {
+                            dialog_copy_npc_order_ok_msg(candidate_obj, pc_obj, str, &speech_id);
+                            broadcast_float_line_func(candidate_obj, pc_obj, str, speech_id);
+                        }
+                        sub_424070(candidate_obj, PRIORITY_3, false, true);
+                        ai_npc_wait(candidate_obj);
+                    }
+                    break;
+                case BROADCAST_CMD_TYPE_FOLLOW: {
+                    bool force = (obj_field_int32_get(candidate_obj, OBJ_F_NPC_FLAGS) & ONF_FORCED_FOLLOWER) != 0;
+                    AiFollow reason = ai_check_follow(candidate_obj, pc_obj, force);
+                    if (broadcast_float_line_func != NULL) {
+                        if (reason == AI_FOLLOW_OK) {
+                            dialog_copy_npc_order_ok_msg(candidate_obj, pc_obj, str, &speech_id);
+                        } else {
+                            dialog_copy_npc_order_no_msg(candidate_obj, pc_obj, str, &speech_id);
+                        }
+                        broadcast_float_line_func(candidate_obj, pc_obj, str, speech_id);
+                    }
+                    if (reason == AI_FOLLOW_OK) {
+                        ai_npc_unwait(candidate_obj, force);
+                    }
+                    break;
+                }
+                case BROADCAST_CMD_TYPE_MOVE:
+                    if (anim_goal_please_move(pc_obj, candidate_obj)) {
+                        if (broadcast_float_line_func != NULL) {
+                            dialog_copy_npc_order_ok_msg(candidate_obj, pc_obj, str, &speech_id);
+                            broadcast_float_line_func(candidate_obj, pc_obj, str, speech_id);
+                        }
+                    } else {
+                        if (broadcast_float_line_func != NULL) {
+                            dialog_copy_npc_order_no_msg(candidate_obj, pc_obj, str, &speech_id);
+                            broadcast_float_line_func(candidate_obj, pc_obj, str, speech_id);
+                        }
+                    }
+                    break;
+                case BROADCAST_CMD_TYPE_STAY_CLOSE:
+                    if (broadcast_float_line_func != NULL) {
+                        dialog_copy_npc_order_ok_msg(candidate_obj, pc_obj, str, &speech_id);
+                        broadcast_float_line_func(candidate_obj, pc_obj, str, speech_id);
+                    }
+                    critter_stay_close(candidate_obj);
+                    break;
+                case BROADCAST_CMD_TYPE_SPREAD_OUT:
+                    if (broadcast_float_line_func != NULL) {
+                        dialog_copy_npc_order_ok_msg(candidate_obj, pc_obj, str, &speech_id);
+                        broadcast_float_line_func(candidate_obj, pc_obj, str, speech_id);
+                    }
+                    critter_spread_out(candidate_obj);
+                    break;
+                case BROADCAST_CMD_TYPE_CURSE:
+                    if ((spell_flags & OSF_MIND_CONTROLLED) == 0) {
+                        if (critter_disband(candidate_obj, false)) {
+                            if (broadcast_float_line_func != NULL) {
+                                dialog_copy_npc_insult_msg(candidate_obj, pc_obj, str, &speech_id);
+                                broadcast_float_line_func(candidate_obj, pc_obj, str, speech_id);
+                            }
+                            ai_attack(pc_obj, candidate_obj, LOUDNESS_NORMAL, 0);
+                        }
+                    }
+                    break;
+                case BROADCAST_CMD_TYPE_JOIN:
+                case BROADCAST_CMD_TYPE_DISBAND:
+                    found = false;
+                    break;
+                case BROADCAST_CMD_TYPE_ATTACK:
+                    target_obj = object_hover_obj_get();
+                    if (target_obj != OBJ_HANDLE_NULL
+                        && (combat_critter_is_combat_mode_active(pc_obj)
+                            || critter_pc_leader_get(target_obj) != candidate_obj)) {
+                        sub_4AA580(candidate_obj);
+                        ai_attack(candidate_obj, target_obj, LOUDNESS_LOUD, 0x4);
+                    }
+                    break;
+                case BROADCAST_CMD_TYPE_WALK_HERE:
+                    if (bcast->loc != 0) {
+                        if (broadcast_float_line_func != NULL) {
+                            dialog_copy_npc_order_ok_msg(candidate_obj, pc_obj, str, &speech_id);
+                            broadcast_float_line_func(candidate_obj, pc_obj, str, speech_id);
+                        }
+                        anim_goal_run_to_tile(candidate_obj, bcast->loc);
+                    }
+                    break;
+                case BROADCAST_CMD_TYPE_BACK_OFF:
+                    if (broadcast_float_line_func != NULL) {
+                        dialog_copy_npc_order_ok_msg(candidate_obj, pc_obj, str, &speech_id);
+                        broadcast_float_line_func(candidate_obj, pc_obj, str, speech_id);
+                    }
+                    ai_stop_attacking(candidate_obj);
+                    break;
+                default:
+                    tig_debug_printf("broadcast_msg_client: ERROR: type out of range!\n");
+                    break;
+                }
+
+                ai_process(candidate_obj);
+            }
+        }
+
+        if (found) {
+            FREE(followers);
+            FREE(bcast_str);
+            return;
+        }
+
+        done = false;
+        object_list_vicinity(pc_obj, OBJ_TM_PC, &pcs);
+
+        node = pcs.head;
+        if (node != NULL) {
+            for (iter = 0; iter < 200; iter++) {
+                if (done) {
+                    break;
+                }
+
+                while (node != NULL) {
+                    char* candidate_pc_name;
+
+                    if (found) {
+                        break;
+                    }
+
+                    candidate_obj = node->obj;
+                    obj_field_string_get(candidate_obj, OBJ_F_PC_PLAYER_NAME, &candidate_pc_name);
+                    pos = strlen(candidate_pc_name);
+                    if (*bcast_str == '#') {
+                        found = true;
+                        pos = 1;
+                    } else if (SDL_strncasecmp(bcast_str, candidate_pc_name, pos) == 0) {
+                        found = true;
+                        done = true;
+                    }
+
+                    FREE(candidate_pc_name);
+                    node = node->next;
+                }
+
+                if (node == NULL) {
+                    done = true;
+                }
+
+                if (found) {
+                    cmd = broadcast_match_str_to_cmd_type(&(bcast_str[pos]));
+                    switch (cmd) {
+                    case BROADCAST_CMD_TYPE_NONE:
+                    case BROADCAST_CMD_TYPE_LEAVE:
+                    case BROADCAST_CMD_TYPE_WAIT:
+                    case BROADCAST_CMD_TYPE_FOLLOW:
+                    case BROADCAST_CMD_TYPE_MOVE:
+                    case BROADCAST_CMD_TYPE_STAY_CLOSE:
+                    case BROADCAST_CMD_TYPE_SPREAD_OUT:
+                    case BROADCAST_CMD_TYPE_CURSE:
+                    case BROADCAST_CMD_TYPE_BACK_OFF:
+                        found = false;
+                        break;
+                    case BROADCAST_CMD_TYPE_JOIN:
+                        party_add(pc_obj, candidate_obj, NULL);
+                        found = false;
+                        break;
+                    case BROADCAST_CMD_TYPE_DISBAND:
+                        if (pc_obj != candidate_obj
+                            || !party_remove(pc_obj)) {
+                            found = false;
+                        }
+                        break;
+                    default:
+                        tig_debug_printf("broadcast_msg_client: ERROR: type out of range!\n");
+                        found = false;
+                        break;
+                    }
+                }
+            }
+        }
+
+        object_list_destroy(&pcs);
+        FREE(followers);
+    }
+
+    if (!found) {
+        cmd = broadcast_match_str_to_cmd_type(bcast_str);
+        if (cmd == BROADCAST_CMD_TYPE_FOLLOW
+            || cmd == BROADCAST_CMD_TYPE_FOLLOW_OTHER) {
+            target_obj = object_hover_obj_get();
+            if (target_obj != OBJ_HANDLE_NULL) {
+                anim_goal_follow_obj(pc_obj, target_obj);
+            }
+        }
+    }
+
+    FREE(bcast_str);
 }
 
 // 0x4C3B40
-int sub_4C3B40(const char* str)
+int broadcast_match_str_to_cmd_type(const char* str)
 {
     int index;
 
@@ -211,7 +479,7 @@ int sub_4C3B40(const char* str)
         }
     }
 
-    return 0;
+    return BROADCAST_CMD_TYPE_NONE;
 }
 
 // 0x4C3B90

@@ -196,17 +196,6 @@ typedef struct Packet46 {
 
 static_assert(sizeof(Packet46) == 0x20, "wrong size");
 
-typedef struct Packet51 {
-    /* 0000 */ int type;
-    /* 0004 */ int field_4;
-    /* 0008 */ ObjectID field_8;
-    /* 0020 */ int field_20;
-    /* 0024 */ int padding_24;
-} Packet51;
-
-// Serializeable.
-static_assert(sizeof(Packet51) == 0x28, "wrong size");
-
 typedef struct Packet54 {
     /* 0000 */ int type;
     /* 0004 */ int magictech_id;
@@ -685,7 +674,6 @@ static_assert(sizeof(Packet128) == 0x38, "wrong size");
 
 bool sub_4ED6C0(int64_t obj);
 bool mp_object_create(int name, int64_t loc, int64_t* obj_ptr);
-void mp_object_destroy(int64_t obj);
 void sub_4EDA60(UiMessage* ui_message, int player, int a3);
 void sub_4EDCE0(int64_t obj, tig_art_id_t art_id);
 void mp_ui_update_inven(int64_t obj);

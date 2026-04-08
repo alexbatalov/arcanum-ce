@@ -59,10 +59,10 @@ static int dword_5CB240[FOUR] = {
 
 // 0x5CB250
 static uint64_t qword_5CB250[FOUR] = {
-    Tgt_Self,
-    Tgt_Obj_No_ST_Critter_Animal,
-    Tgt_Tile | Tgt_Object,
-    Tgt_Obj_Inven,
+    TGT_SELF,
+    TGT_OBJ_NO_ST_CRITTER_ANIMAL | TGT_OBJ_T_CRITTER | TGT_OBJECT,
+    TGT_TILE | TGT_OBJECT,
+    TGT_OBJ_INVEN | TGT_OBJECT,
 };
 
 // 0x5CB270
@@ -206,7 +206,7 @@ void skill_ui_preprocess(int64_t obj, int type)
         return;
     }
 
-    if (is_pc && tgt != Tgt_None && tgt != Tgt_Self) {
+    if (is_pc && tgt != TGT_NONE && tgt != TGT_SELF) {
         if (intgame_mode_set(INTGAME_MODE_SKILL)) {
             target_flags_set(tgt);
         }

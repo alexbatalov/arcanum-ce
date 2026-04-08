@@ -170,11 +170,10 @@ SpellUiActivate spell_ui_activate(int64_t obj, int spl)
 
     if (magictech_is_aggressive(dword_5CB3A0)
         && !tig_kb_get_modifier(SDL_KMOD_ALT)) {
-        // FIXME: Looks odd.
-        tgt |= (Tgt_Non_Party_Critters & ~Tgt_Object);
+        tgt |= TGT_NON_PARTY_CRITTERS;
     }
 
-    if ((tgt & (Tgt_Obj_Inven & ~Tgt_Object)) != 0) {
+    if ((tgt & TGT_OBJ_INVEN) != 0) {
         if (intgame_mode_get() == INTGAME_MODE_BARTER
             || intgame_mode_get() == INTGAME_MODE_STEAL) {
             inven_ui_destroy();
@@ -193,10 +192,10 @@ SpellUiActivate spell_ui_activate(int64_t obj, int spl)
     }
 
     // TODO: Check, probably wrong.
-    if (*tgt_ptr == Tgt_None
-        || ((*tgt_ptr & Tgt_Self) != 0
-            && (*tgt_ptr & Tgt_Tile) == 0)
-        || *tgt_ptr == Tgt_Obj_Radius) {
+    if (*tgt_ptr == TGT_NONE
+        || ((*tgt_ptr & TGT_SELF) != 0
+            && (*tgt_ptr & TGT_TILE) == 0)
+        || *tgt_ptr == TGT_OBJ_RADIUS) {
         target_descriptor_set_loc(&td, obj_field_int64_get(qword_683500, OBJ_F_LOCATION));
         spell_ui_apply(&td);
         dword_683508 = false;
@@ -212,11 +211,10 @@ SpellUiActivate spell_ui_activate(int64_t obj, int spl)
     if (intgame_mode_set(INTGAME_MODE_SPELL)) {
         target_flags_set(tgt);
 
-        if ((*tgt_ptr & Tgt_Object) != 0
+        if ((*tgt_ptr & TGT_OBJECT) != 0
             && tig_kb_get_modifier(SDL_KMOD_SHIFT)) {
             target_descriptor_set_obj(&td, player_get_local_pc_obj());
-            // FIXME: Odd.
-            if ((*tgt_ptr & (Tgt_Obj_No_Self & ~Tgt_Object)) == 0) {
+            if ((*tgt_ptr & TGT_OBJ_NO_SELF) == 0) {
                 spell_ui_apply(&td);
                 dword_683508 = false;
                 return SPELL_UI_ACTIVATE_ERR;
@@ -272,7 +270,7 @@ void spell_ui_aggressive_mode_off(void)
 
     if (magictech_is_aggressive(dword_5CB3A0)) {
         tgt = target_flags_get();
-        tgt &= ~Tgt_Non_Party;
+        tgt &= ~TGT_NON_PARTY_CRITTERS;
         target_flags_set(tgt);
     }
 }
@@ -284,7 +282,7 @@ void spell_ui_aggressive_mode_on(void)
 
     if (magictech_is_aggressive(dword_5CB3A0)) {
         tgt = target_flags_get();
-        tgt |= Tgt_Non_Party;
+        tgt |= TGT_NON_PARTY_CRITTERS;
         target_flags_set(tgt);
     }
 }

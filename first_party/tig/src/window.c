@@ -1055,35 +1055,6 @@ int tig_window_copy_to_vbuffer(tig_window_handle_t src_window_handle, TigRect* s
     return tig_video_buffer_blit(&vb_blit_info);
 }
 
-// 0x51DFF0
-int tig_window_copy_from_bmp(tig_window_handle_t window_handle, TigRect* dst_rect, TigBmp* bmp, TigRect* src_rect)
-{
-    TigWindow* win;
-    TigRect dirty_rect;
-    int window_index;
-    int rc;
-
-    if (window_handle == TIG_WINDOW_HANDLE_INVALID) {
-        tig_debug_printf("tig_window_copy_from_bmp: ERROR: Attempt to reference Empty WinID!\n");
-        return TIG_ERR_INVALID_PARAM;
-    }
-
-    window_index = tig_window_handle_to_index(window_handle);
-    win = &(windows[window_index]);
-
-    rc = tig_bmp_copy_to_video_buffer(bmp, src_rect, win->video_buffer, dst_rect);
-    if (rc == TIG_OK) {
-        if ((win->flags & TIG_WINDOW_HIDDEN) == 0) {
-            dirty_rect = *dst_rect;
-            dirty_rect.x += win->frame.x;
-            dirty_rect.y += win->frame.y;
-            tig_window_invalidate_rect(&dirty_rect);
-        }
-    }
-
-    return rc;
-}
-
 // 0x51E0A0
 int tig_window_tint(tig_window_handle_t window_handle, TigRect* rect, int a3, int a4)
 {
@@ -1816,7 +1787,6 @@ int tig_window_move(tig_window_handle_t window_handle, int x, int y)
 {
     int window_index;
     TigWindow* win;
-    int index;
 
     window_index = tig_window_handle_to_index(window_handle);
     win = &(windows[window_index]);

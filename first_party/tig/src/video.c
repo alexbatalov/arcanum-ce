@@ -513,9 +513,9 @@ int tig_video_buffer_data(TigVideoBuffer* video_buffer, TigVideoBufferData* vide
     video_buffer_data->bpp = tig_video_bpp;
 
     if ((video_buffer->flags & TIG_VIDEO_BUFFER_LOCKED) != 0) {
-        video_buffer_data->surface_data.pixels = video_buffer->surface->pixels;
+        video_buffer_data->pixels = video_buffer->surface->pixels;
     } else {
-        video_buffer_data->surface_data.pixels = NULL;
+        video_buffer_data->pixels = NULL;
     }
 
     return TIG_OK;
@@ -1179,6 +1179,8 @@ int tig_video_buffer_load_from_bmp(const char* filename, TigVideoBuffer** video_
 
         rc = tig_video_buffer_create(&vb_create_info, video_buffer_ptr);
         if (rc != TIG_OK) {
+            SDL_DestroySurface(surface);
+
             return rc;
         }
     }
@@ -1187,6 +1189,8 @@ int tig_video_buffer_load_from_bmp(const char* filename, TigVideoBuffer** video_
         if ((flags & 0x1) != 0) {
             tig_video_buffer_destroy(*video_buffer_ptr);
         }
+
+        SDL_DestroySurface(surface);
 
         return TIG_ERR_INVALID_PARAM;
     }
@@ -1201,8 +1205,12 @@ int tig_video_buffer_load_from_bmp(const char* filename, TigVideoBuffer** video_
             tig_video_buffer_destroy(*video_buffer_ptr);
         }
 
+        SDL_DestroySurface(surface);
+
         return TIG_ERR_GENERIC;
     }
+
+    SDL_DestroySurface(surface);
 
     return TIG_OK;
 }

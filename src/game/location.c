@@ -611,7 +611,7 @@ bool sub_4B99C0(int64_t from, int64_t* to)
     int idx;
 
     target_params_init(&target_params);
-    target_params.tgt = Tgt_Tile_Empty;
+    target_params.tgt = TGT_TILE_EMPTY | TGT_TILE;
     target_params.radius = 3;
 
     target_context_init(&target_ctx, NULL, OBJ_HANDLE_NULL);
@@ -628,7 +628,7 @@ bool sub_4B99C0(int64_t from, int64_t* to)
     }
 
     target_ctx.targets = &targets;
-    target_params.tgt |= Tgt_Tile_Radius_Naked;
+    target_params.tgt |= TGT_TILE_RADIUS;
     target_context_build_list(&target_ctx);
 
     for (idx = 0; idx < targets.cnt; idx++) {
