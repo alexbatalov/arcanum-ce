@@ -370,7 +370,7 @@ bool trap_use_at_loc(int64_t pc_obj, int64_t item_obj, int64_t target_loc)
     UiMessage ui_message;
     int spl;
     int64_t prototype_handle;
-    int64_t trap_obj;
+    int64_t trap_obj = OBJ_HANDLE_NULL;
     int name;
 
     spl = obj_field_int32_get(item_obj, OBJ_F_ITEM_SPELL_2);
@@ -396,7 +396,7 @@ bool trap_use_at_loc(int64_t pc_obj, int64_t item_obj, int64_t target_loc)
             }
         }
 
-        trap_timeevent_schedule(spl, target_loc, 88, item_obj);
+        trap_timeevent_schedule(spl, target_loc, 88, trap_obj);
         return true;
     }
 
