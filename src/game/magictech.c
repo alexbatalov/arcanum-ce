@@ -930,7 +930,7 @@ bool magictech_run_info_save(MagicTechRunInfo* run_info, TigFile* stream)
     if (!mt_obj_node_save_detached(&(run_info->source_obj), stream)) return false;
     if (!mt_obj_node_save_detached(&(run_info->parent_obj), stream)) return false;
     if (!mt_obj_node_save_detached(&(run_info->target_obj), stream)) return false;
-    if (!mt_obj_node_save_detached(&(run_info->field_E8), stream)) return false;
+    if (!mt_obj_node_save_detached(&(run_info->attacker_obj), stream)) return false;
     if (!mt_obj_node_save_list(&(run_info->objlist), stream)) return false;
     if (!mt_obj_node_save_list(&(run_info->summoned_obj), stream)) return false;
     if (tig_file_fwrite(&(run_info->field_138), sizeof(run_info->field_138), 1, stream) != 1) return false;
@@ -995,7 +995,7 @@ bool magictech_run_info_load(MagicTechRunInfo* run_info, TigFile* stream)
     if (!mt_obj_node_load_detached(&(run_info->source_obj), stream)) return false;
     if (!mt_obj_node_load_detached(&(run_info->parent_obj), stream)) return false;
     if (!mt_obj_node_load_detached(&(run_info->target_obj), stream)) return false;
-    if (!mt_obj_node_load_detached(&(run_info->field_E8), stream)) return false;
+    if (!mt_obj_node_load_detached(&(run_info->attacker_obj), stream)) return false;
     if (!mt_obj_node_load_list(&(run_info->objlist), stream)) return false;
     if (!mt_obj_node_load_list(&(run_info->summoned_obj), stream)) return false;
     if (tig_file_fread(&(run_info->field_138), sizeof(run_info->field_138), 1, stream) != 1) return false;
@@ -2233,8 +2233,8 @@ void MTComponentDamage_ProcFunc(void)
 
     sub_453F20(magictech_cur_run_info->parent_obj.obj, stru_5E6D28.target_obj);
 
-    if (magictech_cur_run_info->field_E8.obj != OBJ_HANDLE_NULL) {
-        combat.field_30 = magictech_cur_run_info->field_E8.obj;
+    if (magictech_cur_run_info->attacker_obj.obj != OBJ_HANDLE_NULL) {
+        combat.field_30 = magictech_cur_run_info->attacker_obj.obj;
     }
 
     dam_min = magictech_cur_component->data.damage.damage_min;
@@ -3295,7 +3295,7 @@ void sub_453630(void)
     stru_5E6D28.summoned_obj_list = &magictech_cur_run_info->summoned_obj;
     stru_5E6D28.orig_target_obj = magictech_cur_run_info->target_obj.obj;
     stru_5E6D28.orig_target_loc = magictech_cur_run_info->target_obj.loc;
-    stru_5E6D28.field_40 = magictech_cur_run_info->field_E8.obj;
+    stru_5E6D28.attacker_obj = magictech_cur_run_info->attacker_obj.obj;
     stru_5E6D28.summoned_obj = OBJ_HANDLE_NULL;
     stru_5E6D28.self_obj = magictech_cur_run_info->parent_obj.obj;
     qword_5E75B0 = magictech_cur_run_info->source_obj.obj;
@@ -3630,9 +3630,9 @@ void sub_453F20(int64_t a1, int64_t a2)
         qword_5E75E0 = a2;
         ai_attack(a1, a2, 1, 0);
 
-        if (magictech_cur_run_info->field_E8.obj != OBJ_HANDLE_NULL
-            && a1 != magictech_cur_run_info->field_E8.obj) {
-            ai_attack(magictech_cur_run_info->field_E8.obj, a2, LOUDNESS_NORMAL, 0);
+        if (magictech_cur_run_info->attacker_obj.obj != OBJ_HANDLE_NULL
+            && a1 != magictech_cur_run_info->attacker_obj.obj) {
+            ai_attack(magictech_cur_run_info->attacker_obj.obj, a2, LOUDNESS_NORMAL, 0);
         }
     }
 }
@@ -4655,7 +4655,7 @@ void magictech_invocation_init(MagicTechInvocation* mt_invocation, int64_t obj, 
     sub_4440E0(OBJ_HANDLE_NULL, &(mt_invocation->target_obj));
     mt_invocation->target_loc = 0;
     sub_4440E0(sub_450A50(obj), &(mt_invocation->parent_obj));
-    sub_4440E0(OBJ_HANDLE_NULL, &(mt_invocation->field_A0));
+    sub_4440E0(OBJ_HANDLE_NULL, &(mt_invocation->attacker_obj));
     mt_invocation->trigger = 0;
     mt_invocation->flags = 0;
 }
@@ -4676,7 +4676,7 @@ void magictech_invocation_run(MagicTechInvocation* mt_invocation)
             sub_4440E0(mt_invocation->source_obj.obj, &(mt_invocation->source_obj));
             sub_4440E0(mt_invocation->parent_obj.obj, &(mt_invocation->parent_obj));
             sub_4440E0(mt_invocation->target_obj.obj, &(mt_invocation->target_obj));
-            sub_4440E0(mt_invocation->field_A0.obj, &(mt_invocation->field_A0));
+            sub_4440E0(mt_invocation->attacker_obj.obj, &(mt_invocation->attacker_obj));
             pkt.invocation = *mt_invocation;
             tig_net_send_app_all(&pkt, sizeof(pkt));
             sub_455C30(mt_invocation);
@@ -4688,7 +4688,7 @@ void magictech_invocation_run(MagicTechInvocation* mt_invocation)
             sub_4440E0(mt_invocation->source_obj.obj, &(mt_invocation->source_obj));
             sub_4440E0(mt_invocation->parent_obj.obj, &(mt_invocation->parent_obj));
             sub_4440E0(mt_invocation->target_obj.obj, &(mt_invocation->target_obj));
-            sub_4440E0(mt_invocation->field_A0.obj, &(mt_invocation->field_A0));
+            sub_4440E0(mt_invocation->attacker_obj.obj, &(mt_invocation->attacker_obj));
             pkt.invocation = *mt_invocation;
             tig_net_send_app_all(&pkt, sizeof(pkt));
         }
@@ -4752,15 +4752,15 @@ void sub_455C30(MagicTechInvocation* mt_invocation)
     }
     run_info->target_obj.loc = mt_invocation->target_loc;
 
-    run_info->field_E8.obj = mt_invocation->field_A0.obj;
-    sub_443EB0(run_info->field_E8.obj, &(run_info->field_E8.field_8));
-    if (run_info->field_E8.obj != OBJ_HANDLE_NULL) {
-        run_info->field_E8.type = obj_field_int32_get(run_info->field_E8.obj, OBJ_F_TYPE);
-        if (obj_type_is_critter(run_info->field_E8.type)) {
-            run_info->field_E8.aptitude = stat_level_get(run_info->field_E8.obj, STAT_MAGICK_TECH_APTITUDE);
+    run_info->attacker_obj.obj = mt_invocation->attacker_obj.obj;
+    sub_443EB0(run_info->attacker_obj.obj, &(run_info->attacker_obj.field_8));
+    if (run_info->attacker_obj.obj != OBJ_HANDLE_NULL) {
+        run_info->attacker_obj.type = obj_field_int32_get(run_info->attacker_obj.obj, OBJ_F_TYPE);
+        if (obj_type_is_critter(run_info->attacker_obj.type)) {
+            run_info->attacker_obj.aptitude = stat_level_get(run_info->attacker_obj.obj, STAT_MAGICK_TECH_APTITUDE);
         }
     } else {
-        run_info->field_E8.type = -1;
+        run_info->attacker_obj.type = -1;
     }
 
     run_info->spell = mt_invocation->spell;
