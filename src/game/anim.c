@@ -5552,11 +5552,6 @@ bool AGendAnimStunAnim(AnimRunInfo* run_info)
         return false;
     }
 
-    if (tig_net_is_active()
-        || !tig_net_is_host()) {
-        return false;
-    }
-
     if (!combat_turn_based_is_active()) {
         run_info->cur_stack_data->params[AGDATA_SCRATCH_VAL5].data--;
     }
