@@ -108,7 +108,7 @@ TigFileCache* tig_file_cache_create(int capacity, int max_size)
     cache->signature = FOURCC_FILC;
     cache->capacity = capacity;
     cache->max_size = max_size;
-    cache->items = (TigFileCacheItem*)CALLOC(sizeof(*cache->items), capacity);
+    cache->items = (TigFileCacheItem*)CALLOC(capacity, sizeof(*cache->items));
     cache->items_count = 0;
     cache->bytes = 0;
     return cache;
