@@ -165,7 +165,7 @@ static int sub_51AA90(tig_art_id_t art_id);
 static void tig_art_cache_check_fullness(void);
 static int tig_art_cache_entry_compare_time(const void* va, const void* vb);
 static int tig_art_cache_entry_compare_name(const void* va, const void* vb);
-static int tig_art_build_path(unsigned int art_id, char* path);
+static int tig_art_build_path(unsigned int art_id, char* path, size_t maxlen);
 static bool tig_art_cache_find(const char* path, int* index);
 static bool tig_art_cache_entry_load(tig_art_id_t art_id, const char* path, int index);
 static void tig_art_cache_entry_unload(int cache_entry_index);
@@ -465,7 +465,7 @@ void tig_art_flush(void)
 int tig_art_exists(tig_art_id_t art_id)
 {
     char path[TIG_MAX_PATH];
-    if (tig_art_build_path(art_id, path) != TIG_OK) {
+    if (tig_art_build_path(art_id, path, sizeof(path)) != TIG_OK) {
         return TIG_ERR_GENERIC;
     }
 
@@ -5294,7 +5294,7 @@ int sub_51AA90(tig_art_id_t art_id)
     char path[TIG_MAX_PATH];
     int cache_entry_index;
 
-    if (tig_art_build_path(art_id, path) != TIG_OK) {
+    if (tig_art_build_path(art_id, path, sizeof(path)) != TIG_OK) {
         return -1;
     }
 
@@ -5449,7 +5449,7 @@ int tig_art_cache_entry_compare_name(const void* va, const void* vb)
 }
 
 // 0x51AE50
-int tig_art_build_path(unsigned int art_id, char* path)
+int tig_art_build_path(unsigned int art_id, char* path, size_t maxlen)
 {
     if (tig_art_type(art_id) == TIG_ART_TYPE_MISC) {
         switch (tig_art_num_get(art_id)) {
@@ -5489,7 +5489,7 @@ int tig_art_build_path(unsigned int art_id, char* path)
         }
     } else {
         if (tig_art_file_path_resolver != NULL) {
-            return tig_art_file_path_resolver(art_id, path);
+            return tig_art_file_path_resolver(art_id, path, maxlen);
         }
     }
 

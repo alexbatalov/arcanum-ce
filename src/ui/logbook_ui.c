@@ -53,14 +53,14 @@ static int logbook_ui_draw_page_spread(int start_entry, int max_entry);
 static int logbook_ui_draw_entry(int index, TigRect* rect, bool dry_run, bool can_truncate);
 static int logbook_ui_draw_text(char* buffer, tig_font_handle_t font, TigRect* rect, bool dry_run, bool can_truncate, bool add_line_spacing);
 static void logbook_ui_load_data(void);
-static void logbook_ui_format_rumor(char* buffer, int index);
-static void logbook_ui_format_timestamp(char* buffer, int index);
-static void logbook_ui_format_quest(char* buffer, int index);
-static void logbook_ui_format_reputation(char* buffer, int index);
-static void logbook_ui_format_blessing_or_curse(char* buffer, int index);
-static void logbook_ui_format_kill_or_injury(char* buffer, int index);
-static void logbook_ui_format_background(char* buffer, int index);
-static void logbook_ui_format_key(char* buffer, int index);
+static void logbook_ui_format_rumor(char* buffer, size_t maxlen, int index);
+static void logbook_ui_format_timestamp(char* buffer, size_t maxlen, int index);
+static void logbook_ui_format_quest(char* buffer, size_t maxlen, int index);
+static void logbook_ui_format_reputation(char* buffer, size_t maxlen, int index);
+static void logbook_ui_format_blessing_or_curse(char* buffer, size_t maxlen, int index);
+static void logbook_ui_format_kill_or_injury(char* buffer, size_t maxlen, int index);
+static void logbook_ui_format_background(char* buffer, size_t maxlen, int index);
+static void logbook_ui_format_key(char* buffer, size_t maxlen, int index);
 
 /**
  * Handle to the logbook UI window.
@@ -1052,27 +1052,27 @@ int logbook_ui_draw_entry(int index, TigRect* rect, bool dry_run, bool can_trunc
 
     switch (logbook_ui_tab) {
     case LOGBOOK_UI_TAB_RUMORS_AND_NOTES:
-        logbook_ui_format_rumor(buffer, index);
+        logbook_ui_format_rumor(buffer, sizeof(buffer), index);
         break;
     case LOGBOOK_UI_TAB_QUESTS:
-        logbook_ui_format_quest(buffer, index);
+        logbook_ui_format_quest(buffer, sizeof(buffer), index);
         break;
     case LOGBOOK_UI_TAB_REPUTATIONS:
-        logbook_ui_format_reputation(buffer, index);
+        logbook_ui_format_reputation(buffer, sizeof(buffer), index);
         break;
     case LOGBOOK_UI_TAB_BLESSINGS_AND_CURSES:
-        logbook_ui_format_blessing_or_curse(buffer, index);
+        logbook_ui_format_blessing_or_curse(buffer, sizeof(buffer), index);
         break;
     case LOGBOOK_UI_TAB_KILLS_AND_INJURES:
-        logbook_ui_format_kill_or_injury(buffer, index);
+        logbook_ui_format_kill_or_injury(buffer, sizeof(buffer), index);
         // "Kills & Injuries" entries are fixed-layout.
         add_line_spacing = false;
         break;
     case LOGBOOK_UI_TAB_BACKGROUND:
-        logbook_ui_format_background(buffer, index);
+        logbook_ui_format_background(buffer, sizeof(buffer), index);
         break;
     case LOGBOOK_UI_TAB_KEYS:
-        logbook_ui_format_key(buffer, index);
+        logbook_ui_format_key(buffer, sizeof(buffer), index);
         break;
     }
 
@@ -1456,7 +1456,7 @@ void logbook_ui_load_data(void)
  *
  * 0x540310
  */
-void logbook_ui_format_rumor(char* buffer, int index)
+void logbook_ui_format_rumor(char* buffer, size_t maxlen, int index)
 {
     MesFileEntry mes_file_entry;
     size_t pos;
@@ -1473,13 +1473,13 @@ void logbook_ui_format_rumor(char* buffer, int index)
         }
     } else {
         // Start with timestamp.
-        logbook_ui_format_timestamp(buffer, index);
+        logbook_ui_format_timestamp(buffer, maxlen, index);
 
         // Jump to next line.
         pos = strlen(buffer);
-        buffer[pos] = '\n';
+        buffer[pos++] = '\n';
 
-        rumor_copy_logbook_str(logbook_ui_obj, logbook_ui_entry_ids[index], &(buffer[pos + 1]));
+        rumor_copy_logbook_str(logbook_ui_obj, logbook_ui_entry_ids[index], &(buffer[pos]), maxlen - pos);
     }
 }
 
@@ -1488,7 +1488,7 @@ void logbook_ui_format_rumor(char* buffer, int index)
  *
  * 0x5403C0
  */
-void logbook_ui_format_timestamp(char* buffer, int index)
+void logbook_ui_format_timestamp(char* buffer, size_t maxlen, int index)
 {
     DateTime* datetime;
     int year;
@@ -1523,7 +1523,8 @@ void logbook_ui_format_timestamp(char* buffer, int index)
     mes_file_entry.num = month + 6;
     mes_get_msg(logbook_ui_mes_file, &mes_file_entry);
 
-    sprintf(buffer, "%s %d, %d  %d:%.2d%cm    ",
+    snprintf(buffer, maxlen,
+        "%s %d, %d  %d:%.2d%cm    ",
         mes_file_entry.str,
         day,
         year,
@@ -1537,24 +1538,24 @@ void logbook_ui_format_timestamp(char* buffer, int index)
  *
  * 0x540470
  */
-void logbook_ui_format_quest(char* buffer, int index)
+void logbook_ui_format_quest(char* buffer, size_t maxlen, int index)
 {
     MesFileEntry mes_file_entry;
     size_t pos;
 
     // Start with timestamp.
-    logbook_ui_format_timestamp(buffer, index);
+    logbook_ui_format_timestamp(buffer, maxlen, index);
 
     // Retrieve and append quest state.
     mes_file_entry.num = logbook_ui_quest_states[index] + 19;
     mes_get_msg(logbook_ui_mes_file, &mes_file_entry);
-    strcat(buffer, mes_file_entry.str);
+    strlcat(buffer, mes_file_entry.str, maxlen);
 
     // Jump to next line.
     pos = strlen(buffer);
-    buffer[pos] = '\n';
+    buffer[pos++] = '\n';
 
-    quest_copy_description(logbook_ui_obj, logbook_ui_entry_ids[index], &(buffer[pos + 1]));
+    quest_copy_description(logbook_ui_obj, logbook_ui_entry_ids[index], &(buffer[pos]), maxlen - pos);
 }
 
 /**
@@ -1562,18 +1563,18 @@ void logbook_ui_format_quest(char* buffer, int index)
  *
  * 0x540510
  */
-void logbook_ui_format_reputation(char* buffer, int index)
+void logbook_ui_format_reputation(char* buffer, size_t maxlen, int index)
 {
     size_t pos;
 
     // Start with timestamp.
-    logbook_ui_format_timestamp(buffer, index);
+    logbook_ui_format_timestamp(buffer, maxlen, index);
 
     // Jump to next line.
     pos = strlen(buffer);
-    buffer[pos] = '\n';
+    buffer[pos++] = '\n';
 
-    reputation_name(logbook_ui_entry_ids[index], &(buffer[pos + 1]));
+    reputation_name(logbook_ui_entry_ids[index], &(buffer[pos]), maxlen - pos);
 }
 
 /**
@@ -1581,22 +1582,22 @@ void logbook_ui_format_reputation(char* buffer, int index)
  *
  * 0x540550
  */
-void logbook_ui_format_blessing_or_curse(char* buffer, int index)
+void logbook_ui_format_blessing_or_curse(char* buffer, size_t maxlen, int index)
 {
     size_t pos;
 
     // Start with timestamp.
-    logbook_ui_format_timestamp(buffer, index);
+    logbook_ui_format_timestamp(buffer, maxlen, index);
 
     // Jump to next line.
     pos = strlen(buffer);
-    buffer[pos] = '\n';
+    buffer[pos++] = '\n';
 
     // Special case - blessing vs. curses are determined using font.
     if (logbook_ui_entry_fonts[index] == logbook_ui_font_active) {
-        bless_copy_name(logbook_ui_entry_ids[index], &(buffer[pos + 1]));
+        bless_copy_name(logbook_ui_entry_ids[index], &(buffer[pos]), maxlen - pos);
     } else {
-        curse_copy_name(logbook_ui_entry_ids[index], &(buffer[pos + 1]));
+        curse_copy_name(logbook_ui_entry_ids[index], &(buffer[pos]), maxlen - pos);
     }
 }
 
@@ -1605,7 +1606,7 @@ void logbook_ui_format_blessing_or_curse(char* buffer, int index)
  *
  * 0x5405C0
  */
-void logbook_ui_format_kill_or_injury(char* buffer, int index)
+void logbook_ui_format_kill_or_injury(char* buffer, size_t maxlen, int index)
 {
     MesFileEntry mes_file_entry;
     const char* desc_str;
@@ -1621,7 +1622,7 @@ void logbook_ui_format_kill_or_injury(char* buffer, int index)
         if (index == 0) {
             // Index 0 - "Total kills".
             SDL_itoa(logbook_ui_kill_stats[LBK_TOTAL_KILLS], tmp, 10);
-            sprintf(buffer, "%s: %s", mes_file_entry.str, tmp);
+            snprintf(buffer, maxlen, "%s: %s", mes_file_entry.str, tmp);
         } else {
             // Indices 1-6: name of tehe most notable critter in each category.
             switch (index) {
@@ -1655,10 +1656,10 @@ void logbook_ui_format_kill_or_injury(char* buffer, int index)
             }
 
             if (desc_str != NULL) {
-                sprintf(buffer, "%s: %s", mes_file_entry.str, desc_str);
+                snprintf(buffer, maxlen, "%s: %s", mes_file_entry.str, desc_str);
             } else {
                 // No critter for this category yet.
-                sprintf(buffer, "%s: -----", mes_file_entry.str);
+                snprintf(buffer, maxlen, "%s: -----", mes_file_entry.str);
             }
         }
     } else if (index == 7) {
@@ -1668,7 +1669,7 @@ void logbook_ui_format_kill_or_injury(char* buffer, int index)
         // "Injury History"
         mes_file_entry.num = 33;
         mes_get_msg(logbook_ui_mes_file, &mes_file_entry);
-        strcpy(buffer, mes_file_entry.str);
+        strlcpy(buffer, mes_file_entry.str, maxlen);
     } else {
         // Special case - time array used to store injury type.
         mes_file_entry.num = 34 + logbook_ui_entry_datetimes[index].milliseconds;
@@ -1677,7 +1678,7 @@ void logbook_ui_format_kill_or_injury(char* buffer, int index)
         // Entries array stores name of critter who inflicted this injury.
         desc_str = description_get(logbook_ui_entry_ids[index]);
         if (desc_str != NULL) {
-            sprintf(buffer, "%s %s", mes_file_entry.str, desc_str);
+            snprintf(buffer, maxlen, "%s %s", mes_file_entry.str, desc_str);
         }
     }
 }
@@ -1687,7 +1688,7 @@ void logbook_ui_format_kill_or_injury(char* buffer, int index)
  *
  * 0x540760
  */
-void logbook_ui_format_background(char* buffer, int index)
+void logbook_ui_format_background(char* buffer, size_t maxlen, int index)
 {
     const char* body;
     int start;
@@ -1718,7 +1719,7 @@ void logbook_ui_format_background(char* buffer, int index)
  *
  * 0x5407B0
  */
-void logbook_ui_format_key(char* buffer, int index)
+void logbook_ui_format_key(char* buffer, size_t maxlen, int index)
 {
     strcpy(buffer, key_description_get(logbook_ui_entry_ids[index]));
 }
@@ -1751,12 +1752,12 @@ void logbook_ui_check(void)
         // Checking normal intelligence.
         rect = logbook_ui_page_content_rects[0];
 
-        logbook_ui_format_timestamp(buffer, 0);
+        logbook_ui_format_timestamp(buffer, sizeof(buffer), 0);
         pos = strlen(buffer);
-        buffer[pos] = '\n';
+        buffer[pos++] = '\n';
 
-        rumor_copy_logbook_normal_str(index, &(buffer[pos + 1]));
-        if (buffer[pos + 1] != '\0') {
+        rumor_copy_logbook_normal_str(index, &(buffer[pos]), sizeof(buffer) - pos);
+        if (buffer[pos] != '\0') {
             tig_debug_printf("Checking rumor %d\n", index);
             logbook_ui_draw_text(buffer, logbook_ui_font_default, &rect, true, true, true);
         }
@@ -1764,12 +1765,12 @@ void logbook_ui_check(void)
         // Checking low intelligence.
         rect = logbook_ui_page_content_rects[0];
 
-        logbook_ui_format_timestamp(buffer, 0);
+        logbook_ui_format_timestamp(buffer, sizeof(buffer), 0);
         pos = strlen(buffer);
-        buffer[pos] = '\n';
+        buffer[pos++] = '\n';
 
-        rumor_copy_logbook_dumb_str(index, &(buffer[pos + 1]));
-        if (buffer[pos + 1] != '\0') {
+        rumor_copy_logbook_dumb_str(index, &(buffer[pos]), sizeof(buffer) - pos);
+        if (buffer[pos] != '\0') {
             tig_debug_printf("Checking dumb rumor %d\n", index);
             logbook_ui_draw_text(buffer, logbook_ui_font_default, &rect, true, true, true);
         }

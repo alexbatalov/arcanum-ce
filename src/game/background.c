@@ -505,7 +505,8 @@ bool background_is_legal(int64_t obj, char* str)
         gender = stat_base_get(obj, STAT_GENDER);
 
         // Construct the exact background prefix.
-        sprintf(buffer, "%s%c",
+        snprintf(buffer, sizeof(buffer),
+            "%s%c",
             background_race_specifiers[race],
             background_gender_specifiers[gender]);
 

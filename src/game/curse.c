@@ -11,7 +11,7 @@
 #define CURSE_F_EFFECT 1
 #define CURSE_F_DESCRIPTION 2
 
-static void curse_copy_field(int curse, int field, char* buffer);
+static void curse_copy_field(int curse, int field, char* buffer, size_t maxlen);
 
 /**
  * "gamecurse.mes"
@@ -47,9 +47,9 @@ void curse_mod_unload(void)
  *
  * 0x4C3CA0
  */
-void curse_copy_name(int curse, char* buffer)
+void curse_copy_name(int curse, char* buffer, size_t maxlen)
 {
-    curse_copy_field(curse, CURSE_F_NAME, buffer);
+    curse_copy_field(curse, CURSE_F_NAME, buffer, maxlen);
 }
 
 /**
@@ -58,7 +58,7 @@ void curse_copy_name(int curse, char* buffer)
  *
  * 0x4C3CC0
  */
-void curse_copy_field(int curse, int field, char* buffer)
+void curse_copy_field(int curse, int field, char* buffer, size_t maxlen)
 {
     MesFileEntry mes_file_entry;
 
@@ -83,9 +83,9 @@ void curse_copy_field(int curse, int field, char* buffer)
  *
  * 0x4C3D30
  */
-void curse_copy_description(int curse, char* buffer)
+void curse_copy_description(int curse, char* buffer, size_t maxlen)
 {
-    curse_copy_field(curse, CURSE_F_DESCRIPTION, buffer);
+    curse_copy_field(curse, CURSE_F_DESCRIPTION, buffer, maxlen);
 }
 
 /**
@@ -193,7 +193,7 @@ void curse_add(int64_t obj, int curse)
 int curse_get_effect(int curse)
 {
     char buffer[80];
-    curse_copy_field(curse, CURSE_F_EFFECT, buffer);
+    curse_copy_field(curse, CURSE_F_EFFECT, buffer, sizeof(buffer));
     return atoi(buffer);
 }
 

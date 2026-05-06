@@ -154,7 +154,7 @@ void script_name_mod_unload(void)
  *
  * 0x4CEDC0
  */
-bool script_name_build_scr_name(int num, char* buffer)
+bool script_name_build_scr_name(int num, char* buffer, size_t maxlen)
 {
     char path[TIG_MAX_PATH];
 
@@ -162,7 +162,7 @@ bool script_name_build_scr_name(int num, char* buffer)
         if (script_name_system_loaded) {
             if (num >= 1000) {
                 if (tig_idxtable_get(&script_name_system_idxtable, num, path)) {
-                    sprintf(buffer, "scr\\%s", path);
+                    snprintf(buffer, maxlen, "scr\\%s", path);
                     return true;
                 }
             }
@@ -171,7 +171,7 @@ bool script_name_build_scr_name(int num, char* buffer)
         if (script_name_mod_loaded) {
             if (num >= 1 && num < 1000) {
                 if (tig_idxtable_get(&script_name_mod_idxtable, num, path)) {
-                    sprintf(buffer, "scr\\%s", path);
+                    snprintf(buffer, maxlen, "scr\\%s", path);
                     return true;
                 }
             }
@@ -186,12 +186,12 @@ bool script_name_build_scr_name(int num, char* buffer)
  *
  * 0x4CEE60
  */
-bool script_name_build_dlg_name(int num, char* buffer)
+bool script_name_build_dlg_name(int num, char* buffer, size_t maxlen)
 {
     size_t len;
 
     // Build the script path.
-    if (!script_name_build_scr_name(num, buffer)) {
+    if (!script_name_build_scr_name(num, buffer, maxlen)) {
         return false;
     }
 

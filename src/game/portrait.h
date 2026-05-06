@@ -5,7 +5,7 @@
 
 bool portrait_init(GameInitInfo* init_info);
 void portrait_exit(void);
-void portrait_path(int num, char* path, int size);
+void portrait_path(int num, char* path, size_t maxlen, int size);
 void portrait_draw_native(int64_t obj, int num, tig_window_handle_t window_handle, int x, int y);
 void portrait_draw_128x128(int64_t obj, int num, tig_window_handle_t window_handle, int x, int y);
 void portrait_draw_32x32(int64_t obj, int num, tig_window_handle_t window_handle, int x, int y);

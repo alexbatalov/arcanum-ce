@@ -63,7 +63,7 @@ void gmovie_play(int movie, GameMovieFlags flags, int sound_track)
     }
 
     // Build a full movie path and play it.
-    sprintf(path, "movies\\%s", mes_file_entry.str);
+    snprintf(path, sizeof(path), "movies\\%s", mes_file_entry.str);
     gmovie_play_path(path, flags, sound_track);
 }
 

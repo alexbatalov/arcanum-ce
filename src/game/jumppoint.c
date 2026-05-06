@@ -166,8 +166,12 @@ bool jumppoint_map_new(MapNewInfo* new_map_info)
     jumppoint_map_close();
 
     // Prepare file paths.
-    sprintf(jumppoint_base_path, "%s\\map.jmp", new_map_info->base_path);
-    sprintf(jumppoint_save_path, "%s\\map.jmp", new_map_info->save_path);
+    snprintf(jumppoint_base_path, sizeof(jumppoint_base_path),
+        "%s\\map.jmp",
+        new_map_info->base_path);
+    snprintf(jumppoint_save_path, sizeof(jumppoint_save_path),
+        "%s\\map.jmp",
+        new_map_info->save_path);
 
     // Mark data as modified so that subsequent flush creates empty `map.jmp`.
     jumppoint_modified = true;
@@ -188,8 +192,12 @@ bool jumppoint_open(const char* base_path, const char* save_path)
     jumppoint_map_close();
 
     // Prepare file paths.
-    sprintf(jumppoint_base_path, "%s\\map.jmp", base_path);
-    sprintf(jumppoint_save_path, "%s\\map.jmp", save_path);
+    snprintf(jumppoint_base_path, sizeof(jumppoint_base_path),
+        "%s\\map.jmp",
+        base_path);
+    snprintf(jumppoint_save_path, sizeof(jumppoint_save_path),
+        "%s\\map.jmp",
+        save_path);
 
     // Attempt to open the save game path.
     stream = tig_file_fopen(jumppoint_save_path, "rb");

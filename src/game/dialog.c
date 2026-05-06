@@ -2521,7 +2521,7 @@ bool sub_416C10(int a1, int a2, DialogState* a3)
         size_t len;
         size_t pos;
 
-        sprintf(str, "[%d]", entry.num);
+        snprintf(str, sizeof(str), "[%d]", entry.num);
         len = strlen(str);
         for (pos = 999; pos >= len; pos--) {
             a3->options[a2][pos] = a3->options[a2][pos - len];
@@ -2967,7 +2967,7 @@ void dialog_check(void)
 
     tig_file_list_create(&file_list, "dlg\\*.dlg");
     for (index = 0; index < file_list.count; index++) {
-        sprintf(path, "dlg\\%s", file_list.entries[index].path);
+        snprintf(path, sizeof(path), "dlg\\%s", file_list.entries[index].path);
         tig_debug_printf("Checking dialog file %s\n", path);
         if (dialog_load(path, &dlg)) {
             for (entry_index = 0; entry_index < dialog_files[dlg].entries_length; entry_index++) {
@@ -3030,7 +3030,7 @@ void dialog_load_generated(int gd)
     char path[TIG_MAX_PATH];
 
     if (dialog_mes_files[gd] == MES_FILE_HANDLE_INVALID) {
-        sprintf(path, "mes\\%s.mes", dialog_gd_mes_file_names[gd]);
+        snprintf(path, sizeof(path), "mes\\%s.mes", dialog_gd_mes_file_names[gd]);
         if (!mes_load(path, &(dialog_mes_files[gd]))) {
             tig_debug_printf("Cannot open generated dialog file %s\n", path);
             exit(EXIT_SUCCESS); // FIXME: Should be EXIT_FAILURE.
@@ -3245,7 +3245,7 @@ bool dialog_copy_npc_override_msg(char* buffer, DialogState* state, int num)
         return false;
     }
 
-    if (!script_name_build_dlg_name(scr.num, path)) {
+    if (!script_name_build_dlg_name(scr.num, path, sizeof(path))) {
         return false;
     }
 
@@ -3308,7 +3308,7 @@ void dialog_ask_money(int amt, int param1, int param2, int a4, int a5, DialogSta
 
     // NPC: "It will cost you %d coins. Are you interested?"
     dialog_copy_npc_class_specific_msg(buffer, state, 1000);
-    sprintf(state->reply, buffer, amt);
+    snprintf(state->reply, sizeof(state->reply), buffer, amt);
 
     // PC: "Yes."
     dialog_copy_pc_generic_msg(state->options[0], state, 1, 99);
@@ -3833,7 +3833,7 @@ void dialog_build_use_skill_option(int index, int skill, int response_val, Dialo
         name = basic_skill_name(GET_BASIC_SKILL(skill));
     }
 
-    sprintf(state->options[index], buffer, name);
+    snprintf(state->options[index], sizeof(state->options[index]), buffer, name);
     state->field_17F0[index] = 14;
     state->field_1804[index] = skill;
     state->field_1818[index] = response_val;
@@ -3847,7 +3847,7 @@ void dialog_build_use_spell_option(int index, int spell, int response_val, Dialo
     // PC: "[%s Spell]"
     dialog_copy_pc_generic_msg(buffer, state, 1000, 1099);
 
-    sprintf(state->options[index], buffer, spell_name(spell));
+    snprintf(state->options[index], sizeof(state->options[index]), buffer, spell_name(spell));
     state->field_17F0[index] = 15;
     state->field_1804[index] = spell;
     state->field_1818[index] = response_val;
@@ -4120,7 +4120,7 @@ void dialog_mark_area(int area, int a2, int a3, DialogState* state)
     if (leagues < 2) {
         strcpy(state->reply, buffer);
     } else {
-        sprintf(state->reply, buffer, leagues);
+        snprintf(state->reply, sizeof(state->reply), buffer, leagues);
     }
 
     // PC: "Thank you."

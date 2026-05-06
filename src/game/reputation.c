@@ -138,7 +138,7 @@ bool reputation_mod_load(void)
 
     // Load reputation-specific greetings.
     for (index = 0; index < GAME_RP_COUNT; index++) {
-        sprintf(path, "mes\\%s.mes", off_5B69C0[index]);
+        snprintf(path, sizeof(path), "mes\\%s.mes", off_5B69C0[index]);
         mes_load(path, &(reputation_mes_files[index]));
     }
 
@@ -365,7 +365,7 @@ int reputation_reaction_adj(int64_t pc_obj, int64_t npc_obj)
  *
  * 0x4C1BD0
  */
-void reputation_name(int reputation, char* buffer)
+void reputation_name(int reputation, char* buffer, size_t maxlen)
 {
     MesFileEntry mes_file_entry;
 
@@ -374,7 +374,7 @@ void reputation_name(int reputation, char* buffer)
     if (reputation >= 1000) {
         mes_file_entry.num = reputation;
         if (mes_search(reputation_log_mes_file, &mes_file_entry)) {
-            strcpy(buffer, mes_file_entry.str);
+            strlcpy(buffer, mes_file_entry.str, maxlen);
         }
     }
 }

@@ -605,7 +605,9 @@ int sub_41D390(void)
     tig_file_list_create(&dir_list, "art\\critter\\*.*");
     for (index = 0; index < dir_list.count; index++) {
         if (dir_list.entries[index].path[0] != '.') {
-            sprintf(path, "art\\critter\\%s\\*.art", dir_list.entries[index].path);
+            snprintf(path, sizeof(path),
+                "art\\critter\\%s\\*.art",
+                dir_list.entries[index].path);
             tig_file_list_create(&file_list, path);
             cnt += file_list.count;
             tig_file_list_destroy(&file_list);
@@ -616,7 +618,9 @@ int sub_41D390(void)
     tig_file_list_create(&dir_list, "art\\monster\\*.*");
     for (index = 0; index < dir_list.count; index++) {
         if (dir_list.entries[index].path[0] != '.') {
-            sprintf(path, "art\\monster\\%s\\*.art", dir_list.entries[index].path);
+            snprintf(path, sizeof(path),
+                "art\\monster\\%s\\*.art",
+                dir_list.entries[index].path);
             tig_file_list_create(&file_list, path);
             cnt += file_list.count;
             tig_file_list_destroy(&file_list);
@@ -627,7 +631,9 @@ int sub_41D390(void)
     tig_file_list_create(&dir_list, "art\\unique_npc\\*.*");
     for (index = 0; index < dir_list.count; index++) {
         if (dir_list.entries[index].path[0] != '.') {
-            sprintf(path, "art\\unique_npc\\%s\\*.art", dir_list.entries[index].path);
+            snprintf(path, sizeof(path),
+                "art\\unique_npc\\%s\\*.art",
+                dir_list.entries[index].path);
             tig_file_list_create(&file_list, path);
             cnt += file_list.count;
             tig_file_list_destroy(&file_list);
@@ -847,7 +853,7 @@ void fix_missing_art(int num, int cnt, unsigned int* missing, int* anim_ptr, int
 }
 
 // 0x41DAE0
-int name_resolve_path(tig_art_id_t aid, char* path)
+int name_resolve_path(tig_art_id_t aid, char* path, size_t maxlen)
 {
     MesFileEntry mes_file_entry;
     int armor_type;
@@ -869,12 +875,12 @@ int name_resolve_path(tig_art_id_t aid, char* path)
 
     switch (tig_art_type(aid)) {
     case TIG_ART_TYPE_TILE:
-        if (!a_name_tile_aid_to_fname(aid, path)) {
+        if (!a_name_tile_aid_to_fname(aid, path, maxlen)) {
             return TIG_ERR_GENERIC;
         }
         return TIG_OK;
     case TIG_ART_TYPE_WALL:
-        if (!a_name_wall_aid_to_fname(aid, path)) {
+        if (!a_name_wall_aid_to_fname(aid, path, maxlen)) {
             return TIG_ERR_GENERIC;
         }
         return TIG_OK;
@@ -912,7 +918,7 @@ int name_resolve_path(tig_art_id_t aid, char* path)
             weapon_code = name_weapon_type_codes[weapon];
         }
 
-        sprintf(path,
+        snprintf(path, maxlen,
             "art\\critter\\%s%c\\%s%c%s%c%c%c.art",
             body_type_str,
             gender_code,
@@ -924,7 +930,7 @@ int name_resolve_path(tig_art_id_t aid, char* path)
             'a' + anim);
         return TIG_OK;
     case TIG_ART_TYPE_PORTAL:
-        if (!a_name_portal_aid_to_fname(aid, path)) {
+        if (!a_name_portal_aid_to_fname(aid, path, maxlen)) {
             return TIG_ERR_GENERIC;
         }
         return TIG_OK;
@@ -933,17 +939,17 @@ int name_resolve_path(tig_art_id_t aid, char* path)
         if (!mes_search(name_scenery_mes_file, &mes_file_entry)) {
             return TIG_ERR_GENERIC;
         }
-        sprintf(path, "art\\scenery\\%s", mes_file_entry.str);
+        snprintf(path, maxlen, "art\\scenery\\%s", mes_file_entry.str);
         return TIG_OK;
     case TIG_ART_TYPE_INTERFACE:
         mes_file_entry.num = tig_art_num_get(aid);
         if (!mes_search(name_interface_mes_file, &mes_file_entry)) {
             return TIG_ERR_GENERIC;
         }
-        sprintf(path, "art\\interface\\%s", mes_file_entry.str);
+        snprintf(path, maxlen, "art\\interface\\%s", mes_file_entry.str);
         return TIG_OK;
     case TIG_ART_TYPE_ITEM:
-        if (!a_name_item_aid_to_fname(aid, path)) {
+        if (!a_name_item_aid_to_fname(aid, path, maxlen)) {
             return TIG_ERR_GENERIC;
         }
         return TIG_OK;
@@ -952,20 +958,20 @@ int name_resolve_path(tig_art_id_t aid, char* path)
         if (!mes_search(name_container_mes_file, &mes_file_entry)) {
             return TIG_ERR_GENERIC;
         }
-        sprintf(path, "art\\container\\%s", mes_file_entry.str);
+        snprintf(path, maxlen, "art\\container\\%s", mes_file_entry.str);
         return TIG_OK;
     case TIG_ART_TYPE_LIGHT:
-        if (!a_name_light_aid_to_fname(aid, path)) {
+        if (!a_name_light_aid_to_fname(aid, path, maxlen)) {
             return TIG_ERR_GENERIC;
         }
         return TIG_OK;
     case TIG_ART_TYPE_ROOF:
-        if (!a_name_roof_aid_to_fname(aid, path)) {
+        if (!a_name_roof_aid_to_fname(aid, path, maxlen)) {
             return TIG_ERR_GENERIC;
         }
         return TIG_OK;
     case TIG_ART_TYPE_FACADE:
-        if (!a_name_facade_aid_to_fname(aid, path)) {
+        if (!a_name_facade_aid_to_fname(aid, path, maxlen)) {
             return TIG_ERR_GENERIC;
         }
         return TIG_OK;
@@ -988,7 +994,7 @@ int name_resolve_path(tig_art_id_t aid, char* path)
             weapon_code = name_weapon_type_codes[weapon];
         }
 
-        sprintf(path,
+        snprintf(path, maxlen,
             "art\\monster\\%s\\%s%s%c%c%c.art",
             mes_file_entry.str,
             mes_file_entry.str,
@@ -1014,7 +1020,7 @@ int name_resolve_path(tig_art_id_t aid, char* path)
             weapon_code = name_weapon_type_codes[weapon];
         }
 
-        sprintf(path,
+        snprintf(path, maxlen,
             "art\\unique_npc\\%s\\%s%c%c%c.art",
             mes_file_entry.str,
             mes_file_entry.str,
@@ -1027,7 +1033,7 @@ int name_resolve_path(tig_art_id_t aid, char* path)
         if (!mes_search(name_eye_candy_mes_file, &mes_file_entry)) {
             return TIG_ERR_GENERIC;
         }
-        sprintf(path,
+        snprintf(path, maxlen,
             "art\\eye_candy\\%s_%c.art",
             mes_file_entry.str,
             name_eye_candy_type_codes[tig_art_eye_candy_id_type_get(aid)]);

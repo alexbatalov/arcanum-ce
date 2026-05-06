@@ -183,10 +183,10 @@ bool terrain_map_new(MapNewInfo* new_map_info)
         dword_6039EC[index] = sub_4E8D60(new_map_info->base_terrain_type, new_map_info->base_terrain_type, 15);
     }
 
-    sprintf(terrain_base_path, "%s\\terrain.tdf", new_map_info->base_path);
+    snprintf(terrain_base_path, sizeof(terrain_base_path), "%s\\terrain.tdf", new_map_info->base_path);
 
     if (terrain_editor) {
-        sprintf(terrain_save_path, "%s\\terrain.tdf", new_map_info->base_path);
+        snprintf(terrain_save_path, sizeof(terrain_save_path), "%s\\terrain.tdf", new_map_info->base_path);
     }
 
     terrain_modified = true;
@@ -202,10 +202,10 @@ bool terrain_open(const char* base_path, const char* save_path)
 
     terrain_map_close();
 
-    sprintf(terrain_base_path, "%s\\terrain.tdf", base_path);
+    snprintf(terrain_base_path, sizeof(terrain_base_path), "%s\\terrain.tdf", base_path);
 
     if (terrain_editor) {
-        sprintf(terrain_save_path, "%s\\terrain.tdf", save_path);
+        snprintf(terrain_save_path, sizeof(terrain_save_path), "%s\\terrain.tdf", save_path);
     }
 
     stream = tig_file_fopen(terrain_save_path, "rb");
@@ -301,9 +301,9 @@ void sub_4E7EF0(void)
     char path2[TIG_MAX_PATH];
 
     compat_splitpath(terrain_base_path, drive, dir, NULL, NULL);
-    sprintf(path1, "%s%s", drive, dir);
+    snprintf(path1, sizeof(path1), "%s%s", drive, dir);
     compat_splitpath(terrain_save_path, drive, dir, NULL, NULL);
-    sprintf(path2, "%s%s", drive, dir);
+    snprintf(path2, sizeof(path2), "%s%s", drive, dir);
     terrain_map_close();
     terrain_open(path1, path2);
 }

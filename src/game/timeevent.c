@@ -376,7 +376,7 @@ int datetime_current_year(void)
 }
 
 // 0x45AB70
-void datetime_format_datetime(DateTime* datetime, char* dest)
+void datetime_format_datetime(DateTime* datetime, char* dest, size_t maxlen)
 {
     int year;
     int month;
@@ -401,22 +401,22 @@ void datetime_format_datetime(DateTime* datetime, char* dest)
         switch (date_format) {
         case SDL_DATE_FORMAT_MMDDYYYY:
             // Month/Day/Year (default)
-            sprintf(dest, "%02d:%02d:%02d %d/%d/%d", hour, minute, second, month, day, year);
+            snprintf(dest, maxlen, "%02d:%02d:%02d %d/%d/%d", hour, minute, second, month, day, year);
             break;
         case SDL_DATE_FORMAT_DDMMYYYY:
             // Day/Month/Year
-            sprintf(dest, "%02d:%02d:%02d %d/%d/%d", hour, minute, second, day, month, year);
+            snprintf(dest, maxlen, "%02d:%02d:%02d %d/%d/%d", hour, minute, second, day, month, year);
             break;
         case SDL_DATE_FORMAT_YYYYMMDD:
             // Year/Month/Day
-            sprintf(dest, "%02d:%02d:%02d %d/%d/%d", hour, minute, second, year, month, day);
+            snprintf(dest, maxlen, "%02d:%02d:%02d %d/%d/%d", hour, minute, second, year, month, day);
             break;
         }
     }
 }
 
 // 0x45AC20
-void datetime_format_time(DateTime* time, char* dest)
+void datetime_format_time(DateTime* time, char* dest, size_t maxlen)
 {
     int hour;
     int minute;
@@ -426,12 +426,12 @@ void datetime_format_time(DateTime* time, char* dest)
         hour = datetime_get_hour(time);
         minute = datetime_get_minute(time);
         second = datetime_seconds_since_reference_date(time) % 60;
-        sprintf(dest, "%02d:%02d:%02d", hour, minute, second);
+        snprintf(dest, maxlen, "%02d:%02d:%02d", hour, minute, second);
     }
 }
 
 // 0x45AC70
-void datetime_format_date(DateTime* time, char* dest)
+void datetime_format_date(DateTime* time, char* dest, size_t maxlen)
 {
     int year;
     int month;
@@ -450,15 +450,15 @@ void datetime_format_date(DateTime* time, char* dest)
         switch (date_format) {
         case SDL_DATE_FORMAT_MMDDYYYY:
             // Month/Day/Year (default)
-            sprintf(dest, "%d/%d/%d", month, day, year);
+            snprintf(dest, maxlen, "%d/%d/%d", month, day, year);
             break;
         case SDL_DATE_FORMAT_DDMMYYYY:
             // Day/Month/Year
-            sprintf(dest, "%d/%d/%d", day, month, year);
+            snprintf(dest, maxlen, "%d/%d/%d", day, month, year);
             break;
         case SDL_DATE_FORMAT_YYYYMMDD:
             // Year/Month/Day
-            sprintf(dest, "%d/%d/%d", year, month, day);
+            snprintf(dest, maxlen, "%d/%d/%d", year, month, day);
             break;
         }
     }
@@ -1563,7 +1563,7 @@ void timeevent_save_nodes_to_map(const char* name)
     TimeEventNode* node;
     TimeEventNode** node_ptr;
 
-    sprintf(path, "Save\\Current\\maps\\%s\\TimeEvent.dat", name);
+    snprintf(path, sizeof(path), "Save\\Current\\maps\\%s\\TimeEvent.dat", name);
 
     if (tig_file_exists(path, NULL)) {
         exists = true;
@@ -1713,7 +1713,7 @@ void timeevent_load_nodes_from_map(const char* name)
     int index;
     TimeEvent timeevent;
 
-    sprintf(path, "Save\\Current\\maps\\%s\\TimeEvent.dat", name);
+    snprintf(path, sizeof(path), "Save\\Current\\maps\\%s\\TimeEvent.dat", name);
 
     if (!tig_file_exists(path, NULL)) {
         return;
@@ -1762,7 +1762,7 @@ void timeevent_notify_pc_teleported(int map)
     timeevent_clear_all_typed(TIMEEVENT_TYPE_MAGICTECH);
 
     if (map_get_name(map, &name)) {
-        sprintf(path, "Save\\Current\\maps\\%s", name);
+        snprintf(path, sizeof(path), "Save\\Current\\maps\\%s", name);
 
         if (!tig_file_is_directory(path)) {
             tig_file_mkdir(path);
@@ -1785,7 +1785,7 @@ void timeevent_break_nodes_to_map(const char* name)
     TimeEventNode* node;
     TimeEventNode** node_ptr;
 
-    sprintf(path, "Save\\Current\\maps\\%s\\TimeEvent.dat", name);
+    snprintf(path, sizeof(path), "Save\\Current\\maps\\%s\\TimeEvent.dat", name);
 
     if (tig_file_exists(path, NULL)) {
         exists = true;
@@ -1923,7 +1923,7 @@ void timeevent_debug_lists(void)
             break;
         }
 
-        datetime_format_datetime(&time, time_str);
+        datetime_format_datetime(&time, time_str, sizeof(time_str));
         tig_debug_printf("\t[%s] Game Time: [%s]\n", off_5B2178[index], time_str);
 
         node = timeevent_new_lists[index];
@@ -1969,7 +1969,7 @@ void timeevent_debug_node(TimeEventNode* node, int node_index)
     char time_str[TIME_STR_LENGTH];
     int index;
 
-    datetime_format_datetime(&(node->te.datetime), time_str);
+    datetime_format_datetime(&(node->te.datetime), time_str, sizeof(time_str));
     tig_debug_printf("TimeEvent: DBG: Node(%d): Type: [%s], Time: [%s]", node_index, stru_5B2188[node->te.type].name, time_str);
 
     for (index = 0; index < TIMEEVENT_PARAM_COUNT; index++) {

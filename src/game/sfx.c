@@ -242,7 +242,7 @@ int sfx_item_sound(int64_t item_obj, int64_t parent_obj, int64_t target_obj, Ite
                 }
 
                 // Verify the sound path exists.
-                if (gsound_resolve_path(sound_id, path) == TIG_OK) {
+                if (gsound_resolve_path(sound_id, path, sizeof(path)) == TIG_OK) {
                     break;
                 }
             }
@@ -441,7 +441,7 @@ int sfx_misc_sound(int64_t obj, MiscSoundType type)
         sound_id = obj_type == OBJ_TYPE_WEAPON
             ? sound_effect + SND_ITEM_F_BUSTED
             : sound_effect + MISC_SOUND_BUSTING;
-        if (gsound_resolve_path(sound_id, path) != TIG_OK) {
+        if (gsound_resolve_path(sound_id, path, sizeof(path)) != TIG_OK) {
             return -1;
         }
         break;
@@ -456,7 +456,7 @@ int sfx_misc_sound(int64_t obj, MiscSoundType type)
         sound_id = obj_type == OBJ_TYPE_WEAPON
             ? sound_effect + SND_ITEM_F_DESTROYED
             : sound_effect + MISC_SOUND_DESTROYING;
-        if (gsound_resolve_path(sound_id, path) != TIG_OK) {
+        if (gsound_resolve_path(sound_id, path, sizeof(path)) != TIG_OK) {
             return -1;
         }
         break;

@@ -260,7 +260,7 @@ bool proto_init(GameInitInfo* init_info)
 
     tig_file_list_create(&file_list, "proto\\*.pro");
     for (index = 0; index < file_list.count; index++) {
-        sprintf(path, "proto\\%s", file_list.entries[index].path);
+        snprintf(path, sizeof(path), "proto\\%s", file_list.entries[index].path);
         stream = tig_file_fopen(path, "rb");
         if (stream != NULL) {
             obj_read(stream, &obj);
@@ -297,7 +297,7 @@ bool proto_save(int64_t obj)
         return false;
     }
 
-    sprintf(path, "proto\\%06d - %s.pro", oid.d.a, name);
+    snprintf(path, sizeof(path), "proto\\%06d - %s.pro", oid.d.a, name);
     FREE(name);
 
     stream = tig_file_fopen(path, "wb");

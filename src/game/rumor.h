@@ -27,9 +27,9 @@ void rumor_qstate_set(int rumor);
 void rumor_copy_interaction_str(int64_t pc_obj, int64_t npc_obj, int rumor, char* buffer);
 void rumor_known_set(int64_t obj, int rumor);
 bool rumor_known_get(int64_t obj, int rumor);
-void rumor_copy_logbook_str(int64_t obj, int rumor, char* buffer);
-void rumor_copy_logbook_normal_str(int rumor, char* buffer);
-void rumor_copy_logbook_dumb_str(int rumor, char* buffer);
+void rumor_copy_logbook_str(int64_t obj, int rumor, char* buffer, size_t maxlen);
+void rumor_copy_logbook_normal_str(int rumor, char* buffer, size_t maxlen);
+void rumor_copy_logbook_dumb_str(int rumor, char* buffer, size_t maxlen);
 int rumor_get_logbook_data(int64_t obj, RumorLogbookEntry* logbook_entries);
 bool rumor_copy_known(int64_t src_obj, int64_t dst_obj);
 

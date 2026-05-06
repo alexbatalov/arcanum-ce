@@ -309,7 +309,8 @@ int main(int argc, char** argv)
     tig_debug_printf("[Beginning Game]\n");
 
     pc_starting_location = obj_field_int64_get(player_get_local_pc_obj(), OBJ_F_LOCATION);
-    sprintf(msg, "Player Start Position: x: %d, y: %d",
+    snprintf(msg, sizeof(msg),
+        "Player Start Position: x: %d, y: %d",
         (int)LOCATION_GET_X(pc_starting_location),
         (int)LOCATION_GET_Y(pc_starting_location));
     tig_debug_printf("%s\n", msg);
@@ -597,14 +598,17 @@ void main_loop(void)
                             case SDL_SCANCODE_X:
                                 tig_mouse_get_state(&mouse_state);
                                 location_at(mouse_state.x, mouse_state.y, &mouse_loc);
-                                sprintf(mouse_state_str, "x: %d, y: %d",
+                                snprintf(mouse_state_str, sizeof(mouse_state_str),
+                                    "x: %d, y: %d",
                                     (int)LOCATION_GET_X(mouse_loc),
                                     (int)LOCATION_GET_Y(mouse_loc));
                                 tig_debug_printf("%s\n", mouse_state_str);
                                 intgame_message_window_display_str(-1, mouse_state_str);
                                 break;
                             case SDL_SCANCODE_U:
-                                sprintf(story_state_str, "Current Story State: %d", script_story_state_get());
+                                snprintf(story_state_str, sizeof(story_state_str),
+                                    "Current Story State: %d",
+                                    script_story_state_get());
                                 intgame_message_window_display_str(-1, story_state_str);
                                 break;
                             case SDL_SCANCODE_LEFTBRACKET:

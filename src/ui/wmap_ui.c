@@ -842,7 +842,10 @@ void wmap_ui_town_notes_save(void)
         return;
     }
 
-    sprintf(path, "%s\\%s.tmn", "Save\\Current", townmap_name(dword_66D878));
+    snprintf(path, sizeof(path),
+        "%s\\%s.tmn",
+        "Save\\Current",
+        townmap_name(dword_66D878));
 
     stream = tig_file_fopen(path, "wb");
     if (stream == NULL) {
@@ -1283,7 +1286,7 @@ bool wmap_load_worldmap_info(void)
 
     tig_str_parse_set_separator(',');
 
-    sprintf(path, "WorldMap\\WorldMap.mes");
+    snprintf(path, sizeof(path), "WorldMap\\WorldMap.mes");
     if (mes_load(path, &wmap_ui_worldmap_info_mes_file)) {
         mes_file_entry.num = 20;
         mes_get_msg(wmap_ui_worldmap_info_mes_file, &mes_file_entry);
@@ -2225,7 +2228,7 @@ bool wmap_ui_message_filter(TigMessage* msg)
 
             if (mes_search(wmap_ui_worldmap_mes_file, &mes_file_entry)) {
                 mes_get_msg(wmap_ui_worldmap_mes_file, &mes_file_entry);
-                sprintf(str, "%s\n%s", wmap_ui_action, mes_file_entry.str);
+                snprintf(str, sizeof(str), "%s\n%s", wmap_ui_action, mes_file_entry.str);
                 ui_message.type = UI_MSG_TYPE_FEEDBACK;
                 ui_message.str = str;
                 intgame_message_window_display_msg(&ui_message);
@@ -2423,9 +2426,9 @@ void wmap_ui_draw_coords(WmapCoords* coords)
             }
 
             if (index == 0) {
-                sprintf(str, "%d W", (int)(limit_x - x));
+                snprintf(str, sizeof(str), "%d W", (int)(limit_x - x));
             } else {
-                sprintf(str, "%d S", y);
+                snprintf(str, sizeof(str), "%d S", y);
             }
 
             tig_font_push(wmap_note_type_info[WMAP_NOTE_TYPE_NOTE].font);
@@ -4028,7 +4031,7 @@ void wmap_ui_town_notes_load(void)
     dword_66D878 = wmap_ui_townmap;
 
     if (dword_66D878 != 0) {
-        sprintf(path,
+        snprintf(path, sizeof(path),
             "%s\\%s.tmn",
             "Save\\Current",
             townmap_name(dword_66D878));

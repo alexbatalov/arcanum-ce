@@ -553,7 +553,7 @@ bool map_new(MapNewInfo* new_map_info)
         }
     }
 
-    sprintf(path, "%s\\map.prp", new_map_info->base_path);
+    snprintf(path, sizeof(path), "%s\\map.prp", new_map_info->base_path);
 
     stream = tig_file_fopen(path, "wb");
     if (stream == NULL) {
@@ -612,7 +612,7 @@ bool map_open(const char* base_path, const char* save_path, bool a3)
 
     tig_debug_printf("map_open: reading properties file...");
     tig_timer_now(&timestamp);
-    sprintf(path, "%s\\map.prp", base_path);
+    snprintf(path, sizeof(path), "%s\\map.prp", base_path);
     stream = tig_file_fopen(path, "rb");
     if (stream == NULL) {
         tig_debug_printf("Error opening map properties file %s\n", path);
@@ -628,7 +628,7 @@ bool map_open(const char* base_path, const char* save_path, bool a3)
     tig_debug_printf("done.  Time (ms): %d\n", duration);
 
     tig_debug_printf("map_open: reading start location...");
-    sprintf(path, "%s\\startloc.txt", base_path);
+    snprintf(path, sizeof(path), "%s\\startloc.txt", base_path);
     if (tig_file_exists(path, NULL)) {
         int64_t x;
         int64_t y;
@@ -814,8 +814,13 @@ bool map_open_in_game(int map, bool a2, bool a3)
         // FIXME: Execution continues after quit.
     }
 
-    sprintf(base_path, "maps\\%s", info->name);
-    sprintf(save_path, "%s\\maps\\%s", "Save\\Current", info->name);
+    snprintf(base_path, sizeof(base_path),
+        "maps\\%s",
+        info->name);
+    snprintf(save_path, sizeof(save_path),
+        "%s\\maps\\%s",
+        "Save\\Current",
+        info->name);
 
     tig_debug_printf("Loading Map: %s\n", base_path);
     gsound_stop_all(0);
@@ -976,7 +981,7 @@ void map_flush(unsigned int flags)
     townmap_flush();
 
     if (map_editor) {
-        sprintf(path, "%s\\startloc.txt", map_save_path);
+        snprintf(path, sizeof(path), "%s\\startloc.txt", map_save_path);
         if (map_starting_loc != 0) {
             stream = tig_file_fopen(path, "wt");
             if (stream != NULL) {
@@ -1209,7 +1214,7 @@ bool map_save_difs(void)
     int iter;
     ObjectID oid;
 
-    sprintf(path1, "%s\\mobile.md", map_save_path);
+    snprintf(path1, sizeof(path1), "%s\\mobile.md", map_save_path);
     stream1 = tig_file_fopen(path1, "wb");
     if (stream1 == NULL) {
         tig_debug_printf("Error opening file %s for writing...\n", path1);
@@ -1217,7 +1222,7 @@ bool map_save_difs(void)
         return false;
     }
 
-    sprintf(path2, "%s\\mobile.des", map_save_path);
+    snprintf(path2, sizeof(path2), "%s\\mobile.des", map_save_path);
     stream2 = tig_file_fopen(path2, "ab");
     if (stream2 == NULL) {
         tig_file_fclose(stream1);
@@ -1291,7 +1296,7 @@ bool map_save_dynamic(void)
     int iter;
     unsigned int flags;
 
-    sprintf(path, "%s\\mobile.mdy", map_save_path);
+    snprintf(path, sizeof(path), "%s\\mobile.mdy", map_save_path);
     stream = tig_file_fopen(path, "wb");
     if (stream == NULL) {
         tig_debug_printf("Error opening mobile dynamic objects file %s to write.\n", path);
@@ -1366,14 +1371,20 @@ bool map_load_mobile(const char* base_path, const char* save_path)
     TigGuid guid;
 
     if (map_editor) {
-        sprintf(path, "%s\\*.mob", base_path);
+        snprintf(path, sizeof(path), "%s\\*.mob", base_path);
         tig_file_list_create(&file_list, path);
         for (idx = 0; idx < file_list.count; idx++) {
-            sprintf(path, "%s\\%s", save_path, file_list.entries[idx].path);
+            snprintf(path, sizeof(path),
+                "%s\\%s",
+                save_path,
+                file_list.entries[idx].path);
             if (!tig_file_exists(path, NULL)) {
                 strcpy(&(path[strlen(path) - 4]), ".del");
                 if (!tig_file_exists(path, NULL)) {
-                    sprintf(path, "%s\\%s", base_path, file_list.entries[idx].path);
+                    snprintf(path, sizeof(path),
+                        "%s\\%s",
+                        base_path,
+                        file_list.entries[idx].path);
                     if (!objf_solitary_read(&obj, path)) {
                         tig_file_list_destroy(&file_list);
                         tig_debug_printf("Error reading object %s\n", path);
@@ -1384,10 +1395,13 @@ bool map_load_mobile(const char* base_path, const char* save_path)
         }
         tig_file_list_destroy(&file_list);
 
-        sprintf(path, "%s\\*.mob", save_path);
+        snprintf(path, sizeof(path), "%s\\*.mob", save_path);
         tig_file_list_create(&file_list, path);
         for (idx = 0; idx < file_list.count; idx++) {
-            sprintf(path, "%s\\%s", save_path, file_list.entries[idx].path);
+            snprintf(path, sizeof(path),
+                "%s\\%s",
+                save_path,
+                file_list.entries[idx].path);
             if (!objf_solitary_read(&obj, path)) {
                 tig_file_list_destroy(&file_list);
                 tig_debug_printf("Error reading object %s\n", path);
@@ -1528,7 +1542,7 @@ bool map_load_dynamic(const char* name)
     TigFile* stream;
     int64_t obj;
 
-    sprintf(path, "%s\\mobile.mdy", name);
+    snprintf(path, sizeof(path), "%s\\mobile.mdy", name);
 
     if (tig_file_exists(path, NULL)) {
         stream = tig_file_fopen(path, "rb");

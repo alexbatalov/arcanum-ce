@@ -114,7 +114,7 @@ static tig_sound_handle_t gsound_play_sfx_at_loc_ex(int id, int loops, int64_t l
 static void gsound_scheme_stop(int fade_duration, int index);
 static void gsound_scheme_stop_all(int fade_duration);
 static void gsound_update(void);
-static void gsound_scheme_path(const char* name, char* buffer);
+static void gsound_scheme_path(const char* name, char* buffer, size_t maxlen);
 static bool gsound_scheme_is_active(int scheme_idx, int* index_ptr);
 static void gsound_scheme_load(int scheme_idx);
 static Sound* gsound_scheme_parse_entry(SoundScheme* scheme, const char* path);
@@ -358,7 +358,7 @@ static int64_t gsound_origin_x;
  *
  * 0x41A940
  */
-int gsound_resolve_path(int sound_id, char* path)
+int gsound_resolve_path(int sound_id, char* path, size_t maxlen)
 {
     MesFileEntry mes_file_entry;
     int index;
@@ -369,7 +369,7 @@ int gsound_resolve_path(int sound_id, char* path)
         // Search the base SFX message files in load order.
         for (index = 0; index < gsound_sfx_mes_files_count; index++) {
             if (mes_search(gsound_sfx_mes_files[index], &mes_file_entry)) {
-                sprintf(path, "%s%s", gsound_base_sound_path, mes_file_entry.str);
+                snprintf(path, maxlen, "%s%s", gsound_base_sound_path, mes_file_entry.str);
                 return TIG_OK;
             }
         }
@@ -377,7 +377,7 @@ int gsound_resolve_path(int sound_id, char* path)
         // Fallback to the module-specific file.
         if (gsound_snd_user_mes_file != MES_FILE_HANDLE_INVALID) {
             if (mes_search(gsound_snd_user_mes_file, &mes_file_entry)) {
-                sprintf(path, "%s%s", gsound_base_sound_path, mes_file_entry.str);
+                snprintf(path, maxlen, "%s%s", gsound_base_sound_path, mes_file_entry.str);
                 return TIG_OK;
             }
         }
@@ -585,7 +585,7 @@ const char* gsound_build_sound_path(const char* name)
     // 0x5D5490
     static char path[TIG_MAX_PATH];
 
-    sprintf(path, "%s%s", gsound_base_sound_path, name);
+    snprintf(path, sizeof(path), "%s%s", gsound_base_sound_path, name);
 
     return path;
 }
@@ -957,7 +957,7 @@ tig_sound_handle_t gsound_play_sfx_ex(int id, int loops, int volume, int extra_v
         return TIG_SOUND_HANDLE_INVALID;
     }
 
-    gsound_resolve_path(id, path);
+    gsound_resolve_path(id, path, sizeof(path));
     return gsound_play_sfx_func(path, loops, volume, extra_volume, id);
 }
 
@@ -1200,7 +1200,7 @@ void gsound_update(void)
                     && hour <= sound->time_end
                     && random_between(0, 999) < sound->frequency) {
                     // Build sound path.
-                    gsound_scheme_path(sound->path, path);
+                    gsound_scheme_path(sound->path, path, sizeof(path));
 
                     // Pick a random volume within the configured range.
                     if (sound->volume_max > sound->volume_min) {
@@ -1242,7 +1242,7 @@ void gsound_update(void)
                 } else {
                     // Inside the active window - start playing if not already.
                     if (sound->sound_handle == TIG_SOUND_HANDLE_INVALID) {
-                        gsound_scheme_path(sound->path, path);
+                        gsound_scheme_path(sound->path, path, sizeof(path));
                         tig_sound_create(&(sound->sound_handle), TIG_SOUND_TYPE_MUSIC);
                         tig_sound_set_volume(sound->sound_handle, gsound_music_volume * (sound->volume_min) / 100);
                         tig_sound_play_streamed_indefinitely(sound->sound_handle, path, GSOUND_SCHEME_FADE_MS, TIG_SOUND_HANDLE_INVALID);
@@ -1258,12 +1258,12 @@ void gsound_update(void)
  *
  * 0x41BCD0
  */
-void gsound_scheme_path(const char* name, char* buffer)
+void gsound_scheme_path(const char* name, char* buffer, size_t maxlen)
 {
     if (name[0] == '#') {
-        gsound_resolve_path(atoi(name + 1), buffer);
+        gsound_resolve_path(atoi(name + 1), buffer, maxlen);
     } else {
-        sprintf(buffer, "%s%s", gsound_base_sound_path, name);
+        snprintf(buffer, maxlen, "%s%s", gsound_base_sound_path, name);
     }
 }
 
@@ -1403,7 +1403,7 @@ void gsound_scheme_load(int scheme_idx)
                     && !sound->loop) {
                     // One-shot songs are started immediately when the scheme
                     // loads.
-                    gsound_scheme_path(sound->path, path);
+                    gsound_scheme_path(sound->path, path, sizeof(path));
                     tig_sound_create(&(sound->sound_handle), TIG_SOUND_TYPE_MUSIC);
                     tig_sound_set_volume(sound->sound_handle, gsound_music_volume * sound->volume_min / 100);
                     tig_sound_play_streamed_once(sound->sound_handle, path, GSOUND_SCHEME_FADE_MS, TIG_SOUND_HANDLE_INVALID);
@@ -1747,7 +1747,7 @@ void gsound_start_combat_music(int64_t obj)
     gsound_combat_music_active = true;
 
     // Play a randomly chosen tension stinger, then loop the main combat track.
-    sprintf(path, "sound\\music\\combat %d.mp3", random_between(1, GSOUND_COMBAT_MUSIC_TRACKS));
+    snprintf(path, sizeof(path), "sound\\music\\combat %d.mp3", random_between(1, GSOUND_COMBAT_MUSIC_TRACKS));
     gsound_combat_tension_handle = gsound_play_music_once(path, 0);
     gsound_combat_music_handle = gsound_play_music_indefinitely("sound\\music\\combatmusic.mp3", 0);
 }

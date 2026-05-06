@@ -12,8 +12,8 @@ typedef struct CurseLogbookEntry {
 
 bool curse_mod_load(void);
 void curse_mod_unload(void);
-void curse_copy_name(int curse, char* buffer);
-void curse_copy_description(int curse, char* buffer);
+void curse_copy_name(int curse, char* buffer, size_t maxlen);
+void curse_copy_description(int curse, char* buffer, size_t maxlen);
 int curse_get_logbook_data(int64_t obj, CurseLogbookEntry* logbook_entries);
 bool curse_has(int64_t obj, int curse);
 void curse_add(int64_t obj, int curse);

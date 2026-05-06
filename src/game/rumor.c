@@ -127,7 +127,7 @@ bool rumor_mod_load(void)
 
     // Load message files for each interaction type.
     for (index = 0; index < RUMOR_INTERACTION_TYPE_COUNT; index++) {
-        sprintf(path, "mes\\%s.mes", rumor_mes_file_names[index]);
+        snprintf(path, sizeof(path), "mes\\%s.mes", rumor_mes_file_names[index]);
         mes_load(path, &(rumor_mes_files[index]));
     }
 
@@ -318,12 +318,12 @@ bool rumor_known_get(int64_t obj, int rumor)
  *
  * 0x4C5920
  */
-void rumor_copy_logbook_str(int64_t obj, int rumor, char* buffer)
+void rumor_copy_logbook_str(int64_t obj, int rumor, char* buffer, size_t maxlen)
 {
     if (stat_level_get(obj, STAT_INTELLIGENCE) > LOW_INTELLIGENCE) {
-        rumor_copy_logbook_normal_str(rumor, buffer);
+        rumor_copy_logbook_normal_str(rumor, buffer, maxlen);
     } else {
-        rumor_copy_logbook_dumb_str(rumor, buffer);
+        rumor_copy_logbook_dumb_str(rumor, buffer, maxlen);
     }
 }
 
@@ -333,7 +333,7 @@ void rumor_copy_logbook_str(int64_t obj, int rumor, char* buffer)
  *
  * 0x4C5960
  */
-void rumor_copy_logbook_normal_str(int rumor, char* buffer)
+void rumor_copy_logbook_normal_str(int rumor, char* buffer, size_t maxlen)
 {
     MesFileEntry mes_file_entry;
 
@@ -343,7 +343,7 @@ void rumor_copy_logbook_normal_str(int rumor, char* buffer)
         return;
     }
 
-    strcpy(buffer, mes_file_entry.str);
+    strlcpy(buffer, mes_file_entry.str, maxlen);
 }
 
 /**
@@ -352,7 +352,7 @@ void rumor_copy_logbook_normal_str(int rumor, char* buffer)
  *
  * 0x4C59D0
  */
-void rumor_copy_logbook_dumb_str(int rumor, char* buffer)
+void rumor_copy_logbook_dumb_str(int rumor, char* buffer, size_t maxlen)
 {
     MesFileEntry mes_file_entry;
 
@@ -362,7 +362,7 @@ void rumor_copy_logbook_dumb_str(int rumor, char* buffer)
         return;
     }
 
-    strcpy(buffer, mes_file_entry.str);
+    strlcpy(buffer, mes_file_entry.str, maxlen);
 }
 
 /**

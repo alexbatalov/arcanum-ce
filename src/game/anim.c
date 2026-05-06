@@ -3208,7 +3208,7 @@ void anim_break_nodes_to_map(const char* map)
     int idx;
     AnimRunInfo* run_info;
 
-    sprintf(path, "Save\\Current\\maps\\%s\\Anim.dat", map);
+    snprintf(path, sizeof(path), "Save\\Current\\maps\\%s\\Anim.dat", map);
 
     exists = tig_file_exists(path, NULL);
     if (exists) {
@@ -3306,7 +3306,7 @@ void anim_save_nodes_to_map(const char* map)
     int idx;
     AnimRunInfo* run_info;
 
-    sprintf(path, "Save\\Current\\maps\\%s\\Anim.dat", map);
+    snprintf(path, sizeof(path), "Save\\Current\\maps\\%s\\Anim.dat", map);
 
     exists = tig_file_exists(path, NULL);
     if (exists) {
@@ -3400,7 +3400,7 @@ void anim_load_nodes_from_map(const char* map)
     AnimID anim_id;
     AnimRunInfo run_info;
 
-    sprintf(path, "Save\\Current\\maps\\%s\\Anim.dat", map);
+    snprintf(path, sizeof(path), "Save\\Current\\maps\\%s\\Anim.dat", map);
 
     if (!tig_file_exists(path, NULL)) {
         return;

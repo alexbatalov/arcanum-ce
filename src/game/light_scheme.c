@@ -232,7 +232,7 @@ bool light_scheme_set(int light_scheme, int hour)
         // Search for the light scheme file name in the message file.
         mes_file_entry.num = light_scheme;
         if (mes_search(light_schemes_msg_file, &mes_file_entry)) {
-            sprintf(path, "Rules\\%s.mes", mes_file_entry.str);
+            snprintf(path, sizeof(path), "Rules\\%s.mes", mes_file_entry.str);
 
             // Load and parse the light scheme file.
             if (mes_load(path, &mes_file)) {

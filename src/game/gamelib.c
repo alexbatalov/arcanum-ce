@@ -1039,7 +1039,7 @@ bool gamelib_save(const char* name, const char* description)
 
     gamelib_saveinfo_exit(&save_info);
 
-    sprintf(path, "save\\%s", name);
+    snprintf(path, sizeof(path), "save\\%s", name);
     tig_debug_printf("gamelib_save: creating folder archive...");
 
     tig_timer_now(&time);
@@ -1088,7 +1088,7 @@ bool gamelib_load(const char* name)
         return false;
     }
 
-    sprintf(path, "save\\%s", name);
+    snprintf(path, sizeof(path), "save\\%s", name);
 
     tig_debug_printf("gamelib_load: begin removing files...");
     tig_timer_now(&time);
@@ -1199,16 +1199,16 @@ bool gamelib_delete(const char* name)
         return false;
     }
 
-    sprintf(path, "save\\%s.gsi", name);
+    snprintf(path, sizeof(path), "save\\%s.gsi", name);
     tig_file_remove(path);
 
-    sprintf(&(path[13]), ".bmp");
+    snprintf(&(path[13]), sizeof(path) - 13, ".bmp");
     tig_file_remove(path);
 
-    sprintf(&(path[13]), ".tfaf");
+    snprintf(&(path[13]), sizeof(path) - 13, ".tfaf");
     tig_file_remove(path);
 
-    sprintf(&(path[13]), ".tfai");
+    snprintf(&(path[13]), sizeof(path) - 13, ".tfai");
     tig_file_remove(path);
 
     return true;
@@ -1511,7 +1511,7 @@ bool gamelib_saveinfo_save(GameSaveInfo* save_info)
     bool success = false;
     int size;
 
-    sprintf(path, "save\\%s%s.gsi", save_info->name, save_info->description);
+    snprintf(path, sizeof(path), "save\\%s%s.gsi", save_info->name, save_info->description);
 
     stream = tig_file_fopen(path, "wb");
     if (stream == NULL) {
@@ -1526,7 +1526,7 @@ bool gamelib_saveinfo_save(GameSaveInfo* save_info)
     to_bmp_info.flags = 0;
     to_bmp_info.video_buffer = save_info->thumbnail_video_buffer;
     to_bmp_info.rect = &rect;
-    sprintf(to_bmp_info.path, "save\\%s.bmp", save_info->name);
+    snprintf(to_bmp_info.path, sizeof(to_bmp_info.path), "save\\%s.bmp", save_info->name);
 
     if (tig_video_buffer_save_to_bmp(&to_bmp_info) == TIG_OK) {
         do {
@@ -1567,7 +1567,7 @@ bool gamelib_saveinfo_load(const char* name, GameSaveInfo* save_info)
     int size;
     bool success = false;
 
-    sprintf(byte_5D0A50, "save\\%s.gsi", name);
+    snprintf(byte_5D0A50, sizeof(byte_5D0A50), "save\\%s.gsi", name);
 
     stream = tig_file_fopen(byte_5D0A50, "rb");
     if (stream == NULL) {
@@ -1774,7 +1774,7 @@ void gamelib_splash(tig_window_handle_t window_handle)
     if (file_list.count != 0) {
         for (index = 0; index < 3; index++) {
             value = (index + splash) % file_list.count;
-            sprintf(path, "art\\splash\\%s", file_list.entries[value].path);
+            snprintf(path, sizeof(path), "art\\splash\\%s", file_list.entries[value].path);
             if (tig_video_buffer_load_from_bmp(path, &video_buffer, 0x1) == TIG_OK) {
                 break;
             }

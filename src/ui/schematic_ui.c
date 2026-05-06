@@ -1399,7 +1399,7 @@ void schematic_ui_draw_component(int ingr, SchematicInfo* schematic_info, bool* 
         tig_font_pop();
 
         // Draw complexity score.
-        sprintf(str, "%d", complexity);
+        snprintf(str, sizeof(str), "%d", complexity);
         tig_font_push(schematic_ui_description_font);
         tig_window_text_write(schematic_ui_window, str, &schematic_ui_component_complexity_rects[ingr]);
         tig_font_pop();

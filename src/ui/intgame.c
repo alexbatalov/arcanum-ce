@@ -185,9 +185,9 @@ static void sub_554830(int64_t a1, int64_t a2);
 static void sub_554B00(tig_window_handle_t window_handle, int art_num, int x, int y);
 static int intgame_item_icon_get(int64_t item_obj);
 static void intgame_examine_item(int64_t pc_obj, int64_t item_obj, char* str);
-static void append_stat(char* buffer, int num, int min, int max, int a5, bool is_modifier);
-static void format_weapon_stats(int64_t weapon_obj, char* buffer);
-static void format_armor_stats(int64_t armor_obj, char* buffer);
+static void append_stat(char* buffer, size_t maxlen, int num, int min, int max, int a5, bool is_modifier);
+static void format_weapon_stats(int64_t weapon_obj, char* buffer, size_t maxlen);
+static void format_armor_stats(int64_t armor_obj, char* buffer, size_t maxlen);
 static void intgame_examine_scenery(int64_t pc_obj, int64_t scenery_obj, char* str);
 static void intgame_examine_portal(int64_t pc_obj, int64_t portal_obj, char* str);
 static void intgame_examine_container(int64_t pc_obj, int64_t container_obj, char* str);
@@ -1545,8 +1545,8 @@ void intgame_draw_counter(int counter, int value, int digits)
             str[pos] = '\0';
         }
     } else {
-        sprintf(format, "%%0%dd", digits);
-        sprintf(str, format, value);
+        snprintf(format, sizeof(format), "%%0%dd", digits);
+        snprintf(str, sizeof(str), format, value);
     }
 
     font_desc.str = str;
@@ -2224,13 +2224,19 @@ bool sub_54B5D0(TigMessage* msg)
 
                 mes_file_entry.num = 22; // "Current Time"
                 mes_get_msg(intgame_mes_file, &mes_file_entry);
-                datetime_format_time(&datetime, time_str_buffer);
-                sprintf(buffer, "%s: %s", mes_file_entry.str, time_str_buffer);
+                datetime_format_time(&datetime, time_str_buffer, sizeof(time_str_buffer));
+                snprintf(buffer, sizeof(buffer),
+                    "%s: %s",
+                    mes_file_entry.str,
+                    time_str_buffer);
 
                 mes_file_entry.num = 23; // "Current Date"
                 mes_get_msg(intgame_mes_file, &mes_file_entry);
-                datetime_format_date(&datetime, time_str_buffer);
-                sprintf(&(buffer[strlen(buffer)]), "   %s: %s", mes_file_entry.str, time_str_buffer);
+                datetime_format_date(&datetime, time_str_buffer, sizeof(time_str_buffer));
+                snprintf(&(buffer[strlen(buffer)]), sizeof(buffer) - strlen(buffer),
+                    "   %s: %s",
+                    mes_file_entry.str,
+                    time_str_buffer);
 
                 ui_message.type = UI_MSG_TYPE_FEEDBACK;
                 ui_message.str = buffer;
@@ -5272,7 +5278,7 @@ void intgame_clock_refresh(void)
     }
 
     if (dword_64C6D0) {
-        sprintf(str, "%d Hours", datetime_current_hour());
+        snprintf(str, sizeof(str), "%d Hours", datetime_current_hour());
 
         rect.x = intgame_interface_window_frames[0].x + 650;
         rect.y = intgame_interface_window_frames[0].y + 5;
@@ -5538,7 +5544,7 @@ void intgame_message_draw(tig_window_handle_t window_handle, UiMessage* ui_messa
 
         mes_file_entry1.num = 11; // "Congratulations! You are now level %d."
         mes_get_msg(intgame_mes_file, &mes_file_entry1);
-        sprintf(str, mes_file_entry1.str, ui_message->field_8);
+        snprintf(str, sizeof(str), mes_file_entry1.str, ui_message->field_8);
         intgame_message_window_write_text(window_handle,
             str,
             &stru_5C70D8,
@@ -5548,7 +5554,7 @@ void intgame_message_draw(tig_window_handle_t window_handle, UiMessage* ui_messa
         if (ui_message->field_C != -1) {
             mes_file_entry1.num = 12; // "You now have %d character point(s) to spend."
             mes_get_msg(intgame_mes_file, &mes_file_entry1);
-            sprintf(str, mes_file_entry1.str, ui_message->field_C);
+            snprintf(str, sizeof(str), mes_file_entry1.str, ui_message->field_C);
             intgame_message_window_write_text(window_handle,
                 str,
                 &stru_5C70E8,
@@ -5576,7 +5582,7 @@ void intgame_message_draw(tig_window_handle_t window_handle, UiMessage* ui_messa
 
         mes_file_entry1.num = 13; // "You have absorbed %d unit(s) of poison."
         mes_get_msg(intgame_mes_file, &mes_file_entry1);
-        sprintf(str, mes_file_entry1.str, ui_message->field_8);
+        snprintf(str, sizeof(str), mes_file_entry1.str, ui_message->field_8);
         intgame_message_window_write_text(window_handle,
             str,
             &stru_5C70D8,
@@ -5595,7 +5601,7 @@ void intgame_message_draw(tig_window_handle_t window_handle, UiMessage* ui_messa
             intgame_morph15_white_font,
             MSG_TEXT_HALIGN_LEFT);
 
-        curse_copy_description(ui_message->field_8, str);
+        curse_copy_description(ui_message->field_8, str, sizeof(str));
         intgame_message_window_write_text(window_handle,
             str,
             &stru_5C7138,
@@ -5614,7 +5620,7 @@ void intgame_message_draw(tig_window_handle_t window_handle, UiMessage* ui_messa
             intgame_morph15_white_font,
             MSG_TEXT_HALIGN_LEFT);
 
-        bless_copy_description(ui_message->field_8, str);
+        bless_copy_description(ui_message->field_8, str, sizeof(str));
         intgame_message_window_write_text(window_handle,
             str,
             &stru_5C7138,
@@ -5702,7 +5708,10 @@ void intgame_message_draw(tig_window_handle_t window_handle, UiMessage* ui_messa
         if (ui_message->field_C != 0) {
             mes_file_entry1.num = 28 + (IS_TECH_SKILL(ui_message->field_8) ? tech_skill_stat(GET_TECH_SKILL(ui_message->field_8)) : basic_skill_stat(GET_BASIC_SKILL(ui_message->field_8)));
             mes_get_msg(intgame_mes_file, &mes_file_entry1);
-            sprintf(str, "%s: %d", mes_file_entry1.str, ui_message->field_C);
+            snprintf(str, sizeof(str),
+                "%s: %d",
+                mes_file_entry1.str,
+                ui_message->field_C);
             intgame_message_window_write_text(window_handle,
                 str,
                 &stru_5C70C8,
@@ -5720,7 +5729,10 @@ void intgame_message_draw(tig_window_handle_t window_handle, UiMessage* ui_messa
 
         mes_file_entry1.num = 73; // "Bonus to Heal skill"
         mes_get_msg(intgame_mes_file, &mes_file_entry1);
-        sprintf(str, "%s: %d", mes_file_entry1.str, spell_min_willpower(ui_message->field_8));
+        snprintf(str, sizeof(str),
+            "%s: %d",
+            mes_file_entry1.str,
+            spell_min_willpower(ui_message->field_8));
         intgame_message_window_write_text(window_handle,
             str,
             &stru_5C70D8,
@@ -5739,7 +5751,7 @@ void intgame_message_draw(tig_window_handle_t window_handle, UiMessage* ui_messa
         if (maintain_period == 1) {
             mes_file_entry2.num = 74; // "second"
             mes_get_msg(intgame_mes_file, &mes_file_entry2);
-            sprintf(str,
+            snprintf(str, sizeof(str),
                 "%s: %d  (%d / %s)",
                 mes_file_entry1.str,
                 cast_cost,
@@ -5748,7 +5760,7 @@ void intgame_message_draw(tig_window_handle_t window_handle, UiMessage* ui_messa
         } else if (maintain_period > 1) {
             mes_file_entry2.num = 75; // "seconds"
             mes_get_msg(intgame_mes_file, &mes_file_entry2);
-            sprintf(str,
+            snprintf(str, sizeof(str),
                 "%s: %d  (%d / %d %s)",
                 mes_file_entry1.str,
                 cast_cost,
@@ -5756,7 +5768,10 @@ void intgame_message_draw(tig_window_handle_t window_handle, UiMessage* ui_messa
                 maintain_period,
                 mes_file_entry2.str);
         } else {
-            sprintf(str, "%s: %d", mes_file_entry1.str, cast_cost);
+            snprintf(str, sizeof(str),
+                "%s: %d",
+                mes_file_entry1.str,
+                cast_cost);
         }
         intgame_message_window_write_text(window_handle,
             str,
@@ -5807,7 +5822,7 @@ void intgame_message_draw(tig_window_handle_t window_handle, UiMessage* ui_messa
 
         mes_file_entry1.num = 17;
         mes_get_msg(intgame_mes_file, &mes_file_entry1);
-        sprintf(str,
+        snprintf(str, sizeof(str),
             "%s: %d",
             mes_file_entry1.str,
             tech_degree_min_intelligence_get(ui_message->field_8 % 8));
@@ -6470,12 +6485,18 @@ void intgame_examine_critter(int64_t pc_obj, int64_t critter_obj, char* str)
             }
 
             mes_get_msg(intgame_mes_file, &suffix);
-            sprintf(buffer, "%s: %s", mes_file_entry.str, suffix.str);
+            snprintf(buffer, sizeof(buffer),
+                "%s: %s",
+                mes_file_entry.str,
+                suffix.str);
         } else {
             if (is_detecting_alignment) {
                 mes_file_entry.num = 36; // "Alignment"
                 mes_get_msg(intgame_mes_file, &mes_file_entry);
-                sprintf(buffer, "%s: %d", mes_file_entry.str, alignment / 10);
+                snprintf(buffer, sizeof(buffer),
+                    "%s: %d",
+                    mes_file_entry.str,
+                    alignment / 10);
             } else {
                 int reaction_value = reaction_get(critter_obj, pc_obj);
                 int reaction_level = reaction_translate(reaction_value);
@@ -6484,7 +6505,7 @@ void intgame_examine_critter(int64_t pc_obj, int64_t critter_obj, char* str)
                 mes_file_entry.num = 1; // "Reaction"
                 mes_get_msg(intgame_mes_file, &mes_file_entry);
 
-                sprintf(buffer,
+                snprintf(buffer, sizeof(buffer),
                     "%s: %d (%s)",
                     mes_file_entry.str,
                     reaction_value,
@@ -6502,7 +6523,10 @@ void intgame_examine_critter(int64_t pc_obj, int64_t critter_obj, char* str)
     mes_file_entry.num = 0; // "Level"
     mes_get_msg(intgame_mes_file, &mes_file_entry);
 
-    sprintf(buffer, "%s: %d", mes_file_entry.str, stat_level_get(critter_obj, STAT_LEVEL));
+    snprintf(buffer, sizeof(buffer),
+        "%s: %d",
+        mes_file_entry.str,
+        stat_level_get(critter_obj, STAT_LEVEL));
     intgame_message_window_write_text(intgame_rotwin_text_frame[intgame_iso_window_type].window_handle,
         buffer,
         &stru_5C70D8,
@@ -6519,9 +6543,9 @@ void intgame_examine_critter(int64_t pc_obj, int64_t critter_obj, char* str)
     }
 
     if (pc_obj == critter_obj || leader_obj == pc_obj) {
-        sprintf(buffer, "%d/%d", cur_hp, max_hp);
+        snprintf(buffer, sizeof(buffer), "%d/%d", cur_hp, max_hp);
     } else {
-        sprintf(buffer, "%d%%", hp_ratio);
+        snprintf(buffer, sizeof(buffer), "%d%%", hp_ratio);
     }
     intgame_message_window_write_text(intgame_rotwin_text_frame[intgame_iso_window_type].window_handle,
         buffer,
@@ -6535,9 +6559,9 @@ void intgame_examine_critter(int64_t pc_obj, int64_t critter_obj, char* str)
     sub_554640(465, 466, &stru_5C70F8, fatigue_ratio);
 
     if (pc_obj == critter_obj || leader_obj == pc_obj) {
-        sprintf(buffer, "%d/%d", cur_fatigue, max_fatigue);
+        snprintf(buffer, sizeof(buffer), "%d/%d", cur_fatigue, max_fatigue);
     } else {
-        sprintf(buffer, "%d%%", fatigue_ratio);
+        snprintf(buffer, sizeof(buffer), "%d%%", fatigue_ratio);
     }
     intgame_message_window_write_text(intgame_rotwin_text_frame[intgame_iso_window_type].window_handle,
         buffer,
@@ -6722,7 +6746,7 @@ void sub_554830(int64_t a1, int64_t a2)
         rect.width = 64;
         rect.height = 64;
 
-        sprintf(str, "%d%%", effectiveness);
+        snprintf(str, sizeof(str), "%d%%", effectiveness);
         intgame_message_window_write_text(window_handle,
             str,
             &rect,
@@ -6758,7 +6782,7 @@ void sub_554830(int64_t a1, int64_t a2)
             intgame_flare12_white_font,
             MSG_TEXT_HALIGN_CENTER);
 
-        sprintf(str, "%d%%", effectiveness);
+        snprintf(str, sizeof(str), "%d%%", effectiveness);
         rect.y += 18;
         intgame_message_window_write_text(window_handle,
             str,
@@ -7013,7 +7037,10 @@ void intgame_examine_item(int64_t pc_obj, int64_t item_obj, char* str)
         mes_file_entry.num = 8; // "Speed"
         mes_get_msg(intgame_mes_file, &mes_file_entry);
 
-        sprintf(buffer, "%s: %d", mes_file_entry.str, value);
+        snprintf(buffer, sizeof(buffer),
+            "%s: %d",
+            mes_file_entry.str,
+            value);
         intgame_message_window_write_text(intgame_rotwin_text_frame[intgame_iso_window_type].window_handle,
             buffer,
             &stru_5C70C8,
@@ -7030,7 +7057,7 @@ void intgame_examine_item(int64_t pc_obj, int64_t item_obj, char* str)
             && (complexity <= 0 || is_identified)) {
             strcpy(buffer, mes_file_entry.str);
         } else {
-            format_weapon_stats(item_obj, buffer);
+            format_weapon_stats(item_obj, buffer, sizeof(buffer));
         }
         break;
     case OBJ_TYPE_AMMO:
@@ -7041,7 +7068,10 @@ void intgame_examine_item(int64_t pc_obj, int64_t item_obj, char* str)
         mes_file_entry.num = 6; // "Quantity"
         mes_get_msg(intgame_mes_file, &mes_file_entry);
 
-        sprintf(buffer, "%s: %d", mes_file_entry.str, value);
+        snprintf(buffer, sizeof(buffer),
+            "%s: %d",
+            mes_file_entry.str,
+            value);
         break;
     case OBJ_TYPE_ARMOR:
         mes_file_entry.num = obj_field_int32_get(item_obj, OBJ_F_ITEM_DESCRIPTION_EFFECTS);
@@ -7051,7 +7081,7 @@ void intgame_examine_item(int64_t pc_obj, int64_t item_obj, char* str)
             && (complexity <= 0 || is_identified)) {
             strcpy(buffer, mes_file_entry.str);
         } else {
-            format_armor_stats(item_obj, buffer);
+            format_armor_stats(item_obj, buffer, sizeof(buffer));
         }
         break;
     case OBJ_TYPE_FOOD:
@@ -7078,7 +7108,7 @@ void intgame_examine_item(int64_t pc_obj, int64_t item_obj, char* str)
 
             if (mes_file_entry.num != -1) {
                 mes_get_msg(intgame_mes_file, &mes_file_entry);
-                sprintf(buffer,
+                snprintf(buffer, sizeof(buffer),
                     "%s: %+d%%",
                     mes_file_entry.str,
                     obj_field_int32_get(item_obj, OBJ_F_GENERIC_USAGE_BONUS));
@@ -7094,7 +7124,10 @@ void intgame_examine_item(int64_t pc_obj, int64_t item_obj, char* str)
         mes_file_entry.num = 7; // "Keys"
         mes_get_msg(intgame_mes_file, &mes_file_entry);
 
-        sprintf(buffer, "%s: %d", mes_file_entry.str, value);
+        snprintf(buffer, sizeof(buffer),
+            "%s: %d",
+            mes_file_entry.str,
+            value);
         break;
     }
 
@@ -7116,7 +7149,10 @@ void intgame_examine_item(int64_t pc_obj, int64_t item_obj, char* str)
             mes_file_entry.num = 2; // "Magic power available"
             mes_get_msg(intgame_mes_file, &mes_file_entry);
 
-            sprintf(buffer, "%s: %d%%", mes_file_entry.str, 100 * value / complexity);
+            snprintf(buffer, sizeof(buffer),
+                "%s: %d%%",
+                mes_file_entry.str,
+                100 * value / complexity);
             intgame_message_window_write_text(intgame_rotwin_text_frame[intgame_iso_window_type].window_handle,
                 buffer,
                 &stru_5C70E8,
@@ -7128,7 +7164,10 @@ void intgame_examine_item(int64_t pc_obj, int64_t item_obj, char* str)
             mes_file_entry.num = 3; // "Aptitude adj to chance of critical failure"
             mes_get_msg(intgame_mes_file, &mes_file_entry);
 
-            sprintf(buffer, "%s: %+d%%", mes_file_entry.str, value);
+            snprintf(buffer, sizeof(buffer),
+                "%s: %+d%%",
+                mes_file_entry.str,
+                value);
             intgame_message_window_write_text(intgame_rotwin_text_frame[intgame_iso_window_type].window_handle,
                 buffer,
                 &stru_5C70E8,
@@ -7146,12 +7185,12 @@ void intgame_examine_item(int64_t pc_obj, int64_t item_obj, char* str)
 
         if (is_identified) {
             if (value > 0) {
-                sprintf(buffer, "%s: +", mes_file_entry.str);
+                snprintf(buffer, sizeof(buffer), "%s: +", mes_file_entry.str);
             } else {
-                sprintf(buffer, "%s: %d", mes_file_entry.str, value);
+                snprintf(buffer, sizeof(buffer), "%s: %d", mes_file_entry.str, value);
             }
         } else {
-            sprintf(buffer, "%s: ??", mes_file_entry.str);
+            snprintf(buffer, sizeof(buffer), "%s: ??", mes_file_entry.str);
         }
     } else {
         switch (obj_type) {
@@ -7160,7 +7199,7 @@ void intgame_examine_item(int64_t pc_obj, int64_t item_obj, char* str)
                 mes_file_entry.num = 19; // "Uses"
                 mes_get_msg(intgame_mes_file, &mes_file_entry);
 
-                sprintf(buffer,
+                snprintf(buffer, sizeof(buffer),
                     "%s: %d",
                     mes_file_entry.str,
                     obj_field_int32_get(item_obj, OBJ_F_GENERIC_USAGE_BONUS));
@@ -7171,7 +7210,7 @@ void intgame_examine_item(int64_t pc_obj, int64_t item_obj, char* str)
             if (ammo_type != 10000) {
                 int consumption = obj_field_int32_get(item_obj, OBJ_F_WEAPON_AMMO_CONSUMPTION);
                 if (consumption > 0) {
-                    sprintf(buffer,
+                    snprintf(buffer, sizeof(buffer),
                         "%s: %d",
                         ammunition_type_get_name(ammo_type),
                         consumption);
@@ -7195,7 +7234,11 @@ void intgame_examine_item(int64_t pc_obj, int64_t item_obj, char* str)
     mes_get_msg(intgame_mes_file, &mes_file_entry);
     suffix.num = 5; // "stone"
     mes_get_msg(intgame_mes_file, &suffix);
-    sprintf(buffer, "%s: %d %s", mes_file_entry.str, value, suffix.str);
+    snprintf(buffer, sizeof(buffer),
+        "%s: %d %s",
+        mes_file_entry.str,
+        value,
+        suffix.str);
     intgame_message_window_write_text(intgame_rotwin_text_frame[intgame_iso_window_type].window_handle,
         buffer,
         &stru_5C70F8,
@@ -7207,7 +7250,7 @@ void intgame_examine_item(int64_t pc_obj, int64_t item_obj, char* str)
             || obj_type == OBJ_TYPE_ARMOR
             || (obj_type == OBJ_TYPE_GENERIC
                 && (obj_field_int32_get(item_obj, OBJ_F_GENERIC_FLAGS) & 0x20) != 0)) {
-            sprintf(buffer,
+            snprintf(buffer, sizeof(buffer),
                 "%d/%d",
                 object_hp_current(item_obj),
                 object_hp_max(item_obj));
@@ -7221,7 +7264,7 @@ void intgame_examine_item(int64_t pc_obj, int64_t item_obj, char* str)
 }
 
 // 0x555780
-void append_stat(char* buffer, int num, int min, int max, int adj, bool is_modifier)
+void append_stat(char* buffer, size_t maxlen, int num, int min, int max, int adj, bool is_modifier)
 {
     MesFileEntry mes_file_entry;
     char tmp[80];
@@ -7233,31 +7276,31 @@ void append_stat(char* buffer, int num, int min, int max, int adj, bool is_modif
     mes_file_entry.num = num;
     mes_get_msg(intgame_mes_file, &mes_file_entry);
 
-    strcat(buffer, mes_file_entry.str);
-    strcat(buffer, ":");
+    strlcat(buffer, mes_file_entry.str, maxlen);
+    strlcat(buffer, ":", maxlen);
 
     if (max != 0) {
-        sprintf(tmp, "%d-%d", min, max);
+        snprintf(tmp, sizeof(tmp), "%d-%d", min, max);
         strcat(buffer, tmp);
     } else if (min != 0) {
         if (is_modifier) {
-            sprintf(tmp, "%+d", min);
+            snprintf(tmp, sizeof(tmp), "%+d", min);
         } else {
-            sprintf(tmp, "%d", min);
+            snprintf(tmp, sizeof(tmp), "%d", min);
         }
-        strcat(buffer, tmp);
+        strlcat(buffer, tmp, maxlen);
     }
 
     if (adj != 0) {
-        sprintf(tmp, "(%+d)", adj);
-        strcat(buffer, tmp);
+        snprintf(tmp, sizeof(tmp), "(%+d)", adj);
+        strlcat(buffer, tmp, maxlen);
     }
 
-    strcat(buffer, "  ");
+    strlcat(buffer, "  ", maxlen);
 }
 
 // 0x555910
-void format_weapon_stats(int64_t weapon_obj, char* buffer)
+void format_weapon_stats(int64_t weapon_obj, char* buffer, size_t maxlen)
 {
     bool identified;
     int min;
@@ -7276,7 +7319,7 @@ void format_weapon_stats(int64_t weapon_obj, char* buffer)
     } else {
         adj = 0;
     }
-    append_stat(buffer, 43, min, max, adj, false);
+    append_stat(buffer, maxlen, 43, min, max, adj, false);
 
     // FT
     min = obj_arrayfield_int32_get(weapon_obj, OBJ_F_WEAPON_DAMAGE_LOWER_IDX, 4);
@@ -7286,7 +7329,7 @@ void format_weapon_stats(int64_t weapon_obj, char* buffer)
     } else {
         adj = 0;
     }
-    append_stat(buffer, 44, min, max, adj, false);
+    append_stat(buffer, maxlen, 44, min, max, adj, false);
 
     // TH
     min = obj_field_int32_get(weapon_obj, OBJ_F_WEAPON_BONUS_TO_HIT);
@@ -7295,7 +7338,7 @@ void format_weapon_stats(int64_t weapon_obj, char* buffer)
     } else {
         adj = 0;
     }
-    append_stat(buffer, 45, min, 0, adj, true);
+    append_stat(buffer, maxlen, 45, min, 0, adj, true);
 
     // RNG
     min = obj_field_int32_get(weapon_obj, OBJ_F_WEAPON_RANGE);
@@ -7307,7 +7350,7 @@ void format_weapon_stats(int64_t weapon_obj, char* buffer)
     } else {
         adj = 0;
     }
-    append_stat(buffer, 46, min, 0, adj, false);
+    append_stat(buffer, maxlen, 46, min, 0, adj, false);
 
     // PD
     min = obj_arrayfield_int32_get(weapon_obj, OBJ_F_WEAPON_DAMAGE_LOWER_IDX, 1);
@@ -7317,7 +7360,7 @@ void format_weapon_stats(int64_t weapon_obj, char* buffer)
     } else {
         adj = 0;
     }
-    append_stat(buffer, 47, min, max, adj, false);
+    append_stat(buffer, maxlen, 47, min, max, adj, false);
 
     // FD
     min = obj_arrayfield_int32_get(weapon_obj, OBJ_F_WEAPON_DAMAGE_LOWER_IDX, 3);
@@ -7327,7 +7370,7 @@ void format_weapon_stats(int64_t weapon_obj, char* buffer)
     } else {
         adj = 0;
     }
-    append_stat(buffer, 48, min, max, adj, false);
+    append_stat(buffer, maxlen, 48, min, max, adj, false);
 
     // ED
     min = obj_arrayfield_int32_get(weapon_obj, OBJ_F_WEAPON_DAMAGE_LOWER_IDX, 2);
@@ -7337,11 +7380,11 @@ void format_weapon_stats(int64_t weapon_obj, char* buffer)
     } else {
         adj = 0;
     }
-    append_stat(buffer, 49, min, max, adj, false);
+    append_stat(buffer, maxlen, 49, min, max, adj, false);
 }
 
 // 0x555B50
-void format_armor_stats(int64_t armor_obj, char* buffer)
+void format_armor_stats(int64_t armor_obj, char* buffer, size_t maxlen)
 {
     bool identified;
     int value;
@@ -7358,7 +7401,7 @@ void format_armor_stats(int64_t armor_obj, char* buffer)
     } else {
         adj = 0;
     }
-    append_stat(buffer, 50, value, 0, adj, false);
+    append_stat(buffer, maxlen, 50, value, 0, adj, false);
 
     // DR
     value = obj_arrayfield_int32_get(armor_obj, OBJ_F_ARMOR_RESISTANCE_ADJ_IDX, RESISTANCE_TYPE_NORMAL);
@@ -7367,7 +7410,7 @@ void format_armor_stats(int64_t armor_obj, char* buffer)
     } else {
         adj = 0;
     }
-    append_stat(buffer, 51, value, 0, adj, true);
+    append_stat(buffer, maxlen, 51, value, 0, adj, true);
 
     // PR
     value = obj_arrayfield_int32_get(armor_obj, OBJ_F_ARMOR_RESISTANCE_ADJ_IDX, RESISTANCE_TYPE_POISON);
@@ -7376,7 +7419,7 @@ void format_armor_stats(int64_t armor_obj, char* buffer)
     } else {
         adj = 0;
     }
-    append_stat(buffer, 52, value, 0, adj, true);
+    append_stat(buffer, maxlen, 52, value, 0, adj, true);
 
     // FR
     value = obj_arrayfield_int32_get(armor_obj, OBJ_F_ARMOR_RESISTANCE_ADJ_IDX, RESISTANCE_TYPE_FIRE);
@@ -7385,7 +7428,7 @@ void format_armor_stats(int64_t armor_obj, char* buffer)
     } else {
         adj = 0;
     }
-    append_stat(buffer, 53, value, 0, adj, true);
+    append_stat(buffer, maxlen, 53, value, 0, adj, true);
 
     // ER
     value = obj_arrayfield_int32_get(armor_obj, OBJ_F_ARMOR_RESISTANCE_ADJ_IDX, RESISTANCE_TYPE_ELECTRICAL);
@@ -7394,7 +7437,7 @@ void format_armor_stats(int64_t armor_obj, char* buffer)
     } else {
         adj = 0;
     }
-    append_stat(buffer, 54, value, 0, adj, true);
+    append_stat(buffer, maxlen, 54, value, 0, adj, true);
 
     // MR
     value = obj_arrayfield_int32_get(armor_obj, OBJ_F_ARMOR_RESISTANCE_ADJ_IDX, RESISTANCE_TYPE_MAGIC);
@@ -7403,7 +7446,7 @@ void format_armor_stats(int64_t armor_obj, char* buffer)
     } else {
         adj = 0;
     }
-    append_stat(buffer, 55, value, 0, adj, true);
+    append_stat(buffer, maxlen, 55, value, 0, adj, true);
 
     // NP
     value = obj_field_int32_get(armor_obj, OBJ_F_ARMOR_SILENT_MOVE_ADJ);
@@ -7412,7 +7455,7 @@ void format_armor_stats(int64_t armor_obj, char* buffer)
     } else {
         adj = 0;
     }
-    append_stat(buffer, 56, value, 0, adj, true);
+    append_stat(buffer, maxlen, 56, value, 0, adj, true);
 
     // D
     if (item_armor_coverage(armor_obj) == TIG_ART_ARMOR_COVERAGE_GAUNTLETS) {
@@ -7420,7 +7463,7 @@ void format_armor_stats(int64_t armor_obj, char* buffer)
     } else {
         value = 0;
     }
-    append_stat(buffer, 43, value, 0, 0, true);
+    append_stat(buffer, maxlen, 43, value, 0, 0, true);
 }
 
 // 0x555D80
@@ -7448,7 +7491,10 @@ void intgame_examine_scenery(int64_t pc_obj, int64_t scenery_obj, char* str)
         MSG_TEXT_HALIGN_LEFT);
 
     if ((obj_field_int32_get(scenery_obj, OBJ_F_FLAGS) & OF_INVULNERABLE) == 0) {
-        sprintf(buffer, "%d/%d", object_hp_current(scenery_obj), object_hp_max(scenery_obj));
+        snprintf(buffer, sizeof(buffer),
+            "%d/%d",
+            object_hp_current(scenery_obj),
+            object_hp_max(scenery_obj));
         intgame_message_window_write_text(intgame_rotwin_text_frame[intgame_iso_window_type].window_handle,
             buffer,
             &stru_5C70F8,
@@ -7500,7 +7546,10 @@ void intgame_examine_portal(int64_t pc_obj, int64_t portal_obj, char* str)
         intgame_flare12_red_font,
         MSG_TEXT_HALIGN_LEFT);
 
-    sprintf(buffer, "%d/%d", object_hp_current(portal_obj), object_hp_max(portal_obj));
+    snprintf(buffer, sizeof(buffer),
+        "%d/%d",
+        object_hp_current(portal_obj),
+        object_hp_max(portal_obj));
     intgame_message_window_write_text(intgame_rotwin_text_frame[intgame_iso_window_type].window_handle,
         buffer,
         &stru_5C70F8,
@@ -7548,7 +7597,10 @@ void intgame_examine_container(int64_t pc_obj, int64_t container_obj, char* str)
         MSG_TEXT_HALIGN_LEFT);
 
     if ((obj_field_int32_get(container_obj, OBJ_F_FLAGS) & OF_INVULNERABLE) == 0) {
-        sprintf(buffer, "%d/%d", object_hp_current(container_obj), object_hp_max(container_obj));
+        snprintf(buffer, sizeof(buffer),
+            "%d/%d",
+            object_hp_current(container_obj),
+            object_hp_max(container_obj));
         intgame_message_window_write_text(intgame_rotwin_text_frame[intgame_iso_window_type].window_handle,
             buffer,
             &stru_5C70F8,
@@ -7583,7 +7635,10 @@ void intgame_message_window_display_attack(int64_t obj)
     mes_file_entry.num = 57; // "Total Attack"
     mes_get_msg(intgame_mes_file, &mes_file_entry);
 
-    sprintf(str, "%s: %d", mes_file_entry.str, item_total_attack(obj));
+    snprintf(str, sizeof(str),
+        "%s: %d",
+        mes_file_entry.str,
+        item_total_attack(obj));
 
     if (intgame_iso_window_type != ROTWIN_TYPE_MSG) {
         intgame_message_window_display_str(-1, str);
@@ -7611,7 +7666,7 @@ void intgame_message_window_display_attack(int64_t obj)
         effectiveness = basic_skill_effectiveness(obj, GET_BASIC_SKILL(skill), OBJ_HANDLE_NULL);
     }
 
-    sprintf(str, "%s: %d%%", mes_file_entry.str, effectiveness);
+    snprintf(str, sizeof(str), "%s: %d%%", mes_file_entry.str, effectiveness);
     intgame_message_window_write_text(intgame_rotwin_text_frame[intgame_iso_window_type].window_handle,
         str,
         &stru_5C70D8,
@@ -7623,9 +7678,13 @@ void intgame_message_window_display_attack(int64_t obj)
 
     item_weapon_damage(weapon_obj, obj, DAMAGE_TYPE_FATIGUE, skill, 0, &min_dam, &max_dam);
     if (max_dam != 0) {
-        sprintf(str, "%s: %d-%d", mes_file_entry.str, min_dam, max_dam);
+        snprintf(str, sizeof(str),
+            "%s: %d-%d",
+            mes_file_entry.str,
+            min_dam,
+            max_dam);
     } else {
-        sprintf(str, "%s: 0", mes_file_entry.str);
+        snprintf(str, sizeof(str), "%s: 0", mes_file_entry.str);
     }
     intgame_message_window_write_text(intgame_rotwin_text_frame[intgame_iso_window_type].window_handle,
         str,
@@ -7638,9 +7697,13 @@ void intgame_message_window_display_attack(int64_t obj)
 
     item_weapon_damage(weapon_obj, obj, DAMAGE_TYPE_FIRE, skill, 0, &min_dam, &max_dam);
     if (max_dam != 0) {
-        sprintf(str, "%s: %d-%d", mes_file_entry.str, min_dam, max_dam);
+        snprintf(str, sizeof(str),
+            "%s: %d-%d",
+            mes_file_entry.str,
+            min_dam,
+            max_dam);
     } else {
-        sprintf(str, "%s: 0", mes_file_entry.str);
+        snprintf(str, sizeof(str), "%s: 0", mes_file_entry.str);
     }
     intgame_message_window_write_text(intgame_rotwin_text_frame[intgame_iso_window_type].window_handle,
         str,
@@ -7653,9 +7716,13 @@ void intgame_message_window_display_attack(int64_t obj)
 
     item_weapon_damage(weapon_obj, obj, DAMAGE_TYPE_NORMAL, skill, 0, &min_dam, &max_dam);
     if (max_dam != 0) {
-        sprintf(str, "%s: %d-%d", mes_file_entry.str, min_dam, max_dam);
+        snprintf(str, sizeof(str),
+            "%s: %d-%d",
+            mes_file_entry.str,
+            min_dam,
+            max_dam);
     } else {
-        sprintf(str, "%s: 0", mes_file_entry.str);
+        snprintf(str, sizeof(str), "%s: 0", mes_file_entry.str);
     }
     intgame_message_window_write_text(intgame_rotwin_text_frame[intgame_iso_window_type].window_handle,
         str,
@@ -7668,9 +7735,13 @@ void intgame_message_window_display_attack(int64_t obj)
 
     item_weapon_damage(weapon_obj, obj, DAMAGE_TYPE_ELECTRICAL, skill, 0, &min_dam, &max_dam);
     if (max_dam != 0) {
-        sprintf(str, "%s: %d-%d", mes_file_entry.str, min_dam, max_dam);
+        snprintf(str, sizeof(str),
+            "%s: %d-%d",
+            mes_file_entry.str,
+            min_dam,
+            max_dam);
     } else {
-        sprintf(str, "%s: 0", mes_file_entry.str);
+        snprintf(str, sizeof(str), "%s: 0", mes_file_entry.str);
     }
     intgame_message_window_write_text(intgame_rotwin_text_frame[intgame_iso_window_type].window_handle,
         str,
@@ -7683,9 +7754,13 @@ void intgame_message_window_display_attack(int64_t obj)
 
     item_weapon_damage(weapon_obj, obj, DAMAGE_TYPE_POISON, skill, 0, &min_dam, &max_dam);
     if (max_dam != 0) {
-        sprintf(str, "%s: %d-%d", mes_file_entry.str, min_dam, max_dam);
+        snprintf(str, sizeof(str),
+            "%s: %d-%d",
+            mes_file_entry.str,
+            min_dam,
+            max_dam);
     } else {
-        sprintf(str, "%s: 0", mes_file_entry.str);
+        snprintf(str, sizeof(str), "%s: 0", mes_file_entry.str);
     }
     intgame_message_window_write_text(intgame_rotwin_text_frame[intgame_iso_window_type].window_handle,
         str,
@@ -7704,7 +7779,7 @@ void intgame_message_window_display_defense(int64_t obj)
     mes_file_entry.num = 63; // "Total Defense"
     mes_get_msg(intgame_mes_file, &mes_file_entry);
     value = item_total_defence(obj);
-    sprintf(buffer,
+    snprintf(buffer, sizeof(buffer),
         "%s: %d",
         mes_file_entry.str,
         value);
@@ -7727,12 +7802,12 @@ void intgame_message_window_display_defense(int64_t obj)
     mes_get_msg(intgame_mes_file, &mes_file_entry);
     value = object_get_ac(obj, 1);
     if (value != 0) {
-        sprintf(buffer,
+        snprintf(buffer, sizeof(buffer),
             "%s: %d",
             mes_file_entry.str,
             value);
     } else {
-        sprintf(buffer,
+        snprintf(buffer, sizeof(buffer),
             "%s: 0",
             mes_file_entry.str);
     }
@@ -7746,12 +7821,12 @@ void intgame_message_window_display_defense(int64_t obj)
     mes_get_msg(intgame_mes_file, &mes_file_entry);
     value = object_get_resistance(obj, RESISTANCE_TYPE_MAGIC, true);
     if (value != 0) {
-        sprintf(buffer,
+        snprintf(buffer, sizeof(buffer),
             "%s: %d%%",
             mes_file_entry.str,
             value);
     } else {
-        sprintf(buffer,
+        snprintf(buffer, sizeof(buffer),
             "%s: 0",
             mes_file_entry.str);
     }
@@ -7765,12 +7840,12 @@ void intgame_message_window_display_defense(int64_t obj)
     mes_get_msg(intgame_mes_file, &mes_file_entry);
     value = object_get_resistance(obj, RESISTANCE_TYPE_FIRE, true);
     if (value != 0) {
-        sprintf(buffer,
+        snprintf(buffer, sizeof(buffer),
             "%s: %d%%",
             mes_file_entry.str,
             value);
     } else {
-        sprintf(buffer,
+        snprintf(buffer, sizeof(buffer),
             "%s: 0",
             mes_file_entry.str);
     }
@@ -7784,12 +7859,12 @@ void intgame_message_window_display_defense(int64_t obj)
     mes_get_msg(intgame_mes_file, &mes_file_entry);
     value = object_get_resistance(obj, RESISTANCE_TYPE_NORMAL, true);
     if (value != 0) {
-        sprintf(buffer,
+        snprintf(buffer, sizeof(buffer),
             "%s: %d%%",
             mes_file_entry.str,
             value);
     } else {
-        sprintf(buffer,
+        snprintf(buffer, sizeof(buffer),
             "%s: 0",
             mes_file_entry.str);
     }
@@ -7803,12 +7878,12 @@ void intgame_message_window_display_defense(int64_t obj)
     mes_get_msg(intgame_mes_file, &mes_file_entry);
     value = object_get_resistance(obj, RESISTANCE_TYPE_ELECTRICAL, true);
     if (value != 0) {
-        sprintf(buffer,
+        snprintf(buffer, sizeof(buffer),
             "%s: %d%%",
             mes_file_entry.str,
             value);
     } else {
-        sprintf(buffer,
+        snprintf(buffer, sizeof(buffer),
             "%s: 0",
             mes_file_entry.str);
     }
@@ -7822,12 +7897,12 @@ void intgame_message_window_display_defense(int64_t obj)
     mes_get_msg(intgame_mes_file, &mes_file_entry);
     value = object_get_resistance(obj, RESISTANCE_TYPE_POISON, true);
     if (value != 0) {
-        sprintf(buffer,
+        snprintf(buffer, sizeof(buffer),
             "%s: %d%%",
             mes_file_entry.str,
             value);
     } else {
-        sprintf(buffer,
+        snprintf(buffer, sizeof(buffer),
             "%s: 0",
             mes_file_entry.str);
     }

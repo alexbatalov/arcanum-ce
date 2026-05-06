@@ -96,7 +96,7 @@ void portrait_exit(void)
  *
  * 0x4CE3C0
  */
-void portrait_path(int num, char* path, int size)
+void portrait_path(int num, char* path, size_t maxlen, int size)
 {
     mes_file_handle_t mes_file;
     MesFileEntry mes_file_entry;
@@ -130,9 +130,9 @@ void portrait_path(int num, char* path, int size)
 
     // Construct file path based on size class.
     if (size >= 128) {
-        sprintf(path, "portrait\\%s_b.bmp", mes_file_entry.str);
+        snprintf(path, maxlen, "portrait\\%s_b.bmp", mes_file_entry.str);
     } else {
-        sprintf(path, "portrait\\%s.bmp", mes_file_entry.str);
+        snprintf(path, maxlen, "portrait\\%s.bmp", mes_file_entry.str);
     }
 }
 
@@ -173,7 +173,7 @@ void portrait_draw_func(int64_t obj, int num, tig_window_handle_t window_handle,
         }
     } else {
         // Build single-player portrait path.
-        portrait_path(num, path, width);
+        portrait_path(num, path, sizeof(path), width);
     }
 
     // Load bitmap from the portrait path.
@@ -459,7 +459,8 @@ bool portrait_is_valid(int64_t obj, const char* str)
         gender = stat_base_get(obj, STAT_GENDER);
 
         // Construct the exact portrait prefix.
-        sprintf(buffer, "%s%c",
+        snprintf(buffer, sizeof(buffer),
+            "%s%c",
             portrait_race_specifiers[race],
             portrait_gender_specifiers[gender]);
 

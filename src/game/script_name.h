@@ -7,7 +7,7 @@ bool script_name_init(GameInitInfo* ctx);
 void script_name_exit(void);
 bool script_name_mod_load(void);
 void script_name_mod_unload(void);
-bool script_name_build_scr_name(int num, char* buffer);
-bool script_name_build_dlg_name(int num, char* buffer);
+bool script_name_build_scr_name(int num, char* buffer, size_t maxlen);
+bool script_name_build_dlg_name(int num, char* buffer, size_t maxlen);
 
 #endif /* ARCANUM_GAME_SCRIPT_NAME_H_ */

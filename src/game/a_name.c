@@ -29,7 +29,7 @@ typedef struct WallStructure {
     /* 001C */ int wall_proto;
 } WallStructure;
 
-static bool build_tile_file_name(const char* name1, const char* name2, int a3, int a4, char* fname);
+static bool build_tile_file_name(const char* name1, const char* name2, int a3, int a4, char* fname, size_t maxlen);
 static bool sub_4EB0C0(int num, int type, int flippable, char** name_ptr);
 static bool a_name_tile_fname_to_aid(const char* name, tig_art_id_t* art_id_ptr);
 static bool count_tile_names(void);
@@ -45,7 +45,7 @@ static int8_t sub_4EBE90(int a1, int a2, int a3, int a4, int a5, int a6);
 static bool sub_4EC020(void);
 static bool sub_4EC0C0(void);
 static int sub_4EC160(void);
-static bool build_facade_file_name(int num, char* fname);
+static bool build_facade_file_name(int num, char* fname, size_t maxlen);
 static bool sub_4EC4B0(void);
 static char* sub_4EC8F0(tig_art_id_t aid);
 static int sub_4EC940(const char* fname);
@@ -54,10 +54,10 @@ static void sub_4ECB80(mes_file_handle_t wallproto_mes_file, char* str, int inde
 static int sub_4ECC00(int index);
 static void init_wall_structures(void);
 static void parse_wall_structure(char* str, int index);
-static bool build_wall_file_name(const char* name, int piece, int damage, int variation, char* fname);
+static bool build_wall_file_name(const char* name, int piece, int damage, int variation, char* fname, size_t maxlen);
 static int sub_4ED030(const char* str);
 static void sub_4ED180(int index, WallStructure* wallstructure);
-static bool build_roof_file_name(int index, char* buffer);
+static bool build_roof_file_name(int index, char* buffer, size_t maxlen);
 static bool load_roof_data(void);
 
 // 0x603AE0
@@ -253,7 +253,7 @@ void a_name_tile_exit(void)
 }
 
 // 0x4EAE90
-bool a_name_tile_aid_to_fname(tig_art_id_t aid, char* fname)
+bool a_name_tile_aid_to_fname(tig_art_id_t aid, char* fname, size_t maxlen)
 {
     int num1;
     int num2;
@@ -284,11 +284,11 @@ bool a_name_tile_aid_to_fname(tig_art_id_t aid, char* fname)
         return false;
     }
 
-    return build_tile_file_name(name1, name2, v1, v2, fname);
+    return build_tile_file_name(name1, name2, v1, v2, fname, maxlen);
 }
 
 // 0x4EAF70
-bool build_tile_file_name(const char* name1, const char* name2, int a3, int a4, char* fname)
+bool build_tile_file_name(const char* name1, const char* name2, int a3, int a4, char* fname, size_t maxlen)
 {
     // 0x5BB4E4
     static const char off_5BB4E4[] = "06b489237ea5dc10";
@@ -301,7 +301,7 @@ bool build_tile_file_name(const char* name1, const char* name2, int a3, int a4, 
     }
 
     if (a3 == 15 || SDL_strcasecmp(name1, name2) == 0) {
-        sprintf(fname,
+        snprintf(fname, maxlen,
             "art\\tile\\%sbse%c%c.art",
             name1,
             off_5BB4E4[a3],
@@ -310,7 +310,7 @@ bool build_tile_file_name(const char* name1, const char* name2, int a3, int a4, 
     }
 
     if (a3 == 0) {
-        sprintf(fname,
+        snprintf(fname, maxlen,
             "art\\tile\\%sbse%c%c.art",
             name2,
             off_5BB4E4[0],
@@ -319,7 +319,7 @@ bool build_tile_file_name(const char* name1, const char* name2, int a3, int a4, 
     }
 
     if (!sub_4EB7D0(name1, &v1)) {
-        sprintf(fname,
+        snprintf(fname, maxlen,
             "art\\tile\\%sbse%c%c.art",
             name1,
             off_5BB4E4[a3],
@@ -328,7 +328,7 @@ bool build_tile_file_name(const char* name1, const char* name2, int a3, int a4, 
     }
 
     if (!sub_4EB7D0(name2, &v2)) {
-        sprintf(fname,
+        snprintf(fname, maxlen,
             "art\\tile\\%sbse%c%c.art",
             name2,
             off_5BB4E4[15 - a3],
@@ -337,14 +337,14 @@ bool build_tile_file_name(const char* name1, const char* name2, int a3, int a4, 
     }
 
     if (v1 < v2) {
-        sprintf(fname,
+        snprintf(fname, maxlen,
             "art\\tile\\%s%s%c%c.art",
             name1,
             name2,
             off_5BB4E4[a3],
             a4 + 'a');
     } else {
-        sprintf(fname,
+        snprintf(fname, maxlen,
             "art\\tile\\%s%s%c%c.art",
             name2,
             name1,
@@ -1058,7 +1058,7 @@ void a_name_item_exit(void)
 }
 
 // 0x4EC290
-bool a_name_item_aid_to_fname(tig_art_id_t aid, char* fname)
+bool a_name_item_aid_to_fname(tig_art_id_t aid, char* fname, size_t maxlen)
 {
     MesFileEntry mes_file_entry;
     int type;
@@ -1098,7 +1098,7 @@ bool a_name_item_aid_to_fname(tig_art_id_t aid, char* fname)
         return false;
     }
 
-    sprintf(fname, "art\\item\\%s", mes_file_entry.str);
+    snprintf(fname, maxlen, "art\\item\\%s", mes_file_entry.str);
 
     return true;
 }
@@ -1126,7 +1126,7 @@ void a_name_facade_exit(void)
 }
 
 // 0x4EC3F0
-bool a_name_facade_aid_to_fname(tig_art_id_t aid, char* fname)
+bool a_name_facade_aid_to_fname(tig_art_id_t aid, char* fname, size_t maxlen)
 {
     int num;
 
@@ -1137,13 +1137,13 @@ bool a_name_facade_aid_to_fname(tig_art_id_t aid, char* fname)
     }
 
     num = tig_art_facade_id_num_get(aid);
-    return build_facade_file_name(num, fname);
+    return build_facade_file_name(num, fname, maxlen);
 }
 
 // 0x4EC430
-bool build_facade_file_name(int num, char* fname)
+bool build_facade_file_name(int num, char* fname, size_t maxlen)
 {
-    sprintf(fname, "art\\Facade\\%s.art", facade_names[num]);
+    snprintf(fname, maxlen, "art\\Facade\\%s.art", facade_names[num]);
     return true;
 }
 
@@ -1211,9 +1211,9 @@ void a_name_portal_exit(void)
 }
 
 // 0x4EC620
-bool a_name_portal_aid_to_fname(tig_art_id_t aid, char* fname)
+bool a_name_portal_aid_to_fname(tig_art_id_t aid, char* fname, size_t maxlen)
 {
-    sprintf(fname, "art\\portal\\%s", sub_4EC8F0(aid));
+    snprintf(fname, maxlen, "art\\portal\\%s", sub_4EC8F0(aid));
 
     if (tig_art_id_damaged_get(aid)) {
         fname[strlen(fname) - 6] = 'D';
@@ -1274,7 +1274,7 @@ tig_art_id_t a_name_portal_aid_from_wall_aid(tig_art_id_t wall_art_id, ObjectID*
 
     oid->type = OID_TYPE_NULL;
 
-    if (!a_name_wall_aid_to_fname(wall_art_id, path)) {
+    if (!a_name_wall_aid_to_fname(wall_art_id, path, sizeof(path))) {
         return TIG_ART_ID_INVALID;
     }
 
@@ -1491,7 +1491,7 @@ void init_wall_structures(void)
 }
 
 // 0x4ECEB0
-bool a_name_wall_aid_to_fname(tig_art_id_t art_id, char* path)
+bool a_name_wall_aid_to_fname(tig_art_id_t art_id, char* path, size_t maxlen)
 {
     int num;
     int rotation;
@@ -1555,11 +1555,11 @@ bool a_name_wall_aid_to_fname(tig_art_id_t art_id, char* path)
         return false;
     }
 
-    return build_wall_file_name(wall_file_names[v1], p_piece, new_damage, variation, path);
+    return build_wall_file_name(wall_file_names[v1], p_piece, new_damage, variation, path, maxlen);
 }
 
 // 0x4ECFC0
-bool build_wall_file_name(const char* name, int piece, int damage, int variation, char* fname)
+bool build_wall_file_name(const char* name, int piece, int damage, int variation, char* fname, size_t maxlen)
 {
     // 0x5BB6AC
     static const char off_5BB6AC[] = {
@@ -1632,7 +1632,7 @@ bool build_wall_file_name(const char* name, int piece, int damage, int variation
         index = 0;
     }
 
-    sprintf(fname,
+    snprintf(fname, maxlen,
         "art\\wall\\%s%s%c%c.art",
         name,
         off_5BB6B0[piece],
@@ -1848,7 +1848,7 @@ void a_name_light_exit(void)
 }
 
 // 0x4ED250
-bool a_name_light_aid_to_fname(tig_art_id_t aid, char* fname)
+bool a_name_light_aid_to_fname(tig_art_id_t aid, char* fname, size_t maxlen)
 {
     MesFileEntry mes_file_entry;
 
@@ -1862,9 +1862,9 @@ bool a_name_light_aid_to_fname(tig_art_id_t aid, char* fname)
     }
 
     if (sub_504790(aid)) {
-        sprintf(fname, "art\\light\\%s_s%d.art", mes_file_entry.str, sub_504700(aid) / 8);
+        snprintf(fname, maxlen, "art\\light\\%s_s%d.art", mes_file_entry.str, sub_504700(aid) / 8);
     } else {
-        sprintf(fname, "art\\light\\%s.art", mes_file_entry.str);
+        snprintf(fname, maxlen, "art\\light\\%s.art", mes_file_entry.str);
     }
 
     return true;
@@ -1893,23 +1893,23 @@ void a_name_roof_exit(void)
 }
 
 // 0x4ED370
-bool a_name_roof_aid_to_fname(tig_art_id_t aid, char* fname)
+bool a_name_roof_aid_to_fname(tig_art_id_t aid, char* fname, size_t maxlen)
 {
     if (tig_art_type(aid) != TIG_ART_TYPE_ROOF) {
         return false;
     }
 
-    return build_roof_file_name(tig_art_num_get(aid), fname);
+    return build_roof_file_name(tig_art_num_get(aid), fname, maxlen);
 }
 
 // 0x4ED3A0
-bool build_roof_file_name(int index, char* fname)
+bool build_roof_file_name(int index, char* fname, size_t maxlen)
 {
     if (index >= num_roof_file_names) {
         return false;
     }
 
-    sprintf(fname, "art\\roof\\%s.art", roof_file_names[index]);
+    snprintf(fname, maxlen, "art\\roof\\%s.art", roof_file_names[index]);
 
     return true;
 }

@@ -106,9 +106,9 @@ typedef unsigned int TigInitFlags;
 // the executable name).
 #define TIG_INITIALIZE_SET_WINDOW_NAME 0x4000u
 
-typedef int (*TigArtFilePathResolver)(tig_art_id_t art_id, char* path);
+typedef int (*TigArtFilePathResolver)(tig_art_id_t art_id, char* path, size_t maxlen);
 typedef tig_art_id_t (*TigArtIdResetFunc)(tig_art_id_t art_id);
-typedef int (*TigSoundFilePathResolver)(int sound_id, char* path);
+typedef int (*TigSoundFilePathResolver)(int sound_id, char* path, size_t maxlen);
 
 typedef struct TigInitInfo {
     TigInitFlags flags;

@@ -419,7 +419,7 @@ bool sub_4D39A0(TeleportData* teleport_data)
             obj_field_int32_set(node->obj, OBJ_F_OFFSET_X, 0);
             obj_field_int32_set(node->obj, OBJ_F_OFFSET_Y, 0);
 
-            sprintf(path, "%s\\mobile.mdy", dst_map_path);
+            snprintf(path, sizeof(path), "%s\\mobile.mdy", dst_map_path);
             stream = tig_file_fopen(path, "ab");
             if (stream == NULL) {
                 return false;

@@ -146,7 +146,7 @@ void dialog_ui_start_dialog(int64_t pc_obj, int64_t npc_obj, int script_num, int
 
     entry = sub_567420(pc_obj);
 
-    if (script_num != 0 && script_name_build_dlg_name(script_num, path)) {
+    if (script_num != 0 && script_name_build_dlg_name(script_num, path, sizeof(path))) {
         if (!dialog_load(path, &(entry->dlg))) {
             return;
         }
@@ -492,9 +492,17 @@ void dialog_ui_speech_start(int64_t npc_obj, int64_t pc_obj, int speech_id)
     sub_418A00(speech_id, &v1, &v2);
 
     gender = stat_level_get(pc_obj, STAT_GENDER) != 0 ? 'm' : 'f';
-    sprintf(path, "sound\\speech\\%.5d\\v%d_%c.mp3", v1, v2, gender);
+    snprintf(path, sizeof(path),
+        "sound\\speech\\%.5d\\v%d_%c.mp3",
+        v1,
+        v2,
+        gender);
     if (gender == 'f' && !tig_file_exists(path, NULL)) {
-        sprintf(path, "sound\\speech\\%.5d\\v%d_%c.mp3", v1, v2, 'm');
+        snprintf(path, sizeof(path),
+            "sound\\speech\\%.5d\\v%d_%c.mp3",
+            v1,
+            v2,
+            'm');
     }
     if (tig_file_exists(path, NULL)) {
         dialog_ui_speech_handle = gsound_play_voice(path, 0);

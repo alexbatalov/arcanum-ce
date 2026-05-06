@@ -16,7 +16,7 @@
 
 static void slide_ui_prepare(int type);
 static bool slide_ui_do_slide(tig_window_handle_t window_handle, int slide);
-static bool slide_ui_get_assets(int slide, char* bmp_path, char* speech_path);
+static bool slide_ui_get_assets(int slide, char* bmp_path, size_t bmp_path_maxlen, char* speech_path, size_t speech_path_maxlen);
 static void slide_ui_fade_out(void);
 static void slide_ui_fade_in(void);
 static void slide_ui_queue_clear(void);
@@ -210,7 +210,7 @@ bool slide_ui_do_slide(tig_window_handle_t window_handle, int slide)
     rect.width = 800;
     rect.height = 600;
 
-    if (slide_ui_get_assets(slide, bmp_path, speech_path)) {
+    if (slide_ui_get_assets(slide, bmp_path, sizeof(bmp_path), speech_path, sizeof(speech_path))) {
         // Load image.
         if (tig_video_buffer_load_from_bmp(bmp_path, &video_buffer, 0x01) == TIG_OK) {
             // Put image into window.
@@ -317,7 +317,7 @@ bool slide_ui_do_slide(tig_window_handle_t window_handle, int slide)
  *
  * 0x569930
  */
-bool slide_ui_get_assets(int slide, char* bmp_path, char* speech_path)
+bool slide_ui_get_assets(int slide, char* bmp_path, size_t bmp_path_maxlen, char* speech_path, size_t speech_path_maxlen)
 {
     MesFileEntry mes_file_entry;
     char temp[MAX_STRING];
@@ -338,14 +338,14 @@ bool slide_ui_get_assets(int slide, char* bmp_path, char* speech_path)
     if (tok == NULL) {
         return false;
     }
-    sprintf(bmp_path, "slide\\%s", tok);
+    snprintf(bmp_path, bmp_path_maxlen, "slide\\%s", tok);
 
     // Build MP3 path.
     tok = strtok(NULL, " \t\n");
     if (tok == NULL) {
         return false;
     }
-    sprintf(speech_path, "sound\\speech\\slide\\%s", tok);
+    snprintf(speech_path, speech_path_maxlen, "sound\\speech\\slide\\%s", tok);
 
     return true;
 }

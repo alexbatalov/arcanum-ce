@@ -1271,12 +1271,24 @@ void charedit_refresh_basic_info(void)
     } while (font_desc.width > 243);
     tig_font_pop();
 
-    sprintf(buffers[0], ": %d  ", charedit_stat_value_get(charedit_obj, CHAREDIT_STAT_UNSPENT_POINTS));
-    sprintf(buffers[1], ": %d  ", charedit_stat_value_get(charedit_obj, CHAREDIT_STAT_LEVEL));
-    sprintf(buffers[2], ": %d  ", charedit_stat_value_get(charedit_obj, CHAREDIT_STAT_XP_TO_NEXT_LEVEL));
-    sprintf(buffers[4], ": %s", race_name(stat_level_get(charedit_obj, STAT_RACE)));
-    sprintf(buffers[5], ": %s", gender_name(stat_level_get(charedit_obj, STAT_GENDER)));
-    sprintf(buffers[6], ": %d ", stat_level_get(charedit_obj, STAT_AGE));
+    snprintf(buffers[0], sizeof(buffers[0]),
+        ": %d  ",
+        charedit_stat_value_get(charedit_obj, CHAREDIT_STAT_UNSPENT_POINTS));
+    snprintf(buffers[1], sizeof(buffers[1]),
+        ": %d  ",
+        charedit_stat_value_get(charedit_obj, CHAREDIT_STAT_LEVEL));
+    snprintf(buffers[2], sizeof(buffers[2]),
+        ": %d  ",
+        charedit_stat_value_get(charedit_obj, CHAREDIT_STAT_XP_TO_NEXT_LEVEL));
+    snprintf(buffers[4], sizeof(buffers[4]),
+        ": %s",
+        race_name(stat_level_get(charedit_obj, STAT_RACE)));
+    snprintf(buffers[5], sizeof(buffers[5]),
+        ": %s",
+        gender_name(stat_level_get(charedit_obj, STAT_GENDER)));
+    snprintf(buffers[6], sizeof(buffers[6]),
+        ": %d ",
+        stat_level_get(charedit_obj, STAT_AGE));
 
     for (index = 0; index < 7; index++) {
         labels[index] = buffers[index];
@@ -1696,13 +1708,13 @@ void charedit_refresh_secondary_stats(void)
     }
 
     for (index = 0; index < 8; index++) {
-        sprintf(buffers[index],
+        snprintf(buffers[index], sizeof(buffers[index]),
             ": %d  ",
             stat_level_get(charedit_obj, stru_5C81E0[index].value));
     }
 
     for (index = 8; index < 13; index++) {
-        sprintf(buffers[index],
+        snprintf(buffers[index], sizeof(buffers[index]),
             ": %d  ",
             object_get_resistance(charedit_obj, stru_5C81E0[index].value, true));
     }
@@ -1763,7 +1775,7 @@ void charedit_refresh_stat(int stat)
         }
     }
 
-    sprintf(str, " %d ", value);
+    snprintf(str, sizeof(str), " %d ", value);
     stru_5C8F50.str = str;
     stru_5C8F50.x = stru_5C7E70[stat].x;
     stru_5C8F50.y = stru_5C7E70[stat].y;
@@ -2144,7 +2156,7 @@ void sub_55BD10(int group)
 
     for (index = 0; index < 4; index++) {
         if (trainings[index] != 0) {
-            sprintf(v1[index], " (%s)", v2[index]);
+            snprintf(v1[index], sizeof(v1[index]), " (%s)", v2[index]);
         } else {
             v1[index][0] = '\0';
         }
@@ -2388,13 +2400,15 @@ void charedit_refresh_tech_win(void)
     str[0][1] = '\0';
     sub_55B880(charedit_tech_win, charedit_icons17_white_font, &(stru_5C8FC8[0]), 0, -1, 1);
 
-    sprintf(str[0],
+    snprintf(str[0], sizeof(str[0]),
         "%s %s",
         tech_discipline_name_get(charedit_selected_tech),
         tech_degree_name_get(tech_degree_get(charedit_obj, charedit_selected_tech)));
     sub_55B880(charedit_tech_win, charedit_nick16_white_font, &(stru_5C8FC8[1]), 0, -1, 1);
 
-    sprintf(str[0], "%d", tech_degree_level_get(charedit_obj, charedit_selected_tech));
+    snprintf(str[0], sizeof(str[0]),
+        "%d",
+        tech_degree_level_get(charedit_obj, charedit_selected_tech));
     sub_55B880(charedit_tech_win, charedit_flare12_blue_font, &(stru_5C8FC8[2]), 0, -1, 1);
 
     degree = tech_degree_get(charedit_obj, charedit_selected_tech);
@@ -2407,7 +2421,10 @@ void charedit_refresh_tech_win(void)
     for (index = 1; index - 1 < 7; index++) {
         stru_5C8850[index - 1].str = schematic_ui_learned_schematic_product_name(charedit_selected_tech, index);
         schematic_ui_learned_schematic_component_names(charedit_selected_tech, index, components[0], components[1]);
-        sprintf(str[index - 1], "[%s]+[%s]", components[0], components[1]);
+        snprintf(str[index - 1], sizeof(str[index - 1]),
+            "[%s]+[%s]",
+            components[0],
+            components[1]);
         stru_5C88C0[index - 1].str = str[index - 1];
     }
 
@@ -2681,7 +2698,7 @@ void charedit_refresh_spells_win(void)
     }
 
     for (index = 0; index < 5; index++) {
-        sprintf(spell_minimum_levels[index],
+        snprintf(spell_minimum_levels[index], sizeof(spell_minimum_levels[index]),
             "%s: %d",
             charedit_minimum_level_str,
             spell_min_level(spells[index]));
@@ -3582,7 +3599,7 @@ void charedit_refresh_alignment_aptitude_bars(void)
     }
 
     value = stat_level_get(charedit_obj, STAT_ALIGNMENT) / 10;
-    sprintf(buffer[0], "%d", value);
+    snprintf(buffer[0], sizeof(buffer[0]), "%d", value);
 
     tig_art_interface_id_create(254, value / 10 + 10, 0, 0, &(art_blit_info.art_id));
     if (tig_art_frame_data(art_blit_info.art_id, &art_frame_data) != TIG_OK) {
@@ -3628,10 +3645,10 @@ void charedit_refresh_alignment_aptitude_bars(void)
 
     value = stat_level_get(charedit_obj, STAT_MAGICK_TECH_APTITUDE);
     if (value < 0) {
-        sprintf(buffer[2], "%d", -value);
+        snprintf(buffer[2], sizeof(buffer[2]), "%d", -value);
         strcpy(buffer[1], "0");
     } else {
-        sprintf(buffer[1], "%d", value);
+        snprintf(buffer[1], sizeof(buffer[1]), "%d", value);
         strcpy(buffer[2], "0");
     }
 

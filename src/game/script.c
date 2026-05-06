@@ -2904,7 +2904,7 @@ void script_float_line(ScriptAction* action, ScriptState* state)
         return;
     }
 
-    if (!script_name_build_dlg_name(state->invocation->script->num, path)) {
+    if (!script_name_build_dlg_name(state->invocation->script->num, path, sizeof(path))) {
         return;
     }
 
@@ -2947,7 +2947,7 @@ void script_print_line(ScriptAction* action, ScriptState* state)
         return;
     }
 
-    if (!script_name_build_dlg_name(state->invocation->script->num, path)) {
+    if (!script_name_build_dlg_name(state->invocation->script->num, path, sizeof(path))) {
         return;
     }
 
@@ -3297,7 +3297,7 @@ bool script_load_hdr(Script* scr)
     TigFile* stream;
     bool rc;
 
-    if (!script_name_build_scr_name(scr->num, path)) {
+    if (!script_name_build_scr_name(scr->num, path, sizeof(path))) {
         return false;
     }
 
@@ -3433,7 +3433,7 @@ bool cache_add(int cache_entry_id, int script_id)
     TigFile* stream;
     ScriptHeader hdr;
 
-    if (!script_name_build_scr_name(script_id, path)) {
+    if (!script_name_build_scr_name(script_id, path, sizeof(path))) {
         tig_debug_printf("Script: cache_add: ERROR: Failed to build script name: %d!\n", script_id);
         return false;
     }

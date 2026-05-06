@@ -95,7 +95,9 @@ bool invensource_init(GameInitInfo* init_info)
 
         // Load inventory source message file (required).
         if (!mes_load(invensource_mes_file_name, &invensource_mes_file)) {
-            sprintf(invensource_error, "Can't load message file [%s].", invensource_mes_file_name);
+            snprintf(invensource_error, sizeof(invensource_error),
+                "Can't load message file [%s].",
+                invensource_mes_file_name);
             show_error(invensource_error);
             return false;
         }
@@ -106,14 +108,18 @@ bool invensource_init(GameInitInfo* init_info)
             invensource_have_buy = true;
         } else {
             invensource_have_buy = false;
-            sprintf(invensource_error, "Can't load message file [%s].", invensourcebuy_mes_file_name);
+            snprintf(invensource_error, sizeof(invensource_error),
+                "Can't load message file [%s].",
+                invensourcebuy_mes_file_name);
             show_error(invensource_error);
         }
 
         // Retrieve the number of entries in the primary message file.
         invensource_num_sets = mes_entries_count(invensource_mes_file);
         if (invensource_num_sets < 1) {
-            sprintf(invensource_error, "No sets to parse in [%s].", invensource_mes_file_name);
+            snprintf(invensource_error, sizeof(invensource_error),
+                "No sets to parse in [%s].",
+                invensource_mes_file_name);
             mes_unload(invensource_mes_file);
             mes_unload(invensourcebuy_mes_file);
             return false;
@@ -195,7 +201,7 @@ bool parse_set_data(mes_file_handle_t invensource_mes_file, mes_file_handle_t in
     while (mes_find_next(invensource_mes_file, &mes_file_entry1)) {
         // Check for discontinuous entry numbers.
         if (mes_file_entry1.num != ++index) {
-            sprintf(invensource_error,
+            snprintf(invensource_error, sizeof(invensource_error),
                 "[%s] discontinuous at line: %d.  Skipping remaining sets.",
                 invensource_mes_file_name,
                 mes_file_entry1.num);
@@ -209,7 +215,7 @@ bool parse_set_data(mes_file_handle_t invensource_mes_file, mes_file_handle_t in
 
         // Parse the primary inventory source data.
         if (!parse_invensource_entry(&mes_file_entry1, str)) {
-            sprintf(invensource_error,
+            snprintf(invensource_error, sizeof(invensource_error),
                 "Error parsing [%s] line %d.  Emptying set.",
                 invensource_mes_file_name,
                 mes_file_entry1.num);
@@ -227,7 +233,7 @@ bool parse_set_data(mes_file_handle_t invensource_mes_file, mes_file_handle_t in
             if (mes_search(invensourcebuy_mes_file, &mes_file_entry2)) {
                 mes_get_msg(invensourcebuy_mes_file, &mes_file_entry2);
                 if (!parse_invensourcebuy_entry(&mes_file_entry2, str)) {
-                    sprintf(invensource_error,
+                    snprintf(invensource_error, sizeof(invensource_error),
                         "Error parsing [%s] line %d.  Emptying set.",
                         invensourcebuy_mes_file_name,
                         mes_file_entry1.num);
@@ -264,7 +270,7 @@ bool parse_invensource_entry(MesFileEntry* mes_file_entry, char* str)
 
     // Check if the entry string exceeds maximum length.
     if (strlen(mes_file_entry->str) >= MAX_STRING) {
-        sprintf(invensource_error,
+        snprintf(invensource_error, sizeof(invensource_error),
             "Line %d in [%s] exceeds the maximum line length for message files.",
             mes_file_entry->num,
             invensource_mes_file_name);
@@ -279,14 +285,17 @@ bool parse_invensource_entry(MesFileEntry* mes_file_entry, char* str)
     // Parse the set name (before the colon).
     tok = strtok(str, ":");
     if (tok == NULL) {
-        sprintf(invensource_error, "Line %d in [%s] is empty.\n", mes_file_entry->num, invensource_mes_file_name);
+        snprintf(invensource_error, sizeof(invensource_error),
+            "Line %d in [%s] is empty.\n",
+            mes_file_entry->num,
+            invensource_mes_file_name);
         show_error(invensource_error);
         return false;
     }
 
     // Validate the set name length.
     if (strlen(tok) >= MAX_INVEN_SOURCE_SET_NAME) {
-        sprintf(invensource_error,
+        snprintf(invensource_error, sizeof(invensource_error),
             "Line %d in [%s] has too long of a name.\n  Name length should be kept under %d characters.\n",
             mes_file_entry->num,
             invensource_mes_file_name,
@@ -313,7 +322,7 @@ bool parse_invensource_entry(MesFileEntry* mes_file_entry, char* str)
     while (tok != NULL) {
         // Check for item count exceeding maximum.
         if (cnt >= INVEN_SOURCE_SET_SIZE) {
-            sprintf(invensource_error,
+            snprintf(invensource_error, sizeof(invensource_error),
                 "Line %d in [%s] has too many items.\n  Item total should not exceed %d.\n",
                 mes_file_entry->num,
                 invensource_mes_file_name,
@@ -326,7 +335,7 @@ bool parse_invensource_entry(MesFileEntry* mes_file_entry, char* str)
 
         tok = strtok(NULL, " ");
         if (tok == NULL) {
-            sprintf(invensource_error,
+            snprintf(invensource_error, sizeof(invensource_error),
                 "Error: Line %d in [%s] has an incomplete rate,bp pair at entry %d.\n",
                 mes_file_entry->num,
                 invensource_mes_file_name,
@@ -345,7 +354,7 @@ bool parse_invensource_entry(MesFileEntry* mes_file_entry, char* str)
         } else {
             // Validate basic prototype.
             if (!proto_is_valid(basic_prototype)) {
-                sprintf(invensource_error,
+                snprintf(invensource_error, sizeof(invensource_error),
                     "Error: Invalid prototype in [%s]: set %d, entry %d, basic prototype %d\n",
                     invensource_mes_file_name,
                     mes_file_entry->num,
@@ -358,7 +367,7 @@ bool parse_invensource_entry(MesFileEntry* mes_file_entry, char* str)
             // Validate prototype object.
             obj = sub_4685A0(basic_prototype);
             if (!obj_handle_is_valid(obj)) {
-                sprintf(invensource_error,
+                snprintf(invensource_error, sizeof(invensource_error),
                     "Error: Can't get valid handle for prototype in [%s]: set %d, entry %d, basic prototype %d\n",
                     invensource_mes_file_name,
                     mes_file_entry->num,
@@ -395,7 +404,7 @@ bool parse_invensourcebuy_entry(MesFileEntry* mes_file_entry, char* str)
 
     // Check if the entry string exceeds maximum length.
     if (strlen(mes_file_entry->str) >= MAX_STRING) {
-        sprintf(invensource_error,
+        snprintf(invensource_error, sizeof(invensource_error),
             "Line %d in [%s] exceeds the maximum line length for message files.",
             mes_file_entry->num,
             invensourcebuy_mes_file_name);
@@ -430,7 +439,7 @@ bool parse_invensourcebuy_entry(MesFileEntry* mes_file_entry, char* str)
     while (tok != NULL) {
         // Check for item count exceeding maximum.
         if (cnt >= INVEN_SOURCE_SET_SIZE) {
-            sprintf(invensource_error,
+            snprintf(invensource_error, sizeof(invensource_error),
                 "Line %d in [%s] has too many items.\n  Item total should not exceed %d.\n",
                 mes_file_entry->num,
                 invensourcebuy_mes_file_name,
@@ -443,7 +452,7 @@ bool parse_invensourcebuy_entry(MesFileEntry* mes_file_entry, char* str)
 
         // Validate basic prototype.
         if (!proto_is_valid(basic_prototype)) {
-            sprintf(invensource_error,
+            snprintf(invensource_error, sizeof(invensource_error),
                 "Error: Invalid prototype in [%s]: set %d, entry %d, basic prototype %d\n",
                 invensourcebuy_mes_file_name,
                 mes_file_entry->num,
@@ -456,7 +465,7 @@ bool parse_invensourcebuy_entry(MesFileEntry* mes_file_entry, char* str)
         // Validate prototype object.
         obj = sub_4685A0(basic_prototype);
         if (!obj_handle_is_valid(obj)) {
-            sprintf(invensource_error,
+            snprintf(invensource_error, sizeof(invensource_error),
                 "Error: Can't get valid handle for prototype in [%s]: set %d, entry %d, basic prototype %d\n",
                 invensourcebuy_mes_file_name,
                 mes_file_entry->num,

@@ -829,7 +829,9 @@ bool auto_level_apply(int64_t obj, char* str)
         for (index = 0; index < auto_level_log_size; index++) {
             strcat(str, auto_level_log_strs[index]);
             if (auto_level_log_values[index] > 0) {
-                sprintf(&(str[strlen(str)]), " %d", auto_level_log_values[index]);
+                snprintf(&(str[strlen(str)]), sizeof(str) - strlen(str),
+                    " %d",
+                    auto_level_log_values[index]);
             } else if (auto_level_log_values[index] < 0) {
                 // Special case - negative value indicates a tech degree.
                 strcat(str, " ");

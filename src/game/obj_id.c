@@ -105,7 +105,7 @@ void objid_id_to_str(char* buffer, ObjectID oid)
     switch (oid.type) {
     case OID_TYPE_HANDLE:
         // FIX: Specifier.
-        sprintf(buffer, "Handle_%" PRIX64, oid.d.h);
+        snprintf(buffer, OID_STR_LEN, "Handle_%" PRIX64, oid.d.h);
         break;
     case OID_TYPE_BLOCKED:
         strcpy(buffer, "Blocked");
@@ -114,10 +114,11 @@ void objid_id_to_str(char* buffer, ObjectID oid)
         strcpy(buffer, "NULL");
         break;
     case OID_TYPE_A:
-        sprintf(buffer, "A_%08X", oid.d.a);
+        snprintf(buffer, OID_STR_LEN, "A_%08X", oid.d.a);
         break;
     case OID_TYPE_GUID:
-        sprintf(buffer, "G_%08X_%04X_%04X_%02X%02X_%02X%02X%02X%02X%02X%02X",
+        snprintf(buffer, OID_STR_LEN,
+            "G_%08X_%04X_%04X_%02X%02X_%02X%02X%02X%02X%02X%02X",
             (oid.d.g.data[0] << 24) | (oid.d.g.data[1] << 16) | (oid.d.g.data[2] << 8) | oid.d.g.data[3],
             (oid.d.g.data[4] << 8) | oid.d.g.data[5],
             (oid.d.g.data[6] << 8) | oid.d.g.data[7],
@@ -132,7 +133,8 @@ void objid_id_to_str(char* buffer, ObjectID oid)
         break;
     case OID_TYPE_P:
         // FIX: Specifier.
-        sprintf(buffer, "P_%08" PRIX64 "_%08" PRIX64 "_%08X_%08X",
+        snprintf(buffer, OID_STR_LEN,
+            "P_%08" PRIX64 "_%08" PRIX64 "_%08X_%08X",
             LOCATION_GET_X(oid.d.p.location),
             LOCATION_GET_Y(oid.d.p.location),
             oid.d.p.temp_id,

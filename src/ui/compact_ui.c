@@ -368,7 +368,7 @@ void compact_ui_health_bar_draw(int a1)
             &rect1,
             tig_color_make(0, 255, 0));
 
-        sprintf(str, "%02d", poison);
+        snprintf(str, sizeof(str), "%02d", poison);
         tig_font_push(mainmenu_ui_font(MM_FONT_FLARE12, MM_COLOR_WHITE));
         font_desc.width = 0;
         font_desc.str = str;
@@ -386,7 +386,7 @@ void compact_ui_health_bar_draw(int a1)
             tig_color_make(255, 0, 0));
     }
 
-    sprintf(str, "%02d", object_hp_current(pc_obj));
+    snprintf(str, sizeof(str), "%02d", object_hp_current(pc_obj));
     tig_font_push(mainmenu_ui_font(MM_FONT_FLARE12, MM_COLOR_WHITE));
     font_desc.width = 0;
     font_desc.str = str;
@@ -408,7 +408,7 @@ void compact_ui_health_bar_draw(int a1)
         &rect1,
         tig_color_make(0, 0, 255));
 
-    sprintf(str, "%02d", critter_fatigue_current(pc_obj));
+    snprintf(str, sizeof(str), "%02d", critter_fatigue_current(pc_obj));
     tig_font_push(mainmenu_ui_font(MM_FONT_FLARE12, MM_COLOR_WHITE));
     font_desc.width = 0;
     font_desc.str = str;

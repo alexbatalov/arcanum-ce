@@ -654,7 +654,7 @@ bool animfx_add(AnimFxNode* node)
                         char path[TIG_MAX_PATH];
 
                         sound_id = 8 - node->sound_id % dword_601738->step + node->sound_id;
-                        if (gsound_resolve_path(sound_id, path) == TIG_OK) {
+                        if (gsound_resolve_path(sound_id, path, sizeof(path)) == TIG_OK) {
                             node->sound_id = sound_id;
                         }
                     }
@@ -1122,7 +1122,7 @@ void animfx_build_eye_candy_effect(int index, char* str)
                         entry->sound = dword_601738->sound_effects[base_index] + base_sound;
 
                         char path[TIG_MAX_PATH];
-                        if (gsound_resolve_path(entry->sound, path) != TIG_OK) {
+                        if (gsound_resolve_path(entry->sound, path, sizeof(path)) != TIG_OK) {
                             entry->sound = -1;
                         }
                     }

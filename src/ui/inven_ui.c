@@ -2995,7 +2995,7 @@ void redraw_inven(bool a1)
             mes_file_entry2.num = 6;
             mes_get_msg(inven_ui_mes_file, &mes_file_entry2);
 
-            sprintf(byte_68241C,
+            snprintf(byte_68241C, sizeof(byte_68241C),
                 "%s: %d %s\n",
                 mes_file_entry1.str,
                 item_total_weight(qword_682C78),
@@ -3008,7 +3008,7 @@ void redraw_inven(bool a1)
             encumbrance_level = critter_encumbrance_level_get(qword_682C78);
             carry_weight = stat_level_get(qword_682C78, STAT_CARRY_WEIGHT);
 
-            sprintf(&(byte_68241C[pos]),
+            snprintf(&(byte_68241C[pos]), sizeof(byte_68241C) - pos,
                 "%s: %s (%d)\n",
                 mes_file_entry1.str,
                 critter_encumbrance_level_name(encumbrance_level),
@@ -3148,7 +3148,7 @@ void redraw_inven(bool a1)
         mes_file_entry2.num = 6;
         mes_get_msg(inven_ui_mes_file, &mes_file_entry2);
 
-        sprintf(str,
+        snprintf(str, sizeof(str),
             "%s: %d %s",
             mes_file_entry1.str,
             item_total_weight(inven_ui_pc_obj),
@@ -3161,7 +3161,7 @@ void redraw_inven(bool a1)
         encumbrance_level = critter_encumbrance_level_get(inven_ui_pc_obj);
         carry_weight = stat_level_get(inven_ui_pc_obj, STAT_CARRY_WEIGHT);
 
-        sprintf(str,
+        snprintf(str, sizeof(str),
             "%s: %s (%d)",
             mes_file_entry1.str,
             critter_encumbrance_level_name(encumbrance_level),
@@ -3171,7 +3171,7 @@ void redraw_inven(bool a1)
         mes_file_entry1.num = 11;
         mes_get_msg(inven_ui_mes_file, &mes_file_entry1);
 
-        sprintf(str,
+        snprintf(str, sizeof(str),
             "%s: %d",
             mes_file_entry1.str,
             stat_level_get(inven_ui_pc_obj, STAT_SPEED));
@@ -3196,7 +3196,7 @@ void redraw_inven(bool a1)
     if (text_rects != NULL) {
         tig_font_push(dword_681390);
 
-        sprintf(str, "%d", item_total_attack(inven_ui_pc_obj));
+        snprintf(str, sizeof(str), "%d", item_total_attack(inven_ui_pc_obj));
 
         font_desc.str = str;
         font_desc.width = 0;
@@ -3208,7 +3208,7 @@ void redraw_inven(bool a1)
         src_rect.height = text_rects[0].height;
         tig_window_text_write(inven_ui_window_handle, str, &src_rect);
 
-        sprintf(str, "%d", item_total_defence(inven_ui_pc_obj));
+        snprintf(str, sizeof(str), "%d", item_total_defence(inven_ui_pc_obj));
         tig_window_text_write(inven_ui_window_handle, str, &(text_rects[1]));
 
         tig_font_pop();
@@ -3230,7 +3230,7 @@ void redraw_inven(bool a1)
         src_rect.width = 58;
         src_rect.height = 20;
 
-        sprintf(str, "%d", value);
+        snprintf(str, sizeof(str), "%d", value);
         tig_window_text_write(inven_ui_window_handle, str, &src_rect);
     }
     tig_font_pop();
@@ -3406,7 +3406,7 @@ void redraw_inven(bool a1)
                         mes_file_entry1.num = 8;
                         mes_get_msg(inven_ui_mes_file, &mes_file_entry1);
 
-                        sprintf(str, "%s: %d", mes_file_entry1.str, weapon_min_str);
+                        snprintf(str, sizeof(str), "%s: %d", mes_file_entry1.str, weapon_min_str);
                         tig_font_push(dword_682C74);
                         font_desc.str = str;
                         font_desc.width = 0;
@@ -3555,7 +3555,7 @@ void redraw_inven(bool a1)
             tig_window_blit_art(inven_ui_window_handle, &art_blit_info);
 
             tig_font_push(dword_682C74);
-            sprintf(str, "%d", item_total_attack(qword_682C78));
+            snprintf(str, sizeof(str), "%d", item_total_attack(qword_682C78));
             font_desc.str = str;
             font_desc.width = 0;
             tig_font_measure(&font_desc);
@@ -3564,7 +3564,7 @@ void redraw_inven(bool a1)
             src_rect.width = inven_ui_barter_npc_total_stat_rects[INVEN_UI_TOTAL_ATTACK].width;
             src_rect.height = inven_ui_barter_npc_total_stat_rects[INVEN_UI_TOTAL_ATTACK].height;
             tig_window_text_write(inven_ui_window_handle, str, &src_rect);
-            sprintf(str, "%d", item_total_defence(qword_682C78));
+            snprintf(str, sizeof(str), "%d", item_total_defence(qword_682C78));
             tig_window_text_write(inven_ui_window_handle, str, &(inven_ui_barter_npc_total_stat_rects[INVEN_UI_TOTAL_DEFENSE]));
             tig_font_pop();
         } else {
@@ -3658,7 +3658,7 @@ void redraw_inven(bool a1)
                         if (weapon_too_heavy) {
                             mes_file_entry1.num = 8;
                             mes_get_msg(inven_ui_mes_file, &mes_file_entry1);
-                            sprintf(str, "%s: %d", mes_file_entry1.str, weapon_min_str);
+                            snprintf(str, sizeof(str), "%s: %d", mes_file_entry1.str, weapon_min_str);
                             tig_font_push(dword_682C74);
                             font_desc.str = str;
                             font_desc.width = 0;
@@ -3814,10 +3814,15 @@ void sub_578330(int64_t a1, int64_t a2)
 
             if (dword_681440 > gold) {
                 dialog_copy_npc_buy_for_less_msg(qword_682C78, inven_ui_pc_obj, byte_682804);
-                sprintf(&(byte_68241C[pos]), byte_682804, dword_681440, gold);
+                snprintf(&(byte_68241C[pos]), sizeof(byte_68241C) - pos,
+                    byte_682804,
+                    dword_681440,
+                    gold);
             } else {
                 dialog_copy_npc_buy_msg(qword_682C78, inven_ui_pc_obj, byte_682804);
-                sprintf(&(byte_68241C[pos]), byte_682804, dword_681440);
+                snprintf(&(byte_68241C[pos]), sizeof(byte_68241C) - pos,
+                    byte_682804,
+                    dword_681440);
             }
         } else {
             if ((obj_field_int32_get(a1, OBJ_F_ITEM_FLAGS) & OIF_STOLEN) == 0) {
@@ -3838,7 +3843,9 @@ void sub_578330(int64_t a1, int64_t a2)
             }
 
             dialog_copy_npc_sell_msg(qword_682C78, inven_ui_pc_obj, byte_682804);
-            sprintf(&(byte_68241C[pos]), byte_682804, dword_681440);
+            snprintf(&(byte_68241C[pos]), sizeof(byte_68241C) - pos,
+                byte_682804,
+                dword_681440);
 
             if (basic_skill_training_get(inven_ui_pc_obj, BASIC_SKILL_HAGGLE) >= TRAINING_APPRENTICE) {
                 int worth;
@@ -3850,7 +3857,7 @@ void sub_578330(int64_t a1, int64_t a2)
                     discount = 1;
                 }
 
-                sprintf(byte_682804, "(%d%%)", discount);
+                snprintf(byte_682804, sizeof(byte_682804), "(%d%%)", discount);
                 strcat(byte_68241C, byte_682804);
             }
         } else {
@@ -3869,7 +3876,7 @@ void sub_5786C0(int64_t obj)
     } else {
         dword_681440 = spell_money(SPELL_DIVINE_MAGICK);
         dialog_copy_npc_identify_msg(qword_682C78, inven_ui_pc_obj, byte_682804);
-        sprintf(byte_68241C, byte_682804, dword_681440);
+        snprintf(byte_68241C, sizeof(byte_68241C), byte_682804, dword_681440);
     }
     redraw_inven(false);
 }
@@ -3902,7 +3909,7 @@ void sub_578760(int64_t obj)
         }
 
         dialog_copy_npc_repair_msg(qword_682C78, inven_ui_pc_obj, byte_682804);
-        sprintf(byte_68241C, byte_682804, dword_681440);
+        snprintf(byte_68241C, sizeof(byte_68241C), byte_682804, dword_681440);
         redraw_inven(false);
     } else {
         dialog_copy_npc_wont_repair_undamaged_msg(qword_682C78, inven_ui_pc_obj, byte_68241C);
@@ -4142,7 +4149,7 @@ bool sub_578EA0(Packet81* pkt)
         gold_amt = qty * item_cost(v2, v4, v6, false);
         if (gold_amt > item_gold_get(v6)) {
             dialog_copy_npc_gamble_msg(v4, v6, 4, byte_682804);
-            sprintf(byte_68241C, byte_682804, gold_amt);
+            snprintf(byte_68241C, sizeof(byte_68241C), byte_682804, gold_amt);
             return true;
         }
     }
@@ -4342,7 +4349,7 @@ bool sub_578EA0(Packet81* pkt)
         sub_4C11D0(v4, v6, -worth);
     } else if ((flags & 0x10) != 0) {
         dialog_copy_npc_gamble_msg(v4, v6, 1, byte_682804);
-        sprintf(byte_68241C, byte_682804, gold_amt);
+        snprintf(byte_68241C, sizeof(byte_68241C), byte_682804, gold_amt);
     }
 
     return true;
@@ -4409,7 +4416,7 @@ bool sub_579840(int64_t obj, bool a2)
     if (v1 > item_gold_get(inven_ui_pc_obj)) {
         if (!a2) {
             dialog_copy_npc_gamble_msg(qword_682C78, inven_ui_pc_obj, 4, byte_682804);
-            sprintf(byte_68241C, byte_682804, v1);
+            snprintf(byte_68241C, sizeof(byte_68241C), byte_682804, v1);
         }
         return false;
     }
@@ -4447,7 +4454,9 @@ bool sub_579840(int64_t obj, bool a2)
         }
 
         dialog_copy_npc_gamble_msg(qword_682C78, inven_ui_pc_obj, 8, byte_682804);
-        sprintf(&(byte_68241C[pos]), byte_682804, v1);
+        snprintf(&(byte_68241C[pos]), sizeof(byte_68241C) - pos,
+            byte_682804,
+            v1);
     }
 
     return true;

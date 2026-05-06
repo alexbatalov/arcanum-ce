@@ -14,7 +14,7 @@ void reputation_exit(void);
 bool reputation_mod_load(void);
 void reputation_mod_unload(void);
 int reputation_reaction_adj(int64_t pc_obj, int64_t npc_obj);
-void reputation_name(int reputation, char* buffer);
+void reputation_name(int reputation, char* buffer, size_t maxlen);
 int reputation_get_logbook_data(int64_t pc_obj, ReputationLogbookEntry* logbook_entries);
 bool reputation_has(int64_t pc_obj, int reputation);
 void reputation_add(int64_t pc_obj, int reputation);

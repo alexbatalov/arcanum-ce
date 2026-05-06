@@ -836,7 +836,7 @@ bool sector_map_name_set(const char* base_path, const char* save_path)
 bool sector_exists(uint64_t id)
 {
     char path[TIG_MAX_PATH];
-    sprintf(path, "%s\\%" PRIu64 ".sec", sector_base_path, id);
+    snprintf(path, sizeof(path), "%s\\%" PRIu64 ".sec", sector_base_path, id);
     return tig_file_exists(path, NULL);
 }
 
@@ -1801,14 +1801,14 @@ bool sector_save_editor_internal(Sector* sector, const char* base_path)
 
     if (sector_write_lock_func != NULL) {
         compat_splitpath(base_path, NULL, NULL, fname, NULL);
-        sprintf(path, "%s_sec.loc", fname);
+        snprintf(path, sizeof(path), "%s_sec.loc", fname);
         if (!sector_write_lock_func(path)) {
             tig_debug_println("Trying to save a sector that we don't have write locked.");
             return false;
         }
     }
 
-    sprintf(path, "%s.sec", base_path);
+    snprintf(path, sizeof(path), "%s.sec", base_path);
 
     stream = tig_file_fopen(path, "wb");
     if (stream == NULL) {
@@ -2164,7 +2164,7 @@ void sector_load_demo_limits(void)
 
     // Sector with coordinates (2000,2000) + 1 is a special file which defines
     // demo limits.
-    sprintf(buffer, "%s\\134217730001.sec", sector_base_path);
+    snprintf(buffer, sizeof(buffer), "%s\\134217730001.sec", sector_base_path);
     if (!tig_file_exists(buffer, NULL)) {
         return;
     }
@@ -2293,7 +2293,7 @@ bool sector_block_save_internal(void)
 
     if (sector_blocked_sectors_changed) {
         if (sector_blocked_sectors_cnt != 0) {
-            sprintf(path, "%s\\map.sbf", sector_save_path);
+            snprintf(path, sizeof(path), "%s\\map.sbf", sector_save_path);
 
             stream = tig_file_fopen(path, "wb");
             if (stream == NULL) {
@@ -2312,7 +2312,7 @@ bool sector_block_save_internal(void)
 
             tig_file_fclose(stream);
         } else {
-            sprintf(path, "%s\\null.sbf", sector_save_path);
+            snprintf(path, sizeof(path), "%s\\null.sbf", sector_save_path);
 
             stream = tig_file_fopen(path, "wb");
             if (stream == NULL) {
@@ -2335,10 +2335,10 @@ bool sector_block_load_internal(const char* base_map_name, const char* current_m
     char path[TIG_MAX_PATH];
     TigFile* stream;
 
-    sprintf(path, "%s\\map.sbf", current_map_name);
+    snprintf(path, sizeof(path), "%s\\map.sbf", current_map_name);
 
     if (!tig_file_exists(path, NULL)) {
-        sprintf(path, "%s\\map.sbf", base_map_name);
+        snprintf(path, sizeof(path), "%s\\map.sbf", base_map_name);
         if (!tig_file_exists(path, NULL)) {
             return false;
         }

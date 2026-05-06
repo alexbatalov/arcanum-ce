@@ -429,7 +429,7 @@ int tig_sound_play_id(tig_sound_handle_t sound_handle, int id)
         return TIG_OK;
     }
 
-    tig_sound_file_path_resolver(id, path);
+    tig_sound_file_path_resolver(id, path, sizeof(path));
 
     return tig_sound_play(sound_handle, path, id);
 }

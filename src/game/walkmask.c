@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 
-static void walkmask_build_path(int facade, char* buffer);
+static void walkmask_build_path(int facade, char* buffer, size_t maxlen);
 static bool walkmask_read_hdr(TigFile* stream, int* cnt, int* width, int* height, int* tile, int* outdoor, int* flippable);
 static bool walkmask_read_signature(TigFile* stream);
 static tig_art_id_t* walkmask_allocate(int width, int height);
@@ -39,7 +39,7 @@ bool walkmask_load(int facade, tig_art_id_t** ids_ptr, int* width_ptr, int* heig
     int outdoor;
     int flippable;
 
-    walkmask_build_path(facade, path);
+    walkmask_build_path(facade, path, sizeof(path));
 
     stream = tig_file_fopen(path, "rb");
     if (stream == NULL) {
@@ -75,10 +75,10 @@ bool walkmask_load(int facade, tig_art_id_t** ids_ptr, int* width_ptr, int* heig
  *
  * 0x4F6E60
  */
-void walkmask_build_path(int facade, char* buffer)
+void walkmask_build_path(int facade, char* buffer, size_t maxlen)
 {
     if (facade >= 0 && facade < 512) {
-        sprintf(buffer, "art\\Facade\\facwalk.%02X", facade);
+        snprintf(buffer, maxlen, "art\\Facade\\facwalk.%02X", facade);
     } else {
         buffer[0] = '\0';
     }

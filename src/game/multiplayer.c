@@ -761,15 +761,15 @@ bool sub_49CC70(const char* a1, const char* a2)
         location_origin_set(obj_field_int64_get(player_create_info.obj, OBJ_F_LOCATION));
 
         objid_id_to_str(pc_file_base_name, obj_get_id(player_create_info.obj));
-        sprintf(dst, "%s\\Players", ".\\data\\temp");
+        snprintf(dst, sizeof(dst), "%s\\Players", ".\\data\\temp");
         if (!tig_file_is_directory(dst)) {
             tig_file_mkdir(dst);
         }
 
         for (idx = 0; idx < 3; idx++) {
-            sprintf(path, "%s%s", pc_file_base_name, suffixes[idx]);
-            sprintf(src, "Players\\%s", path);
-            sprintf(dst, "%s\\Players\\%s", ".\\data\\temp", path);
+            snprintf(path, sizeof(path), "%s%s", pc_file_base_name, suffixes[idx]);
+            snprintf(src, sizeof(src), "Players\\%s", path);
+            snprintf(dst, sizeof(dst), "%s\\Players\\%s", ".\\data\\temp", path);
             tig_file_copy(src, dst);
         }
     }
@@ -936,7 +936,7 @@ bool multiplayer_map_open_by_name(const char* name)
     char path[TIG_MAX_PATH];
     char save_path[TIG_MAX_PATH];
 
-    sprintf(path, ".\\%s.dat", name);
+    snprintf(path, sizeof(path), ".\\%s.dat", name);
     if (tig_file_exists(path, NULL)) {
         tig_file_repository_add(path);
     }
@@ -949,8 +949,8 @@ bool multiplayer_map_open_by_name(const char* name)
         tig_message_post_quit(0);
     }
 
-    sprintf(path, "maps\\%s", name);
-    sprintf(save_path, "%s\\maps\\%s", "Save\\Current", name);
+    snprintf(path, sizeof(path), "maps\\%s", name);
+    snprintf(save_path, sizeof(save_path), "%s\\maps\\%s", "Save\\Current", name);
     tig_debug_printf("MP: Loading Map: %s\n", path);
     if (!map_open(path, save_path, 1)) {
         return false;
@@ -1415,7 +1415,7 @@ void sub_4A33F0(int a1, int a2)
     sub_52A950();
 
     map_get_name(map_current_map(), &map_name);
-    sprintf(path, "save\\current\\maps\\%s\\xferdata.mp", map_name);
+    snprintf(path, sizeof(path), "save\\current\\maps\\%s\\xferdata.mp", map_name);
 
     stream = tig_file_fopen(path, "wb");
     if (stream != NULL) {
@@ -1426,14 +1426,22 @@ void sub_4A33F0(int a1, int a2)
         }
         tig_file_fclose(stream);
 
-        sprintf(path, "%s\\maps\\%s\\*.*", "Save\\Current", map_name);
+        snprintf(path, sizeof(path), "%s\\maps\\%s\\*.*", "Save\\Current", map_name);
         tig_file_list_create(&file_list, path);
 
         for (file_idx = 0; file_idx < file_list.count; file_idx++) {
             if (strcmp(file_list.entries[file_idx].path, ".") != 0
                 && strcmp(file_list.entries[file_idx].path, "..") != 0) {
-                sprintf(src_path, "%s\\maps\\%s\\%s", "Save\\Current", map_name, file_list.entries[file_idx].path);
-                sprintf(dst_path, "%s\\maps\\%s\\%s", ".\\data\\temp", map_name, file_list.entries[file_idx].path);
+                snprintf(src_path, sizeof(src_path),
+                    "%s\\maps\\%s\\%s",
+                    "Save\\Current",
+                    map_name,
+                    file_list.entries[file_idx].path);
+                snprintf(dst_path, sizeof(dst_path),
+                    "%s\\maps\\%s\\%s",
+                    ".\\data\\temp",
+                    map_name,
+                    file_list.entries[file_idx].path);
                 tig_net_xfer_send_as(src_path, dst_path, a1, NULL);
             }
         }
@@ -1458,13 +1466,16 @@ void sub_4A3660(int player)
     TigFileList file_list;
     unsigned int index;
 
-    sprintf(pattern, "%s\\Players\\*.*", ".\\data\\temp");
+    snprintf(pattern, sizeof(pattern), "%s\\Players\\*.*", ".\\data\\temp");
     tig_file_list_create(&file_list, pattern);
 
     for (index = 0; index < file_list.count; index++) {
         if (strcmp(file_list.entries[index].path, ".") != 0
             && strcmp(file_list.entries[index].path, "..") != 0) {
-            sprintf(path, "%s\\Players\\%s", ".\\data\\temp", file_list.entries[index].path);
+            snprintf(path, sizeof(path),
+                "%s\\Players\\%s",
+                ".\\data\\temp",
+                file_list.entries[index].path);
             tig_net_xfer_send(path, player, NULL);
         }
     }
@@ -1491,13 +1502,13 @@ void sub_4A3780(void)
     objid_id_to_str(prefix, stru_5E8AD0[player].field_8);
 
     for (index = 0; index < sizeof(exts) / sizeof(exts[0]); index++) {
-        sprintf(name, "%s%s", prefix, exts[index]);
-        sprintf(src, "Players\\%s", name);
-        sprintf(dst, "%s\\Players", ".\\data\\temp");
+        snprintf(name, sizeof(name), "%s%s", prefix, exts[index]);
+        snprintf(src, sizeof(src), "Players\\%s", name);
+        snprintf(dst, sizeof(dst), "%s\\Players", ".\\data\\temp");
         if (!tig_file_is_directory(dst)) {
             tig_file_mkdir(dst);
         }
-        sprintf(dst, "%s\\Players\\%s", ".\\data\\temp", name);
+        snprintf(dst, sizeof(dst), "%s\\Players\\%s", ".\\data\\temp", name);
         tig_file_copy(src, dst);
         tig_net_xfer_send_as(dst, dst, 0, NULL);
     }
@@ -1608,13 +1619,13 @@ bool save_char(const char* path, int64_t obj)
 
     objid_id_to_str(oidstr, obj_get_id(obj));
 
-    portrait_path(portrait_get(obj), src_path, 32);
+    portrait_path(portrait_get(obj), src_path, sizeof(src_path), 32);
     if (src_path[0] != '\0') {
         snprintf(dst_path, sizeof(dst_path), "Players\\%s.bmp", oidstr);
         tig_file_copy(src_path, dst_path);
     }
 
-    portrait_path(portrait_get(obj), src_path, 128);
+    portrait_path(portrait_get(obj), src_path, sizeof(src_path), 128);
     if (src_path[0] != '\0') {
         snprintf(dst_path, sizeof(dst_path), "Players\\%s_b.bmp", oidstr);
         tig_file_copy(src_path, dst_path);

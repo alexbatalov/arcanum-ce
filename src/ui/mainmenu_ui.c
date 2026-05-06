@@ -2568,7 +2568,7 @@ void mainmenu_ui_load_game_refresh(TigRect* rect)
 
                         mes_file_entry.num = 5051; // "Level %d"
                         mes_get_msg(mainmenu_ui_mainmenu_mes_file, &mes_file_entry);
-                        sprintf(str, mes_file_entry.str, mainmenu_ui_gsi.pc_level);
+                        snprintf(str, sizeof(str), mes_file_entry.str, mainmenu_ui_gsi.pc_level);
                         sub_542DF0(str, &stru_5C4720, font);
 
                         sub_542DF0(mainmenu_ui_gsi.description, &stru_5C4730, font);
@@ -2589,10 +2589,10 @@ void mainmenu_ui_load_game_refresh(TigRect* rect)
 
                         sub_542DF0(area_name, &stru_5C46F0, font);
 
-                        datetime_format_date(&(mainmenu_ui_gsi.datetime), str);
+                        datetime_format_date(&(mainmenu_ui_gsi.datetime), str, sizeof(str));
                         sub_542EA0(str, &stru_5C4710, font);
 
-                        datetime_format_time(&(mainmenu_ui_gsi.datetime), str);
+                        datetime_format_time(&(mainmenu_ui_gsi.datetime), str, sizeof(str));
                         sub_542EA0(str, &stru_5C4700, font);
 
                         story_state_desc = script_story_state_info(mainmenu_ui_gsi.story_state);
@@ -3055,7 +3055,7 @@ bool mainmenu_ui_save_game_execute(int btn)
                     }
 
                     strcpy(fname, mainmenu_ui_gsl.names[0]);
-                    sprintf(&(fname[4]), "%04d", num);
+                    snprintf(&(fname[4]), sizeof(fname) - 4, "%04d", num);
                     name = fname;
                 } else {
                     name = "Slot0000";
@@ -3070,7 +3070,7 @@ bool mainmenu_ui_save_game_execute(int btn)
                     }
 
                     strcpy(fname, mainmenu_ui_gsl.names[0]);
-                    sprintf(&(fname[4]), "%04d", num);
+                    snprintf(&(fname[4]), sizeof(fname) - 4, "%04d", num);
                     name = fname;
                 } else {
                     name = "Slot0000";
@@ -3317,7 +3317,7 @@ void mainmenu_ui_save_game_refresh(TigRect* rect)
 
                     mes_file_entry.num = 5051; // "Level %d"
                     mes_get_msg(mainmenu_ui_mainmenu_mes_file, &mes_file_entry);
-                    sprintf(str, mes_file_entry.str, mainmenu_ui_gsi.pc_level);
+                    snprintf(str, sizeof(str), mes_file_entry.str, mainmenu_ui_gsi.pc_level);
                     sub_542DF0(str, &stru_5C4720, font);
 
                     sub_542DF0(mainmenu_ui_gsi.description, &stru_5C4730, font);
@@ -3338,10 +3338,10 @@ void mainmenu_ui_save_game_refresh(TigRect* rect)
 
                     sub_542DF0(area_name, &stru_5C46F0, font);
 
-                    datetime_format_date(&(mainmenu_ui_gsi.datetime), str);
+                    datetime_format_date(&(mainmenu_ui_gsi.datetime), str, sizeof(str));
                     sub_542EA0(str, &stru_5C4710, font);
 
-                    datetime_format_time(&(mainmenu_ui_gsi.datetime), str);
+                    datetime_format_time(&(mainmenu_ui_gsi.datetime), str, sizeof(str));
                     sub_542EA0(str, &stru_5C4700, font);
 
                     story_state_desc = script_story_state_info(mainmenu_ui_gsi.story_state);
@@ -3859,7 +3859,7 @@ void mmUISharedCharRefreshFunc(int64_t obj, TigRect* rect)
         tig_font_push(font);
         for (index = 0; index < 15; index++) {
             if (tig_window_fill(mainmenu_ui_window_handle, &(stru_5C4F50[index]), tig_color_make(0, 0, 0)) == TIG_OK) {
-                sprintf(str,
+                snprintf(str, sizeof(str),
                     "%s: %d",
                     stat_short_name(dword_5C5130[index]),
                     stat_level_get(obj, dword_5C5130[index]));
@@ -5211,7 +5211,7 @@ bool mainmenu_ui_message_filter(TigMessage* msg)
                 description_mes_file_entry.num = v2;
                 mes_get_msg(mainmenu_ui_mainmenu_mes_file, &description_mes_file_entry);
 
-                sprintf(str, "%s\n%s", mes_file_entry.str, description_mes_file_entry.str);
+                snprintf(str, sizeof(str), "%s\n%s", mes_file_entry.str, description_mes_file_entry.str);
 
                 ui_message.type = UI_MSG_TYPE_FEEDBACK;
                 ui_message.str = str;

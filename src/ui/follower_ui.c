@@ -710,7 +710,7 @@ bool follower_ui_message_filter(TigMessage* msg)
                             mes_file_entry.num = index;
                             if (mes_search(follower_ui_mes_file, &mes_file_entry)) {
                                 object_examine(follower_ui_subordinate_obj, follower_ui_commander_obj, str);
-                                sprintf(bcast.str, "%s %s", str, mes_file_entry.str);
+                                snprintf(bcast.str, sizeof(bcast.str), "%s %s", str, mes_file_entry.str);
                                 broadcast_msg(follower_ui_commander_obj, &bcast);
                             }
                             break;
@@ -961,7 +961,7 @@ void follower_ui_execute_order(TargetDescriptor* td)
         mes_file_entry.num = num;
         if (mes_search(follower_ui_mes_file, &mes_file_entry)) {
             object_examine(follower_ui_subordinate_obj, follower_ui_commander_obj, str);
-            sprintf(bcast.str, "%s %s", str, mes_file_entry.str);
+            snprintf(bcast.str, sizeof(bcast.str), "%s %s", str, mes_file_entry.str);
             broadcast_msg(follower_ui_commander_obj, &bcast);
         }
     }

@@ -295,7 +295,7 @@ bool townmap_info(int map, TownMapInfo* tmi)
         return false;
     }
 
-    sprintf(path, "townmap\\%s\\%s.tmi", name, name);
+    snprintf(path, sizeof(path), "townmap\\%s\\%s.tmi", name, name);
 
     // Open the ".tmi" file for reading.
     stream = tig_file_fopen(path, "rb");
@@ -653,7 +653,7 @@ bool townmap_tile_known_get(int map, int index)
 
     // Verify that the bitmap for this tile actually exist.
     name = townmap_name(map);
-    sprintf(path, "townmap\\%s\\%s%06d.bmp", name, name, index);
+    snprintf(path, sizeof(path), "townmap\\%s\\%s%06d.bmp", name, name, index);
     if (!tig_file_exists(path, NULL)) {
         return false;
     }
@@ -682,7 +682,7 @@ bool townmap_kstate_load(int map)
     // Initialize k-state for the new map.
     townmap_kstate_init(map);
 
-    sprintf(path, "%s\\%s.tmf", "Save\\Current", townmap_name(townmap_kstate_map));
+    snprintf(path, sizeof(path), "%s\\%s.tmf", "Save\\Current", townmap_name(townmap_kstate_map));
     if (!tig_file_exists(path, NULL)) {
         // File not exists, initialize as unknown.
         townmap_set_known_internal(map, false);
@@ -740,7 +740,7 @@ bool townmap_kstate_flush(void)
     TigFile* stream;
 
     if (townmap_kstate_modified) {
-        sprintf(path, "%s\\%s.tmf", "Save\\Current", townmap_name(townmap_kstate_map));
+        snprintf(path, sizeof(path), "%s\\%s.tmf", "Save\\Current", townmap_name(townmap_kstate_map));
         stream = tig_file_fopen(path, "wb");
         if (stream == NULL) {
             return false;

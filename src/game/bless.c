@@ -11,7 +11,7 @@
 #define BLESS_F_EFFECT 1
 #define BLESS_F_DESCRIPTION 2
 
-static void bless_copy_field(int bless, int field, char* buffer);
+static void bless_copy_field(int bless, int field, char* buffer, size_t maxlen);
 
 /**
  * "gamebless.mes"
@@ -47,9 +47,9 @@ void bless_mod_unload(void)
  *
  * 0x4C4150
  */
-void bless_copy_name(int bless, char* buffer)
+void bless_copy_name(int bless, char* buffer, size_t maxlen)
 {
-    bless_copy_field(bless, BLESS_F_NAME, buffer);
+    bless_copy_field(bless, BLESS_F_NAME, buffer, maxlen);
 }
 
 /**
@@ -58,7 +58,7 @@ void bless_copy_name(int bless, char* buffer)
  *
  * 0x4C4170
  */
-void bless_copy_field(int bless, int field, char* buffer)
+void bless_copy_field(int bless, int field, char* buffer, size_t maxlen)
 {
     MesFileEntry mes_file_entry;
 
@@ -75,7 +75,7 @@ void bless_copy_field(int bless, int field, char* buffer)
     // Blessings data comes in a banks of 10.
     mes_file_entry.num = bless * 10 + field;
     if (mes_search(bless_mes_file, &mes_file_entry)) {
-        strcpy(buffer, mes_file_entry.str);
+        strlcpy(buffer, mes_file_entry.str, maxlen);
     }
 }
 
@@ -84,9 +84,9 @@ void bless_copy_field(int bless, int field, char* buffer)
  *
  * 0x4C41E0
  */
-void bless_copy_description(int bless, char* buffer)
+void bless_copy_description(int bless, char* buffer, size_t maxlen)
 {
-    bless_copy_field(bless, BLESS_F_DESCRIPTION, buffer);
+    bless_copy_field(bless, BLESS_F_DESCRIPTION, buffer, maxlen);
 }
 
 /**
@@ -194,7 +194,7 @@ void bless_add(int64_t obj, int bless)
 int bless_get_effect(int bless)
 {
     char buffer[80];
-    bless_copy_field(bless, BLESS_F_EFFECT, buffer);
+    bless_copy_field(bless, BLESS_F_EFFECT, buffer, sizeof(buffer));
     return atoi(buffer);
 }
 

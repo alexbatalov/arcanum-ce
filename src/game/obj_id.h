@@ -3,6 +3,8 @@
 
 #include "game/context.h"
 
+#define OID_STR_LEN 40
+
 typedef struct ObjectID_P {
     int64_t location;
     int temp_id;

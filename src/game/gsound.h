@@ -3,7 +3,7 @@
 
 #include "game/context.h"
 
-int gsound_resolve_path(int sound_id, char* path);
+int gsound_resolve_path(int sound_id, char* path, size_t maxlen);
 bool gsound_init(GameInitInfo* init_info);
 void gsound_exit(void);
 void gsound_reset(void);

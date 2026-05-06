@@ -156,7 +156,8 @@ void mes_get_msg(mes_file_handle_t mes_file_handle, MesFileEntry* mes_file_entry
 
     // Set an error message if not found.
     if (found == NULL) {
-        sprintf(mes_tmp_str, "Error! Missing line %d in %s",
+        snprintf(mes_tmp_str, sizeof(mes_tmp_str),
+            "Error! Missing line %d in %s",
             mes_file_entry->num,
             mes_files[mes_file_handle].path);
         mes_file_entry->str = mes_tmp_str;

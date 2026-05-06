@@ -555,13 +555,13 @@ int quest_global_state_set(int num, int state)
  *
  * 0x4C5250
  */
-void quest_copy_description(int64_t obj, int num, char* buffer)
+void quest_copy_description(int64_t obj, int num, char* buffer, size_t maxlen)
 {
     if (quests[quest_num_to_idx(num)].dumb_description != NULL
         && stat_level_get(obj, STAT_INTELLIGENCE) <= LOW_INTELLIGENCE) {
-        strcpy(buffer, quests[quest_num_to_idx(num)].dumb_description);
+        strlcpy(buffer, quests[quest_num_to_idx(num)].dumb_description, maxlen);
     } else if (quests[quest_num_to_idx(num)].normal_description != NULL) {
-        strcpy(buffer, quests[quest_num_to_idx(num)].normal_description);
+        strlcpy(buffer, quests[quest_num_to_idx(num)].normal_description, maxlen);
     }
 }
 

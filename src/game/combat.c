@@ -1779,7 +1779,7 @@ void combat_dmg(CombatContext* combat)
 
         mes_file_entry.num = 1; // "HT"
         mes_get_msg(combat_mes_file, &mes_file_entry);
-        sprintf(str, "%s %d", mes_file_entry.str, dam);
+        snprintf(str, sizeof(str), "%s %d", mes_file_entry.str, dam);
 
         combat->total_dam = dam;
 
@@ -1803,7 +1803,7 @@ void combat_dmg(CombatContext* combat)
                 mes_file_entry.num = 10;
                 mes_get_msg(combat_mes_file, &mes_file_entry);
 
-                sprintf(&(str[strlen(str)]),
+                snprintf(&(str[strlen(str)]), sizeof(str) - strlen(str),
                     " %d %s",
                     combat->dam[DAMAGE_TYPE_FATIGUE],
                     mes_file_entry.str);
@@ -1826,7 +1826,10 @@ void combat_dmg(CombatContext* combat)
         if (combat->dam[DAMAGE_TYPE_POISON] > 0 && tf_level_get() == TF_LEVEL_VERBOSE) {
             mes_file_entry.num = 0;
             mes_get_msg(combat_mes_file, &mes_file_entry);
-            sprintf(str, "%s %+d", mes_file_entry.str, combat->dam[DAMAGE_TYPE_POISON]);
+            snprintf(str, sizeof(str),
+                "%s %+d",
+                mes_file_entry.str,
+                combat->dam[DAMAGE_TYPE_POISON]);
             tf_add(combat->target_obj, TF_TYPE_GREEN, str);
         }
 
@@ -1914,7 +1917,7 @@ void combat_dmg(CombatContext* combat)
             mes_file_entry.num = 1; // "HT"
             mes_get_msg(combat_mes_file, &mes_file_entry);
 
-            sprintf(str, "%s %d", mes_file_entry.str, dam);
+            snprintf(str, sizeof(str), "%s %d", mes_file_entry.str, dam);
             tf_add(combat->target_obj, TF_TYPE_WHITE, str);
         }
 
@@ -2059,7 +2062,7 @@ void combat_apply_weapon_wear(CombatContext* combat)
             if (tf_level_get() == TF_LEVEL_VERBOSE) {
                 mes_file_entry.num = 1; // "HT"
                 mes_get_msg(combat_mes_file, &mes_file_entry);
-                sprintf(str, "%d %s", dam, mes_file_entry.str);
+                snprintf(str, sizeof(str), "%d %s", dam, mes_file_entry.str);
             }
 
             // Apply damage to the target.

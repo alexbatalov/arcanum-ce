@@ -1018,7 +1018,7 @@ void magictech_break_nodes_to_map(const char* map)
     int idx;
     MagicTechObjectNode* node;
 
-    sprintf(path, "save\\current\\maps\\%s\\MT.dat", map);
+    snprintf(path, sizeof(path), "save\\current\\maps\\%s\\MT.dat", map);
 
     if (tig_file_exists(path, NULL)) {
         append = true;
@@ -1142,7 +1142,7 @@ void magictech_save_nodes_to_map(const char* map)
     int cnt;
     int idx;
 
-    sprintf(path, "save\\current\\maps\\%s\\MT.dat", map);
+    snprintf(path, sizeof(path), "save\\current\\maps\\%s\\MT.dat", map);
 
     if (tig_file_exists(path, NULL)) {
         append = true;
@@ -1221,7 +1221,7 @@ void magictech_load_nodes_from_map(const char* map)
     MagicTechRunInfo* run_info;
     int mt_id;
 
-    sprintf(path, "save\\current\\maps\\%s\\MT.dat", map);
+    snprintf(path, sizeof(path), "save\\current\\maps\\%s\\MT.dat", map);
 
     if (!tig_file_exists(path, NULL)) {
         return;
