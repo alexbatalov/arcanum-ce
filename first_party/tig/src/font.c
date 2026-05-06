@@ -369,7 +369,7 @@ int sub_535850(TigVideoBuffer* video_buffer, const char* str, int length, TigArt
 
         if (str[pos] != '\n') {
             glyph_art_id = tig_art_id_frame_set(tig_font_stack[tig_font_stack_index]->art_id,
-                str[pos] - 31);
+                (unsigned char)str[pos] - 31);
 
             if (!tig_font_glyph_data(glyph_art_id, str[pos], &glyph_width, &glyph_height, &glyph_dx, &glyph_dy)) {
                 return TIG_ERR_GENERIC;
@@ -495,7 +495,7 @@ int sub_535C40(tig_art_id_t font_art_id, const char* str, int max_width, int* wi
             break;
         }
 
-        if (!tig_font_glyph_data(font_art_id, str[pos], &glyph_width, &glyph_height, &glyph_dx, &glyph_dy)) {
+        if (!tig_font_glyph_data(font_art_id, (unsigned char)str[pos], &glyph_width, &glyph_height, &glyph_dx, &glyph_dy)) {
             return -1;
         }
 
