@@ -144,7 +144,7 @@ void monstergen_get(int64_t obj, GeneratorInfo* info)
     info->flags = (data >> 27) & 0x1F;
     info->max_concurrent = (data >> 14) & 0x1F;
     info->obj = obj;
-    info->id = (data >> 19);
+    info->id = (data >> 19) & 0xFF;
     info->max_total = (data >> 7) & 0x7F;
     info->cur_total = data & 0x7F;
     info->cur_concurrent = monstergen_concurrent_get(info->id);
