@@ -1899,7 +1899,7 @@ bool critter_enter_bed(int64_t obj, int64_t bed)
 
     // Move critter to bed's location if possible.
     bed_location = obj_field_int64_get(bed, OBJ_F_LOCATION);
-    obj_location = obj_field_int64_get(bed, OBJ_F_LOCATION);
+    obj_location = obj_field_int64_get(obj, OBJ_F_LOCATION);
     if (bed_location == obj_location
         && location_in_dir(obj_location, 4, &location)) {
         sub_43E770(obj, location, 0, 0);
