@@ -29,8 +29,8 @@
 #define OBJECT_LIGHTING_KEY "object lighting"
 #define SHADOWS_KEY "shadows"
 
-typedef bool(GameExtraSaveFunc)(void);
-typedef bool(GameExtraLoadFunc)(void);
+typedef bool (*GameExtraSaveFunc)(void);
+typedef bool (*GameExtraLoadFunc)(void);
 
 typedef enum GameDifficulty {
     GAME_DIFFICULTY_EASY,
@@ -110,8 +110,8 @@ bool gamelib_delete(const char* name);
 const char* gamelib_last_save_name(void);
 bool gamelib_in_save(void);
 bool gamelib_in_load(void);
-void gamelib_set_extra_save_func(GameExtraSaveFunc* func);
-void gamelib_set_extra_load_func(GameExtraLoadFunc* func);
+void gamelib_set_extra_save_func(GameExtraSaveFunc func);
+void gamelib_set_extra_load_func(GameExtraLoadFunc func);
 void gamelib_savelist_create(GameSaveList* save_list);
 void gamelib_savelist_create_module(const char* module, GameSaveList* save_list);
 void gamelib_savelist_destroy(GameSaveList* save_list);

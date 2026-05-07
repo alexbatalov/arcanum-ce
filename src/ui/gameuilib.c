@@ -51,25 +51,25 @@
  */
 #define SENTINEL 0xBEEFCAFE
 
-typedef bool(GameUiInitFunc)(GameInitInfo* init_info);
-typedef void(GameUiResetFunc)(void);
-typedef bool(GameUiModuleLoadFunc)(void);
-typedef void(GameUiModuleUnloadFunc)(void);
-typedef void(GameUiExitFunc)(void);
-typedef bool(GameUiSaveFunc)(TigFile* stream);
-typedef bool(GameUiLoadFunc)(GameLoadInfo* load_info);
-typedef void(GameUiResizeFunc)(GameResizeInfo* resize_info);
+typedef bool (*GameUiInitFunc)(GameInitInfo* init_info);
+typedef void (*GameUiResetFunc)(void);
+typedef bool (*GameUiModuleLoadFunc)(void);
+typedef void (*GameUiModuleUnloadFunc)(void);
+typedef void (*GameUiExitFunc)(void);
+typedef bool (*GameUiSaveFunc)(TigFile* stream);
+typedef bool (*GameUiLoadFunc)(GameLoadInfo* load_info);
+typedef void (*GameUiResizeFunc)(GameResizeInfo* resize_info);
 
 typedef struct GameUiLibModule {
     const char* name;
-    GameUiInitFunc* init_func;
-    GameUiResetFunc* reset_func;
-    GameUiModuleLoadFunc* mod_load_func;
-    GameUiModuleUnloadFunc* mod_unload_func;
-    GameUiExitFunc* exit_func;
-    GameUiSaveFunc* save_func;
-    GameUiLoadFunc* load_func;
-    GameUiResizeFunc* resize_func;
+    GameUiInitFunc init_func;
+    GameUiResetFunc reset_func;
+    GameUiModuleLoadFunc mod_load_func;
+    GameUiModuleUnloadFunc mod_unload_func;
+    GameUiExitFunc exit_func;
+    GameUiSaveFunc save_func;
+    GameUiLoadFunc load_func;
+    GameUiResizeFunc resize_func;
 } GameUiLibModule;
 
 /**

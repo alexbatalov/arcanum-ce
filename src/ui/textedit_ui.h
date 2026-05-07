@@ -10,15 +10,15 @@ typedef unsigned int TextEditFlags;
 
 struct TextEdit;
 
-typedef void(TextEditCallback)(struct TextEdit* textedit);
+typedef void (*TextEditCallback)(struct TextEdit* textedit);
 
 typedef struct TextEdit {
     /* 0000 */ TextEditFlags flags;
     /* 0004 */ char* buffer;
     /* 0008 */ int size;
-    /* 000C */ TextEditCallback* on_enter;
-    /* 0010 */ TextEditCallback* on_change;
-    /* 0014 */ TextEditCallback* on_tab;
+    /* 000C */ TextEditCallback on_enter;
+    /* 0010 */ TextEditCallback on_change;
+    /* 0014 */ TextEditCallback on_tab;
 } TextEdit;
 
 bool textedit_ui_init(GameInitInfo* init_info);

@@ -44,7 +44,7 @@ static char* broadcast_cmd_type_lookup[BROADCAST_CMD_TYPE_COUNT];
 static mes_file_handle_t broadcast_mes_file;
 
 // 0x5FDC88
-static BroadcastFloatLineFunc* broadcast_float_line_func;
+static BroadcastFloatLineFunc broadcast_float_line_func;
 
 // 0x5FDC8C
 static mes_file_handle_t broadcast_multiplayer_mes_file;
@@ -154,7 +154,7 @@ void broadcast_exit(void)
 }
 
 // 0x4C2EA0
-void broadcast_set_float_line_func(BroadcastFloatLineFunc* func)
+void broadcast_set_float_line_func(BroadcastFloatLineFunc func)
 {
     broadcast_float_line_func = func;
 }

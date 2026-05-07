@@ -94,17 +94,17 @@ typedef struct TimeEvent {
     TimeEventParam params[TIMEEVENT_PARAM_COUNT];
 } TimeEvent;
 
-typedef bool(TimeEventProcessFunc)(TimeEvent* timeevent);
-typedef bool(TimeEventEnumerateFunc)(TimeEvent* timeevent);
+typedef bool (*TimeEventProcessFunc)(TimeEvent* timeevent);
+typedef bool (*TimeEventEnumerateFunc)(TimeEvent* timeevent);
 
 typedef struct TimeEventFuncs {
-    TimeEventProcessFunc* bkg_anim_func;
-    TimeEventProcessFunc* worldmap_func;
-    TimeEventProcessFunc* ambient_lighting_func;
-    TimeEventProcessFunc* sleeping_func;
-    TimeEventProcessFunc* clock_func;
-    TimeEventProcessFunc* mainmenu_func;
-    TimeEventProcessFunc* mp_ctrl_ui_func;
+    TimeEventProcessFunc bkg_anim_func;
+    TimeEventProcessFunc worldmap_func;
+    TimeEventProcessFunc ambient_lighting_func;
+    TimeEventProcessFunc sleeping_func;
+    TimeEventProcessFunc clock_func;
+    TimeEventProcessFunc mainmenu_func;
+    TimeEventProcessFunc mp_ctrl_ui_func;
 } TimeEventFuncs;
 
 DateTime sub_45A7C0(void);
@@ -158,10 +158,10 @@ void timeevent_clear(void);
 void timeevent_clear_for_map_close(void);
 bool timeevent_clear_all_typed(int list);
 bool timeevent_clear_one_typed(int list);
-bool timeevent_clear_all_ex(int list, TimeEventEnumerateFunc* callback);
-bool timeevent_clear_one_ex(int list, TimeEventEnumerateFunc* callback);
+bool timeevent_clear_all_ex(int list, TimeEventEnumerateFunc callback);
+bool timeevent_clear_one_ex(int list, TimeEventEnumerateFunc callback);
 bool sub_45C0E0(int list);
-bool timeevent_any(int list, TimeEventEnumerateFunc* callback);
+bool timeevent_any(int list, TimeEventEnumerateFunc callback);
 bool timeevent_inc_milliseconds(unsigned int milliseconds);
 bool timeevent_inc_datetime(DateTime* datetime);
 void timeevent_sync(DateTime* game_time, DateTime* anim_time);

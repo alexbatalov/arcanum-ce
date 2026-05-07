@@ -45,7 +45,7 @@ static int64_t location_origin_y;
 static int64_t location_limit_x;
 
 // 0x5FC2F8
-static LocationOriginSignificantChangeCallback* location_origin_significant_change_callback;
+static LocationOriginSignificantChangeCallback location_origin_significant_change_callback;
 
 // 0x4B8440
 bool location_init(GameInitInfo* init_info)
@@ -286,7 +286,7 @@ void location_origin_set(int64_t location)
 }
 
 // 0x4B8D40
-void location_origin_significant_change_callback_set(LocationOriginSignificantChangeCallback* func)
+void location_origin_significant_change_callback_set(LocationOriginSignificantChangeCallback func)
 {
     location_origin_significant_change_callback = func;
 }

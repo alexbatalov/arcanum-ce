@@ -142,7 +142,7 @@ void settings_save(Settings* settings)
  *
  * 0x438C80
  */
-void settings_register(Settings* settings, const char* key, const char* default_value, SettingsValueChangedFunc* value_changed_func)
+void settings_register(Settings* settings, const char* key, const char* default_value, SettingsValueChangedFunc value_changed_func)
 {
     SettingsEntry* entry;
 

@@ -38,7 +38,7 @@ static unsigned int fate_flags[FATE_COUNT] = {
  *
  * 0x603D48
  */
-static FateCallback* fate_callback;
+static FateCallback fate_callback;
 
 /**
  * Checks if a specific fate is active for a player character.
@@ -181,7 +181,7 @@ void fate_apply(int64_t obj, int fate)
  *
  * 0x4F5320
  */
-void fate_set_callback(FateCallback* cb)
+void fate_set_callback(FateCallback cb)
 {
     fate_callback = cb;
 }

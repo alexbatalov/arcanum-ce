@@ -19,12 +19,12 @@ typedef enum Fate {
     FATE_COUNT,
 } Fate;
 
-typedef void FateCallback(int64_t obj, int fate);
+typedef void (*FateCallback)(int64_t obj, int fate);
 
 bool fate_is_activated(int64_t obj, int fate);
 bool fate_activate(int64_t obj, int fate);
 bool fate_deactivate(int64_t obj, int fate);
 bool fate_resolve(int64_t obj, int fate);
-void fate_set_callback(FateCallback* cb);
+void fate_set_callback(FateCallback cb);
 
 #endif /* ARCANUM_GAME_FATE_H_ */

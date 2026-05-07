@@ -45,8 +45,8 @@ typedef enum AutoLevelError {
     AUTO_LEVEL_UPDATE_FAILED,
 } AutoLevelError;
 
-typedef int(MiscGetter)(int64_t obj);
-typedef int(MiscSetter)(int64_t obj, int value);
+typedef int (*MiscGetter)(int64_t obj);
+typedef int (*MiscSetter)(int64_t obj, int value);
 
 static int calculate_bonus_character_points(int old_level, int new_level);
 static void update_follower_level(int64_t follower_obj, int old_pc_level, int new_pc_level);
@@ -164,7 +164,7 @@ static const char* level_scheme_misc[LEVEL_SCHEME_MISC_MAX] = {
  *
  * 0x4A7ABE
  */
-static MiscGetter* level_misc_attr_level_getters[LEVEL_SCHEME_MISC_MAX] = {
+static MiscGetter level_misc_attr_level_getters[LEVEL_SCHEME_MISC_MAX] = {
     object_hp_max,
     critter_fatigue_max,
 };
@@ -174,7 +174,7 @@ static MiscGetter* level_misc_attr_level_getters[LEVEL_SCHEME_MISC_MAX] = {
  *
  * 0x4A7AF3
  */
-static MiscGetter* level_misc_attr_base_getters[LEVEL_SCHEME_MISC_MAX] = {
+static MiscGetter level_misc_attr_base_getters[LEVEL_SCHEME_MISC_MAX] = {
     object_hp_pts_get,
     critter_fatigue_pts_get,
 };
@@ -184,7 +184,7 @@ static MiscGetter* level_misc_attr_base_getters[LEVEL_SCHEME_MISC_MAX] = {
  *
  * 0x4A7AFE
  */
-static MiscSetter* level_misc_attr_base_setters[LEVEL_SCHEME_MISC_MAX] = {
+static MiscSetter level_misc_attr_base_setters[LEVEL_SCHEME_MISC_MAX] = {
     object_hp_pts_set,
     critter_fatigue_pts_set,
 };

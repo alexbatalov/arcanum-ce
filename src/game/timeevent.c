@@ -48,17 +48,17 @@ typedef struct TimeEventNode {
     int field_D4;
 } TimeEventNode;
 
-typedef void(TimeEventExitFunc)(TimeEvent* timeevent);
-typedef bool(TimeEventShouldSaveFunc)(TimeEvent* timeevent);
+typedef void (*TimeEventExitFunc)(TimeEvent* timeevent);
+typedef bool (*TimeEventShouldSaveFunc)(TimeEvent* timeevent);
 
 typedef struct TimeEventTypeInfo {
     char name[20];
     bool saveable;
     TimeEventParamTypeFlags flags;
     int time_type;
-    TimeEventProcessFunc* process_func;
-    TimeEventExitFunc* exit_func;
-    TimeEventShouldSaveFunc* should_save_func;
+    TimeEventProcessFunc process_func;
+    TimeEventExitFunc exit_func;
+    TimeEventShouldSaveFunc should_save_func;
 } TimeEventTypeInfo;
 
 static bool timeevent_do_nothing(TimeEvent* timeevent);
@@ -1366,7 +1366,7 @@ bool timeevent_clear_one_typed(int list)
 }
 
 // 0x45BF10
-bool timeevent_clear_all_ex(int list, TimeEventEnumerateFunc* callback)
+bool timeevent_clear_all_ex(int list, TimeEventEnumerateFunc callback)
 {
     TimeEventNode** node_ptr;
     TimeEventNode* node;
@@ -1411,7 +1411,7 @@ bool timeevent_clear_all_ex(int list, TimeEventEnumerateFunc* callback)
 }
 
 // 0x45BFF0
-bool timeevent_clear_one_ex(int list, TimeEventEnumerateFunc* callback)
+bool timeevent_clear_one_ex(int list, TimeEventEnumerateFunc callback)
 {
     TimeEventNode** node_ptr;
     TimeEventNode* node;
@@ -1490,7 +1490,7 @@ bool sub_45C0E0(int list)
 }
 
 // 0x45C140
-bool timeevent_any(int list, TimeEventEnumerateFunc* callback)
+bool timeevent_any(int list, TimeEventEnumerateFunc callback)
 {
     TimeEventNode* node;
 

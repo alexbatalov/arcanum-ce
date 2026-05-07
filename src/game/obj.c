@@ -31,7 +31,7 @@ typedef struct Object {
     /* 0054 */ intptr_t transient_properties[19];
 } Object;
 
-typedef bool(ObjectProtoEnumerateFieldsCallback)(Object* object, int fld);
+typedef bool (*ObjectProtoEnumerateFieldsCallback)(Object* object, int fld);
 
 typedef struct ObjectFieldInfo {
     /* 0000 */ int simple_array_idx;
@@ -43,7 +43,7 @@ typedef struct ObjectFieldInfo {
     /* 0018 */ int type;
 } ObjectFieldInfo;
 
-typedef bool(ObjectInstEnumerateFieldsCallback)(Object* object, int idx, ObjectFieldInfo* field_info);
+typedef bool (*ObjectInstEnumerateFieldsCallback)(Object* object, int idx, ObjectFieldInfo* field_info);
 
 static void object_field_not_exists(Object* object, int fld);
 static void obj_debug_aid(tig_art_id_t aid);
@@ -107,14 +107,14 @@ static bool object_proto_field_copy(Object* object, int fld);
 static bool object_inst_field_copy(Object* object, int storage_idx, ObjectFieldInfo* info);
 static void object_transient_field_copy(Object* dst, Object* src, int fld);
 static void object_transient_field_dealloc(Object* object, int fld);
-static bool object_proto_enumerate_fields(Object* object, ObjectProtoEnumerateFieldsCallback* callback);
-static bool object_proto_enumerate_fields_func(Object* obj, int begin, int end, ObjectProtoEnumerateFieldsCallback* callback);
+static bool object_proto_enumerate_fields(Object* object, ObjectProtoEnumerateFieldsCallback callback);
+static bool object_proto_enumerate_fields_func(Object* obj, int begin, int end, ObjectProtoEnumerateFieldsCallback callback);
 static int sub_40CB40(Object* object, int fld);
 static bool object_inst_field_dealloc(Object* object, int storage_idx, ObjectFieldInfo* info);
-static bool object_inst_enumerate_overridden_fields(Object* object, ObjectInstEnumerateFieldsCallback* callback);
-static bool object_inst_enumerate_overridden_fields_func(Object* object, int begin, int end, ObjectInstEnumerateFieldsCallback* callback);
-static bool object_inst_enumerate_available_fields(Object* object, ObjectInstEnumerateFieldsCallback* callback);
-static bool object_inst_enumerate_available_fields_func(Object* object, int begin, int end, ObjectInstEnumerateFieldsCallback* callback);
+static bool object_inst_enumerate_overridden_fields(Object* object, ObjectInstEnumerateFieldsCallback callback);
+static bool object_inst_enumerate_overridden_fields_func(Object* object, int begin, int end, ObjectInstEnumerateFieldsCallback callback);
+static bool object_inst_enumerate_available_fields(Object* object, ObjectInstEnumerateFieldsCallback callback);
+static bool object_inst_enumerate_available_fields_func(Object* object, int begin, int end, ObjectInstEnumerateFieldsCallback callback);
 static int sub_40D230(Object* object, int fld);
 static void sub_40D2A0(Object* object, int fld);
 static bool sub_40D320(Object* object, int fld);
@@ -4467,7 +4467,7 @@ void object_transient_field_dealloc(Object* object, int fld)
 }
 
 // 0x40C880
-bool object_proto_enumerate_fields(Object* object, ObjectProtoEnumerateFieldsCallback* callback)
+bool object_proto_enumerate_fields(Object* object, ObjectProtoEnumerateFieldsCallback callback)
 {
     if (!object_proto_enumerate_fields_func(object, OBJ_F_BEGIN, OBJ_F_END, callback)) {
         return false;
@@ -4606,7 +4606,7 @@ bool object_proto_enumerate_fields(Object* object, ObjectProtoEnumerateFieldsCal
 }
 
 // 0x40CB00
-bool object_proto_enumerate_fields_func(Object* obj, int begin, int end, ObjectProtoEnumerateFieldsCallback* callback)
+bool object_proto_enumerate_fields_func(Object* obj, int begin, int end, ObjectProtoEnumerateFieldsCallback callback)
 {
     int index;
 
@@ -4641,7 +4641,7 @@ bool object_inst_field_dealloc(Object* object, int storage_idx, ObjectFieldInfo*
 }
 
 // 0x40CBA0
-bool object_inst_enumerate_overridden_fields(Object* object, ObjectInstEnumerateFieldsCallback* callback)
+bool object_inst_enumerate_overridden_fields(Object* object, ObjectInstEnumerateFieldsCallback callback)
 {
     if (!object_inst_enumerate_overridden_fields_func(object, OBJ_F_BEGIN, OBJ_F_END, callback)) {
         return false;
@@ -4780,7 +4780,7 @@ bool object_inst_enumerate_overridden_fields(Object* object, ObjectInstEnumerate
 }
 
 // 0x40CE20
-bool object_inst_enumerate_overridden_fields_func(Object* object, int begin, int end, ObjectInstEnumerateFieldsCallback* callback)
+bool object_inst_enumerate_overridden_fields_func(Object* object, int begin, int end, ObjectInstEnumerateFieldsCallback callback)
 {
     int v1 = 0;
     int index;
@@ -4808,7 +4808,7 @@ bool object_inst_enumerate_overridden_fields_func(Object* object, int begin, int
 }
 
 // 0x40CEF0
-bool object_inst_enumerate_available_fields(Object* object, ObjectInstEnumerateFieldsCallback* callback)
+bool object_inst_enumerate_available_fields(Object* object, ObjectInstEnumerateFieldsCallback callback)
 {
     if (!object_inst_enumerate_available_fields_func(object, OBJ_F_BEGIN, OBJ_F_END, callback)) {
         return false;
@@ -4947,7 +4947,7 @@ bool object_inst_enumerate_available_fields(Object* object, ObjectInstEnumerateF
 }
 
 // 0x40D170
-bool object_inst_enumerate_available_fields_func(Object* object, int begin, int end, ObjectInstEnumerateFieldsCallback* callback)
+bool object_inst_enumerate_available_fields_func(Object* object, int begin, int end, ObjectInstEnumerateFieldsCallback callback)
 {
     int v1 = 0;
     int index;

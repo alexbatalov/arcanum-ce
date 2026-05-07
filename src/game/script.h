@@ -293,8 +293,8 @@ typedef enum ScriptActionType {
     SAT_SET_NIGHT_STANDPOINT_EX,
 } ScriptActionType;
 
-typedef void(ScriptStartDialogFunc)(int64_t pc_obj, int64_t npc_obj, int script_num, int script_line, int num);
-typedef void(ScriptFloatLineFunc)(int64_t npc_obj, int64_t pc_obj, const char* str, int speech_id);
+typedef void (*ScriptStartDialogFunc)(int64_t pc_obj, int64_t npc_obj, int script_num, int script_line, int num);
+typedef void (*ScriptFloatLineFunc)(int64_t npc_obj, int64_t pc_obj, const char* str, int speech_id);
 
 typedef struct ScriptAction {
     int type;
@@ -359,7 +359,7 @@ bool script_mod_load(void);
 void script_mod_unload(void);
 bool script_load(GameLoadInfo* load_info);
 bool script_save(TigFile* stream);
-void script_set_callbacks(ScriptStartDialogFunc* start_dialog_func, ScriptFloatLineFunc* float_line_func);
+void script_set_callbacks(ScriptStartDialogFunc start_dialog_func, ScriptFloatLineFunc float_line_func);
 bool script_execute(ScriptInvocation* invocation);
 int script_global_var_get(int index);
 void script_global_var_set(int index, int value);

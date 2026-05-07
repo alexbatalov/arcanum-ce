@@ -42,33 +42,33 @@
 #define MAP_MODULE_COUNT 17
 #define SENTINEL 0xBADDBEEF
 
-typedef bool(MapInitFunc)(GameInitInfo* init_info);
-typedef void(MapResetFunc)(void);
-typedef bool(MapModuleLoadFunc)(void);
-typedef void(MapModuleUnloadFunc)(void);
-typedef void(MapExitFunc)(void);
-typedef void(MapPingFunc)(unsigned int time);
-typedef void(MapUpdateViewFunc)(ViewOptions* view_options);
-typedef bool(MapSaveFunc)(TigFile* stream);
-typedef bool(MapLoadFunc)(GameLoadInfo* load_info);
-typedef void(MapCloseFunc)(void);
-typedef bool(MapNewFunc)(MapNewInfo* new_map_info);
-typedef void(MapResizeFunc)(GameResizeInfo* resize_info);
+typedef bool (*MapInitFunc)(GameInitInfo* init_info);
+typedef void (*MapResetFunc)(void);
+typedef bool (*MapModuleLoadFunc)(void);
+typedef void (*MapModuleUnloadFunc)(void);
+typedef void (*MapExitFunc)(void);
+typedef void (*MapPingFunc)(unsigned int time);
+typedef void (*MapUpdateViewFunc)(ViewOptions* view_options);
+typedef bool (*MapSaveFunc)(TigFile* stream);
+typedef bool (*MapLoadFunc)(GameLoadInfo* load_info);
+typedef void (*MapCloseFunc)(void);
+typedef bool (*MapNewFunc)(MapNewInfo* new_map_info);
+typedef void (*MapResizeFunc)(GameResizeInfo* resize_info);
 
 typedef struct MapModule {
     /* 0000 */ const char* name;
-    /* 0004 */ MapInitFunc* init_func;
-    /* 0008 */ MapResetFunc* reset_func;
-    /* 000C */ MapModuleLoadFunc* mod_load_func;
-    /* 0010 */ MapModuleUnloadFunc* mod_unload_func;
-    /* 0014 */ MapExitFunc* exit_func;
-    /* 0018 */ MapPingFunc* ping_func;
-    /* 001C */ MapUpdateViewFunc* update_view_func;
-    /* 0020 */ MapSaveFunc* save_func;
-    /* 0024 */ MapLoadFunc* load_func;
-    /* 0028 */ MapNewFunc* new_func;
-    /* 002C */ MapCloseFunc* close_func;
-    /* 0030 */ MapResizeFunc* resize_func;
+    /* 0004 */ MapInitFunc init_func;
+    /* 0008 */ MapResetFunc reset_func;
+    /* 000C */ MapModuleLoadFunc mod_load_func;
+    /* 0010 */ MapModuleUnloadFunc mod_unload_func;
+    /* 0014 */ MapExitFunc exit_func;
+    /* 0018 */ MapPingFunc ping_func;
+    /* 001C */ MapUpdateViewFunc update_view_func;
+    /* 0020 */ MapSaveFunc save_func;
+    /* 0024 */ MapLoadFunc load_func;
+    /* 0028 */ MapNewFunc new_func;
+    /* 002C */ MapCloseFunc close_func;
+    /* 0030 */ MapResizeFunc resize_func;
 } MapModule;
 
 typedef struct MapListInfo {

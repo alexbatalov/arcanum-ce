@@ -84,29 +84,29 @@
 
 #define GAMELIB_MAX_PATCH_COUNT 10
 
-typedef bool(GameInitFunc)(GameInitInfo* init_info);
-typedef void(GameResetFunc)(void);
-typedef bool(GameModuleLoadFunc)(void);
-typedef void(GameModuleUnloadFunc)(void);
-typedef void(GameExitFunc)(void);
-typedef void(GamePingFunc)(unsigned int time);
-typedef void(GameUpdateViewFunc)(ViewOptions* view_options);
-typedef bool(GameSaveFunc)(TigFile* stream);
-typedef bool(GameLoadFunc)(GameLoadInfo* load_info);
-typedef void(GameResizeFunc)(GameResizeInfo* resize_info);
+typedef bool (*GameInitFunc)(GameInitInfo* init_info);
+typedef void (*GameResetFunc)(void);
+typedef bool (*GameModuleLoadFunc)(void);
+typedef void (*GameModuleUnloadFunc)(void);
+typedef void (*GameExitFunc)(void);
+typedef void (*GamePingFunc)(unsigned int time);
+typedef void (*GameUpdateViewFunc)(ViewOptions* view_options);
+typedef bool (*GameSaveFunc)(TigFile* stream);
+typedef bool (*GameLoadFunc)(GameLoadInfo* load_info);
+typedef void (*GameResizeFunc)(GameResizeInfo* resize_info);
 
 typedef struct GameLibModule {
     const char* name;
-    GameInitFunc* init_func;
-    GameResetFunc* reset_func;
-    GameModuleLoadFunc* mod_load_func;
-    GameModuleUnloadFunc* mod_unload_func;
-    GameExitFunc* exit_func;
-    GamePingFunc* ping_func;
-    GameUpdateViewFunc* update_view_func;
-    GameSaveFunc* save_func;
-    GameLoadFunc* load_func;
-    GameResizeFunc* resize_func;
+    GameInitFunc init_func;
+    GameResetFunc reset_func;
+    GameModuleLoadFunc mod_load_func;
+    GameModuleUnloadFunc mod_unload_func;
+    GameExitFunc exit_func;
+    GamePingFunc ping_func;
+    GameUpdateViewFunc update_view_func;
+    GameSaveFunc save_func;
+    GameLoadFunc load_func;
+    GameResizeFunc resize_func;
 } GameLibModule;
 
 typedef struct GameSaveEntry {
@@ -275,10 +275,10 @@ static int gamelib_thumbnail_width;
 static bool dword_5D10C4;
 
 // 0x5D10D4
-static GameExtraSaveFunc* gamelib_extra_save_func;
+static GameExtraSaveFunc gamelib_extra_save_func;
 
 // 0x5D10D8
-static GameExtraLoadFunc* gamelib_extra_load_func;
+static GameExtraLoadFunc gamelib_extra_load_func;
 
 // 0x5D10DC
 static bool gamelib_savelist_sort_check_autosave;
@@ -1250,13 +1250,13 @@ bool gamelib_in_load(void)
 }
 
 // 0x4038E0
-void gamelib_set_extra_save_func(GameExtraSaveFunc* func)
+void gamelib_set_extra_save_func(GameExtraSaveFunc func)
 {
     gamelib_extra_save_func = func;
 }
 
 // 0x4038F0
-void gamelib_set_extra_load_func(GameExtraLoadFunc* func)
+void gamelib_set_extra_load_func(GameExtraLoadFunc func)
 {
     gamelib_extra_load_func = func;
 }

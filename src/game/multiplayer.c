@@ -324,7 +324,7 @@ static S5F0DEC* dword_5F0DEC;
 static int dword_5F0DF4;
 
 // 0x5F0DF8
-static Func5F0DF8* dword_5F0DF8;
+static Func5F0DF8 dword_5F0DF8;
 
 // 0x5F0DFC
 static S5F0DFC* dword_5F0DFC;
@@ -336,7 +336,7 @@ static bool dword_5F0E00;
 static void (*off_5F0E04)(void);
 
 // 0x5F0E08
-static Func5F0E08* dword_5F0E08;
+static Func5F0E08 dword_5F0E08;
 
 // 0x5F0E0C
 static int multiplayer_lock_cnt;
@@ -1090,7 +1090,7 @@ void sub_4A2AE0(int player)
 }
 
 // 0x4A2B00
-void sub_4A2B00(Func5F0E08* func)
+void sub_4A2B00(Func5F0E08 func)
 {
     dword_5F0E08 = func;
 }
@@ -1565,7 +1565,7 @@ bool sub_4A38B0(bool (*func)(tig_button_handle_t), tig_button_handle_t button_ha
 }
 
 // 0x4A39D0
-void sub_4A39D0(Func5F0DF8* func, tig_button_handle_t button_handle)
+void sub_4A39D0(Func5F0DF8 func, tig_button_handle_t button_handle)
 {
     dword_5F0DF8 = func;
     dword_5B3FEC = button_handle;

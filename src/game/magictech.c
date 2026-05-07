@@ -41,7 +41,7 @@
 #include "game/timeevent.h"
 #include "game/ui.h"
 
-typedef void(MagicTechProc)(void);
+typedef void (*MagicTechProc)(void);
 
 typedef struct MagicTechSummonTableEntry {
     /* 0000 */ int value;
@@ -222,7 +222,7 @@ static int dword_5B0BA0 = -1;
 static int magictech_cur_id = -1;
 
 // 0x4513FD
-static MagicTechProc* magictech_procs[] = {
+static MagicTechProc magictech_procs[] = {
     MTComponentNoop_ProcFunc,
     MTComponentAGoal_ProcFunc,
     MTComponentAGoalTerminate_ProcFunc,

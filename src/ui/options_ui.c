@@ -14,8 +14,8 @@
 
 #define MAX_CONTROLS 8
 
-typedef void(OptionsUiControlValueGetter)(int* value_ptr, bool* enabled_ptr);
-typedef void(OptionsUiControlValueSetter)(int value);
+typedef void (*OptionsUiControlValueGetter)(int* value_ptr, bool* enabled_ptr);
+typedef void (*OptionsUiControlValueSetter)(int value);
 
 typedef struct OptionsUiControlInfo {
     /* 0000 */ bool active;
@@ -23,8 +23,8 @@ typedef struct OptionsUiControlInfo {
     /* 0008 */ int max_value;
     /* 000C */ const char* debug_name;
     /* 0010 */ const char* mes;
-    /* 0014 */ OptionsUiControlValueGetter* getter;
-    /* 0018 */ OptionsUiControlValueSetter* setter;
+    /* 0014 */ OptionsUiControlValueGetter getter;
+    /* 0018 */ OptionsUiControlValueSetter setter;
 } OptionsUiControlInfo;
 
 typedef struct OptionsUiControlData {

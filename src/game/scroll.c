@@ -102,7 +102,7 @@ static int scroll_distance;
  *
  * 0x5D11C8
  */
-static ScrollFunc* scroll_func;
+static ScrollFunc scroll_func;
 
 /**
  * Called when the game is initialized.
@@ -584,7 +584,7 @@ void scroll_set_center(int64_t location)
  *
  * 0x40E900
  */
-void scroll_set_scroll_func(ScrollFunc* func)
+void scroll_set_scroll_func(ScrollFunc func)
 {
     scroll_func = func;
 }

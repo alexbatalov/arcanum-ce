@@ -67,26 +67,26 @@ typedef enum Training {
 
 #define IS_TRAINING_VALID(tr) ((tr) >= 0 && (tr) < TRAINING_COUNT)
 
-typedef bool(SkillCallbacksF0)(int64_t source_obj, int64_t target_obj, bool success);
-typedef bool(SkillStealItemFunc)(int64_t source_obj, int64_t target_obj, int64_t item_obj, bool success);
-typedef bool(SkillPlantItemFunc)(int64_t source_obj, int64_t target_obj, int64_t item_obj, bool success);
-typedef bool(SkillCallbacksFC)(int64_t source_obj, int64_t target_obj, bool success);
-typedef bool(SkillDisarmTrapFunc)(int64_t source_obj, int64_t target_obj, bool success);
-typedef bool(SkillRepairFunc)(int64_t source_obj, int64_t target_obj, bool success);
-typedef bool(SkillNoRepairFunc)(int64_t source_obj, int64_t target_obj, bool success);
-typedef bool(SkillLockFunc)(int64_t source_obj, int64_t target_obj, bool success);
-typedef bool(SkillNoLockFunc)(int64_t source_obj);
+typedef bool (*SkillCallbacksF0)(int64_t source_obj, int64_t target_obj, bool success);
+typedef bool (*SkillStealItemFunc)(int64_t source_obj, int64_t target_obj, int64_t item_obj, bool success);
+typedef bool (*SkillPlantItemFunc)(int64_t source_obj, int64_t target_obj, int64_t item_obj, bool success);
+typedef bool (*SkillCallbacksFC)(int64_t source_obj, int64_t target_obj, bool success);
+typedef bool (*SkillDisarmTrapFunc)(int64_t source_obj, int64_t target_obj, bool success);
+typedef bool (*SkillRepairFunc)(int64_t source_obj, int64_t target_obj, bool success);
+typedef bool (*SkillNoRepairFunc)(int64_t source_obj, int64_t target_obj, bool success);
+typedef bool (*SkillLockFunc)(int64_t source_obj, int64_t target_obj, bool success);
+typedef bool (*SkillNoLockFunc)(int64_t source_obj);
 
 typedef struct SkillCallbacks {
-    SkillCallbacksF0* field_0;
-    SkillStealItemFunc* steal_item_func;
-    SkillPlantItemFunc* plant_item_output;
-    SkillCallbacksFC* field_C;
-    SkillDisarmTrapFunc* disarm_trap_func;
-    SkillRepairFunc* repair_func;
-    SkillNoRepairFunc* no_repair_func;
-    SkillLockFunc* lock_func;
-    SkillNoLockFunc* no_lock_func;
+    SkillCallbacksF0 field_0;
+    SkillStealItemFunc steal_item_func;
+    SkillPlantItemFunc plant_item_output;
+    SkillCallbacksFC field_C;
+    SkillDisarmTrapFunc disarm_trap_func;
+    SkillRepairFunc repair_func;
+    SkillNoRepairFunc no_repair_func;
+    SkillLockFunc lock_func;
+    SkillNoLockFunc no_lock_func;
 } SkillCallbacks;
 
 // clang-format off

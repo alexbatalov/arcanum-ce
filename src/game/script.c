@@ -135,10 +135,10 @@ static IsoRedrawFunc* script_iso_window_draw;
 static int dword_5E2FE4;
 
 // 0x5E2FE8
-static ScriptFloatLineFunc* script_float_line_func;
+static ScriptFloatLineFunc script_float_line_func;
 
 // 0x5E2FEC
-static ScriptStartDialogFunc* script_start_dialog_func;
+static ScriptStartDialogFunc script_start_dialog_func;
 
 // 0x5E2FF0
 static ScriptCacheEntry* script_cache_entries;
@@ -268,7 +268,7 @@ bool script_save(TigFile* stream)
 }
 
 // 0x444990
-void script_set_callbacks(ScriptStartDialogFunc* start_dialog_func, ScriptFloatLineFunc* float_line_func)
+void script_set_callbacks(ScriptStartDialogFunc start_dialog_func, ScriptFloatLineFunc float_line_func)
 {
     script_start_dialog_func = start_dialog_func;
     script_float_line_func = float_line_func;

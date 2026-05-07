@@ -19,7 +19,7 @@ typedef struct LightCreateInfo {
     /* 0022 */ uint8_t b;
 } LightCreateInfo;
 
-typedef void(LightCreateFunc)(LightCreateInfo* create_info, Light** light_ptr);
+typedef void (*LightCreateFunc)(LightCreateInfo* create_info, Light** light_ptr);
 
 // NOTE: This structure represents light data as it is stored on disk. Its
 // memory layout is set in stone and should never change. The main difference
@@ -650,7 +650,7 @@ void sub_4D9590(int64_t obj, bool a2)
 {
     unsigned int light_flags[4];
     unsigned int render_flags;
-    LightCreateFunc* create_func;
+    LightCreateFunc create_func;
     tig_art_id_t art_id;
     Light* light;
     tig_color_t color;

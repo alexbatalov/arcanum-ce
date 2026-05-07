@@ -9,7 +9,7 @@ typedef enum CyclicUiControlType {
     CYCLIC_UI_CONTROL_TEXT_ARRAY,
 } CyclicUiControlType;
 
-typedef void CyclicUiControlValueChanged(int value);
+typedef void (*CyclicUiControlValueChanged)(int value);
 
 typedef struct CyclicUiControlInfo {
     /* 0000 */ tig_window_handle_t window_handle;
@@ -21,7 +21,7 @@ typedef struct CyclicUiControlInfo {
     /* 0018 */ const char* mes_file_path;
     /* 001C */ const char* const* text_array;
     /* 0020 */ int text_array_size;
-    /* 0024 */ CyclicUiControlValueChanged* value_changed_callback;
+    /* 0024 */ CyclicUiControlValueChanged value_changed_callback;
     /* 0028 */ bool visible;
     /* 0029 */ bool enabled;
 } CyclicUiControlInfo;

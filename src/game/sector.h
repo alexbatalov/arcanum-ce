@@ -38,8 +38,8 @@ typedef struct Sector {
     /* 485C */ SectorObjectList objects;
 } Sector;
 
-typedef bool(SectorEnumerateFunc)(Sector* sector);
-typedef bool(SectorLockFunc)(const char* path);
+typedef bool (*SectorEnumerateFunc)(Sector* sector);
+typedef bool (*SectorLockFunc)(const char* path);
 
 bool sector_init(GameInitInfo* init_info);
 void sector_reset(void);
@@ -47,7 +47,7 @@ void sector_exit(void);
 void sector_resize(GameResizeInfo* resize_info);
 void sector_map_close(void);
 void sector_update_view(ViewOptions* view_options);
-void sector_write_lock_func_set(SectorLockFunc* func);
+void sector_write_lock_func_set(SectorLockFunc func);
 void sector_grid_toggle(void);
 void sector_draw(GameDrawInfo* draw_info);
 bool sector_limits_set(int64_t x, int64_t y);
@@ -74,7 +74,7 @@ void sector_block_init(void);
 bool sector_block_load(const char* base_map_name, const char* current_map_name);
 void sector_art_cache_enable(void);
 void sector_art_cache_disable(void);
-void sector_enumerate(SectorEnumerateFunc* func);
+void sector_enumerate(SectorEnumerateFunc func);
 bool sector_history_init(GameInitInfo* init_info);
 void sector_history_reset(void);
 void sector_history_exit(void);

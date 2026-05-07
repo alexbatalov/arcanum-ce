@@ -16,7 +16,7 @@ typedef struct ScrollbarId {
  *
  * Receives the new integer value.
  */
-typedef void(ScrollbarUiControlValueChanged)(int value);
+typedef void (*ScrollbarUiControlValueChanged)(int value);
 
 /**
  * Callback invoked to repaint the region previously occupied by the scrollbar.
@@ -24,7 +24,7 @@ typedef void(ScrollbarUiControlValueChanged)(int value);
  * Used to restore the background when the scrollbar is hidden or destroyed.
  * Receives the scrollbar rect that needs to be refreshed.
  */
-typedef void(ScrollbarUiControlRefresh)(TigRect* rect);
+typedef void (*ScrollbarUiControlRefresh)(TigRect* rect);
 
 typedef uint32_t ScrollbarUiControlInfoFlags;
 
@@ -55,8 +55,8 @@ typedef struct ScrollbarUiControlInfo {
     /* 0030 */ int page_step;
     /* 0034 */ int wheel_step;
     /* 0038 */ int value;
-    /* 003C */ ScrollbarUiControlValueChanged* on_value_changed;
-    /* 0040 */ ScrollbarUiControlRefresh* on_refresh;
+    /* 003C */ ScrollbarUiControlValueChanged on_value_changed;
+    /* 0040 */ ScrollbarUiControlRefresh on_refresh;
 } ScrollbarUiControlInfo;
 
 #define SCROLLBAR_MIN_VALUE 0

@@ -9,7 +9,7 @@ static int sa_flat_copy_cnt;
 static void* sa_flat_copy_dst;
 
 // 0x60373C
-static SizeableArrayEnumerateCallback* sa_enumerate_cb;
+static SizeableArrayEnumerateCallback sa_enumerate_cb;
 
 // 0x603744
 static SizeableArray* sa_enumerate_arr;
@@ -145,7 +145,7 @@ bool sa_read_file(SizeableArray** sa_ptr, TigFile* stream)
  *
  * 0x4E7610
  */
-bool sa_enumerate(SizeableArray** sa_ptr, SizeableArrayEnumerateCallback* callback)
+bool sa_enumerate(SizeableArray** sa_ptr, SizeableArrayEnumerateCallback callback)
 {
     sa_enumerate_cb = callback;
     sa_enumerate_arr = *sa_ptr;

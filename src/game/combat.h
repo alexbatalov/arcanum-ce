@@ -5,18 +5,18 @@
 #include "game/damage_type.h"
 #include "game/timeevent.h"
 
-typedef void(CombatCallbackF0)(int a1);
-typedef void(CombatCallbackF4)(void);
-typedef void(CombatCallbackF8)(void);
-typedef void(CombatCallbackFC)(int a1);
-typedef void(CombatCallbackF10)(int64_t obj);
+typedef void (*CombatCallbackF0)(int a1);
+typedef void (*CombatCallbackF4)(void);
+typedef void (*CombatCallbackF8)(void);
+typedef void (*CombatCallbackFC)(int a1);
+typedef void (*CombatCallbackF10)(int64_t obj);
 
 typedef struct CombatCallbacks {
-    CombatCallbackF0* field_0;
-    CombatCallbackF4* field_4;
-    CombatCallbackF8* field_8;
-    CombatCallbackFC* field_C;
-    CombatCallbackF10* field_10;
+    CombatCallbackF0 field_0;
+    CombatCallbackF4 field_4;
+    CombatCallbackF8 field_8;
+    CombatCallbackFC field_C;
+    CombatCallbackF10 field_10;
 } CombatCallbacks;
 
 typedef enum Loudness {

@@ -5,17 +5,17 @@
 
 #define TEXT_FILTER_SLEEP_MES_FILE_NAME "mes\\text_filter_sleep.mes"
 
-typedef bool(TextFilterValidate)(int64_t obj);
-typedef bool(TextFilterInitFunc)(void);
-typedef void(TextFilterExitFunc)(void);
-typedef void(TextFilterProcess)(const char* src, char** dst);
+typedef bool (*TextFilterValidate)(int64_t obj);
+typedef bool (*TextFilterInitFunc)(void);
+typedef void (*TextFilterExitFunc)(void);
+typedef void (*TextFilterProcess)(const char* src, char** dst);
 
 typedef struct TextFilterInfo {
     const char* name;
-    TextFilterValidate* validate;
-    TextFilterInitFunc* init;
-    TextFilterExitFunc* exit;
-    TextFilterProcess* process;
+    TextFilterValidate validate;
+    TextFilterInitFunc init;
+    TextFilterExitFunc exit;
+    TextFilterProcess process;
 } TextFilterInfo;
 
 static bool text_filter_sleeping_init(void);

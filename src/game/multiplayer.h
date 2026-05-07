@@ -10,8 +10,8 @@
 #define MULTIPLAYER_AUTO_SWITCH_WEAPONS 0x0400u
 #define MULTIPLAYER_FOLLOWER_SKILLS 0x0800u
 
-typedef void(Func5F0E08)(void);
-typedef bool(Func5F0DF8)(tig_button_handle_t button_handle);
+typedef void (*Func5F0E08)(void);
+typedef bool (*Func5F0DF8)(tig_button_handle_t button_handle);
 
 bool multiplayer_init(GameInitInfo* init_info);
 void multiplayer_exit(void);
@@ -26,7 +26,7 @@ void sub_49CC50(void);
 bool sub_49CC70(const char* a1, const char* a2);
 bool multiplayer_timeevent_process(TimeEvent* timeevent);
 bool multiplayer_map_open_by_name(const char* name);
-void sub_4A2B00(Func5F0E08* func);
+void sub_4A2B00(Func5F0E08 func);
 int multiplayer_find_slot_from_obj(int64_t obj);
 int64_t sub_4A2B60(int player);
 bool multiplayer_is_locked(void);
@@ -38,7 +38,7 @@ void sub_4A3230(ObjectID oid, bool (*success_func)(void*), void* success_info, b
 void sub_4A3890(void);
 int sub_4A38A0(void);
 bool sub_4A38B0(bool (*func)(tig_button_handle_t), tig_button_handle_t button_handle);
-void sub_4A39D0(Func5F0DF8* func, tig_button_handle_t button_handle);
+void sub_4A39D0(Func5F0DF8 func, tig_button_handle_t button_handle);
 bool sub_4A3D00(bool a1);
 bool sub_4A3D70(int64_t** objs_ptr, int* cnt_ptr);
 void sub_4A40F0(int player, ObjectID oid, int level, void* data, int size);

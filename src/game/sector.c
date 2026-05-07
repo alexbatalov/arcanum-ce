@@ -27,8 +27,8 @@ typedef uint32_t DifferenceFileFlags;
 #define DIF_HAVE_SOUND_LIST 0x0200u
 #define DIF_HAVE_BLOCK_LIST 0x0400u
 
-typedef bool(SectorSaveFunc)(Sector* sector);
-typedef bool(SectorLoadFunc)(int64_t id, Sector* sector);
+typedef bool (*SectorSaveFunc)(Sector* sector);
+typedef bool (*SectorLoadFunc)(int64_t id, Sector* sector);
 
 typedef struct SectorCacheEntry {
     /* 0000 */ bool used;
@@ -87,7 +87,7 @@ static unsigned int sector_cache_capacity;
 static unsigned int sector_cache_size;
 
 // 0x601788
-static SectorSaveFunc* sector_save_func;
+static SectorSaveFunc sector_save_func;
 
 // 0x60178C
 static bool in_sector_lock;
@@ -117,7 +117,7 @@ static tig_color_t dword_6017AC;
 static SectorCacheEntry* sector_cache_entries;
 
 // 0x6017B4
-static SectorLoadFunc* sector_load_func;
+static SectorLoadFunc sector_load_func;
 
 // 0x6017B8
 static IsoInvalidateRectFunc* sector_iso_window_invalidate_rect;
@@ -177,7 +177,7 @@ static int64_t sector_demo_limits_min_y;
 static int64_t sector_demo_limits_min_x;
 
 // 0x601820
-static SectorLockFunc* sector_write_lock_func;
+static SectorLockFunc sector_write_lock_func;
 
 // 0x601824
 static bool sector_demo_limits_set;
@@ -321,7 +321,7 @@ void sector_update_view(ViewOptions* view_options)
 }
 
 // 0x4CF360
-void sector_write_lock_func_set(SectorLockFunc* func)
+void sector_write_lock_func_set(SectorLockFunc func)
 {
     sector_write_lock_func = func;
 }
@@ -1121,7 +1121,7 @@ void sector_art_cache_disable(void)
 }
 
 // 0x4D1060
-void sector_enumerate(SectorEnumerateFunc* func)
+void sector_enumerate(SectorEnumerateFunc func)
 {
     unsigned int index;
 

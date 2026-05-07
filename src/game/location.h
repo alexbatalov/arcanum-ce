@@ -3,7 +3,7 @@
 
 #include "game/context.h"
 
-typedef void(LocationOriginSignificantChangeCallback)(int64_t loc);
+typedef void (*LocationOriginSignificantChangeCallback)(int64_t loc);
 
 typedef struct LocRect {
     int64_t x1;
@@ -22,7 +22,7 @@ void location_calc_dist_from_screen_center(int64_t location, int64_t* dx, int64_
 void location_origin_get(int64_t* sx, int64_t* sy);
 void location_origin_scroll(int64_t dx, int64_t dy);
 void location_origin_set(int64_t location);
-void location_origin_significant_change_callback_set(LocationOriginSignificantChangeCallback* func);
+void location_origin_significant_change_callback_set(LocationOriginSignificantChangeCallback func);
 int location_rot(int64_t a, int64_t b);
 bool location_in_dir(int64_t loc, int dir, int64_t* new_loc_ptr);
 bool location_in_range(int64_t loc, int dir, int range, int64_t* new_loc_ptr);

@@ -174,10 +174,10 @@ static bool ai_npc_fighting_enabled = true;
 static AiParams dword_5F5CB0[150];
 
 // 0x5F8488
-static AiFloatLineFunc* ai_float_line_func;
+static AiFloatLineFunc ai_float_line_func;
 
 // 0x5F848C
-static Func5F848C* dword_5F848C;
+static Func5F848C dword_5F848C;
 
 // 0x5F8498
 static bool in_find_target;
@@ -278,7 +278,7 @@ void ai_mod_unload(void)
 }
 
 // 0x4A84D0
-void ai_set_callbacks(Func5F848C* a1, AiFloatLineFunc* float_line_func)
+void ai_set_callbacks(Func5F848C a1, AiFloatLineFunc float_line_func)
 {
     dword_5F848C = a1;
     ai_float_line_func = float_line_func;

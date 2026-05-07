@@ -9,7 +9,7 @@ typedef struct SizeableArray {
     int bitset_id;
 } SizeableArray;
 
-typedef bool(SizeableArrayEnumerateCallback)(void* entry, int index);
+typedef bool (*SizeableArrayEnumerateCallback)(void* entry, int index);
 
 void sa_allocate(SizeableArray** sa_ptr, int size);
 void sa_deallocate(SizeableArray** sa_ptr);
@@ -17,7 +17,7 @@ void sa_copy(SizeableArray** dst, SizeableArray** src);
 void sa_array_copy_to_flat(void* dst, SizeableArray** sa_ptr, int cnt, int size);
 bool sa_write_file(SizeableArray** sa_ptr, TigFile* stream);
 bool sa_read_file(SizeableArray** sa_ptr, TigFile* stream);
-bool sa_enumerate(SizeableArray** sa_ptr, SizeableArrayEnumerateCallback* callback);
+bool sa_enumerate(SizeableArray** sa_ptr, SizeableArrayEnumerateCallback callback);
 void sa_set(SizeableArray** sa_ptr, int key, const void* value);
 void sa_get(SizeableArray** sa_ptr, int key, void* value);
 bool sa_has(SizeableArray** sa_ptr, int key);
