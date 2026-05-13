@@ -343,7 +343,7 @@ void rumor_copy_logbook_normal_str(int rumor, char* buffer, size_t maxlen)
         return;
     }
 
-    strlcpy(buffer, mes_file_entry.str, maxlen);
+    SDL_strlcpy(buffer, mes_file_entry.str, maxlen);
 }
 
 /**
@@ -362,7 +362,7 @@ void rumor_copy_logbook_dumb_str(int rumor, char* buffer, size_t maxlen)
         return;
     }
 
-    strlcpy(buffer, mes_file_entry.str, maxlen);
+    SDL_strlcpy(buffer, mes_file_entry.str, maxlen);
 }
 
 /**

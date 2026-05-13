@@ -559,9 +559,9 @@ void quest_copy_description(int64_t obj, int num, char* buffer, size_t maxlen)
 {
     if (quests[quest_num_to_idx(num)].dumb_description != NULL
         && stat_level_get(obj, STAT_INTELLIGENCE) <= LOW_INTELLIGENCE) {
-        strlcpy(buffer, quests[quest_num_to_idx(num)].dumb_description, maxlen);
+        SDL_strlcpy(buffer, quests[quest_num_to_idx(num)].dumb_description, maxlen);
     } else if (quests[quest_num_to_idx(num)].normal_description != NULL) {
-        strlcpy(buffer, quests[quest_num_to_idx(num)].normal_description, maxlen);
+        SDL_strlcpy(buffer, quests[quest_num_to_idx(num)].normal_description, maxlen);
     }
 }
 

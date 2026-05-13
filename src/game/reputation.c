@@ -374,7 +374,7 @@ void reputation_name(int reputation, char* buffer, size_t maxlen)
     if (reputation >= 1000) {
         mes_file_entry.num = reputation;
         if (mes_search(reputation_log_mes_file, &mes_file_entry)) {
-            strlcpy(buffer, mes_file_entry.str, maxlen);
+            SDL_strlcpy(buffer, mes_file_entry.str, maxlen);
         }
     }
 }

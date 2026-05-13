@@ -1549,7 +1549,7 @@ void logbook_ui_format_quest(char* buffer, size_t maxlen, int index)
     // Retrieve and append quest state.
     mes_file_entry.num = logbook_ui_quest_states[index] + 19;
     mes_get_msg(logbook_ui_mes_file, &mes_file_entry);
-    strlcat(buffer, mes_file_entry.str, maxlen);
+    SDL_strlcat(buffer, mes_file_entry.str, maxlen);
 
     // Jump to next line.
     pos = strlen(buffer);
@@ -1669,7 +1669,7 @@ void logbook_ui_format_kill_or_injury(char* buffer, size_t maxlen, int index)
         // "Injury History"
         mes_file_entry.num = 33;
         mes_get_msg(logbook_ui_mes_file, &mes_file_entry);
-        strlcpy(buffer, mes_file_entry.str, maxlen);
+        SDL_strlcpy(buffer, mes_file_entry.str, maxlen);
     } else {
         // Special case - time array used to store injury type.
         mes_file_entry.num = 34 + logbook_ui_entry_datetimes[index].milliseconds;

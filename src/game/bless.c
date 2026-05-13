@@ -75,7 +75,7 @@ void bless_copy_field(int bless, int field, char* buffer, size_t maxlen)
     // Blessings data comes in a banks of 10.
     mes_file_entry.num = bless * 10 + field;
     if (mes_search(bless_mes_file, &mes_file_entry)) {
-        strlcpy(buffer, mes_file_entry.str, maxlen);
+        SDL_strlcpy(buffer, mes_file_entry.str, maxlen);
     }
 }
 

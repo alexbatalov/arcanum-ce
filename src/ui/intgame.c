@@ -7276,8 +7276,8 @@ void append_stat(char* buffer, size_t maxlen, int num, int min, int max, int adj
     mes_file_entry.num = num;
     mes_get_msg(intgame_mes_file, &mes_file_entry);
 
-    strlcat(buffer, mes_file_entry.str, maxlen);
-    strlcat(buffer, ":", maxlen);
+    SDL_strlcat(buffer, mes_file_entry.str, maxlen);
+    SDL_strlcat(buffer, ":", maxlen);
 
     if (max != 0) {
         snprintf(tmp, sizeof(tmp), "%d-%d", min, max);
@@ -7288,15 +7288,15 @@ void append_stat(char* buffer, size_t maxlen, int num, int min, int max, int adj
         } else {
             snprintf(tmp, sizeof(tmp), "%d", min);
         }
-        strlcat(buffer, tmp, maxlen);
+        SDL_strlcat(buffer, tmp, maxlen);
     }
 
     if (adj != 0) {
         snprintf(tmp, sizeof(tmp), "(%+d)", adj);
-        strlcat(buffer, tmp, maxlen);
+        SDL_strlcat(buffer, tmp, maxlen);
     }
 
-    strlcat(buffer, "  ", maxlen);
+    SDL_strlcat(buffer, "  ", maxlen);
 }
 
 // 0x555910
