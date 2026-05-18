@@ -5128,13 +5128,19 @@ bool mainmenu_ui_message_filter(TigMessage* msg)
                 // Use _unscale: msg coords are 800x600-local here but the
                 // lens check expects screen coords.
                 if (intgame_pc_lens_check_pt_unscale(msg->data.mouse.x, msg->data.mouse.y)) {
-                    if (stru_5C36B0[mainmenu_ui_type][0]) {
-                        if (!options_ui_load_module()) {
+                    // Mirror the Done button: commit module changes first
+                    // (bails if module load failed so the user stays on the
+                    // Options screen), then route through the same
+                    // stack-aware exit as ESC — full restore at the top of
+                    // the stack, pop to parent when stacked.
+                    if (options_ui_load_module()) {
+                        if (mainmenu_ui_num_windows <= 1
+                            && stru_5C36B0[mainmenu_ui_type][0]) {
                             sub_5412D0();
+                        } else {
+                            gsound_play_sfx(0, 1);
+                            mainmenu_ui_close(true);
                         }
-                    } else {
-                        gsound_play_sfx(0, 1);
-                        mainmenu_ui_close(true);
                     }
                     return true;
                 }
