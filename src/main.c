@@ -484,6 +484,29 @@ void main_loop(void)
                         sub_543220();
                         mainmenu_ui_feedback_loading_completed();
                         break;
+                    case SDL_SCANCODE_S:
+                        // Ctrl/Cmd+S → Save Game menu (in-game shortcut).
+                        // Accepts either modifier so the platform-native
+                        // convention (Cmd on macOS, Ctrl on Windows/Linux)
+                        // works everywhere.
+                        if (!textedit_ui_is_focused()
+                            && tig_kb_get_modifier(SDL_KMOD_CTRL | SDL_KMOD_GUI)) {
+                            mainmenu_ui_start_at_window(MM_WINDOW_SAVE_GAME);
+                            if (!mainmenu_ui_handle()) {
+                                return;
+                            }
+                        }
+                        break;
+                    case SDL_SCANCODE_L:
+                        // Ctrl/Cmd+L → Load Game menu (in-game shortcut).
+                        if (!textedit_ui_is_focused()
+                            && tig_kb_get_modifier(SDL_KMOD_CTRL | SDL_KMOD_GUI)) {
+                            mainmenu_ui_start_at_window(MM_WINDOW_LOAD_GAME);
+                            if (!mainmenu_ui_handle()) {
+                                return;
+                            }
+                        }
+                        break;
                     case SDL_SCANCODE_F11:
                         if (gamelib_cheat_level_get() >= 3) {
                             for (index = 0; index < SPELL_COUNT; index++) {

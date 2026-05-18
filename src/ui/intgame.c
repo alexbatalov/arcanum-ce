@@ -2537,6 +2537,11 @@ bool sub_54B5D0(TigMessage* msg)
                 gsound_play_sfx(0, 1);
                 return true;
             case SDLK_S:
+                // Plain S opens the sleep menu; let Ctrl/Cmd+S fall through
+                // to main.c's Save Game shortcut.
+                if (tig_kb_get_modifier(SDL_KMOD_CTRL | SDL_KMOD_GUI)) {
+                    return false;
+                }
                 sleep_ui_toggle(OBJ_HANDLE_NULL);
                 gsound_play_sfx(0, 1);
                 return true;

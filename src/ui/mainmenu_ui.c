@@ -1610,6 +1610,32 @@ void mainmenu_ui_start(MainMenuType type)
     }
 }
 
+// Open the main-menu UI directly to a specific window from in-game (like
+// the O shortcut does for Options). Reuses the MM_TYPE_OPTIONS flavor so
+// the menu has the single-press ESC return-to-game behavior wired up via
+// stru_5C36B0[MM_TYPE_OPTIONS][0]=true.
+void mainmenu_ui_start_at_window(MainMenuWindowType window_type)
+{
+    tig_art_id_t art_id;
+
+    if (mainmenu_ui_active) {
+        return;
+    }
+
+    mainmenu_ui_num_windows = 0;
+    intgame_hide();
+
+    tig_art_interface_id_create(0, 0, 0, 0, &art_id);
+    tig_mouse_cursor_set_art_id(art_id);
+    inven_ui_destroy();
+
+    mainmenu_ui_type = MM_TYPE_OPTIONS;
+    mainmenu_ui_window_type = window_type;
+    dword_5C4004 = false;
+    mainmenu_ui_open();
+    object_hover_obj_set(OBJ_HANDLE_NULL);
+}
+
 // 0x5412D0
 void sub_5412D0(void)
 {

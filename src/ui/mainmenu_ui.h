@@ -66,6 +66,7 @@ extern int64_t* dword_64C41C;
 bool mainmenu_ui_init(GameInitInfo* init_info);
 void mainmenu_ui_exit(void);
 void mainmenu_ui_start(MainMenuType type);
+void mainmenu_ui_start_at_window(MainMenuWindowType window_type);
 void sub_5412D0(void);
 bool mainmenu_ui_handle(void);
 bool mainmenu_ui_is_active(void);
