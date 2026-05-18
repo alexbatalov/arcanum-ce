@@ -1761,7 +1761,17 @@ bool mainmenu_ui_handle(void)
                 if (!msg.data.keyboard.pressed
                     && msg.data.keyboard.scancode == SDL_SCANCODE_ESCAPE
                     && mainmenu_ui_window_type != MM_WINDOW_MAINMENU) {
-                    mainmenu_ui_close(true);
+                    // For menu types whose primary action is "exit to game"
+                    // (in-play pause menu, in-play locked, and the in-game
+                    // Options shortcut), route ESC through the same full
+                    // exit path the Done button uses so intgame_show() and
+                    // the rest of the restore steps run. Otherwise just pop
+                    // the menu stack the usual way.
+                    if (stru_5C36B0[mainmenu_ui_type][0]) {
+                        sub_5412D0();
+                    } else {
+                        mainmenu_ui_close(true);
+                    }
                 }
                 break;
             default:
