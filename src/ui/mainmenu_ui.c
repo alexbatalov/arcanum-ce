@@ -2147,7 +2147,9 @@ void mainmenu_ui_create_options(void)
         location_origin_set(loc);
         intgame_pc_lens_do(PC_LENS_MODE_PASSTHROUGH, &pc_lens);
     } else {
-        intgame_pc_lens_do(PC_LENS_MODE_BLACKOUT, &pc_lens);
+        // Pre-game (main menu) Options has no PC to look at — hide the lens
+        // entirely instead of showing the blacked-out widget.
+        intgame_pc_lens_do(PC_LENS_MODE_NONE, NULL);
     }
 
     tig_window_display();
@@ -2326,7 +2328,13 @@ void mainmenu_ui_load_game_create(void)
         location_origin_set(obj_field_int64_get(pc_obj, OBJ_F_LOCATION));
     }
 
-    if (map_by_type(MAP_TYPE_SHOPPING_MAP) == map_current_map()) {
+    if (!stru_5C36B0[mainmenu_ui_type][0]) {
+        // Pre-game Load Game (reached from the main menu, no game in
+        // session) — `player_get_local_pc_obj()` can return a stub PC
+        // here, so gate on the same "exit to game" menu-type flag the
+        // Options screen uses. No PC to look at → hide the lens entirely.
+        intgame_pc_lens_do(PC_LENS_MODE_NONE, NULL);
+    } else if (map_by_type(MAP_TYPE_SHOPPING_MAP) == map_current_map()) {
         intgame_pc_lens_do(PC_LENS_MODE_BLACKOUT, &pc_lens);
     } else {
         intgame_pc_lens_do(PC_LENS_MODE_PASSTHROUGH, &pc_lens);
