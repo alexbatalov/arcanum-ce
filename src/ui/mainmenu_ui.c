@@ -5346,7 +5346,16 @@ bool mainmenu_ui_message_filter(TigMessage* msg)
                 return false;
             case MM_WINDOW_OPTIONS:
                 if (msg->data.keyboard.scancode == SDL_SCANCODE_O) {
-                    if (!stru_5C36B0[mainmenu_ui_type][1]) {
+                    // O toggles Options closed only when we entered here
+                    // directly via the in-game O shortcut (top of menu
+                    // stack). When stacked under another menu — e.g. pause
+                    // menu → Options via its "O" hotkey button — the keyup
+                    // raced in here right after the keydown opened the
+                    // window and was auto-dismissing it. Swallow the key
+                    // either way so it doesn't fall through to other
+                    // handlers.
+                    if (!stru_5C36B0[mainmenu_ui_type][1]
+                        && mainmenu_ui_num_windows <= 1) {
                         sub_5412D0();
                     }
                     return true;
