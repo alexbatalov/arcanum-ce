@@ -1579,7 +1579,13 @@ bool tig_window_modal_dialog_message_filter(TigMessage* msg)
 {
     switch (msg->type) {
     case TIG_MESSAGE_KEYBOARD:
-        if (msg->data.keyboard.pressed) {
+        // Close the modal on keyup, not keydown. The matching keyup is
+        // still queued behind a keydown-closed modal and was leaking out
+        // to the underlying message loop (e.g. mainmenu_ui_handle's ESC
+        // handler), so dismissing a confirm dialog with ESC was also
+        // closing the menu that opened it. Handling on keyup means the
+        // modal swallows both events before anything else sees them.
+        if (!msg->data.keyboard.pressed) {
             switch (tig_window_modal_dialog_info.type) {
             case TIG_WINDOW_MODAL_DIALOG_TYPE_OK:
                 tig_message_modal_dialog_choice = TIG_WINDOW_MODAL_DIALOG_CHOICE_OK;
