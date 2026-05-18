@@ -2198,7 +2198,12 @@ bool mainmenu_ui_press_options(tig_button_handle_t button_handle)
         }
     }
 
-    if (stru_5C36B0[mainmenu_ui_type][0]) {
+    // Same stack-aware close as ESC: if Options was reached via a parent
+    // menu (e.g. pause menu → Options), pop back to that parent. Only
+    // fully exit to game when we're at the top of the stack (the O key
+    // shortcut or similar direct entry).
+    if (mainmenu_ui_num_windows <= 1
+        && stru_5C36B0[mainmenu_ui_type][0]) {
         sub_5412D0();
     } else {
         mainmenu_ui_close(true);
@@ -5703,7 +5708,18 @@ void sub_5480C0(int a1)
         return;
     case 3:
         if (mainmenu_ui_window_type != MM_WINDOW_OPTIONS || options_ui_load_module()) {
-            mainmenu_ui_close(true);
+            // Same stack-aware close as ESC: when this menu was launched
+            // directly into the world (Cmd+Shift+S, Cmd+O, etc. — top of
+            // stack with an "exit to game" type), route through sub_5412D0
+            // so intgame_show() and the rest of the restore steps run.
+            // When stacked under a parent menu (pause menu → Save/Load),
+            // fall back to the normal close-back that pops to the parent.
+            if (mainmenu_ui_num_windows <= 1
+                && stru_5C36B0[mainmenu_ui_type][0]) {
+                sub_5412D0();
+            } else {
+                mainmenu_ui_close(true);
+            }
         }
         return;
     case 4:
