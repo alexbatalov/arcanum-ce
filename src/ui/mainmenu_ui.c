@@ -1787,13 +1787,15 @@ bool mainmenu_ui_handle(void)
                 if (!msg.data.keyboard.pressed
                     && msg.data.keyboard.scancode == SDL_SCANCODE_ESCAPE
                     && mainmenu_ui_window_type != MM_WINDOW_MAINMENU) {
-                    // For menu types whose primary action is "exit to game"
-                    // (in-play pause menu, in-play locked, and the in-game
-                    // Options shortcut), route ESC through the same full
-                    // exit path the Done button uses so intgame_show() and
-                    // the rest of the restore steps run. Otherwise just pop
-                    // the menu stack the usual way.
-                    if (stru_5C36B0[mainmenu_ui_type][0]) {
+                    // If the menu stack has a parent (e.g. user opened
+                    // Options from the pause menu, or Save/Load from the
+                    // pause menu), pop back to the parent like the original
+                    // close-back path does. Only at the top of the stack —
+                    // i.e. we were launched directly into this menu (O key,
+                    // Cmd+S/L, etc.) — do we route ESC through the full
+                    // exit-to-game restore for the "in-game" menu types.
+                    if (mainmenu_ui_num_windows <= 1
+                        && stru_5C36B0[mainmenu_ui_type][0]) {
                         sub_5412D0();
                     } else {
                         mainmenu_ui_close(true);
@@ -5084,17 +5086,21 @@ bool mainmenu_ui_message_filter(TigMessage* msg)
         case TIG_MESSAGE_MOUSE_LEFT_BUTTON_UP:
             // Click outside the menu's actual screen rect and outside both
             // HUD strips dismisses any "in-game" overlay menu — same effect
-            // as ESC or clicking the PC lens. Querying the live menu rect
-            // (rather than assuming 800x600) keeps this correct for partial
-            // menus too. At 800x600 native nothing falls outside both menu
-            // and HUD, so the original behavior is preserved.
+            // as ESC or clicking the PC lens. If the menu has a parent on
+            // the stack (e.g. Options reached from the pause menu), pop
+            // back to the parent; only fully exit to game when we're at
+            // the top of the stack.
             if (stru_5C36B0[mainmenu_ui_type][0]
                 && mainmenu_ui_window_handle != TIG_WINDOW_HANDLE_INVALID) {
                 TigWindowData menu_wd;
                 if (tig_window_data(mainmenu_ui_window_handle, &menu_wd) == TIG_OK
                     && intgame_should_dismiss_overlay_click(
                            original_screen_x, original_screen_y, &menu_wd.rect)) {
-                    sub_5412D0();
+                    if (mainmenu_ui_num_windows <= 1) {
+                        sub_5412D0();
+                    } else {
+                        mainmenu_ui_close(true);
+                    }
                     return true;
                 }
             }
