@@ -1787,18 +1787,36 @@ int tig_window_move(tig_window_handle_t window_handle, int x, int y)
 {
     int window_index;
     TigWindow* win;
+    int dx;
+    int dy;
+    int i;
 
     window_index = tig_window_handle_to_index(window_handle);
     win = &(windows[window_index]);
 
-    if ((win->flags & TIG_WINDOW_HIDDEN) != 0) {
+    // Invalidate old frame area so the previous position is recomposited
+    // from underlying windows.
+    if ((win->flags & TIG_WINDOW_HIDDEN) == 0) {
         tig_window_invalidate_rect(&(win->frame));
     }
+
+    dx = x - win->frame.x;
+    dy = y - win->frame.y;
 
     win->frame.x = x;
     win->frame.y = y;
 
-    if ((win->flags & TIG_WINDOW_HIDDEN) != 0) {
+    // Child buttons cache absolute screen rects (set at creation as
+    // window.frame + button-local offset). Translate them by the same delta
+    // so subsequent button refreshes blit art at the correct window-local
+    // offset; otherwise the stale rect minus the moved frame yields a
+    // wrong destination and the button art is baked into the strip's
+    // pixel buffer at the wrong place (ghost buttons).
+    for (i = 0; i < win->num_buttons; i++) {
+        tig_button_translate(win->buttons[i], dx, dy);
+    }
+
+    if ((win->flags & TIG_WINDOW_HIDDEN) == 0) {
         tig_window_invalidate_rect(&(win->frame));
     }
 

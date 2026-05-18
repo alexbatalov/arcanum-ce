@@ -57,6 +57,7 @@ int tig_button_is_hidden(tig_button_handle_t button_handle, bool* hidden);
 int tig_button_show_force(tig_button_handle_t button_handle);
 int tig_button_hide_force(tig_button_handle_t button_handle);
 void tig_button_set_art(tig_button_handle_t button_handle, tig_art_id_t art_id);
+void tig_button_translate(tig_button_handle_t button_handle, int dx, int dy);
 
 #ifdef __cplusplus
 }
