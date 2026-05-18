@@ -5095,7 +5095,7 @@ bool mainmenu_ui_message_filter(TigMessage* msg)
                 TigWindowData menu_wd;
                 if (tig_window_data(mainmenu_ui_window_handle, &menu_wd) == TIG_OK
                     && intgame_should_dismiss_overlay_click(
-                           original_screen_x, original_screen_y, &menu_wd.rect)) {
+                        original_screen_x, original_screen_y, &menu_wd.rect)) {
                     if (mainmenu_ui_num_windows <= 1) {
                         sub_5412D0();
                     } else {
