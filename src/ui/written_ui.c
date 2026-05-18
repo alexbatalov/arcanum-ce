@@ -681,6 +681,17 @@ bool written_ui_message_filter(TigMessage* msg)
             written_ui_close();
             return true;
         }
+        // Click outside the written-ui window and outside both HUD strips
+        // dismisses the overlay (hi-res convenience).
+        if (msg->data.mouse.event == TIG_MESSAGE_MOUSE_LEFT_BUTTON_UP
+            && written_ui_window != TIG_WINDOW_HANDLE_INVALID) {
+            TigWindowData menu_wd;
+            if (tig_window_data(written_ui_window, &menu_wd) == TIG_OK
+                && intgame_should_dismiss_overlay_click(msg->data.mouse.x, msg->data.mouse.y, &menu_wd.rect)) {
+                written_ui_close();
+                return true;
+            }
+        }
         break;
     case TIG_MESSAGE_BUTTON:
         if (msg->data.button.state == TIG_BUTTON_STATE_RELEASED) {

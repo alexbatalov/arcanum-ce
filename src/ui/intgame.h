@@ -102,6 +102,7 @@ void intgame_message_window_clear_internal(void);
 void intgame_pc_lens_do(PcLensMode mode, PcLens* pc_lens);
 bool intgame_pc_lens_check_pt(int x, int y);
 bool intgame_pc_lens_check_pt_unscale(int x, int y);
+bool intgame_should_dismiss_overlay_click(int screen_x, int screen_y, const TigRect* menu_rect);
 void intgame_pc_lens_redraw(void);
 void iso_interface_refresh(void);
 bool sub_5517A0(TigMessage* msg);

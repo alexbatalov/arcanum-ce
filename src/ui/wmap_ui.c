@@ -1974,6 +1974,19 @@ bool wmap_ui_message_filter(TigMessage* msg)
                 return true;
             }
 
+            // Click outside the world map window and outside both HUD strips
+            // dismisses the overlay (hi-res convenience).
+            if (wmap_ui_window != TIG_WINDOW_HANDLE_INVALID) {
+                TigWindowData menu_wd;
+                int screen_x = msg->data.mouse.x + (hrp_iso_window_width_get() - 800) / 2;
+                int screen_y = msg->data.mouse.y + (hrp_iso_window_height_get() - 600) / 2;
+                if (tig_window_data(wmap_ui_window, &menu_wd) == TIG_OK
+                    && intgame_should_dismiss_overlay_click(screen_x, screen_y, &menu_wd.rect)) {
+                    wmap_ui_close();
+                    return true;
+                }
+            }
+
             return false;
         case TIG_MESSAGE_MOUSE_RIGHT_BUTTON_UP: {
             if (wmap_ui_state == WMAP_UI_STATE_EDITING) {

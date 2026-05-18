@@ -5036,6 +5036,8 @@ bool mainmenu_ui_message_filter(TigMessage* msg)
     UiMessage ui_message;
     char str[MAX_STRING];
     int v2;
+    int original_screen_x = 0;
+    int original_screen_y = 0;
     TigMessage tmp_msg = *msg;
     msg = &tmp_msg;
 
@@ -5043,6 +5045,8 @@ bool mainmenu_ui_message_filter(TigMessage* msg)
     // area.
     if (msg->type == TIG_MESSAGE_MOUSE) {
         TigRect rect = { 0, 0, 800, 600 };
+        original_screen_x = msg->data.mouse.x;
+        original_screen_y = msg->data.mouse.y;
         hrp_apply(&rect, GRAVITY_CENTER_HORIZONTAL | GRAVITY_CENTER_VERTICAL);
         msg->data.mouse.x -= rect.x;
         msg->data.mouse.y -= rect.y;
@@ -5078,6 +5082,22 @@ bool mainmenu_ui_message_filter(TigMessage* msg)
 
         switch (msg->data.mouse.event) {
         case TIG_MESSAGE_MOUSE_LEFT_BUTTON_UP:
+            // Click outside the menu's actual screen rect and outside both
+            // HUD strips dismisses any "in-game" overlay menu — same effect
+            // as ESC or clicking the PC lens. Querying the live menu rect
+            // (rather than assuming 800x600) keeps this correct for partial
+            // menus too. At 800x600 native nothing falls outside both menu
+            // and HUD, so the original behavior is preserved.
+            if (stru_5C36B0[mainmenu_ui_type][0]
+                && mainmenu_ui_window_handle != TIG_WINDOW_HANDLE_INVALID) {
+                TigWindowData menu_wd;
+                if (tig_window_data(mainmenu_ui_window_handle, &menu_wd) == TIG_OK
+                    && intgame_should_dismiss_overlay_click(
+                           original_screen_x, original_screen_y, &menu_wd.rect)) {
+                    sub_5412D0();
+                    return true;
+                }
+            }
             switch (mainmenu_ui_window_type) {
             case MM_WINDOW_0:
             case MM_WINDOW_1:
@@ -5086,7 +5106,9 @@ bool mainmenu_ui_message_filter(TigMessage* msg)
                 mainmenu_ui_open();
                 return true;
             case MM_WINDOW_OPTIONS:
-                if (intgame_pc_lens_check_pt(msg->data.mouse.x, msg->data.mouse.y)) {
+                // Use _unscale: msg coords are 800x600-local here but the
+                // lens check expects screen coords.
+                if (intgame_pc_lens_check_pt_unscale(msg->data.mouse.x, msg->data.mouse.y)) {
                     if (stru_5C36B0[mainmenu_ui_type][0]) {
                         if (!options_ui_load_module()) {
                             sub_5412D0();
@@ -5099,7 +5121,7 @@ bool mainmenu_ui_message_filter(TigMessage* msg)
                 }
                 break;
             case MM_WINDOW_LOAD_GAME:
-                if (intgame_pc_lens_check_pt(msg->data.mouse.x, msg->data.mouse.y)) {
+                if (intgame_pc_lens_check_pt_unscale(msg->data.mouse.x, msg->data.mouse.y)) {
                     if (dword_64C450) {
                         sub_5412D0();
                     } else {
@@ -5109,7 +5131,7 @@ bool mainmenu_ui_message_filter(TigMessage* msg)
                 }
                 break;
             case MM_WINDOW_SAVE_GAME:
-                if (intgame_pc_lens_check_pt(msg->data.mouse.x, msg->data.mouse.y)) {
+                if (intgame_pc_lens_check_pt_unscale(msg->data.mouse.x, msg->data.mouse.y)) {
                     sub_5412D0();
                     return true;
                 }

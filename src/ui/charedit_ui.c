@@ -1579,6 +1579,19 @@ bool charedit_window_message_filter(TigMessage* msg)
                 charedit_close();
                 return true;
             }
+            // Click outside the charedit window and outside both HUD strips
+            // dismisses the overlay (hi-res convenience). Skipped during
+            // creation modes which need explicit Done/Cancel.
+            if (charedit_mode != CHAREDIT_MODE_CREATE
+                && charedit_mode != CHAREDIT_MODE_3
+                && charedit_window_handle != TIG_WINDOW_HANDLE_INVALID) {
+                TigWindowData menu_wd;
+                if (tig_window_data(charedit_window_handle, &menu_wd) == TIG_OK
+                    && intgame_should_dismiss_overlay_click(msg->data.mouse.x, msg->data.mouse.y, &menu_wd.rect)) {
+                    charedit_close();
+                    return true;
+                }
+            }
             return false;
         default:
             return false;

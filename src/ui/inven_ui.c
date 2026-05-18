@@ -1819,6 +1819,22 @@ static inline bool inven_ui_message_filter_handle_mouse_lbutton_up(int x, int y,
         return false;
     }
 
+    // Click outside the inventory window and outside both HUD strips
+    // dismisses the overlay (hi-res convenience; at 800x600 nothing falls
+    // outside both menu and HUD so behavior is unchanged).
+    if (!mainmenu_ui_is_active()
+        && inven_ui_drag_item_obj == OBJ_HANDLE_NULL
+        && inven_ui_window_handle != TIG_WINDOW_HANDLE_INVALID) {
+        TigWindowData menu_wd;
+        int screen_x = x + (hrp_iso_window_width_get() - 800) / 2;
+        int screen_y = y + (hrp_iso_window_height_get() - 600) / 2;
+        if (tig_window_data(inven_ui_window_handle, &menu_wd) == TIG_OK
+            && intgame_should_dismiss_overlay_click(screen_x, screen_y, &menu_wd.rect)) {
+            *v45 = true;
+            return false;
+        }
+    }
+
     if (inven_ui_drag_item_obj == OBJ_HANDLE_NULL) {
         v1 = sub_575FA0(x, y, &v2);
         if (v1 == OBJ_HANDLE_NULL) {
