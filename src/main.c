@@ -813,16 +813,60 @@ void handle_mouse_scroll(void)
     int height;
     int tolerance;
 
+    width = hrp_iso_window_width_get();
+    height = hrp_iso_window_height_get();
+    tolerance = 8;
+
     if (!tig_get_active()) {
+        // The cursor has left the window. When the window is constrained to
+        // the display's safe area (e.g. macOS with menu bar / camera notch
+        // above), rolling past the top of the window would otherwise stop
+        // edge scrolling because the cursor is no longer over the window.
+        // Recover the global cursor position and, if it sits above the top
+        // of the window (within its horizontal span), keep scrolling up.
+        SDL_Window* window = NULL;
+        if (tig_video_window_get(&window) == TIG_OK && window != NULL) {
+            float gx_f = 0.0f;
+            float gy_f = 0.0f;
+            int wx = 0;
+            int wy = 0;
+            int ww = 0;
+            int wh = 0;
+
+            SDL_GetGlobalMouseState(&gx_f, &gy_f);
+            SDL_GetWindowPosition(window, &wx, &wy);
+            SDL_GetWindowSize(window, &ww, &wh);
+
+            int rel_x = (int)gx_f - wx;
+            int rel_y = (int)gy_f - wy;
+
+            if (rel_y < tolerance && rel_x >= 0 && rel_x < ww) {
+                // Match the in-window corner detection: only a `tolerance`
+                // px sliver in each top corner counts as the diagonal
+                // direction, the rest of the top edge is pure UP. Using
+                // quarter-width zones here caused unintended horizontal
+                // scrolling because the game's edge logic is calibrated
+                // around 800x600 / a small absolute pixel tolerance, not a
+                // fraction of the window width.
+                if (rel_x < tolerance) {
+                    scroll_start(SCROLL_DIRECTION_UP_LEFT);
+                } else if (rel_x >= ww - tolerance) {
+                    scroll_start(SCROLL_DIRECTION_UP_RIGHT);
+                } else {
+                    scroll_start(SCROLL_DIRECTION_UP);
+                }
+                return;
+            }
+        }
         scroll_stop();
         return;
     }
 
     tig_mouse_get_state(&mouse_state);
-    width = hrp_iso_window_width_get();
-    height = hrp_iso_window_height_get();
-    tolerance = 8;
 
+    // Treat negative coordinates (cursor above/left of the logical content
+    // rect after letterboxing) the same as the top/left edge so edge
+    // scrolling still triggers when the cursor overshoots the bounds.
     if (mouse_state.x < tolerance) {
         if (mouse_state.y < tolerance) {
             scroll_start(SCROLL_DIRECTION_UP_LEFT);
