@@ -381,6 +381,18 @@ int tig_button_state_get(tig_button_handle_t button_handle, TigButtonState* stat
     return TIG_OK;
 }
 
+// Returns the button currently in the MOUSE_INSIDE state, or
+// TIG_BUTTON_HANDLE_INVALID if no button is hovered. Used by the modal
+// dialog system to replay a MOUSE_OUTSIDE notification for the
+// underlying menu's hovered button after the modal closes — the modal
+// loop drops button state-change messages while it's up, so the
+// underlying menu can't update its rendered highlight via the normal
+// notification path.
+tig_button_handle_t tig_button_get_hovered(void)
+{
+    return tig_button_hovered_button_handle;
+}
+
 // 0x5380F0
 tig_button_handle_t tig_button_get_at_position(int x, int y)
 {
