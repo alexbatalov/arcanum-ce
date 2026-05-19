@@ -11,16 +11,16 @@
 
 // Keys in arcanum.cfg that mirror HighRes/config.ini. arcanum.cfg uses
 // lowercase keys with spaces; we match that convention for consistency.
-#define CFG_KEY_WIDTH       "resolution width"
-#define CFG_KEY_HEIGHT      "resolution height"
-#define CFG_KEY_WINDOWED    "windowed"
-#define CFG_KEY_SHOW_FPS    "show fps"
-#define CFG_KEY_SCROLL_FPS  "scroll fps"
+#define CFG_KEY_WIDTH "resolution width"
+#define CFG_KEY_HEIGHT "resolution height"
+#define CFG_KEY_WINDOWED "windowed"
+#define CFG_KEY_SHOW_FPS "show fps"
+#define CFG_KEY_SCROLL_FPS "scroll fps"
 #define CFG_KEY_SCROLL_DIST "scroll dist"
-#define CFG_KEY_LOGOS       "logos"
-#define CFG_KEY_INTRO       "intro"
+#define CFG_KEY_LOGOS "logos"
+#define CFG_KEY_INTRO "intro"
 #define CFG_KEY_IGNORE_NOTCH "macos ignore notch"
-#define CFG_KEY_ASPECT_SNAP  "aspect snap"
+#define CFG_KEY_ASPECT_SNAP "aspect snap"
 
 static void highres_config_reset(void);
 static void highres_config_parse_line(char* line);
