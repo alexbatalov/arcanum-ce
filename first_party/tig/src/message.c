@@ -117,6 +117,15 @@ void tig_message_ping(void)
         case SDL_EVENT_WINDOW_MOUSE_LEAVE:
             tig_set_active(false);
             break;
+#if defined(SDL_PLATFORM_MACOS) && SDL_PLATFORM_MACOS
+        case SDL_EVENT_WINDOW_FOCUS_GAINED:
+            // macOS resets the app's presentation options (hide menu bar /
+            // dock) and our NSWindow level when the app deactivates. Without
+            // this, after a cmd-tab the menu bar reappears at the top edge
+            // and drags a window title bar down with it.
+            tig_video_macos_reapply_chrome();
+            break;
+#endif
         case SDL_EVENT_MOUSE_MOTION:
             tig_mouse_set_position((int)event.motion.x, (int)event.motion.y);
             break;

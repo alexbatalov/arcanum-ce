@@ -139,6 +139,15 @@ int tig_video_buffer_tint(TigVideoBuffer* video_buffer, TigRect* rect, tig_color
 int tig_video_buffer_save_to_bmp(TigVideoBufferSaveToBmpInfo* save_info);
 int tig_video_buffer_load_from_bmp(const char* filename, TigVideoBuffer** video_buffer_ptr, unsigned int flags);
 
+#if defined(SDL_PLATFORM_MACOS) && SDL_PLATFORM_MACOS
+// Re-apply the macOS borderless-full-display window chrome (NSWindow level
+// above the menu bar, hide dock + menu bar). No-op unless the window was
+// created with TIG_INITIALIZE_IGNORE_NOTCH. Call on focus regain -- macOS
+// resets these on app deactivation, otherwise the menu bar and a window
+// title bar slide down at the top of the screen.
+void tig_video_macos_reapply_chrome(void);
+#endif
+
 #ifdef __cplusplus
 }
 #endif
