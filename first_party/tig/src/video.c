@@ -3,6 +3,11 @@
 #include <limits.h>
 #include <stdio.h>
 
+#if SDL_PLATFORM_MACOS
+#include <objc/message.h>
+#include <objc/runtime.h>
+#endif
+
 #include "tig/art.h"
 #include "tig/color.h"
 #include "tig/core.h"
@@ -1264,11 +1269,98 @@ bool tig_video_window_create(TigInitInfo* init_info)
     SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengles2,metal");
 #endif
 
+#if SDL_PLATFORM_MACOS
+    // On macOS, by default we let the window cover the full display, including
+    // the area under the camera notch. This avoids the window being clipped
+    // below the menu bar / notch on notched MacBooks. When the user clears
+    // `ignore notch`, the window is constrained to the display's usable bounds.
+    //
+    // We deliberately bypass SDL_WINDOW_FULLSCREEN here (which on macOS goes
+    // through Cocoa "Spaces" fullscreen via toggleFullScreen:). Spaces
+    // fullscreen still honors the system safe area on some macOS versions
+    // even with `NSPrefersDisplaySafeAreaCompatibilityMode` set in Info.plist
+    // (e.g. when a previous app bundle had the Get Info "Scale to fit below
+    // built-in camera" checkbox toggled). Instead, we manually create a
+    // borderless window sized to the full display and raise its NSWindow
+    // level above the menu bar so it genuinely covers the panel edge-to-edge.
+    bool macos_ignore_notch = (init_info->flags & TIG_INITIALIZE_IGNORE_NOTCH) != 0;
+    SDL_Rect macos_display_bounds;
+    if (macos_ignore_notch) {
+        SDL_GetDisplayBounds(SDL_GetPrimaryDisplay(), &macos_display_bounds);
+    } else {
+        SDL_GetDisplayUsableBounds(SDL_GetPrimaryDisplay(), &macos_display_bounds);
+    }
+
+    bool macos_cover_full_display = macos_ignore_notch;
+    if (macos_cover_full_display) {
+        // Drop SDL's Spaces-fullscreen path and use a borderless window we
+        // can position and level-raise ourselves.
+        flags &= ~SDL_WINDOW_FULLSCREEN;
+        flags |= SDL_WINDOW_BORDERLESS;
+        window_width = macos_display_bounds.w;
+        window_height = macos_display_bounds.h;
+    } else if ((init_info->flags & TIG_INITIALIZE_WINDOWED) != 0) {
+        // Clamp the requested windowed size to the available area so macOS
+        // does not silently shrink the window below the menu bar / notch.
+        if (window_width > macos_display_bounds.w) {
+            window_width = macos_display_bounds.w;
+        }
+        if (window_height > macos_display_bounds.h) {
+            window_height = macos_display_bounds.h;
+        }
+    }
+#endif
+
     SDL_Window* window;
     SDL_Renderer* renderer;
     if (!SDL_CreateWindowAndRenderer(name, window_width, window_height, flags, &window, &renderer)) {
         return false;
     }
+
+#if SDL_PLATFORM_MACOS
+    if (macos_cover_full_display) {
+        // Anchor the window to the top-left of the display so the borderless
+        // window actually covers the notch / menu bar area.
+        SDL_SetWindowPosition(window, macos_display_bounds.x, macos_display_bounds.y);
+        SDL_SetWindowSize(window, macos_display_bounds.w, macos_display_bounds.h);
+
+        // A regular borderless window still sits below the system menu bar
+        // on macOS, so the top pixels would be occluded by it (and the
+        // camera notch). Raise the NSWindow level above the menu bar so the
+        // window genuinely covers the full display. We poke Cocoa through
+        // the Objective-C runtime to avoid pulling AppKit into this C file.
+        SDL_PropertiesID window_props = SDL_GetWindowProperties(window);
+        void* nswindow = SDL_GetPointerProperty(window_props, SDL_PROP_WINDOW_COCOA_WINDOW_POINTER, NULL);
+        if (nswindow != NULL) {
+            // NSMainMenuWindowLevel = 24; one above keeps us on top of the
+            // menu bar without entering NSPopUpMenuWindowLevel territory.
+            const long kAboveMenuBarLevel = 25;
+            ((void (*)(void*, SEL, long))objc_msgSend)(nswindow, sel_registerName("setLevel:"), kAboveMenuBarLevel);
+
+            // Borderless NSWindows still get the system drop shadow, which
+            // shows up as a faint 1px border around the edges of the screen
+            // for an edge-to-edge window. SDL's own fullscreen path disables
+            // this for the same reason; since we bypass that path we have
+            // to disable it ourselves.
+            ((void (*)(void*, SEL, signed char))objc_msgSend)(nswindow, sel_registerName("setHasShadow:"), 0);
+        }
+
+        // Hide the dock and menu bar app-wide. We use full HIDE (not
+        // auto-hide) so the menu bar can never reappear at the top edge --
+        // auto-hide leaves a hot zone there where macOS will pop the menu
+        // bar back, reclaim the cursor, and unhide the system cursor.
+        // NSApplicationPresentationHideMenuBar must be paired with
+        // NSApplicationPresentationHideDock per AppKit's contract.
+        id ns_app_class = (id)objc_getClass("NSApplication");
+        id ns_app = ((id (*)(id, SEL))objc_msgSend)(ns_app_class, sel_registerName("sharedApplication"));
+        if (ns_app != NULL) {
+            // NSApplicationPresentationHideDock     = 1 << 1
+            // NSApplicationPresentationHideMenuBar  = 1 << 3
+            const unsigned long kHideDockAndMenuBar = (1UL << 1) | (1UL << 3);
+            ((void (*)(id, SEL, unsigned long))objc_msgSend)(ns_app, sel_registerName("setPresentationOptions:"), kHideDockAndMenuBar);
+        }
+    }
+#endif
 
     SDL_PropertiesID renderer_props = SDL_GetRendererProperties(renderer);
     const char* driver_name = SDL_GetStringProperty(renderer_props, SDL_PROP_RENDERER_NAME_STRING, "");

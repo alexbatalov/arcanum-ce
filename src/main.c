@@ -185,6 +185,10 @@ int main(int argc, char** argv)
         init_info.flags |= TIG_INITIALIZE_WINDOWED;
     }
 
+    if (highres_config->ignore_notch) {
+        init_info.flags |= TIG_INITIALIZE_IGNORE_NOTCH;
+    }
+
     // NOTE: The `window` switch is borrowed from ToEE.
     if (strstr(lpCmdLine, "-window") != NULL) {
         init_info.flags |= TIG_INITIALIZE_WINDOWED;

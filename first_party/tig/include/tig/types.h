@@ -106,6 +106,11 @@ typedef unsigned int TigInitFlags;
 // the executable name).
 #define TIG_INITIALIZE_SET_WINDOW_NAME 0x4000u
 
+// macOS only: ignore the display's safe area so the window draws under the
+// menu bar / camera notch and covers the full panel. When this flag is not
+// set, the window respects the safe area and sits below the menu bar.
+#define TIG_INITIALIZE_IGNORE_NOTCH 0x8000u
+
 typedef int (*TigArtFilePathResolver)(tig_art_id_t art_id, char* path, size_t maxlen);
 typedef tig_art_id_t (*TigArtIdResetFunc)(tig_art_id_t art_id);
 typedef int (*TigSoundFilePathResolver)(int sound_id, char* path, size_t maxlen);

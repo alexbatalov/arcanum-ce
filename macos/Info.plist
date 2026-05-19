@@ -30,5 +30,7 @@
     <string>${CMAKE_OSX_DEPLOYMENT_TARGET}</string>
     <key>SDL_FILESYSTEM_BASE_DIR_TYPE</key>
     <string>parent</string>
+    <key>NSPrefersDisplaySafeAreaCompatibilityMode</key>
+    <false/>
 </dict>
 </plist>
