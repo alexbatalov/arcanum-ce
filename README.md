@@ -126,7 +126,20 @@ Several configuration options are available as command-line switches (admittedly
 
 - `-geometry=1280x720`: Set window size (default is 800x600)
 
-When `HighRes/config.ini` from the Unofficial Arcanum Patch is present in the game directory, Community Edition also imports `Width`, `Height`, `Windowed`, `ShowFPS`, `ScrollFPS`, `ScrollDist`, `Logos`, and `Intro` at startup.
+Most options live in `arcanum.cfg` in the game directory.
+
+On first launch, if `HighRes/config.ini` from the Unofficial Arcanum Patch is present, its keys (`Width`, `Height`, `Windowed`, `ShowFPS`, `ScrollFPS`, `ScrollDist`, `Logos`, `Intro` are migrated -- edit `arcanum.cfg` from then on:
+
+- `resolution width`, `resolution height`: rendered resolution (default 800x600)
+- `windowed`: `0` for fullscreen (default), `1` for windowed
+- `show fps`: `1` to overlay the frame rate
+- `scroll fps`, `scroll dist`: edge-scroll cadence and distance
+- `logos`, `intro`: `0` to skip the startup logos / intro cinematic
+
+- `aspect snap`: `1` (default) rewrites `resolution width` / `height` at startup to the nearest screen-aspect-matching pair so the rendered area fills the display instead of letterboxing; `0` uses the configured dimensions exactly. Setting to 800x600 (original resolution) will not be affected).
+
+- `macos ignore notch` (macOS only): `1` to draw under the camera notch via a borderless full-display window; `0` (default) keeps the standard SDL fullscreen which respects the  safe area.
+
 
 ## Contributing
 

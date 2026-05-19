@@ -3,6 +3,11 @@
 #include <limits.h>
 #include <stdio.h>
 
+#if SDL_PLATFORM_MACOS
+#include <objc/message.h>
+#include <objc/runtime.h>
+#endif
+
 #include "tig/art.h"
 #include "tig/color.h"
 #include "tig/core.h"
@@ -44,6 +49,16 @@ static void tig_video_window_destroy(void);
 static bool sub_524830(void);
 static int tig_video_screenshot_make_internal(int key);
 static int tig_video_buffer_data_to_bmp(SDL_Surface* surface, TigRect* rect, const char* file_name);
+
+#if SDL_PLATFORM_MACOS
+// Tracks whether we created the window with the borderless-cover-full-display
+// path. macOS resets the app's presentation options and our NSWindow level on
+// app deactivation/reactivation, so we re-apply them on focus regain to keep
+// the menu bar (and its accompanying title-bar slide-down) from reappearing.
+static bool tig_video_macos_cover_full_display;
+
+static void tig_video_macos_apply_chrome(SDL_Window* window);
+#endif
 
 // 0x5BF3D8
 static int tig_video_screenshot_key = -1;
@@ -120,7 +135,58 @@ void tig_video_exit(void)
 {
     tig_video_window_destroy();
     tig_video_initialized = false;
+#if SDL_PLATFORM_MACOS
+    tig_video_macos_cover_full_display = false;
+#endif
 }
+
+#if SDL_PLATFORM_MACOS
+// Apply the borderless-cover-full-display NSWindow chrome (level above the
+// menu bar, no drop shadow, app-wide hide of dock+menu bar). Safe to call
+// repeatedly; we re-run this on focus regain because macOS resets both the
+// app's presentation options and the NSWindow level when the app deactivates,
+// which would otherwise let the menu bar (and its accompanying title-bar
+// slide-down) reappear at the top of the screen.
+static void tig_video_macos_apply_chrome(SDL_Window* window)
+{
+    if (window != NULL) {
+        SDL_PropertiesID window_props = SDL_GetWindowProperties(window);
+        void* nswindow = SDL_GetPointerProperty(window_props, SDL_PROP_WINDOW_COCOA_WINDOW_POINTER, NULL);
+        if (nswindow != NULL) {
+            // NSMainMenuWindowLevel = 24; one above keeps us on top of the
+            // menu bar without entering NSPopUpMenuWindowLevel territory.
+            const long kAboveMenuBarLevel = 25;
+            ((void (*)(void*, SEL, long))objc_msgSend)(nswindow, sel_registerName("setLevel:"), kAboveMenuBarLevel);
+
+            // Borderless NSWindows still get the system drop shadow, which
+            // shows up as a faint 1px border around the edges of the screen
+            // for an edge-to-edge window.
+            ((void (*)(void*, SEL, signed char))objc_msgSend)(nswindow, sel_registerName("setHasShadow:"), 0);
+        }
+    }
+
+    // Hide the dock and menu bar app-wide. We use full HIDE (not auto-hide)
+    // so the menu bar can never reappear at the top edge -- auto-hide leaves
+    // a hot zone there where macOS will pop the menu bar back and slide a
+    // window title bar in alongside it.
+    id ns_app_class = (id)objc_getClass("NSApplication");
+    id ns_app = ((id (*)(id, SEL))objc_msgSend)(ns_app_class, sel_registerName("sharedApplication"));
+    if (ns_app != NULL) {
+        // NSApplicationPresentationHideDock     = 1 << 1
+        // NSApplicationPresentationHideMenuBar  = 1 << 3
+        const unsigned long kHideDockAndMenuBar = (1UL << 1) | (1UL << 3);
+        ((void (*)(id, SEL, unsigned long))objc_msgSend)(ns_app, sel_registerName("setPresentationOptions:"), kHideDockAndMenuBar);
+    }
+}
+
+void tig_video_macos_reapply_chrome(void)
+{
+    if (!tig_video_initialized || !tig_video_macos_cover_full_display) {
+        return;
+    }
+    tig_video_macos_apply_chrome(tig_video_state.window);
+}
+#endif
 
 int tig_video_window_get(SDL_Window** window_ptr)
 {
@@ -1264,11 +1330,65 @@ bool tig_video_window_create(TigInitInfo* init_info)
     SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengles2,metal");
 #endif
 
+#if SDL_PLATFORM_MACOS
+    // On macOS, by default we let the window cover the full display, including
+    // the area under the camera notch. This avoids the window being clipped
+    // below the menu bar / notch on notched MacBooks. When the user clears
+    // `ignore notch`, the window is constrained to the display's usable bounds.
+    //
+    // We deliberately bypass SDL_WINDOW_FULLSCREEN here (which on macOS goes
+    // through Cocoa "Spaces" fullscreen via toggleFullScreen:). Spaces
+    // fullscreen still honors the system safe area on some macOS versions
+    // even with `NSPrefersDisplaySafeAreaCompatibilityMode` set in Info.plist
+    // (e.g. when a previous app bundle had the Get Info "Scale to fit below
+    // built-in camera" checkbox toggled). Instead, we manually create a
+    // borderless window sized to the full display and raise its NSWindow
+    // level above the menu bar so it genuinely covers the panel edge-to-edge.
+    bool macos_ignore_notch = (init_info->flags & TIG_INITIALIZE_IGNORE_NOTCH) != 0;
+    SDL_Rect macos_display_bounds;
+    if (macos_ignore_notch) {
+        SDL_GetDisplayBounds(SDL_GetPrimaryDisplay(), &macos_display_bounds);
+    } else {
+        SDL_GetDisplayUsableBounds(SDL_GetPrimaryDisplay(), &macos_display_bounds);
+    }
+
+    bool macos_cover_full_display = macos_ignore_notch;
+    if (macos_cover_full_display) {
+        // Drop SDL's Spaces-fullscreen path and use a borderless window we
+        // can position and level-raise ourselves.
+        flags &= ~SDL_WINDOW_FULLSCREEN;
+        flags |= SDL_WINDOW_BORDERLESS;
+        window_width = macos_display_bounds.w;
+        window_height = macos_display_bounds.h;
+    } else if ((init_info->flags & TIG_INITIALIZE_WINDOWED) != 0) {
+        // Clamp the requested windowed size to the available area so macOS
+        // does not silently shrink the window below the menu bar / notch.
+        if (window_width > macos_display_bounds.w) {
+            window_width = macos_display_bounds.w;
+        }
+        if (window_height > macos_display_bounds.h) {
+            window_height = macos_display_bounds.h;
+        }
+    }
+#endif
+
     SDL_Window* window;
     SDL_Renderer* renderer;
     if (!SDL_CreateWindowAndRenderer(name, window_width, window_height, flags, &window, &renderer)) {
         return false;
     }
+
+#if SDL_PLATFORM_MACOS
+    if (macos_cover_full_display) {
+        // Anchor the window to the top-left of the display so the borderless
+        // window actually covers the notch / menu bar area.
+        SDL_SetWindowPosition(window, macos_display_bounds.x, macos_display_bounds.y);
+        SDL_SetWindowSize(window, macos_display_bounds.w, macos_display_bounds.h);
+
+        tig_video_macos_cover_full_display = true;
+        tig_video_macos_apply_chrome(window);
+    }
+#endif
 
     SDL_PropertiesID renderer_props = SDL_GetRendererProperties(renderer);
     const char* driver_name = SDL_GetStringProperty(renderer_props, SDL_PROP_RENDERER_NAME_STRING, "");
