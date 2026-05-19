@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <SDL3/SDL_main.h>
 
@@ -89,6 +90,111 @@ int main(int argc, char** argv)
 
     highres_config_load();
     highres_config = highres_config_get();
+
+    // SDL_GetDisplay*Bounds below requires the video subsystem to be live.
+    // tig_init does this for us later, but the snap needs the display
+    // metrics now so it can rewrite arcanum.cfg before tig reads the
+    // resolution off of highres_config. SDL_Init is reference-counted, so
+    // calling it here is safe even though tig_init will call it again.
+    SDL_InitSubSystem(SDL_INIT_VIDEO);
+
+    // Letterboxing the configured logical resolution against the screen's
+    // aspect ratio leaves visible bars whenever the game is going to fill
+    // the screen. Snap to the aspect-matching pair nearest to the user's
+    // configured (width, height) and persist the result to arcanum.cfg.
+    //
+    // The snap runs whenever the game will end up at full-screen size:
+    //   * Any platform, Windowed = 0 -> fullscreen, snap to display bounds
+    //   * macOS, ignore notch = 1 -> we cover the full panel ourselves,
+    //     snap to full display bounds regardless of the windowed flag
+    //   * macOS, ignore notch = 0, Windowed = 0 -> SDL fullscreen still
+    //     extends under the notch (NSPrefersDisplaySafeAreaCompatibilityMode
+    //     is false in Info.plist), so snap against full display bounds too
+    // The user's explicit (small) windowed size is otherwise preserved.
+    //
+    // We consider two candidates: hold the configured width and recompute
+    // height, or hold the configured height and recompute width. The one
+    // that moves fewer pixels from the user's setting wins; ties go to the
+    // candidate that preserves width (UI layout is more width-sensitive).
+    bool should_snap_aspect = highres_config->aspect_snap && !highres_config->windowed;
+#if SDL_PLATFORM_MACOS
+    if (highres_config->aspect_snap && highres_config->ignore_notch) {
+        should_snap_aspect = true;
+    }
+#endif
+    if (should_snap_aspect) {
+        SDL_Rect display_bounds;
+        bool got_bounds = SDL_GetDisplayBounds(SDL_GetPrimaryDisplay(), &display_bounds);
+#if SDL_PLATFORM_MACOS
+        // When the game respects the macOS safe area, the rendered viewport
+        // sits inside the usable bounds (below the menu bar / camera notch).
+        // We only want to do that on Macs that actually have a notch -- on
+        // a regular display (or a third-party monitor) the usable bounds
+        // also trim the menu bar, but the rendered area in fullscreen
+        // covers the whole panel (menu bar auto-hides), so snapping
+        // against usable bounds there would just introduce a 24 px
+        // mismatch.
+        //
+        // Detect a notch by the menu bar height: notched MacBooks have a
+        // menu bar in the 37-44 pt range, regular Macs sit around 24. The
+        // delta between full and usable bounds is the menu bar height
+        // (no dock subtraction at the top), so a threshold of 30 cleanly
+        // separates the two.
+        if (!highres_config->ignore_notch && got_bounds) {
+            SDL_Rect usable_bounds;
+            if (SDL_GetDisplayUsableBounds(SDL_GetPrimaryDisplay(), &usable_bounds)
+                && (display_bounds.h - usable_bounds.h) > 30) {
+                display_bounds = usable_bounds;
+            }
+        }
+#endif
+        if (got_bounds
+            && display_bounds.w > 0
+            && display_bounds.h > 0
+            && highres_config->width >= 800
+            && highres_config->height >= 600) {
+            double display_aspect = (double)display_bounds.w / (double)display_bounds.h;
+            double config_aspect = (double)highres_config->width / (double)highres_config->height;
+
+            // Only act when the user's aspect actually differs from the
+            // display's; sub-pixel differences round to the same snap.
+            double aspect_delta = config_aspect - display_aspect;
+            if (aspect_delta < 0) {
+                aspect_delta = -aspect_delta;
+            }
+            if (aspect_delta > 1e-4) {
+                // Candidate A: keep width, recompute height.
+                int width_a = highres_config->width;
+                int height_a = (int)((double)width_a / display_aspect + 0.5);
+                if ((height_a & 1) != 0) {
+                    height_a += 1;
+                }
+
+                // Candidate B: keep height, recompute width.
+                int height_b = highres_config->height;
+                int width_b = (int)((double)height_b * display_aspect + 0.5);
+                if ((width_b & 1) != 0) {
+                    width_b += 1;
+                }
+
+                int delta_a = abs(height_a - highres_config->height);
+                int delta_b = abs(width_b - highres_config->width);
+
+                int snapped_w = width_a;
+                int snapped_h = height_a;
+                if (delta_b < delta_a && width_b >= 800 && height_b >= 600) {
+                    snapped_w = width_b;
+                    snapped_h = height_b;
+                }
+
+                if (snapped_w >= 800
+                    && snapped_h >= 600
+                    && (snapped_w != highres_config->width || snapped_h != highres_config->height)) {
+                    highres_config_save_resolution(snapped_w, snapped_h);
+                }
+            }
+        }
+    }
 
     init_info.texture_width = 1024;
     init_info.texture_height = 1024;
