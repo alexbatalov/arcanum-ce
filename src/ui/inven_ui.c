@@ -1795,7 +1795,14 @@ static inline bool inven_ui_message_filter_handle_mouse_lbutton_up(int x, int y,
 {
     int64_t v1;
     int64_t v2;
-
+    // Capture whether *this* inven_ui session received the matching
+    // mouse-down before we clear the flag. Used below to guard the
+    // dismiss-on-click paths against a stray mouse-up whose down came
+    // from a different window — most importantly the dialog "Trade"
+    // option that opens BARTER: dialog handles the down, barter handles
+    // the up, and without this guard the up would immediately close the
+    // just-opened barter screen.
+    bool inven_saw_down = (dword_68346C != 0);
     dword_68346C = 0;
     if (intgame_pc_lens_check_pt_unscale(x, y)) {
         if (!mainmenu_ui_is_active()) {
@@ -1813,7 +1820,9 @@ static inline bool inven_ui_message_filter_handle_mouse_lbutton_up(int x, int y,
                 sub_575770();
             }
 
-            *v45 = true;
+            if (inven_saw_down) {
+                *v45 = true;
+            }
         }
 
         return false;
@@ -1822,7 +1831,11 @@ static inline bool inven_ui_message_filter_handle_mouse_lbutton_up(int x, int y,
     // Click outside the inventory window and outside both HUD strips
     // dismisses the overlay (hi-res convenience; at 800x600 nothing falls
     // outside both menu and HUD so behavior is unchanged).
-    if (!mainmenu_ui_is_active()
+    // Requires inven_saw_down so a stray mouse-up from a click that
+    // started in dialog (e.g. the "Trade" option that opens barter)
+    // doesn't immediately dismiss the freshly opened panel.
+    if (inven_saw_down
+        && !mainmenu_ui_is_active()
         && inven_ui_drag_item_obj == OBJ_HANDLE_NULL
         && inven_ui_window_handle != TIG_WINDOW_HANDLE_INVALID) {
         TigWindowData menu_wd;
