@@ -2,6 +2,8 @@
 
 #include <stdio.h>
 
+#include <tig/tig.h>
+
 #include "game/area.h"
 #include "game/background.h"
 #include "game/critter.h"
@@ -5098,23 +5100,41 @@ bool mainmenu_ui_message_filter(TigMessage* msg)
         switch (msg->data.mouse.event) {
         case TIG_MESSAGE_MOUSE_LEFT_BUTTON_UP:
             // Click outside the menu's actual screen rect and outside both
-            // HUD strips dismisses any "in-game" overlay menu — same effect
-            // as ESC or clicking the PC lens. If the menu has a parent on
-            // the stack (e.g. Options reached from the pause menu), pop
-            // back to the parent; only fully exit to game when we're at
-            // the top of the stack.
-            if (stru_5C36B0[mainmenu_ui_type][0]
-                && mainmenu_ui_window_handle != TIG_WINDOW_HANDLE_INVALID) {
-                TigWindowData menu_wd;
-                if (tig_window_data(mainmenu_ui_window_handle, &menu_wd) == TIG_OK
-                    && intgame_should_dismiss_overlay_click(
-                        original_screen_x, original_screen_y, &menu_wd.rect)) {
-                    if (mainmenu_ui_num_windows <= 1) {
-                        sub_5412D0();
-                    } else {
-                        mainmenu_ui_close(true);
+            // HUD strips dismisses overlay menus — same effect as ESC or
+            // clicking the PC lens.
+            //
+            // Eligible for dismiss:
+            //   - Any in-game flavor menu (stru_5C36B0[type][0] == true)
+            //   - Main-menu Options / Load / Save: even though they aren't
+            //     "in-game" they still have the main menu as a parent on
+            //     the stack to pop back to.
+            //
+            // Exit behavior:
+            //   - In-game flavor at the top of the stack (num_windows <= 1):
+            //     full restore to game via sub_5412D0().
+            //   - Otherwise: pop to parent via mainmenu_ui_close(true).
+            //     This covers pause → Options → click-outside (back to
+            //     pause) and main-menu → Load → click-outside (back to
+            //     main menu) symmetrically.
+            {
+                bool in_game = stru_5C36B0[mainmenu_ui_type][0];
+                bool dismissible_window = in_game
+                    || mainmenu_ui_window_type == MM_WINDOW_OPTIONS
+                    || mainmenu_ui_window_type == MM_WINDOW_LOAD_GAME
+                    || mainmenu_ui_window_type == MM_WINDOW_SAVE_GAME;
+                if (dismissible_window
+                    && mainmenu_ui_window_handle != TIG_WINDOW_HANDLE_INVALID) {
+                    TigWindowData menu_wd;
+                    if (tig_window_data(mainmenu_ui_window_handle, &menu_wd) == TIG_OK
+                        && intgame_should_dismiss_overlay_click(
+                            original_screen_x, original_screen_y, &menu_wd.rect)) {
+                        if (in_game && mainmenu_ui_num_windows <= 1) {
+                            sub_5412D0();
+                        } else {
+                            mainmenu_ui_close(true);
+                        }
+                        return true;
                     }
-                    return true;
                 }
             }
             switch (mainmenu_ui_window_type) {
@@ -5130,12 +5150,21 @@ bool mainmenu_ui_message_filter(TigMessage* msg)
                 if (intgame_pc_lens_check_pt_unscale(msg->data.mouse.x, msg->data.mouse.y)) {
                     // Mirror the Done button: commit module changes first
                     // (bails if module load failed so the user stays on the
-                    // Options screen), then route through the same
-                    // stack-aware exit as ESC — full restore at the top of
-                    // the stack, pop to parent when stacked.
+                    // Options screen). Then:
+                    //
+                    //   - In-game flavor (lens is PASSTHROUGH showing the
+                    //     game world): treat the lens tap as a shortcut
+                    //     straight back to game, regardless of how deep
+                    //     we are in the menu stack. This matches Save
+                    //     Game's PC-lens behavior and lets pause→Options
+                    //     → lens-tap return to game in one click instead
+                    //     of popping back to the pause menu first.
+                    //
+                    //   - Pre-game main-menu Options (lens is NONE, so
+                    //     this branch isn't normally reachable via a
+                    //     real click): fall back to pop-to-parent.
                     if (options_ui_load_module()) {
-                        if (mainmenu_ui_num_windows <= 1
-                            && stru_5C36B0[mainmenu_ui_type][0]) {
+                        if (stru_5C36B0[mainmenu_ui_type][0]) {
                             sub_5412D0();
                         } else {
                             gsound_play_sfx(0, 1);
@@ -5461,6 +5490,20 @@ bool mainmenu_ui_message_filter(TigMessage* msg)
                 gsound_play_sfx(0, 1);
                 sub_5480C0(2);
                 return true;
+            }
+
+            // CE: Skip the auto-derived first-letter button hotkeys when Cmd /
+            // Ctrl is held. Cmd+Q on macOS fires both SDL_EVENT_QUIT and a
+            // KEY_DOWN for Q, and without this guard the latter activates the
+            // pause menu's "Quit Game" button (which does unload-to-main-menu)
+            // before the QUIT path reaches the confirm-and-exit-to-desktop
+            // handler. Letting TIG_MESSAGE_QUIT own all modifier-Q variants
+            // makes Cmd+Q behavior consistent everywhere (in-play, pause
+            // menu, main menu): always confirm + quit to desktop.
+            // Same defense for Cmd+S/L/O which already have explicit handlers
+            // in main.c — without this they'd race button hotkeys here too.
+            if (tig_kb_get_modifier(SDL_KMOD_CTRL | SDL_KMOD_GUI)) {
+                return false;
             }
 
             for (idx = 0; idx < window->num_buttons; idx++) {
