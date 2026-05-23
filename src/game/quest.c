@@ -165,7 +165,7 @@ bool quest_mod_load(void)
         if (mes_load("mes\\gamequestlogdumb.mes", &quest_log_dumb_mes_file)) {
             for (num = 1000; num < 2000; num++) {
                 mes_file_entry.num = num;
-                if (mes_search(quest_log_mes_file, &mes_file_entry)) {
+                if (mes_search(quest_log_dumb_mes_file, &mes_file_entry)) {
                     quests[quest_num_to_idx(num)].dumb_description = mes_file_entry.str;
                 }
             }
