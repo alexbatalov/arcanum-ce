@@ -670,3 +670,64 @@ bool scroll_cursor_art_set(tig_art_id_t art_id)
 
     return false;
 }
+
+void scroll_from_mouse_wheel(int dx, int dy)
+{
+    int distance;
+    int64_t center_x;
+    int64_t center_y;
+    int viewport_center_x;
+    int viewport_center_y;
+    int hor;
+    int vert;
+
+    // When a custom scroll function is set, the caller is responsible for
+    // handling the mouse wheel event.
+    if (scroll_func != NULL) {
+        return;
+    }
+
+    // Scrolling with the mouse is uniform in both directions and is not
+    // affected by the scroll speed setting. The 10x multipler is based on
+    // subjective perception.
+    dx *= -10;
+    dy *= 10;
+
+    // In editor mode, scrolling is unbounded.
+    if (scroll_init_info.editor) {
+        scroll_by(dx, dy);
+        return;
+    }
+
+    // Retrieve the effective scroll distance.
+    distance = scroll_distance_get();
+    if (distance == 0) {
+        // No distance limit.
+        scroll_by(dx, dy);
+        return;
+    }
+
+    // Get the current scroll center coordinates (adjusted to center of tile).
+    location_xy(scroll_center, &center_x, &center_y);
+    center_x += 40;
+    center_y += 20;
+
+    // Calculate viewport center.
+    viewport_center_x = scroll_iso_content_rect.width / 2;
+    viewport_center_y = scroll_iso_content_rect.height / 2;
+
+    // Calculate horizontal and vertical distance (in pixels) from the scroll
+    // center.
+    hor = abs(viewport_center_x - dx - (int)center_x);
+    vert = abs(viewport_center_y - dy - (int)center_y);
+
+    // Adjust deltas if distance exceeds limits.
+    if (hor >= 80 * distance) {
+        dx = 0;
+    }
+    if (vert >= 40 * distance) {
+        dy = 0;
+    }
+
+    scroll_by(dx, dy);
+}

@@ -414,6 +414,12 @@ void main_loop(void)
                 handle_keyboard_scroll();
             }
 
+            if (message.type == TIG_MESSAGE_MOUSE
+                && message.data.mouse.event == TIG_MESSAGE_MOUSE_WHEEL
+                && intgame_mode_supports_scrolling(intgame_mode_get())) {
+                scroll_from_mouse_wheel(message.data.mouse.dx, message.data.mouse.dy);
+            }
+
             if (message.type == TIG_MESSAGE_KEYBOARD) {
                 // CE: Toggle highlight mode when Left Alt is pressed.
                 if (message.data.keyboard.scancode == SDL_SCANCODE_LALT) {
