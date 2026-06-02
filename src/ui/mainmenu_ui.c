@@ -2,6 +2,8 @@
 
 #include <stdio.h>
 
+#include <tig/tig.h>
+
 #include "game/area.h"
 #include "game/background.h"
 #include "game/critter.h"
@@ -1610,6 +1612,32 @@ void mainmenu_ui_start(MainMenuType type)
     }
 }
 
+// Open the main-menu UI directly to a specific window from in-game (like
+// the O shortcut does for Options). Reuses the MM_TYPE_OPTIONS flavor so
+// the menu has the single-press ESC return-to-game behavior wired up via
+// stru_5C36B0[MM_TYPE_OPTIONS][0]=true.
+void mainmenu_ui_start_at_window(MainMenuWindowType window_type)
+{
+    tig_art_id_t art_id;
+
+    if (mainmenu_ui_active) {
+        return;
+    }
+
+    mainmenu_ui_num_windows = 0;
+    intgame_hide();
+
+    tig_art_interface_id_create(0, 0, 0, 0, &art_id);
+    tig_mouse_cursor_set_art_id(art_id);
+    inven_ui_destroy();
+
+    mainmenu_ui_type = MM_TYPE_OPTIONS;
+    mainmenu_ui_window_type = window_type;
+    dword_5C4004 = false;
+    mainmenu_ui_open();
+    object_hover_obj_set(OBJ_HANDLE_NULL);
+}
+
 // 0x5412D0
 void sub_5412D0(void)
 {
@@ -1761,7 +1789,19 @@ bool mainmenu_ui_handle(void)
                 if (!msg.data.keyboard.pressed
                     && msg.data.keyboard.scancode == SDL_SCANCODE_ESCAPE
                     && mainmenu_ui_window_type != MM_WINDOW_MAINMENU) {
-                    mainmenu_ui_close(true);
+                    // If the menu stack has a parent (e.g. user opened
+                    // Options from the pause menu, or Save/Load from the
+                    // pause menu), pop back to the parent like the original
+                    // close-back path does. Only at the top of the stack —
+                    // i.e. we were launched directly into this menu (O key,
+                    // Cmd+S/L, etc.) — do we route ESC through the full
+                    // exit-to-game restore for the "in-game" menu types.
+                    if (mainmenu_ui_num_windows <= 1
+                        && stru_5C36B0[mainmenu_ui_type][0]) {
+                        sub_5412D0();
+                    } else {
+                        mainmenu_ui_close(true);
+                    }
                 }
                 break;
             default:
@@ -2109,7 +2149,9 @@ void mainmenu_ui_create_options(void)
         location_origin_set(loc);
         intgame_pc_lens_do(PC_LENS_MODE_PASSTHROUGH, &pc_lens);
     } else {
-        intgame_pc_lens_do(PC_LENS_MODE_BLACKOUT, &pc_lens);
+        // Pre-game (main menu) Options has no PC to look at — hide the lens
+        // entirely instead of showing the blacked-out widget.
+        intgame_pc_lens_do(PC_LENS_MODE_NONE, NULL);
     }
 
     tig_window_display();
@@ -2160,7 +2202,12 @@ bool mainmenu_ui_press_options(tig_button_handle_t button_handle)
         }
     }
 
-    if (stru_5C36B0[mainmenu_ui_type][0]) {
+    // Same stack-aware close as ESC: if Options was reached via a parent
+    // menu (e.g. pause menu → Options), pop back to that parent. Only
+    // fully exit to game when we're at the top of the stack (the O key
+    // shortcut or similar direct entry).
+    if (mainmenu_ui_num_windows <= 1
+        && stru_5C36B0[mainmenu_ui_type][0]) {
         sub_5412D0();
     } else {
         mainmenu_ui_close(true);
@@ -2283,7 +2330,13 @@ void mainmenu_ui_load_game_create(void)
         location_origin_set(obj_field_int64_get(pc_obj, OBJ_F_LOCATION));
     }
 
-    if (map_by_type(MAP_TYPE_SHOPPING_MAP) == map_current_map()) {
+    if (!stru_5C36B0[mainmenu_ui_type][0]) {
+        // Pre-game Load Game (reached from the main menu, no game in
+        // session) — `player_get_local_pc_obj()` can return a stub PC
+        // here, so gate on the same "exit to game" menu-type flag the
+        // Options screen uses. No PC to look at → hide the lens entirely.
+        intgame_pc_lens_do(PC_LENS_MODE_NONE, NULL);
+    } else if (map_by_type(MAP_TYPE_SHOPPING_MAP) == map_current_map()) {
         intgame_pc_lens_do(PC_LENS_MODE_BLACKOUT, &pc_lens);
     } else {
         intgame_pc_lens_do(PC_LENS_MODE_PASSTHROUGH, &pc_lens);
@@ -5000,6 +5053,8 @@ bool mainmenu_ui_message_filter(TigMessage* msg)
     UiMessage ui_message;
     char str[MAX_STRING];
     int v2;
+    int original_screen_x = 0;
+    int original_screen_y = 0;
     TigMessage tmp_msg = *msg;
     msg = &tmp_msg;
 
@@ -5007,6 +5062,8 @@ bool mainmenu_ui_message_filter(TigMessage* msg)
     // area.
     if (msg->type == TIG_MESSAGE_MOUSE) {
         TigRect rect = { 0, 0, 800, 600 };
+        original_screen_x = msg->data.mouse.x;
+        original_screen_y = msg->data.mouse.y;
         hrp_apply(&rect, GRAVITY_CENTER_HORIZONTAL | GRAVITY_CENTER_VERTICAL);
         msg->data.mouse.x -= rect.x;
         msg->data.mouse.y -= rect.y;
@@ -5042,6 +5099,44 @@ bool mainmenu_ui_message_filter(TigMessage* msg)
 
         switch (msg->data.mouse.event) {
         case TIG_MESSAGE_MOUSE_LEFT_BUTTON_UP:
+            // Click outside the menu's actual screen rect and outside both
+            // HUD strips dismisses overlay menus — same effect as ESC or
+            // clicking the PC lens.
+            //
+            // Eligible for dismiss:
+            //   - Any in-game flavor menu (stru_5C36B0[type][0] == true)
+            //   - Main-menu Options / Load / Save: even though they aren't
+            //     "in-game" they still have the main menu as a parent on
+            //     the stack to pop back to.
+            //
+            // Exit behavior:
+            //   - In-game flavor at the top of the stack (num_windows <= 1):
+            //     full restore to game via sub_5412D0().
+            //   - Otherwise: pop to parent via mainmenu_ui_close(true).
+            //     This covers pause → Options → click-outside (back to
+            //     pause) and main-menu → Load → click-outside (back to
+            //     main menu) symmetrically.
+            {
+                bool in_game = stru_5C36B0[mainmenu_ui_type][0];
+                bool dismissible_window = in_game
+                    || mainmenu_ui_window_type == MM_WINDOW_OPTIONS
+                    || mainmenu_ui_window_type == MM_WINDOW_LOAD_GAME
+                    || mainmenu_ui_window_type == MM_WINDOW_SAVE_GAME;
+                if (dismissible_window
+                    && mainmenu_ui_window_handle != TIG_WINDOW_HANDLE_INVALID) {
+                    TigWindowData menu_wd;
+                    if (tig_window_data(mainmenu_ui_window_handle, &menu_wd) == TIG_OK
+                        && intgame_should_dismiss_overlay_click(
+                            original_screen_x, original_screen_y, &menu_wd.rect)) {
+                        if (in_game && mainmenu_ui_num_windows <= 1) {
+                            sub_5412D0();
+                        } else {
+                            mainmenu_ui_close(true);
+                        }
+                        return true;
+                    }
+                }
+            }
             switch (mainmenu_ui_window_type) {
             case MM_WINDOW_0:
             case MM_WINDOW_1:
@@ -5050,20 +5145,37 @@ bool mainmenu_ui_message_filter(TigMessage* msg)
                 mainmenu_ui_open();
                 return true;
             case MM_WINDOW_OPTIONS:
-                if (intgame_pc_lens_check_pt(msg->data.mouse.x, msg->data.mouse.y)) {
-                    if (stru_5C36B0[mainmenu_ui_type][0]) {
-                        if (!options_ui_load_module()) {
+                // Use _unscale: msg coords are 800x600-local here but the
+                // lens check expects screen coords.
+                if (intgame_pc_lens_check_pt_unscale(msg->data.mouse.x, msg->data.mouse.y)) {
+                    // Mirror the Done button: commit module changes first
+                    // (bails if module load failed so the user stays on the
+                    // Options screen). Then:
+                    //
+                    //   - In-game flavor (lens is PASSTHROUGH showing the
+                    //     game world): treat the lens tap as a shortcut
+                    //     straight back to game, regardless of how deep
+                    //     we are in the menu stack. This matches Save
+                    //     Game's PC-lens behavior and lets pause→Options
+                    //     → lens-tap return to game in one click instead
+                    //     of popping back to the pause menu first.
+                    //
+                    //   - Pre-game main-menu Options (lens is NONE, so
+                    //     this branch isn't normally reachable via a
+                    //     real click): fall back to pop-to-parent.
+                    if (options_ui_load_module()) {
+                        if (stru_5C36B0[mainmenu_ui_type][0]) {
                             sub_5412D0();
+                        } else {
+                            gsound_play_sfx(0, 1);
+                            mainmenu_ui_close(true);
                         }
-                    } else {
-                        gsound_play_sfx(0, 1);
-                        mainmenu_ui_close(true);
                     }
                     return true;
                 }
                 break;
             case MM_WINDOW_LOAD_GAME:
-                if (intgame_pc_lens_check_pt(msg->data.mouse.x, msg->data.mouse.y)) {
+                if (intgame_pc_lens_check_pt_unscale(msg->data.mouse.x, msg->data.mouse.y)) {
                     if (dword_64C450) {
                         sub_5412D0();
                     } else {
@@ -5073,7 +5185,7 @@ bool mainmenu_ui_message_filter(TigMessage* msg)
                 }
                 break;
             case MM_WINDOW_SAVE_GAME:
-                if (intgame_pc_lens_check_pt(msg->data.mouse.x, msg->data.mouse.y)) {
+                if (intgame_pc_lens_check_pt_unscale(msg->data.mouse.x, msg->data.mouse.y)) {
                     sub_5412D0();
                     return true;
                 }
@@ -5279,17 +5391,19 @@ bool mainmenu_ui_message_filter(TigMessage* msg)
                 mainmenu_ui_open();
                 return true;
             case MM_WINDOW_MAINMENU:
-                if (msg->data.keyboard.scancode == SDL_SCANCODE_ESCAPE
-                    && dword_64C43C > 1) {
-                    gsound_play_sfx(0, 1);
-                    sub_5412D0();
-                    mainmenu_ui_window_type = 0;
-                    mainmenu_ui_exit_game();
-                }
                 return false;
             case MM_WINDOW_OPTIONS:
                 if (msg->data.keyboard.scancode == SDL_SCANCODE_O) {
-                    if (!stru_5C36B0[mainmenu_ui_type][1]) {
+                    // O toggles Options closed only when we entered here
+                    // directly via the in-game O shortcut (top of menu
+                    // stack). When stacked under another menu — e.g. pause
+                    // menu → Options via its "O" hotkey button — the keyup
+                    // raced in here right after the keydown opened the
+                    // window and was auto-dismissing it. Swallow the key
+                    // either way so it doesn't fall through to other
+                    // handlers.
+                    if (!stru_5C36B0[mainmenu_ui_type][1]
+                        && mainmenu_ui_num_windows <= 1) {
                         sub_5412D0();
                     }
                     return true;
@@ -5376,6 +5490,20 @@ bool mainmenu_ui_message_filter(TigMessage* msg)
                 gsound_play_sfx(0, 1);
                 sub_5480C0(2);
                 return true;
+            }
+
+            // CE: Skip the auto-derived first-letter button hotkeys when Cmd /
+            // Ctrl is held. Cmd+Q on macOS fires both SDL_EVENT_QUIT and a
+            // KEY_DOWN for Q, and without this guard the latter activates the
+            // pause menu's "Quit Game" button (which does unload-to-main-menu)
+            // before the QUIT path reaches the confirm-and-exit-to-desktop
+            // handler. Letting TIG_MESSAGE_QUIT own all modifier-Q variants
+            // makes Cmd+Q behavior consistent everywhere (in-play, pause
+            // menu, main menu): always confirm + quit to desktop.
+            // Same defense for Cmd+S/L/O which already have explicit handlers
+            // in main.c — without this they'd race button hotkeys here too.
+            if (tig_kb_get_modifier(SDL_KMOD_CTRL | SDL_KMOD_GUI)) {
+                return false;
             }
 
             for (idx = 0; idx < window->num_buttons; idx++) {
@@ -5637,7 +5765,18 @@ void sub_5480C0(int a1)
         return;
     case 3:
         if (mainmenu_ui_window_type != MM_WINDOW_OPTIONS || options_ui_load_module()) {
-            mainmenu_ui_close(true);
+            // Same stack-aware close as ESC: when this menu was launched
+            // directly into the world (Cmd+Shift+S, Cmd+O, etc. — top of
+            // stack with an "exit to game" type), route through sub_5412D0
+            // so intgame_show() and the rest of the restore steps run.
+            // When stacked under a parent menu (pause menu → Save/Load),
+            // fall back to the normal close-back that pops to the parent.
+            if (mainmenu_ui_num_windows <= 1
+                && stru_5C36B0[mainmenu_ui_type][0]) {
+                sub_5412D0();
+            } else {
+                mainmenu_ui_close(true);
+            }
         }
         return;
     case 4:

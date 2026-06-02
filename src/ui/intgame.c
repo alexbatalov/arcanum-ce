@@ -2537,6 +2537,11 @@ bool sub_54B5D0(TigMessage* msg)
                 gsound_play_sfx(0, 1);
                 return true;
             case SDLK_S:
+                // Plain S opens the sleep menu; let Ctrl/Cmd+S fall through
+                // to main.c's Save Game shortcut.
+                if (tig_kb_get_modifier(SDL_KMOD_CTRL | SDL_KMOD_GUI)) {
+                    return false;
+                }
                 sleep_ui_toggle(OBJ_HANDLE_NULL);
                 gsound_play_sfx(0, 1);
                 return true;
@@ -4509,6 +4514,77 @@ bool intgame_pc_lens_check_pt_unscale(int x, int y)
 {
     hrp_center(&x, &y);
     return intgame_pc_lens_check_pt(x, y);
+}
+
+// True if a mouse click should dismiss an overlay menu: the click is
+// outside the given menu rect AND not on either of the iso-interface HUD
+// strips. All coordinates are in screen space.
+//
+// The 800x600 HUD strips are 800px wide and centered horizontally at hi-res,
+// so empty screen area to either side of the strip (in the surrounding world
+// view) is correctly treated as "outside HUD" and triggers dismissal.
+// CE: one-shot guard against a stray click-outside dismiss. Overlays
+// opened from a DIALOGUE option (worldmap / barter / charedit /
+// schematic / identify) are selected on LEFT_BUTTON_DOWN —
+// tc_handle_message only acts on mouse-down, dialogue options are
+// mouse-only — so the paired LEFT_BUTTON_UP lands on the freshly
+// opened overlay, outside its window, and would trip
+// intgame_should_dismiss_overlay_click → instant close. The dialogue
+// option handler arms this flag at the open; the next dismiss check
+// (the paired mouse-up, the only event that calls the helper) clears
+// it and returns false instead of dismissing. Because dialogue
+// selection is mouse-only the paired up is guaranteed, so the flag is
+// never left dangling for a keyboard path.
+static bool intgame_overlay_dismiss_suppress_once = false;
+
+void intgame_suppress_overlay_dismiss_once(void)
+{
+    intgame_overlay_dismiss_suppress_once = true;
+}
+
+bool intgame_should_dismiss_overlay_click(int screen_x, int screen_y, const TigRect* menu_rect)
+{
+    TigRect strip;
+
+    // Consume the one stray mouse-up that pairs with the dialogue
+    // option's mouse-down (see intgame_suppress_overlay_dismiss_once).
+    // The helper is only ever called on LEFT_BUTTON_UP, so the first
+    // call after a dialogue-driven open is exactly that stray up.
+    if (intgame_overlay_dismiss_suppress_once) {
+        intgame_overlay_dismiss_suppress_once = false;
+        return false;
+    }
+
+    if (menu_rect == NULL) {
+        return false;
+    }
+
+    if (screen_x >= menu_rect->x
+        && screen_x < menu_rect->x + menu_rect->width
+        && screen_y >= menu_rect->y
+        && screen_y < menu_rect->y + menu_rect->height) {
+        return false;
+    }
+
+    strip = intgame_interface_window_frames[0];
+    hrp_apply(&strip, GRAVITY_CENTER_HORIZONTAL | GRAVITY_TOP);
+    if (screen_x >= strip.x
+        && screen_x < strip.x + strip.width
+        && screen_y >= strip.y
+        && screen_y < strip.y + strip.height) {
+        return false;
+    }
+
+    strip = intgame_interface_window_frames[1];
+    hrp_apply(&strip, GRAVITY_CENTER_HORIZONTAL | GRAVITY_BOTTOM);
+    if (screen_x >= strip.x
+        && screen_x < strip.x + strip.width
+        && screen_y >= strip.y
+        && screen_y < strip.y + strip.height) {
+        return false;
+    }
+
+    return true;
 }
 
 // 0x551080

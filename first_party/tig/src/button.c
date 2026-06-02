@@ -381,6 +381,18 @@ int tig_button_state_get(tig_button_handle_t button_handle, TigButtonState* stat
     return TIG_OK;
 }
 
+// Returns the button currently in the MOUSE_INSIDE state, or
+// TIG_BUTTON_HANDLE_INVALID if no button is hovered. Used by the modal
+// dialog system to replay a MOUSE_OUTSIDE notification for the
+// underlying menu's hovered button after the modal closes — the modal
+// loop drops button state-change messages while it's up, so the
+// underlying menu can't update its rendered highlight via the normal
+// notification path.
+tig_button_handle_t tig_button_get_hovered(void)
+{
+    return tig_button_hovered_button_handle;
+}
+
 // 0x5380F0
 tig_button_handle_t tig_button_get_at_position(int x, int y)
 {
@@ -876,4 +888,24 @@ void tig_button_set_art(tig_button_handle_t button_handle, tig_art_id_t art_id)
         tig_window_invalidate_rect(&(btn->rect));
         tig_button_refresh_rect(btn->window_handle, &(btn->rect));
     }
+}
+
+// Shift a button's cached screen-absolute rect. Used when the button's parent
+// window is moved so subsequent refreshes blit the button art at the correct
+// window-local offset (refresh_rect computes dst as btn->rect minus the
+// current window frame).
+void tig_button_translate(tig_button_handle_t button_handle, int dx, int dy)
+{
+    TigButton* btn;
+    int button_index;
+
+    if (button_handle == TIG_BUTTON_HANDLE_INVALID) {
+        return;
+    }
+
+    button_index = tig_button_handle_to_index(button_handle);
+    btn = &(buttons[button_index]);
+
+    btn->rect.x += dx;
+    btn->rect.y += dy;
 }

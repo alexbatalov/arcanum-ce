@@ -48,6 +48,7 @@ int tig_button_refresh_rect(tig_window_handle_t window_handle, TigRect* rect);
 void tig_button_state_change(tig_button_handle_t button_handle, TigButtonState state);
 int tig_button_state_get(tig_button_handle_t button_handle, TigButtonState* state);
 tig_button_handle_t tig_button_get_at_position(int x, int y);
+tig_button_handle_t tig_button_get_hovered(void);
 bool tig_button_process_mouse_msg(TigMouseMessageData* mouse);
 int tig_button_radio_group_create(int count, tig_button_handle_t* button_handles, int selected);
 tig_button_handle_t sub_538730(tig_button_handle_t button_handle);
@@ -57,6 +58,7 @@ int tig_button_is_hidden(tig_button_handle_t button_handle, bool* hidden);
 int tig_button_show_force(tig_button_handle_t button_handle);
 int tig_button_hide_force(tig_button_handle_t button_handle);
 void tig_button_set_art(tig_button_handle_t button_handle, tig_art_id_t art_id);
+void tig_button_translate(tig_button_handle_t button_handle, int dx, int dy);
 
 #ifdef __cplusplus
 }

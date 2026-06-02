@@ -1515,6 +1515,7 @@ int tig_window_modal_dialog(TigWindowModalDialogInfo* modal_info, TigWindowModal
 {
     TigMessage msg;
     TigWindowData window_data;
+    tig_button_handle_t hovered;
 
     if (modal_info == NULL) {
         return TIG_ERR_GENERIC;
@@ -1525,6 +1526,40 @@ int tig_window_modal_dialog(TigWindowModalDialogInfo* modal_info, TigWindowModal
     }
 
     tig_window_modal_dialog_info = *modal_info;
+
+    // Clear any active button hover BEFORE the modal opens so the
+    // underlying window (e.g. the main menu showing a highlighted
+    // "QUIT" item) un-highlights itself on the same frame the modal
+    // appears. Once the modal window is created its filter swallows
+    // every non-REDRAW message, including the TIG_MESSAGE_BUTTON
+    // state-change notifications that would normally drive the menu's
+    // morph-text refresh — so doing it here, before the swallow chain
+    // is in place, is the simplest path to a consistent rollover state.
+    hovered = tig_button_get_hovered();
+    if (hovered != TIG_BUTTON_HANDLE_INVALID) {
+        TigMessage notify;
+        notify.type = TIG_MESSAGE_BUTTON;
+        tig_timer_now(&(notify.timestamp));
+        notify.data.button.button_handle = hovered;
+        notify.data.button.state = TIG_BUTTON_STATE_MOUSE_OUTSIDE;
+        notify.data.button.x = 0;
+        notify.data.button.y = 0;
+        // Dispatch synchronously via the window filter chain. With no
+        // modal up yet, the menu's filter handles the BUTTON event,
+        // calls its refresh_button_text(idx, 0), and the morph-text
+        // re-renders without the highlight flag into the menu window's
+        // video buffer. Then sync the button system's own internal
+        // state so any art-based button using state-driven art also
+        // drops back to its idle frame.
+        tig_window_filter_message(&notify);
+        tig_button_state_change(hovered, TIG_BUTTON_STATE_MOUSE_OUTSIDE);
+        // Force a display pass to push the just-cleared vbuffer state
+        // to the screen BEFORE the modal window is created. Without
+        // this, the modal goes up over a screen that still shows the
+        // stale highlight — the menu's video buffer is correct but
+        // the compositor hasn't pushed the dirty rect yet.
+        tig_window_display();
+    }
 
     window_data.flags = TIG_WINDOW_MODAL | TIG_WINDOW_ALWAYS_ON_TOP;
     window_data.rect.width = MODAL_DIALOG_WIDTH;
@@ -1579,7 +1614,13 @@ bool tig_window_modal_dialog_message_filter(TigMessage* msg)
 {
     switch (msg->type) {
     case TIG_MESSAGE_KEYBOARD:
-        if (msg->data.keyboard.pressed) {
+        // Close the modal on keyup, not keydown. The matching keyup is
+        // still queued behind a keydown-closed modal and was leaking out
+        // to the underlying message loop (e.g. mainmenu_ui_handle's ESC
+        // handler), so dismissing a confirm dialog with ESC was also
+        // closing the menu that opened it. Handling on keyup means the
+        // modal swallows both events before anything else sees them.
+        if (!msg->data.keyboard.pressed) {
             switch (tig_window_modal_dialog_info.type) {
             case TIG_WINDOW_MODAL_DIALOG_TYPE_OK:
                 tig_message_modal_dialog_choice = TIG_WINDOW_MODAL_DIALOG_CHOICE_OK;
@@ -1618,6 +1659,49 @@ bool tig_window_modal_dialog_message_filter(TigMessage* msg)
                 switch (tig_window_modal_dialog_info.type) {
                 case TIG_WINDOW_MODAL_DIALOG_TYPE_CANCEL:
                 case TIG_WINDOW_MODAL_DIALOG_TYPE_OK_CANCEL:
+                    tig_message_modal_dialog_choice = TIG_WINDOW_MODAL_DIALOG_CHOICE_CANCEL;
+                    tig_window_modal_dialog_close();
+                    break;
+                }
+            }
+        }
+        break;
+    case TIG_MESSAGE_MOUSE:
+        // Click-outside-the-modal dismisses, matching the click-outside
+        // overlay-dismiss behavior recently added to the main menu /
+        // overlay screens.  The modal flag swallows all mouse events
+        // anyway, so this handler is the only place that sees a click
+        // landing outside the dialog rect.  Dispatch:
+        //   - Inside the dialog rect: do nothing here; the button-press
+        //     path above already handles OK / Cancel clicks via
+        //     TIG_MESSAGE_BUTTON.
+        //   - Outside:
+        //       OK-only / OK_CANCEL → Cancel (safe non-destructive
+        //       default — e.g. clicking outside "Delete save?" or "Quit
+        //       game?" should NOT delete or quit).
+        //       CANCEL-only        → Cancel (only choice anyway).
+        if (msg->data.mouse.event == TIG_MESSAGE_MOUSE_LEFT_BUTTON_UP) {
+            TigWindowData wd;
+            if (tig_window_modal_dialog_window_handle != TIG_WINDOW_HANDLE_INVALID
+                && tig_window_data(tig_window_modal_dialog_window_handle, &wd) == TIG_OK
+                && (msg->data.mouse.x < wd.rect.x
+                    || msg->data.mouse.y < wd.rect.y
+                    || msg->data.mouse.x >= wd.rect.x + wd.rect.width
+                    || msg->data.mouse.y >= wd.rect.y + wd.rect.height)) {
+                switch (tig_window_modal_dialog_info.type) {
+                case TIG_WINDOW_MODAL_DIALOG_TYPE_OK:
+                    // Info / acknowledgment modal — OK is the only choice
+                    // and ANY keypress already dismisses with OK above.
+                    // Match: a click outside dismisses with OK.
+                    tig_message_modal_dialog_choice = TIG_WINDOW_MODAL_DIALOG_CHOICE_OK;
+                    tig_window_modal_dialog_close();
+                    break;
+                case TIG_WINDOW_MODAL_DIALOG_TYPE_CANCEL:
+                case TIG_WINDOW_MODAL_DIALOG_TYPE_OK_CANCEL:
+                    // Confirm prompts ("Quit?", "Delete this save?",
+                    // etc.) — a stray click outside should NEVER commit
+                    // the destructive choice. Cancel is the universal
+                    // safe default.
                     tig_message_modal_dialog_choice = TIG_WINDOW_MODAL_DIALOG_CHOICE_CANCEL;
                     tig_window_modal_dialog_close();
                     break;
@@ -1787,18 +1871,36 @@ int tig_window_move(tig_window_handle_t window_handle, int x, int y)
 {
     int window_index;
     TigWindow* win;
+    int dx;
+    int dy;
+    int i;
 
     window_index = tig_window_handle_to_index(window_handle);
     win = &(windows[window_index]);
 
-    if ((win->flags & TIG_WINDOW_HIDDEN) != 0) {
+    // Invalidate old frame area so the previous position is recomposited
+    // from underlying windows.
+    if ((win->flags & TIG_WINDOW_HIDDEN) == 0) {
         tig_window_invalidate_rect(&(win->frame));
     }
+
+    dx = x - win->frame.x;
+    dy = y - win->frame.y;
 
     win->frame.x = x;
     win->frame.y = y;
 
-    if ((win->flags & TIG_WINDOW_HIDDEN) != 0) {
+    // Child buttons cache absolute screen rects (set at creation as
+    // window.frame + button-local offset). Translate them by the same delta
+    // so subsequent button refreshes blit art at the correct window-local
+    // offset; otherwise the stale rect minus the moved frame yields a
+    // wrong destination and the button art is baked into the strip's
+    // pixel buffer at the wrong place (ghost buttons).
+    for (i = 0; i < win->num_buttons; i++) {
+        tig_button_translate(win->buttons[i], dx, dy);
+    }
+
+    if ((win->flags & TIG_WINDOW_HIDDEN) == 0) {
         tig_window_invalidate_rect(&(win->frame));
     }
 

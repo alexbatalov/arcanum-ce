@@ -425,8 +425,7 @@ void main_loop(void)
                     case SDL_SCANCODE_ESCAPE: {
                         IntgameMode esc_mode = intgame_mode_get();
                         if (esc_mode != INTGAME_MODE_MAIN
-                            && esc_mode != INTGAME_MODE_DIALOG
-                            && esc_mode != INTGAME_MODE_BARTER) {
+                            && esc_mode != INTGAME_MODE_DIALOG) {
                             intgame_mode_set(INTGAME_MODE_MAIN);
                             break;
                         }
@@ -452,8 +451,14 @@ void main_loop(void)
                         tig_debug_printf("completed.\n");
                         break;
                     case SDL_SCANCODE_O:
+                        // Plain O → Options menu (existing in-game shortcut).
+                        // Cmd/Ctrl+O → Load Game menu (mnemonic: "Open").
                         if (!textedit_ui_is_focused()) {
-                            mainmenu_ui_start(MM_TYPE_OPTIONS);
+                            if (tig_kb_get_modifier(SDL_KMOD_CTRL | SDL_KMOD_GUI)) {
+                                mainmenu_ui_start_at_window(MM_WINDOW_LOAD_GAME);
+                            } else {
+                                mainmenu_ui_start(MM_TYPE_OPTIONS);
+                            }
                             if (!mainmenu_ui_handle()) {
                                 return;
                             }
@@ -484,6 +489,50 @@ void main_loop(void)
                         mainmenu_ui_feedback_loading();
                         sub_543220();
                         mainmenu_ui_feedback_loading_completed();
+                        break;
+                    case SDL_SCANCODE_S:
+                        // Cmd/Ctrl+S       → quicksave (same as F7)
+                        // Cmd/Ctrl+Shift+S → Save Game menu
+                        // Accepts either Cmd or Ctrl so the platform-native
+                        // convention (Cmd on macOS, Ctrl on Windows/Linux)
+                        // works everywhere.
+                        if (!textedit_ui_is_focused()
+                            && tig_kb_get_modifier(SDL_KMOD_CTRL | SDL_KMOD_GUI)) {
+                            if (tig_kb_get_modifier(SDL_KMOD_SHIFT)) {
+                                mainmenu_ui_start_at_window(MM_WINDOW_SAVE_GAME);
+                                if (!mainmenu_ui_handle()) {
+                                    return;
+                                }
+                            } else if (!critter_is_dead(player_get_local_pc_obj())) {
+                                if (wmap_ui_is_created()) {
+                                    wmap_ui_close();
+                                    tig_ping();
+                                    gamelib_ping();
+                                    iso_redraw();
+                                    tig_window_display();
+                                }
+                                if (!combat_turn_based_is_active()
+                                    || player_get_local_pc_obj() == combat_turn_based_whos_turn_get()) {
+                                    intgame_mode_set(INTGAME_MODE_MAIN);
+                                    intgame_mode_set(INTGAME_MODE_MAIN);
+                                    mainmenu_ui_feedback_saving();
+                                    gamelib_save("SlotAuto", "Auto-Save");
+                                    mainmenu_ui_feedback_saving_completed();
+                                } else {
+                                    mainmenu_ui_feedback_cannot_save_in_tb();
+                                }
+                            }
+                        }
+                        break;
+                    case SDL_SCANCODE_L:
+                        // Cmd/Ctrl+L → quickload (same as F8).
+                        if (!textedit_ui_is_focused()
+                            && tig_kb_get_modifier(SDL_KMOD_CTRL | SDL_KMOD_GUI)
+                            && !tig_kb_get_modifier(SDL_KMOD_SHIFT)) {
+                            mainmenu_ui_feedback_loading();
+                            sub_543220();
+                            mainmenu_ui_feedback_loading_completed();
+                        }
                         break;
                     case SDL_SCANCODE_F11:
                         if (gamelib_cheat_level_get() >= 3) {

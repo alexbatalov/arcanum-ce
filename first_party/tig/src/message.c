@@ -111,9 +111,11 @@ void tig_message_ping(void)
         SDL_ConvertEventToRenderCoordinates(renderer, &event);
 
         switch (event.type) {
+        case SDL_EVENT_WINDOW_FOCUS_GAINED:
         case SDL_EVENT_WINDOW_MOUSE_ENTER:
             tig_set_active(true);
             break;
+        case SDL_EVENT_WINDOW_FOCUS_LOST:
         case SDL_EVENT_WINDOW_MOUSE_LEAVE:
             tig_set_active(false);
             break;

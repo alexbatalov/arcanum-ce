@@ -693,6 +693,17 @@ bool logbook_ui_message_filter(TigMessage* msg)
             logbook_ui_close();
             return true;
         }
+        // Click outside the logbook window and outside both HUD strips
+        // dismisses the overlay (hi-res convenience).
+        if (msg->data.mouse.event == TIG_MESSAGE_MOUSE_LEFT_BUTTON_UP
+            && logbook_ui_window != TIG_WINDOW_HANDLE_INVALID) {
+            TigWindowData menu_wd;
+            if (tig_window_data(logbook_ui_window, &menu_wd) == TIG_OK
+                && intgame_should_dismiss_overlay_click(msg->data.mouse.x, msg->data.mouse.y, &menu_wd.rect)) {
+                logbook_ui_close();
+                return true;
+            }
+        }
         return false;
     }
 

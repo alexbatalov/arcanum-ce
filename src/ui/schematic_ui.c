@@ -712,6 +712,18 @@ bool schematic_ui_message_filter(TigMessage* msg)
             return true;
         }
 
+        // Click outside the schematic window and outside both HUD strips
+        // dismisses the overlay (hi-res convenience).
+        if (msg->data.mouse.event == TIG_MESSAGE_MOUSE_LEFT_BUTTON_UP
+            && schematic_ui_window != TIG_WINDOW_HANDLE_INVALID) {
+            TigWindowData menu_wd;
+            if (tig_window_data(schematic_ui_window, &menu_wd) == TIG_OK
+                && intgame_should_dismiss_overlay_click(msg->data.mouse.x, msg->data.mouse.y, &menu_wd.rect)) {
+                schematic_ui_close();
+                return true;
+            }
+        }
+
         break;
     case TIG_MESSAGE_BUTTON:
         switch (msg->data.button.state) {
