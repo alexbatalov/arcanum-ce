@@ -4523,9 +4523,37 @@ bool intgame_pc_lens_check_pt_unscale(int x, int y)
 // The 800x600 HUD strips are 800px wide and centered horizontally at hi-res,
 // so empty screen area to either side of the strip (in the surrounding world
 // view) is correctly treated as "outside HUD" and triggers dismissal.
+// CE: one-shot guard against a stray click-outside dismiss. Overlays
+// opened from a DIALOGUE option (worldmap / barter / charedit /
+// schematic / identify) are selected on LEFT_BUTTON_DOWN —
+// tc_handle_message only acts on mouse-down, dialogue options are
+// mouse-only — so the paired LEFT_BUTTON_UP lands on the freshly
+// opened overlay, outside its window, and would trip
+// intgame_should_dismiss_overlay_click → instant close. The dialogue
+// option handler arms this flag at the open; the next dismiss check
+// (the paired mouse-up, the only event that calls the helper) clears
+// it and returns false instead of dismissing. Because dialogue
+// selection is mouse-only the paired up is guaranteed, so the flag is
+// never left dangling for a keyboard path.
+static bool intgame_overlay_dismiss_suppress_once = false;
+
+void intgame_suppress_overlay_dismiss_once(void)
+{
+    intgame_overlay_dismiss_suppress_once = true;
+}
+
 bool intgame_should_dismiss_overlay_click(int screen_x, int screen_y, const TigRect* menu_rect)
 {
     TigRect strip;
+
+    // Consume the one stray mouse-up that pairs with the dialogue
+    // option's mouse-down (see intgame_suppress_overlay_dismiss_once).
+    // The helper is only ever called on LEFT_BUTTON_UP, so the first
+    // call after a dialogue-driven open is exactly that stray up.
+    if (intgame_overlay_dismiss_suppress_once) {
+        intgame_overlay_dismiss_suppress_once = false;
+        return false;
+    }
 
     if (menu_rect == NULL) {
         return false;

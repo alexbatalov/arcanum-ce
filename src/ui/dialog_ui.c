@@ -307,6 +307,10 @@ bool dialog_ui_process_option(DialogUiEntry* entry, int option)
     case 3:
         if (is_pc) {
             intgame_dialog_clear();
+            // CE: the dialogue option fired on mouse-DOWN; suppress the
+            // paired mouse-UP so it doesn't instantly dismiss the
+            // just-opened overlay via the click-outside-dismiss path.
+            intgame_suppress_overlay_dismiss_once();
             inven_ui_open(entry->state.pc_obj, entry->state.npc_obj, INVEN_UI_MODE_BARTER);
         }
         break;
@@ -322,30 +326,35 @@ bool dialog_ui_process_option(DialogUiEntry* entry, int option)
     case 5:
         if (is_pc) {
             intgame_dialog_clear();
+            intgame_suppress_overlay_dismiss_once();
             charedit_open(entry->state.npc_obj, CHAREDIT_MODE_PASSIVE);
         }
         break;
     case 6:
         if (is_pc) {
             intgame_dialog_clear();
+            intgame_suppress_overlay_dismiss_once();
             wmap_ui_open();
         }
         break;
     case 7:
         if (is_pc) {
             intgame_dialog_clear();
+            intgame_suppress_overlay_dismiss_once();
             schematic_ui_toggle(entry->state.npc_obj, entry->state.pc_obj);
         }
         break;
     case 8:
         if (is_pc) {
             intgame_dialog_clear();
+            intgame_suppress_overlay_dismiss_once();
             ui_show_inven_npc_identify(entry->state.pc_obj, entry->state.npc_obj);
         }
         break;
     case 9:
         if (is_pc) {
             intgame_dialog_clear();
+            intgame_suppress_overlay_dismiss_once();
             inven_ui_open(entry->state.pc_obj, entry->state.npc_obj, INVEN_UI_MODE_NPC_REPAIR);
         }
         break;
