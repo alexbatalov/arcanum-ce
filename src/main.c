@@ -76,7 +76,21 @@ int main(int argc, char** argv)
     char msg[80];
 
 #if SDL_PLATFORM_MACOS
-    chdir(SDL_GetBasePath());
+    // chdir to the data folder (next to the .app), falling back to the launch
+    // directory if the base path does not point there.
+    {
+        char launch_cwd[TIG_MAX_PATH];
+        const char* base = SDL_GetBasePath();
+        bool have_launch_cwd = getcwd(launch_cwd, sizeof(launch_cwd)) != NULL;
+
+        if (base != NULL) {
+            chdir(base);
+        }
+
+        if (access("tig.dat", F_OK) != 0 && have_launch_cwd) {
+            chdir(launch_cwd);
+        }
+    }
 #elif SDL_PLATFORM_IOS
     chdir(SDL_GetUserFolder(SDL_FOLDER_DOCUMENTS));
 #elif SDL_PLATFORM_ANDROID
