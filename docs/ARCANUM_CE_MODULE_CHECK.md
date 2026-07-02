@@ -16,6 +16,7 @@ The command exits with a non-zero status when it finds structural issues or cann
 ## Current Coverage
 
 - Recursively inventories loose `.scr`, `.dlg`, `.mes`, `.pro`, `.mob`, `.sec`, `.map`, `.art`, sound, `.dat`, and other files.
+- Indexes Arcanum-format DAT archives and reports loose files that override DAT entries.
 - Validates `.scr` structure using Arcanum CE's serialized script layout.
 - Reports script condition and action ID histograms.
 - Flags script condition IDs outside `ScriptConditionType`.
@@ -26,7 +27,9 @@ The command exits with a non-zero status when it finds structural issues or cann
 
 ## Boundaries
 
+The DAT/loose override report is informational. A loose file overriding a DAT entry does not count as an issue by itself.
+
 The tool does not modify inputs, initialize the game, run scripts, extract DAT archives, resolve object attachments, or prove runtime behavior.
 It reports static evidence only.
 
-Future scanner work should add DAT index reading, object/prototype script attachment checks, MES reference validation, and art/sound route resolution.
+Future scanner work should add object/prototype script attachment checks, MES reference validation, and art/sound route resolution.

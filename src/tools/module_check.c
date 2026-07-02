@@ -55,6 +55,23 @@ typedef struct IntList {
     size_t capacity;
 } IntList;
 
+typedef struct StringList {
+    char** values;
+    size_t length;
+    size_t capacity;
+} StringList;
+
+typedef struct DatEntry {
+    char* dat_path;
+    char* entry_path;
+} DatEntry;
+
+typedef struct DatEntryList {
+    DatEntry* values;
+    size_t length;
+    size_t capacity;
+} DatEntryList;
+
 typedef struct DialogRecord {
     int num;
     int iq;
@@ -88,8 +105,15 @@ typedef struct Scanner {
     uint64_t messages_parsed;
     uint64_t messages_failed;
     uint64_t message_entries;
+    uint64_t dats_indexed;
+    uint64_t dats_failed;
+    uint64_t dat_entries;
     IntList script_ids;
     IntList dialog_ids;
+    StringList loose_paths;
+    DatEntryList dat_index_entries;
+    const char* root_path;
+    size_t root_path_len;
 } Scanner;
 
 static void usage(void);
@@ -99,11 +123,15 @@ static int scan_file(Scanner* scanner, const char* path, uint64_t size);
 static int scan_script(Scanner* scanner, const char* path, uint64_t size);
 static int scan_dialog(Scanner* scanner, const char* path);
 static int scan_message(Scanner* scanner, const char* path);
+static int scan_dat_archive(Scanner* scanner, const char* path);
 static FieldResult read_braced_field(Scanner* scanner, FILE* stream, const char* path, char* buffer, size_t size, int* line_ptr, bool skip_line_comments);
 static FileKind file_kind_from_path(const char* path);
 static const char* file_kind_name(FileKind kind);
 static const char* file_name(const char* path);
+static const char* relative_path(const Scanner* scanner, const char* path);
 static char* join_path(const char* base, const char* name);
+static char* string_duplicate(const char* str);
+static char* normalized_path_copy(const char* path);
 static bool has_extension(const char* path, const char* extension);
 static bool parse_int_field(const char* str, int* value_ptr);
 static bool parse_leading_int(const char* str, int* value_ptr);
@@ -113,10 +141,21 @@ static void dialog_record_list_free(DialogRecordList* list);
 static bool int_list_contains(const IntList* list, int value);
 static bool int_list_append(IntList* list, int value);
 static void int_list_free(IntList* list);
+static bool string_list_contains(const StringList* list, const char* value);
+static bool string_list_append(StringList* list, char* value);
+static void string_list_free(StringList* list);
+static bool dat_entry_list_append(DatEntryList* list, const char* dat_path, char* entry_path);
+static void dat_entry_list_free(DatEntryList* list);
 static int read_i32_le(const unsigned char* bytes);
+static bool read_i32(FILE* stream, int32_t* value_ptr);
+static bool read_u32(FILE* stream, uint32_t* value_ptr);
 static bool read_u32_le_at(FILE* stream, long offset, uint32_t* value_ptr);
+static void print_dat_override_report(const Scanner* scanner);
 static void scanner_issue(Scanner* scanner, const char* path, const char* format, ...);
 static void print_histogram(const char* title, const uint64_t* values, size_t count, size_t known_count);
+
+#define FOURCC_DAT ((int32_t)(((uint32_t)' ') | ((uint32_t)'T' << 8) | ((uint32_t)'A' << 16) | ((uint32_t)'D' << 24)))
+#define FOURCC_DAT1 ((int32_t)(((uint32_t)'1') | ((uint32_t)'T' << 8) | ((uint32_t)'A' << 16) | ((uint32_t)'D' << 24)))
 
 int main(int argc, char** argv)
 {
@@ -180,10 +219,18 @@ int main(int argc, char** argv)
     printf("  failed: %" PRIu64 "\n", scanner.messages_failed);
     printf("  entries: %" PRIu64 "\n", scanner.message_entries);
 
+    printf("\nDAT archives:\n");
+    printf("  indexed: %" PRIu64 "\n", scanner.dats_indexed);
+    printf("  failed: %" PRIu64 "\n", scanner.dats_failed);
+    printf("  entries: %" PRIu64 "\n", scanner.dat_entries);
+    print_dat_override_report(&scanner);
+
     printf("\nIssues: %" PRIu64 "\n", scanner.issues);
 
     int_list_free(&scanner.script_ids);
     int_list_free(&scanner.dialog_ids);
+    string_list_free(&scanner.loose_paths);
+    dat_entry_list_free(&scanner.dat_index_entries);
 
     if (rc != 0 || scanner.issues != 0) {
         return EXIT_FAILURE;
@@ -213,6 +260,8 @@ int scan_path(Scanner* scanner, const char* path)
     }
 
     if ((attributes & FILE_ATTRIBUTE_DIRECTORY) != 0) {
+        scanner->root_path = path;
+        scanner->root_path_len = strlen(path);
         return scan_directory(scanner, path);
     }
 
@@ -232,6 +281,8 @@ int scan_path(Scanner* scanner, const char* path)
     }
 
     if (S_ISDIR(st.st_mode)) {
+        scanner->root_path = path;
+        scanner->root_path_len = strlen(path);
         return scan_directory(scanner, path);
     }
 
@@ -353,6 +404,15 @@ int scan_file(Scanner* scanner, const char* path, uint64_t size)
     kind = file_kind_from_path(path);
     scanner->file_kind_counts[kind]++;
 
+    if (scanner->root_path != NULL && kind != FILE_KIND_DAT) {
+        char* normalized = normalized_path_copy(relative_path(scanner, path));
+        if (normalized == NULL || !string_list_append(&scanner->loose_paths, normalized)) {
+            free(normalized);
+            scanner_issue(scanner, path, "out of memory while recording loose file path");
+            return -1;
+        }
+    }
+
     if (scanner->verbose) {
         printf("checking %s\n", path);
     }
@@ -380,6 +440,8 @@ int scan_file(Scanner* scanner, const char* path, uint64_t size)
         return scan_dialog(scanner, path);
     case FILE_KIND_MESSAGE:
         return scan_message(scanner, path);
+    case FILE_KIND_DAT:
+        return scan_dat_archive(scanner, path);
     default:
         return 0;
     }
@@ -489,6 +551,132 @@ int scan_script(Scanner* scanner, const char* path, uint64_t size)
         scanner->scripts_failed++;
     } else {
         scanner->scripts_parsed++;
+    }
+
+    return 0;
+}
+
+int scan_dat_archive(Scanner* scanner, const char* path)
+{
+    FILE* stream;
+    int32_t id;
+    int32_t name_table_size;
+    int32_t entry_table_offset;
+    int32_t entry_table_size;
+    int32_t entries_count;
+    long file_size;
+    unsigned int index;
+    bool failed = false;
+
+    stream = fopen(path, "rb");
+    if (stream == NULL) {
+        scanner_issue(scanner, path, "cannot open DAT archive");
+        scanner->dats_failed++;
+        return -1;
+    }
+
+    if (fseek(stream, 0, SEEK_END) != 0 || (file_size = ftell(stream)) < 24) {
+        scanner_issue(scanner, path, "DAT archive is too small");
+        fclose(stream);
+        scanner->dats_failed++;
+        return 0;
+    }
+
+    if (fseek(stream, -12, SEEK_END) != 0
+        || !read_i32(stream, &id)
+        || !read_i32(stream, &name_table_size)) {
+        scanner_issue(scanner, path, "cannot read DAT footer");
+        fclose(stream);
+        scanner->dats_failed++;
+        return 0;
+    }
+
+    if (id == FOURCC_DAT) {
+        if (!read_i32(stream, &entry_table_offset)) {
+            failed = true;
+        }
+    } else if (id == FOURCC_DAT1) {
+        if (fseek(stream, -24, SEEK_END) != 0
+            || fseek(stream, 16, SEEK_CUR) != 0
+            || !read_i32(stream, &id)
+            || id != FOURCC_DAT1
+            || !read_i32(stream, &entry_table_offset)) {
+            failed = true;
+        }
+    } else {
+        failed = true;
+    }
+
+    if (failed || entry_table_offset <= 0 || entry_table_offset > file_size - 4) {
+        scanner_issue(scanner, path, "cannot locate DAT entry table");
+        fclose(stream);
+        scanner->dats_failed++;
+        return 0;
+    }
+
+    if (fseek(stream, -4 - entry_table_offset, SEEK_END) != 0
+        || !read_i32(stream, &entry_table_size)
+        || !read_i32(stream, &entries_count)
+        || entry_table_size <= 0
+        || entries_count < 0
+        || name_table_size < 0) {
+        scanner_issue(scanner, path, "cannot read DAT entry table header");
+        fclose(stream);
+        scanner->dats_failed++;
+        return 0;
+    }
+
+    for (index = 0; index < (unsigned int)entries_count; index++) {
+        uint32_t name_size;
+        char* name;
+
+        if (!read_u32(stream, &name_size) || name_size == 0 || name_size >= 4096) {
+            scanner_issue(scanner, path, "invalid DAT entry name size at index %u", index);
+            failed = true;
+            break;
+        }
+
+        name = (char*)malloc(name_size + 1);
+        if (name == NULL) {
+            scanner_issue(scanner, path, "out of memory while reading DAT entry");
+            fclose(stream);
+            scanner->dats_failed++;
+            return -1;
+        }
+
+        if (fread(name, name_size, 1, stream) != 1) {
+            free(name);
+            scanner_issue(scanner, path, "cannot read DAT entry name at index %u", index);
+            failed = true;
+            break;
+        }
+        name[name_size] = '\0';
+
+        if (fseek(stream, 20, SEEK_CUR) != 0) {
+            free(name);
+            scanner_issue(scanner, path, "cannot skip DAT entry metadata at index %u", index);
+            failed = true;
+            break;
+        }
+
+        char* normalized = normalized_path_copy(name);
+        free(name);
+        if (normalized == NULL || !dat_entry_list_append(&scanner->dat_index_entries, path, normalized)) {
+            free(normalized);
+            scanner_issue(scanner, path, "out of memory while recording DAT entry");
+            fclose(stream);
+            scanner->dats_failed++;
+            return -1;
+        }
+        scanner->dat_entries++;
+    }
+
+    fclose(stream);
+
+    if (failed) {
+        scanner->dats_failed++;
+    } else {
+        scanner->dats_indexed++;
     }
 
     return 0;
@@ -808,6 +996,26 @@ const char* file_name(const char* path)
     return sep != NULL ? sep + 1 : path;
 }
 
+const char* relative_path(const Scanner* scanner, const char* path)
+{
+    const char* rel;
+
+    if (scanner->root_path == NULL) {
+        return path;
+    }
+
+    if (strncmp(path, scanner->root_path, scanner->root_path_len) != 0) {
+        return path;
+    }
+
+    rel = path + scanner->root_path_len;
+    while (*rel == '/' || *rel == '\\') {
+        rel++;
+    }
+
+    return rel;
+}
+
 char* join_path(const char* base, const char* name)
 {
     size_t base_len = strlen(base);
@@ -830,6 +1038,38 @@ char* join_path(const char* base, const char* name)
     memcpy(path + base_len, name, name_len + 1);
 
     return path;
+}
+
+char* string_duplicate(const char* str)
+{
+    size_t len = strlen(str);
+    char* copy = (char*)malloc(len + 1);
+
+    if (copy == NULL) {
+        return NULL;
+    }
+
+    memcpy(copy, str, len + 1);
+    return copy;
+}
+
+char* normalized_path_copy(const char* path)
+{
+    char* normalized = string_duplicate(path);
+
+    if (normalized == NULL) {
+        return NULL;
+    }
+
+    for (char* ch = normalized; *ch != '\0'; ch++) {
+        if (*ch == '/') {
+            *ch = '\\';
+        } else {
+            *ch = (char)tolower((unsigned char)*ch);
+        }
+    }
+
+    return normalized;
 }
 
 bool has_extension(const char* path, const char* extension)
@@ -981,6 +1221,90 @@ void int_list_free(IntList* list)
     list->capacity = 0;
 }
 
+bool string_list_contains(const StringList* list, const char* value)
+{
+    for (size_t index = 0; index < list->length; index++) {
+        if (strcmp(list->values[index], value) == 0) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool string_list_append(StringList* list, char* value)
+{
+    char** values;
+    size_t capacity;
+
+    if (list->length == list->capacity) {
+        capacity = list->capacity == 0 ? 64 : list->capacity * 2;
+        values = (char**)realloc(list->values, sizeof(*values) * capacity);
+        if (values == NULL) {
+            return false;
+        }
+
+        list->values = values;
+        list->capacity = capacity;
+    }
+
+    list->values[list->length++] = value;
+    return true;
+}
+
+void string_list_free(StringList* list)
+{
+    for (size_t index = 0; index < list->length; index++) {
+        free(list->values[index]);
+    }
+
+    free(list->values);
+    list->values = NULL;
+    list->length = 0;
+    list->capacity = 0;
+}
+
+bool dat_entry_list_append(DatEntryList* list, const char* dat_path, char* entry_path)
+{
+    DatEntry* values;
+    char* dat_path_copy;
+    size_t capacity;
+
+    if (list->length == list->capacity) {
+        capacity = list->capacity == 0 ? 128 : list->capacity * 2;
+        values = (DatEntry*)realloc(list->values, sizeof(*values) * capacity);
+        if (values == NULL) {
+            return false;
+        }
+
+        list->values = values;
+        list->capacity = capacity;
+    }
+
+    dat_path_copy = string_duplicate(dat_path);
+    if (dat_path_copy == NULL) {
+        return false;
+    }
+
+    list->values[list->length].dat_path = dat_path_copy;
+    list->values[list->length].entry_path = entry_path;
+    list->length++;
+    return true;
+}
+
+void dat_entry_list_free(DatEntryList* list)
+{
+    for (size_t index = 0; index < list->length; index++) {
+        free(list->values[index].dat_path);
+        free(list->values[index].entry_path);
+    }
+
+    free(list->values);
+    list->values = NULL;
+    list->length = 0;
+    list->capacity = 0;
+}
+
 int read_i32_le(const unsigned char* bytes)
 {
     uint32_t value = (uint32_t)bytes[0]
@@ -989,6 +1313,30 @@ int read_i32_le(const unsigned char* bytes)
         | ((uint32_t)bytes[3] << 24);
 
     return (int32_t)value;
+}
+
+bool read_i32(FILE* stream, int32_t* value_ptr)
+{
+    unsigned char bytes[4];
+
+    if (fread(bytes, sizeof(bytes), 1, stream) != 1) {
+        return false;
+    }
+
+    *value_ptr = read_i32_le(bytes);
+    return true;
+}
+
+bool read_u32(FILE* stream, uint32_t* value_ptr)
+{
+    int32_t value;
+
+    if (!read_i32(stream, &value)) {
+        return false;
+    }
+
+    *value_ptr = (uint32_t)value;
+    return true;
 }
 
 bool read_u32_le_at(FILE* stream, long offset, uint32_t* value_ptr)
@@ -1008,6 +1356,34 @@ bool read_u32_le_at(FILE* stream, long offset, uint32_t* value_ptr)
         | ((uint32_t)bytes[2] << 16)
         | ((uint32_t)bytes[3] << 24);
     return true;
+}
+
+void print_dat_override_report(const Scanner* scanner)
+{
+    uint64_t overrides = 0;
+
+    printf("\nDAT/loose override report:\n");
+
+    for (size_t index = 0; index < scanner->dat_index_entries.length; index++) {
+        const DatEntry* entry = &(scanner->dat_index_entries.values[index]);
+        if (string_list_contains(&scanner->loose_paths, entry->entry_path)) {
+            overrides++;
+        }
+    }
+
+    printf("  loose files tracked: %zu\n", scanner->loose_paths.length);
+    printf("  loose files overriding DAT entries: %" PRIu64 "\n", overrides);
+
+    if (overrides == 0) {
+        return;
+    }
+
+    for (size_t index = 0; index < scanner->dat_index_entries.length; index++) {
+        const DatEntry* entry = &(scanner->dat_index_entries.values[index]);
+        if (string_list_contains(&scanner->loose_paths, entry->entry_path)) {
+            printf("  override: %s (archive: %s)\n", entry->entry_path, entry->dat_path);
+        }
+    }
 }
 
 void scanner_issue(Scanner* scanner, const char* path, const char* format, ...)

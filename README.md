@@ -131,7 +131,20 @@ Several configuration options are available as command-line switches (admittedly
 
 - `-geometry=1280x720`: Set window size (default is 800x600)
 
-When `HighRes/config.ini` from the Unofficial Arcanum Patch is present in the game directory, Community Edition also imports `Width`, `Height`, `Windowed`, `ShowFPS`, `ScrollFPS`, `ScrollDist`, `Logos`, and `Intro` at startup.
+Community Edition also reads optional startup settings from `arcanum-ce.cfg` in the game directory. It accepts the same option names as `HighRes/config.ini`, plus lower snake_case spellings such as `scroll_fps`.
+
+```ini
+width=1280
+height=720
+windowed=1
+show_fps=0
+scroll_fps=35
+scroll_dist=10
+logos=1
+intro=1
+```
+
+When `HighRes/config.ini` from the Unofficial Arcanum Patch is present in the game directory, Community Edition imports it first. Values in `arcanum-ce.cfg` override the legacy import. Command-line switches such as `-window`, `-geometry=1280x720`, `-scrollfps:35`, and `-scrolldist:10` still override matching file settings for that launch.
 
 ## Contributing
 

@@ -11,31 +11,21 @@
 #include <tig/art.h>
 
 static void highres_config_reset(void);
+static bool highres_config_load_file(const char* path);
+static void highres_config_strip_comments(char* line);
 static void highres_config_parse_line(char* line);
 static void highres_config_trim(char** start_ptr, char** end_ptr);
 static bool highres_config_parse_int(const char* str, int* value_ptr);
+static bool highres_config_key_equals(const char* lhs, const char* rhs);
 
 static HighResConfig highres_config;
 
 void highres_config_load(void)
 {
-    FILE* stream;
-    char line[512];
-
     highres_config_reset();
 
-    stream = fopen("HighRes/config.ini", "rt");
-    if (stream == NULL) {
-        return;
-    }
-
-    highres_config.loaded = true;
-
-    while (fgets(line, sizeof(line), stream) != NULL) {
-        highres_config_parse_line(line);
-    }
-
-    fclose(stream);
+    highres_config_load_file("HighRes/config.ini");
+    highres_config_load_file("arcanum-ce.cfg");
 }
 
 const HighResConfig* highres_config_get(void)
@@ -91,9 +81,47 @@ void highres_config_reset(void)
     tig_art_mirroring_set_enabled(true);
 }
 
+bool highres_config_load_file(const char* path)
+{
+    FILE* stream;
+    char line[512];
+
+    stream = fopen(path, "rt");
+    if (stream == NULL) {
+        return false;
+    }
+
+    highres_config.loaded = true;
+
+    while (fgets(line, sizeof(line), stream) != NULL) {
+        highres_config_parse_line(line);
+    }
+
+    fclose(stream);
+    return true;
+}
+
+void highres_config_strip_comments(char* line)
+{
+    char* comment = strstr(line, "//");
+    char* hash = strchr(line, '#');
+    char* semicolon = strchr(line, ';');
+
+    if (hash != NULL && (comment == NULL || hash < comment)) {
+        comment = hash;
+    }
+
+    if (semicolon != NULL && (comment == NULL || semicolon < comment)) {
+        comment = semicolon;
+    }
+
+    if (comment != NULL) {
+        *comment = '\0';
+    }
+}
+
 void highres_config_parse_line(char* line)
 {
-    char* comment;
     char* sep;
     char* key_start;
     char* key_end;
@@ -101,10 +129,7 @@ void highres_config_parse_line(char* line)
     char* value_end;
     int value;
 
-    comment = strstr(line, "//");
-    if (comment != NULL) {
-        *comment = '\0';
-    }
+    highres_config_strip_comments(line);
 
     key_start = line;
     key_end = key_start + strlen(key_start);
@@ -135,112 +160,112 @@ void highres_config_parse_line(char* line)
         return;
     }
 
-    if (SDL_strcasecmp(key_start, "Width") == 0) {
+    if (highres_config_key_equals(key_start, "Width")) {
         if (value >= 800) {
             highres_config.width = value;
         }
-    } else if (SDL_strcasecmp(key_start, "Height") == 0) {
+    } else if (highres_config_key_equals(key_start, "Height")) {
         if (value >= 600) {
             highres_config.height = value;
         }
-    } else if (SDL_strcasecmp(key_start, "Windowed") == 0) {
+    } else if (highres_config_key_equals(key_start, "Windowed")) {
         highres_config.windowed = value != 0;
-    } else if (SDL_strcasecmp(key_start, "ShowFPS") == 0) {
+    } else if (highres_config_key_equals(key_start, "ShowFPS")) {
         highres_config.show_fps = value != 0;
-    } else if (SDL_strcasecmp(key_start, "ScrollFPS") == 0) {
+    } else if (highres_config_key_equals(key_start, "ScrollFPS")) {
         if (value > 0) {
             highres_config.scroll_fps = value;
         }
-    } else if (SDL_strcasecmp(key_start, "ScrollDist") == 0) {
+    } else if (highres_config_key_equals(key_start, "ScrollDist")) {
         if (value >= 0) {
             highres_config.scroll_dist = value;
         }
-    } else if (SDL_strcasecmp(key_start, "IdentificationCost") == 0) {
+    } else if (highres_config_key_equals(key_start, "IdentificationCost")) {
         if (value >= 0) {
             highres_config.identification_cost = value;
         }
-    } else if (SDL_strcasecmp(key_start, "LevelCap") == 0) {
+    } else if (highres_config_key_equals(key_start, "LevelCap")) {
         if (value >= 0) {
             highres_config.level_cap = value;
         }
-    } else if (SDL_strcasecmp(key_start, "StatsCap") == 0) {
+    } else if (highres_config_key_equals(key_start, "StatsCap")) {
         if (value >= 0) {
             highres_config.stats_cap = value;
         }
-    } else if (SDL_strcasecmp(key_start, "SpeedCap") == 0) {
+    } else if (highres_config_key_equals(key_start, "SpeedCap")) {
         if (value >= 0) {
             highres_config.speed_cap = value;
         }
-    } else if (SDL_strcasecmp(key_start, "ReactionModifierCap") == 0) {
+    } else if (highres_config_key_equals(key_start, "ReactionModifierCap")) {
         if (value >= 0) {
             highres_config.reaction_modifier_cap = value;
         }
-    } else if (SDL_strcasecmp(key_start, "CarryWeightCap") == 0) {
+    } else if (highres_config_key_equals(key_start, "CarryWeightCap")) {
         if (value >= 0) {
             highres_config.carry_weight_cap = value;
         }
-    } else if (SDL_strcasecmp(key_start, "StolenGoldCap") == 0) {
+    } else if (highres_config_key_equals(key_start, "StolenGoldCap")) {
         if (value >= 0) {
             highres_config.stolen_gold_cap = value;
         }
-    } else if (SDL_strcasecmp(key_start, "NameLength") == 0) {
+    } else if (highres_config_key_equals(key_start, "NameLength")) {
         if (value >= 0) {
             highres_config.name_length = value;
         }
-    } else if (SDL_strcasecmp(key_start, "Logos") == 0) {
+    } else if (highres_config_key_equals(key_start, "Logos")) {
         highres_config.logos = value != 0;
-    } else if (SDL_strcasecmp(key_start, "Intro") == 0) {
+    } else if (highres_config_key_equals(key_start, "Intro")) {
         highres_config.intro = value != 0;
-    } else if (SDL_strcasecmp(key_start, "DisableCombatMusic") == 0) {
+    } else if (highres_config_key_equals(key_start, "DisableCombatMusic")) {
         highres_config.disable_combat_music = value != 0;
-    } else if (SDL_strcasecmp(key_start, "DisableSpellLevelRequirement") == 0) {
+    } else if (highres_config_key_equals(key_start, "DisableSpellLevelRequirement")) {
         highres_config.disable_spell_level_requirement = value != 0;
-    } else if (SDL_strcasecmp(key_start, "DisableXPPerHit") == 0) {
+    } else if (highres_config_key_equals(key_start, "DisableXPPerHit")) {
         highres_config.disable_xp_per_hit = value != 0;
-    } else if (SDL_strcasecmp(key_start, "FullXPPerKill") == 0) {
+    } else if (highres_config_key_equals(key_start, "FullXPPerKill")) {
         highres_config.full_xp_per_kill = value != 0;
-    } else if (SDL_strcasecmp(key_start, "DisableSpriteMirroring") == 0) {
+    } else if (highres_config_key_equals(key_start, "DisableSpriteMirroring")) {
         highres_config.disable_sprite_mirroring = value != 0;
         tig_art_mirroring_set_enabled(!highres_config.disable_sprite_mirroring);
-    } else if (SDL_strcasecmp(key_start, "HideZeroDamageToCreatures") == 0) {
+    } else if (highres_config_key_equals(key_start, "HideZeroDamageToCreatures")) {
         highres_config.hide_zero_damage_to_creatures = value != 0;
-    } else if (SDL_strcasecmp(key_start, "HideZeroDamageToObjects") == 0) {
+    } else if (highres_config_key_equals(key_start, "HideZeroDamageToObjects")) {
         highres_config.hide_zero_damage_to_objects = value != 0;
-    } else if (SDL_strcasecmp(key_start, "NoCharacterPointsAtStart") == 0) {
+    } else if (highres_config_key_equals(key_start, "NoCharacterPointsAtStart")) {
         highres_config.no_character_points_at_start = value != 0;
-    } else if (SDL_strcasecmp(key_start, "StartStatsAtOne") == 0) {
+    } else if (highres_config_key_equals(key_start, "StartStatsAtOne")) {
         highres_config.start_stats_at_one = value != 0;
-    } else if (SDL_strcasecmp(key_start, "MagicalAptitudeBonus") == 0) {
+    } else if (highres_config_key_equals(key_start, "MagicalAptitudeBonus")) {
         highres_config.magical_aptitude_bonus = value != 0;
-    } else if (SDL_strcasecmp(key_start, "TechnologicalAptitudeBonus") == 0) {
+    } else if (highres_config_key_equals(key_start, "TechnologicalAptitudeBonus")) {
         highres_config.technological_aptitude_bonus = value != 0;
-    } else if (SDL_strcasecmp(key_start, "StartingFatePoint") == 0) {
+    } else if (highres_config_key_equals(key_start, "StartingFatePoint")) {
         highres_config.starting_fate_point = value != 0;
-    } else if (SDL_strcasecmp(key_start, "DisableNaturalRecovery") == 0) {
+    } else if (highres_config_key_equals(key_start, "DisableNaturalRecovery")) {
         highres_config.disable_natural_recovery = value != 0;
-    } else if (SDL_strcasecmp(key_start, "PoisonImmunity") == 0) {
+    } else if (highres_config_key_equals(key_start, "PoisonImmunity")) {
         highres_config.poison_immunity = value != 0;
-    } else if (SDL_strcasecmp(key_start, "DisableProwlingToHitBonus") == 0) {
+    } else if (highres_config_key_equals(key_start, "DisableProwlingToHitBonus")) {
         highres_config.disable_prowling_to_hit_bonus = value != 0;
-    } else if (SDL_strcasecmp(key_start, "DisableAptitudeToHitPenalty") == 0) {
+    } else if (highres_config_key_equals(key_start, "DisableAptitudeToHitPenalty")) {
         highres_config.disable_aptitude_to_hit_penalty = value != 0;
-    } else if (SDL_strcasecmp(key_start, "TechnologicalCursor") == 0) {
+    } else if (highres_config_key_equals(key_start, "TechnologicalCursor")) {
         highres_config.technological_cursor = value != 0;
-    } else if (SDL_strcasecmp(key_start, "DisableGlobalLightingChange") == 0) {
+    } else if (highres_config_key_equals(key_start, "DisableGlobalLightingChange")) {
         highres_config.disable_global_lighting_change = value != 0;
-    } else if (SDL_strcasecmp(key_start, "FreeBuying") == 0) {
+    } else if (highres_config_key_equals(key_start, "FreeBuying")) {
         highres_config.free_buying = value != 0;
-    } else if (SDL_strcasecmp(key_start, "FreeSelling") == 0) {
+    } else if (highres_config_key_equals(key_start, "FreeSelling")) {
         highres_config.free_selling = value != 0;
-    } else if (SDL_strcasecmp(key_start, "EndlessConsumables") == 0) {
+    } else if (highres_config_key_equals(key_start, "EndlessConsumables")) {
         highres_config.endless_consumables = value != 0;
-    } else if (SDL_strcasecmp(key_start, "ShareCurrentSkillTraining") == 0) {
+    } else if (highres_config_key_equals(key_start, "ShareCurrentSkillTraining")) {
         highres_config.share_current_skill_training = value != 0;
-    } else if (SDL_strcasecmp(key_start, "ReducedIntRequirementsForSchemes") == 0) {
+    } else if (highres_config_key_equals(key_start, "ReducedIntRequirementsForSchemes")) {
         highres_config.reduced_int_requirements_for_schemes = value != 0;
-    } else if (SDL_strcasecmp(key_start, "InventoryActiveForAllFollowers") == 0) {
+    } else if (highres_config_key_equals(key_start, "InventoryActiveForAllFollowers")) {
         highres_config.inventory_active_for_all_followers = value != 0;
-    } else if (SDL_strcasecmp(key_start, "UseAnyEquipment") == 0) {
+    } else if (highres_config_key_equals(key_start, "UseAnyEquipment")) {
         highres_config.use_any_equipment = value != 0;
     }
 }
@@ -279,5 +304,31 @@ bool highres_config_parse_int(const char* str, int* value_ptr)
     }
 
     *value_ptr = (int)value;
+    return true;
+}
+
+bool highres_config_key_equals(const char* lhs, const char* rhs)
+{
+    while (*lhs != '\0' || *rhs != '\0') {
+        while (*lhs == '_' || *lhs == '-') {
+            lhs++;
+        }
+
+        while (*rhs == '_' || *rhs == '-') {
+            rhs++;
+        }
+
+        if (tolower((unsigned char)*lhs) != tolower((unsigned char)*rhs)) {
+            return false;
+        }
+
+        if (*lhs == '\0') {
+            return true;
+        }
+
+        lhs++;
+        rhs++;
+    }
+
     return true;
 }
