@@ -13,6 +13,14 @@ $ arcanum-ce-module-check [--verbose] [--profile <cfg>] <module-or-data-path>
 
 The command exits with a non-zero status when it finds structural issues or cannot scan the requested path.
 
+The same read-only scanner can also be run through the engine binary:
+
+```console
+$ arcanum-ce -scan [--verbose] [--profile <cfg>] <module-or-data-path>
+```
+
+`-scan` exits after the scan and does not initialize TIG, open a game window, load a module, or enter gameplay.
+
 ## Current Coverage
 
 - Recursively inventories loose `.scr`, `.dlg`, `.mes`, `.pro`, `.mob`, `.sec`, `.map`, `.art`, sound, `.dat`, and other files.
