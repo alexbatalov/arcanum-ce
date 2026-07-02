@@ -825,6 +825,7 @@ bool follower_ui_message_filter(TigMessage* msg)
                     if (tig_window_get_at_position(msg->data.mouse.x, msg->data.mouse.y, &window_handle) == TIG_OK
                         && window_handle == follower_ui_windows[index]) {
                         follower_ui_drop_down_menu_create(index);
+                        return true;
                     }
                     break;
                 }

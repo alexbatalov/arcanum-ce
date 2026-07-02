@@ -1063,7 +1063,9 @@ bool charedit_open(int64_t obj, ChareditMode mode)
     tig_window_show(charedit_scheme_win);
     sub_51E850(charedit_skills_win);
 
-    if (charedit_mode == CHAREDIT_MODE_PASSIVE) {
+    if (charedit_mode == CHAREDIT_MODE_PASSIVE
+        && (critter_leader_get(charedit_obj) != pc_obj
+            || critter_follower_next(charedit_obj) == charedit_obj)) {
         for (index = 0; index < 15; index++) {
             tig_button_hide(dword_64C7E8[index]);
         }
@@ -3295,7 +3297,7 @@ bool charedit_scheme_win_message_filter(TigMessage* msg)
         if (msg->data.button.state == TIG_BUTTON_STATE_MOUSE_INSIDE) {
             for (index = 0; index < 15; index++) {
                 if (msg->data.button.button_handle == dword_64C7E8[index]) {
-                    if (index < charedit_num_schemes) {
+                    if (index + charedit_top_scheme_index < charedit_num_schemes) {
                         sub_55B880(charedit_scheme_win, charedit_flare12_blue_font, &stru_5C8E50[index], NULL, -1, 1);
                     }
 
@@ -3309,7 +3311,7 @@ bool charedit_scheme_win_message_filter(TigMessage* msg)
         if (msg->data.button.state == TIG_BUTTON_STATE_MOUSE_OUTSIDE) {
             for (index = 0; index < 15; index++) {
                 if (msg->data.button.button_handle == dword_64C7E8[index]) {
-                    if (index < charedit_num_schemes) {
+                    if (index + charedit_top_scheme_index < charedit_num_schemes) {
                         sub_55B880(charedit_scheme_win, charedit_flare12_white_font, &stru_5C8E50[index], NULL, -1, 1);
                     }
 
@@ -3323,7 +3325,7 @@ bool charedit_scheme_win_message_filter(TigMessage* msg)
         if (msg->data.button.state == TIG_BUTTON_STATE_PRESSED) {
             for (index = 0; index < 15; index++) {
                 if (msg->data.button.button_handle == dword_64C7E8[index]) {
-                    if (index < charedit_num_schemes) {
+                    if (index + charedit_top_scheme_index < charedit_num_schemes) {
                         auto_level_scheme_set(charedit_obj, charedit_scheme_ids[index + charedit_top_scheme_index]);
                         charedit_scheme_win_refresh();
                     }

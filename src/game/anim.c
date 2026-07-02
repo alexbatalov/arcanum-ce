@@ -5576,7 +5576,6 @@ bool sub_427000(int64_t obj)
     AnimRunInfo* run_info;
 
     if (combat_turn_based_is_active()
-        && combat_turn_based_whos_turn_get() == obj
         && (obj_field_int32_get(obj, OBJ_F_CRITTER_FLAGS) & OCF_STUNNED) != 0
         && anim_is_current_goal_type(obj, AG_ANIMATE_STUNNED, &anim_id)
         && anim_id_to_run_info(&anim_id, &run_info)) {
@@ -11690,33 +11689,31 @@ int sub_430FC0(AnimRunInfo* run_info)
 
     if (run_info->current_goal > 0 && (run_info->flags & 0x40) != 0) {
         if (critter_fatigue_current(obj) > 0) {
-            if (combat_critter_is_combat_mode_active(obj)) {
-                v1 = 5;
+            v1 = 5;
 
-                run_info->cur_stack_data->params[AGDATA_SCRATCH_VAL4].data++;
+            run_info->cur_stack_data->params[AGDATA_SCRATCH_VAL4].data++;
 
-                critter_flags = obj_field_int32_get(obj, OBJ_F_CRITTER_FLAGS);
-                critter_flags2 = obj_field_int32_get(obj, OBJ_F_CRITTER_FLAGS2);
+            critter_flags = obj_field_int32_get(obj, OBJ_F_CRITTER_FLAGS);
+            critter_flags2 = obj_field_int32_get(obj, OBJ_F_CRITTER_FLAGS2);
 
-                if ((critter_flags & OCF_FATIGUE_LIMITING) != 0) {
-                    v1 *= 4;
+            if ((critter_flags & OCF_FATIGUE_LIMITING) != 0) {
+                v1 *= 4;
+            }
+
+            if ((critter_flags2 & OCF2_FATIGUE_DRAINING) != 0) {
+                v1 /= 4;
+                if (v1 == 0) {
+                    v1 = 1;
                 }
+            }
 
-                if ((critter_flags2 & OCF2_FATIGUE_DRAINING) != 0) {
-                    v1 /= 4;
-                    if (v1 == 0) {
-                        v1 = 1;
-                    }
-                }
+            if (run_info->cur_stack_data->params[AGDATA_SCRATCH_VAL4].data >= v1) {
+                run_info->cur_stack_data->params[AGDATA_SCRATCH_VAL4].data = 0;
 
-                if (run_info->cur_stack_data->params[AGDATA_SCRATCH_VAL4].data >= v1) {
-                    run_info->cur_stack_data->params[AGDATA_SCRATCH_VAL4].data = 0;
+                fatigue_dam = critter_fatigue_damage_get(obj);
 
-                    fatigue_dam = critter_fatigue_damage_get(obj);
-
-                    if (critter_fatigue_damage_set(obj, fatigue_dam) == 0) {
-                        return false;
-                    }
+                if (critter_fatigue_damage_set(obj, fatigue_dam + 1) == 0) {
+                    return false;
                 }
             }
 

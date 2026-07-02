@@ -2140,6 +2140,13 @@ bool inven_ui_message_filter(TigMessage* msg)
         scrollbar_ui_end_ignore_events();
     }
 
+    // The quantity picker is modal for stack transfers. Letting the inventory
+    // process other controls here can mutate the pending source/target stacks
+    // before the OK button commits.
+    if (intgame_mode_get() == INTGAME_MODE_QUANTITY) {
+        return false;
+    }
+
     switch (msg->type) {
     case TIG_MESSAGE_BUTTON:
         // CE: Ignore button events while dragging an item to steal it. This

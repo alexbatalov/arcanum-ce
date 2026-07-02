@@ -1767,9 +1767,9 @@ bool sub_450940(int mt_id)
     }
 
     if (run_info->action == MAGICTECH_ACTION_BEGIN) {
-        cost = magictech_spells[mt_id].cost;
+        cost = magictech_spells[run_info->spell].cost;
     } else {
-        cost = magictech_get_maintenance(mt_id)->cost;
+        cost = magictech_get_maintenance(run_info->spell)->cost;
     }
 
     if (magictech_cheat_mode) {
