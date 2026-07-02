@@ -5,6 +5,7 @@
 #include "game/critter.h"
 #include "game/description.h"
 #include "game/descriptions.h"
+#include "game/highres_config.h"
 #include "game/invensource.h"
 #include "game/magictech.h"
 #include "game/mes.h"
@@ -506,6 +507,10 @@ int sub_461620(int64_t item_obj, int64_t owner_obj, int64_t a3)
     int complexity;
     int aptitude1;
     int aptitude2;
+
+    if (highres_config_get()->disable_aptitude_to_hit_penalty) {
+        return 0;
+    }
 
     complexity = item_magic_tech_complexity(item_obj);
 
