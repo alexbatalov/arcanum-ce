@@ -20,6 +20,7 @@ The tool now:
 
 - Tracks loose file paths relative to the scanned root.
 - Reads Arcanum-format DAT archive indexes without extracting archive contents.
+- Leaves non-archive `.dat` payloads as inventory only instead of counting them as failed archives.
 - Normalizes path separators and case for static comparison.
 - Prints DAT archive counts, indexed entry counts, and loose-file override matches.
 - Treats override matches as informational, not structural scanner issues.
@@ -54,6 +55,7 @@ git diff --check
 out\build\windows-x64\Debug\arcanum-ce-module-check.exe --help
 out\build\windows-x64\Debug\arcanum-ce-module-check.exe docs
 out\build\windows-x64\Debug\arcanum-ce-module-check.exe out\tmp\module-check-dat-fixture
+out\build\windows-x64\Debug\arcanum-ce-module-check.exe "D:\Arcanum\ThrowawayBuilds\Arcanum CE Config Runtime QA 20260702-160533"
 ```
 
 Results:
@@ -67,8 +69,13 @@ Results:
   - DAT archives indexed: 1
   - DAT entries: 1
   - loose files overriding DAT entries: 1
+- Runtime config QA used a disposable copy of the 2026-07-02 CE milestone at `D:\Arcanum\ThrowawayBuilds\Arcanum CE Config Runtime QA 20260702-160533`.
+- Runtime launch with `arcanum-ce.cfg` set to `width=1280`, `height=720`, and `windowed=1` produced a 1280x720 client window.
+- Runtime launch with the same config plus `-geometry=1024x768` produced a 1024x768 client window, confirming command-line geometry still overrides file settings.
+- Real-runtime module scan indexed 10 valid DAT archives, 108,663 DAT entries, and 102 loose override matches with zero DAT archive failures.
+- The real-runtime module scan still returned non-zero because of existing strict dialog/static warnings outside this DAT-indexing slice.
 
-No original Arcanum game assets were used or committed. The DAT fixture was generated under `out\tmp\module-check-dat-fixture`.
+No original Arcanum game assets were committed. Runtime QA used a disposable local copy outside the repo, and the DAT fixture was generated under `out\tmp\module-check-dat-fixture`.
 
 ## Manual Test Steps
 
@@ -99,19 +106,6 @@ To roll back this implementation, revert:
 
 No runtime asset-loader behavior, save format, or config writeback behavior was changed.
 
-## Git Status
+## Publication
 
-Expected status after this report:
-
-```console
- M docs/ARCANUM_CE_MODULE_CHECK.md
- M README.md
- M src/game/highres_config.c
- M src/tools/module_check.c
-?? docs/ARCANUM_CE_CONFIG.md
-?? docs/reports/
-```
-
-## No Push Confirmation
-
-No push was performed. No PR was opened.
+The implementation was committed and pushed to `publish/main`.

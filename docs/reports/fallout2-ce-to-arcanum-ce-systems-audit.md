@@ -24,7 +24,7 @@ The safest immediate transfer is better static compatibility reporting around lo
 | Config/settings loading | Central `fallout2.cfg`, typed settings registry, defaults written back by `settingsWriteToConfig`. | Command-line flags plus `HighRes/config.ini` import in `src/game/highres_config.c`; simpler `Settings` helper for game settings. | SAFE TO IMPLEMENT NOW | Implemented optional `arcanum-ce.cfg` read support as a thin layer over existing startup settings. Writeback and full registry remain deferred. |
 | Config migration | `game_config_migration.cc` migrates `f2_res.ini` and some Sfall `ddraw.ini` settings into CE config files. | `HighRes/config.ini` is read at startup but not rewritten into a new CE-owned config. | ARCANUM-SPECIFIC WORK NEEDED | Safe next step is a written config design and one-way import plan, not an ad hoc new file. |
 | Mod/profile loading | Fallout supports popular total conversion expectations and content config overrides. | Arcanum loads stock modules and has `-mod:` selection. | RISKY / DEFER | Module/profile loading changes are engine-wide and could break stock Arcanum behavior. |
-| DAT/ZIP/loose-file override behavior | Fallout `xfile.cc` supports directories, DATs, ZIP diagnostics, and explicit archive error logs. | TIG file repositories search DATs/directories; Arcanum supports DAT archives and loose files but had limited static visibility. | SAFE TO IMPLEMENT NOW | Implemented read-only DAT index and loose override reporting in `arcanum-ce-module-check`. |
+| DAT/ZIP/loose-file override behavior | Fallout `xfile.cc` supports directories, DATs, ZIP diagnostics, and explicit archive error logs. | TIG file repositories search DATs/directories; Arcanum supports DAT archives and loose files but had limited static visibility. | SAFE TO IMPLEMENT NOW | Implemented read-only DAT index and loose override reporting in `arcanum-ce-module-check`; validated against a real CE runtime after fixing DAT1 footer handling. |
 | High-res and UI scaling options | `fallout2.cfg` exposes resolution, windowed mode, scale, UI options, and f2_res migration. | `-geometry`, `-window`, and UAP HighRes keys for width/height/window/FPS/scroll. | DESIGN TRANSFER ONLY | UI scaling is not a small patch; Arcanum UI needs dedicated layout work. |
 | Debug/logging/crash diagnostics | Fallout buffers early debug messages, supports debug modes, and logs config migration. | TIG logs through `tig_debug_printf`; startup failures are still mostly generic. | ARCANUM-SPECIFIC WORK NEEDED | Good target, but should be scoped around concrete startup failure cases. |
 | Missing asset reporting | Fallout has more focused archive/open diagnostics; Sfall and content systems expose mod-facing gaps. | Runtime logs many missing art/file failures; module checker reports static script/dialog/message issues. | SAFE TO IMPLEMENT NOW | Override reporting was the safest first slice; deeper missing art/script reference resolution remains future scanner work. |
@@ -52,6 +52,6 @@ The safest immediate transfer is better static compatibility reporting around lo
 - Sfall/opcode systems: Fallout-specific and not relevant to Arcanum gameplay.
 - Save/load QoL: high risk without manual stock-game regression testing.
 
-## No Push Confirmation
+## Publication
 
-No push was performed. No PR was opened.
+The safe implementation slice was committed and pushed to `publish/main`.

@@ -17,6 +17,7 @@ The command exits with a non-zero status when it finds structural issues or cann
 
 - Recursively inventories loose `.scr`, `.dlg`, `.mes`, `.pro`, `.mob`, `.sec`, `.map`, `.art`, sound, `.dat`, and other files.
 - Indexes Arcanum-format DAT archives and reports loose files that override DAT entries.
+- Ignores non-archive `.dat` payloads for archive indexing unless they have a valid Arcanum DAT footer.
 - Validates `.scr` structure using Arcanum CE's serialized script layout.
 - Reports script condition and action ID histograms.
 - Flags script condition IDs outside `ScriptConditionType`.

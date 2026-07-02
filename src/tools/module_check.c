@@ -575,39 +575,27 @@ int scan_dat_archive(Scanner* scanner, const char* path)
         return -1;
     }
 
-    if (fseek(stream, 0, SEEK_END) != 0 || (file_size = ftell(stream)) < 24) {
-        scanner_issue(scanner, path, "DAT archive is too small");
+    if (fseek(stream, 0, SEEK_END) != 0 || (file_size = ftell(stream)) < 12) {
         fclose(stream);
-        scanner->dats_failed++;
         return 0;
     }
 
     if (fseek(stream, -12, SEEK_END) != 0
         || !read_i32(stream, &id)
-        || !read_i32(stream, &name_table_size)) {
+        || !read_i32(stream, &name_table_size)
+        || !read_i32(stream, &entry_table_offset)) {
         scanner_issue(scanner, path, "cannot read DAT footer");
         fclose(stream);
         scanner->dats_failed++;
         return 0;
     }
 
-    if (id == FOURCC_DAT) {
-        if (!read_i32(stream, &entry_table_offset)) {
-            failed = true;
-        }
-    } else if (id == FOURCC_DAT1) {
-        if (fseek(stream, -24, SEEK_END) != 0
-            || fseek(stream, 16, SEEK_CUR) != 0
-            || !read_i32(stream, &id)
-            || id != FOURCC_DAT1
-            || !read_i32(stream, &entry_table_offset)) {
-            failed = true;
-        }
-    } else {
-        failed = true;
+    if (id != FOURCC_DAT && id != FOURCC_DAT1) {
+        fclose(stream);
+        return 0;
     }
 
-    if (failed || entry_table_offset <= 0 || entry_table_offset > file_size - 4) {
+    if (entry_table_offset <= 0 || entry_table_offset > file_size - 4) {
         scanner_issue(scanner, path, "cannot locate DAT entry table");
         fclose(stream);
         scanner->dats_failed++;
