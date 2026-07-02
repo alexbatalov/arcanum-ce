@@ -6,6 +6,7 @@
 #include "game/combat.h"
 #include "game/effect.h"
 #include "game/gamelib.h"
+#include "game/highres_config.h"
 #include "game/item.h"
 #include "game/light.h"
 #include "game/logbook.h"
@@ -697,9 +698,16 @@ void critter_notify_killed(int64_t victim_obj, int64_t killer_obj, int anim)
             if (pc_killer_obj != OBJ_HANDLE_NULL) {
                 ObjectList followers;
                 ObjectNode* node;
+                int kill_xp;
 
-                // 20% of the experience cost for killing.
-                critter_give_xp(pc_killer_obj, 20 * obj_field_int32_get(victim_obj, OBJ_F_NPC_EXPERIENCE_WORTH) / 100);
+                if (highres_config_get()->full_xp_per_kill) {
+                    kill_xp = obj_field_int32_get(victim_obj, OBJ_F_NPC_EXPERIENCE_POOL);
+                    obj_field_int32_set(victim_obj, OBJ_F_NPC_EXPERIENCE_POOL, 0);
+                } else {
+                    // 20% of the experience cost for killing.
+                    kill_xp = 20 * obj_field_int32_get(victim_obj, OBJ_F_NPC_EXPERIENCE_WORTH) / 100;
+                }
+                critter_give_xp(pc_killer_obj, kill_xp);
                 obj_field_int32_set(victim_obj, OBJ_F_NPC_EXPERIENCE_WORTH, 0);
 
                 // Adjust alignment.

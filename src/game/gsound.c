@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include "game/gamelib.h"
+#include "game/highres_config.h"
 #include "game/hrp.h"
 #include "game/location.h"
 #include "game/mes.h"
@@ -1721,6 +1722,10 @@ void gsound_start_combat_music(int64_t obj)
     int type;
 
     if (gsound_combat_music_active) {
+        return;
+    }
+
+    if (highres_config_get()->disable_combat_music) {
         return;
     }
 

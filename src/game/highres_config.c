@@ -52,6 +52,9 @@ void highres_config_reset(void)
     highres_config.scroll_dist = 10;
     highres_config.logos = true;
     highres_config.intro = true;
+    highres_config.disable_combat_music = false;
+    highres_config.disable_xp_per_hit = false;
+    highres_config.full_xp_per_kill = false;
 }
 
 void highres_config_parse_line(char* line)
@@ -122,6 +125,12 @@ void highres_config_parse_line(char* line)
         highres_config.logos = value != 0;
     } else if (SDL_strcasecmp(key_start, "Intro") == 0) {
         highres_config.intro = value != 0;
+    } else if (SDL_strcasecmp(key_start, "DisableCombatMusic") == 0) {
+        highres_config.disable_combat_music = value != 0;
+    } else if (SDL_strcasecmp(key_start, "DisableXPPerHit") == 0) {
+        highres_config.disable_xp_per_hit = value != 0;
+    } else if (SDL_strcasecmp(key_start, "FullXPPerKill") == 0) {
+        highres_config.full_xp_per_kill = value != 0;
     }
 }
 

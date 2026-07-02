@@ -15,6 +15,7 @@
 #include "game/fate.h"
 #include "game/gamelib.h"
 #include "game/gsound.h"
+#include "game/highres_config.h"
 #include "game/item.h"
 #include "game/logbook.h"
 #include "game/magictech.h"
@@ -1835,7 +1836,8 @@ void combat_dmg(CombatContext* combat)
 
         if (combat->field_30 != OBJ_HANDLE_NULL
             && obj_type == OBJ_TYPE_NPC
-            && (spell_flags & OSF_STONED) == 0) {
+            && (spell_flags & OSF_STONED) == 0
+            && !highres_config_get()->disable_xp_per_hit) {
             int remaining_experience = obj_field_int32_get(combat->target_obj, OBJ_F_NPC_EXPERIENCE_POOL);
             if (remaining_experience > 0) {
                 int dam_ratio = 100 * dam / object_hp_max(combat->target_obj);
