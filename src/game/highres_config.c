@@ -79,6 +79,7 @@ void highres_config_reset(void)
     highres_config.free_buying = false;
     highres_config.free_selling = false;
     highres_config.endless_consumables = false;
+    highres_config.share_current_skill_training = false;
 }
 
 void highres_config_parse_line(char* line)
@@ -217,6 +218,8 @@ void highres_config_parse_line(char* line)
         highres_config.free_selling = value != 0;
     } else if (SDL_strcasecmp(key_start, "EndlessConsumables") == 0) {
         highres_config.endless_consumables = value != 0;
+    } else if (SDL_strcasecmp(key_start, "ShareCurrentSkillTraining") == 0) {
+        highres_config.share_current_skill_training = value != 0;
     }
 }
 
