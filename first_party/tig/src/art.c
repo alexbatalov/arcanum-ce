@@ -430,6 +430,11 @@ void tig_art_ping(void)
 {
 }
 
+void tig_art_mirroring_set_enabled(bool enabled)
+{
+    tig_art_mirroring_enabled = enabled;
+}
+
 // 0x501DD0
 int tig_art_misc_id_create(unsigned int num, unsigned int palette, tig_art_id_t* art_id_ptr)
 {

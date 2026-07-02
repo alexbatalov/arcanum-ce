@@ -24,6 +24,7 @@ typedef struct HighResConfig {
     bool disable_spell_level_requirement;
     bool disable_xp_per_hit;
     bool full_xp_per_kill;
+    bool disable_sprite_mirroring;
     bool hide_zero_damage_to_creatures;
     bool hide_zero_damage_to_objects;
     bool no_character_points_at_start;
