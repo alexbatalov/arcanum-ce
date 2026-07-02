@@ -69,6 +69,8 @@ void highres_config_reset(void)
     highres_config.magical_aptitude_bonus = false;
     highres_config.technological_aptitude_bonus = false;
     highres_config.starting_fate_point = false;
+    highres_config.disable_natural_recovery = false;
+    highres_config.poison_immunity = false;
 }
 
 void highres_config_parse_line(char* line)
@@ -185,6 +187,10 @@ void highres_config_parse_line(char* line)
         highres_config.technological_aptitude_bonus = value != 0;
     } else if (SDL_strcasecmp(key_start, "StartingFatePoint") == 0) {
         highres_config.starting_fate_point = value != 0;
+    } else if (SDL_strcasecmp(key_start, "DisableNaturalRecovery") == 0) {
+        highres_config.disable_natural_recovery = value != 0;
+    } else if (SDL_strcasecmp(key_start, "PoisonImmunity") == 0) {
+        highres_config.poison_immunity = value != 0;
     }
 }
 

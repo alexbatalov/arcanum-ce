@@ -1043,6 +1043,11 @@ static int stat_configured_max(int stat, int max_value)
             max_value = config->speed_cap;
         }
         break;
+    case STAT_HEAL_RATE:
+        if (config->disable_natural_recovery) {
+            max_value = 0;
+        }
+        break;
     case STAT_REACTION_MODIFIER:
         if (config->reaction_modifier_cap > max_value) {
             max_value = config->reaction_modifier_cap;
@@ -1052,6 +1057,11 @@ static int stat_configured_max(int stat, int max_value)
         configured_max = level_stat_max();
         if (configured_max > max_value) {
             max_value = configured_max;
+        }
+        break;
+    case STAT_POISON_LEVEL:
+        if (config->poison_immunity) {
+            max_value = 0;
         }
         break;
     }
@@ -1115,6 +1125,13 @@ bool stat_poison_timeevent_process(TimeEvent* timeevent)
 
     type = timeevent->params[0].integer_value;
     obj = timeevent->params[1].object_value;
+
+    if (highres_config_get()->poison_immunity) {
+        if (stat_base_get(obj, STAT_POISON_LEVEL) != 0) {
+            stat_base_set(obj, STAT_POISON_LEVEL, 0);
+        }
+        return true;
+    }
 
     poison = stat_base_get(obj, STAT_POISON_LEVEL);
     switch (type) {
