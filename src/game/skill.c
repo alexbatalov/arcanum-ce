@@ -7,6 +7,7 @@
 #include "game/effect.h"
 #include "game/fate.h"
 #include "game/gamelib.h"
+#include "game/highres_config.h"
 #include "game/item.h"
 #include "game/light.h"
 #include "game/mes.h"
@@ -22,11 +23,14 @@
 #define FIRST_BASIC_SKILL_DESC_ID (FIRST_TRAINING_NAME_ID + TRAINING_COUNT)
 #define FIRST_TECH_SKILL_DESC_ID (FIRST_BASIC_SKILL_DESC_ID + BASIC_SKILL_COUNT)
 
+#define PICKPOCKET_GOLD_LIMIT_DEFAULT 100
+
 static int basic_skill_vs(int64_t obj, int skill, int64_t other_obj);
 static int max_skill_for_stat_level(int stat_level);
 static int skill_gambling_random_roll(void);
 static bool skill_invocation_check_crit_hit(int roll, int effectiveness, SkillInvocation* skill_invocation);
 static bool skill_invocation_check_crit_miss(int roll, int effectiveness, SkillInvocation* skill_invocation);
+static int skill_pickpocket_gold_limit(void);
 static bool is_controlled_by_local_pc(int64_t obj);
 
 /**
@@ -1637,10 +1641,11 @@ bool skill_invocation_run(SkillInvocation* skill_invocation)
 
                     switch (obj_field_int32_get(item_obj, OBJ_F_TYPE)) {
                     case OBJ_TYPE_GOLD: {
-                        // Transfer up to 100 gold coins.
+                        // Transfer up to the configured gold cap.
                         int qty = item_gold_get(item_obj);
-                        if (qty > 100) {
-                            qty = 100;
+                        int limit = skill_pickpocket_gold_limit();
+                        if (qty > limit) {
+                            qty = limit;
                         }
 
                         moved = item_gold_transfer(target_obj, source_obj, qty, item_obj);
@@ -1713,10 +1718,11 @@ bool skill_invocation_run(SkillInvocation* skill_invocation)
 
                     switch (obj_field_int32_get(item_obj, OBJ_F_TYPE)) {
                     case OBJ_TYPE_GOLD: {
-                        // Transfer up to 100 gold coins.
+                        // Transfer up to the configured gold cap.
                         int qty = item_gold_get(item_obj);
-                        if (qty > 100) {
-                            qty = 100;
+                        int limit = skill_pickpocket_gold_limit();
+                        if (qty > limit) {
+                            qty = limit;
                         }
                         moved = item_gold_transfer(source_obj, target_obj, qty, item_obj);
                         break;
@@ -2176,6 +2182,18 @@ bool skill_invocation_check_crit_miss(int roll, int effectiveness, SkillInvocati
     // Compare the roll (1-100) to the final critical miss chance to determine
     // if a critical miss occurs.
     return roll <= chance;
+}
+
+static int skill_pickpocket_gold_limit(void)
+{
+    int limit;
+
+    limit = highres_config_get()->stolen_gold_cap;
+    if (limit > 0) {
+        return limit;
+    }
+
+    return PICKPOCKET_GOLD_LIMIT_DEFAULT;
 }
 
 /**

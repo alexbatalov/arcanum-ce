@@ -17,6 +17,7 @@ typedef struct HighResConfig {
     int speed_cap;
     int reaction_modifier_cap;
     int carry_weight_cap;
+    int stolen_gold_cap;
     bool logos;
     bool intro;
     bool disable_combat_music;
