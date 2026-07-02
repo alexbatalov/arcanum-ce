@@ -30,6 +30,8 @@ typedef struct HighResConfig {
     bool magical_aptitude_bonus;
     bool technological_aptitude_bonus;
     bool starting_fate_point;
+    bool disable_natural_recovery;
+    bool poison_immunity;
 } HighResConfig;
 
 void highres_config_load(void);
