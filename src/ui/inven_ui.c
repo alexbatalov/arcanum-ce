@@ -6,6 +6,7 @@
 #include "game/critter.h"
 #include "game/dialog.h"
 #include "game/gsound.h"
+#include "game/highres_config.h"
 #include "game/hrp.h"
 #include "game/item.h"
 #include "game/mes.h"
@@ -3874,7 +3875,9 @@ void sub_5786C0(int64_t obj)
     if (item_is_identified(obj)) {
         dialog_copy_npc_wont_identify_already_msg(qword_682C78, inven_ui_pc_obj, byte_68241C);
     } else {
-        dword_681440 = spell_money(SPELL_DIVINE_MAGICK);
+        dword_681440 = highres_config_get()->identification_cost > 0
+            ? highres_config_get()->identification_cost
+            : spell_money(SPELL_DIVINE_MAGICK);
         dialog_copy_npc_identify_msg(qword_682C78, inven_ui_pc_obj, byte_682804);
         snprintf(byte_68241C, sizeof(byte_68241C), byte_682804, dword_681440);
     }
