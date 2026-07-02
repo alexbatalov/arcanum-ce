@@ -33,9 +33,9 @@ void tig_str_parse_set_separator(int sep)
 }
 
 // 0x5318F0
-void tig_str_parse_str_value(char** str, char* value)
+void tig_str_parse_str_value(char** str, char* value, size_t size)
 {
-    while (isspace(*(*str))) {
+    while (isspace((unsigned char)*(*str))) {
         (*str)++;
     }
 
@@ -44,7 +44,12 @@ void tig_str_parse_str_value(char** str, char* value)
         *sep = '\0';
     }
 
-    memcpy(value, *str, strlen(*str) + 1);
+    size_t len = strlen(*str);
+    if (len >= size) {
+        len = size - 1;
+    }
+    memcpy(value, *str, len);
+    value[len] = '\0';
 
     if (sep != NULL) {
         *sep = tig_str_parse_separator;
@@ -57,7 +62,7 @@ void tig_str_parse_str_value(char** str, char* value)
 // 0x531990
 void tig_str_parse_value(char** str, int* value)
 {
-    while (isspace(*(*str))) {
+    while (isspace((unsigned char)*(*str))) {
         (*str)++;
     }
 
@@ -79,7 +84,7 @@ void tig_str_parse_value(char** str, int* value)
 // 0x531A20
 void tig_str_parse_value_64(char** str, int64_t* value)
 {
-    while (isspace(*(*str))) {
+    while (isspace((unsigned char)*(*str))) {
         (*str)++;
     }
 
@@ -101,7 +106,7 @@ void tig_str_parse_value_64(char** str, int64_t* value)
 // 0x531AB0
 void tig_str_parse_range(char** str, int* start, int* end)
 {
-    while (isspace(*(*str))) {
+    while (isspace((unsigned char)*(*str))) {
         (*str)++;
     }
 
@@ -135,7 +140,7 @@ void tig_str_parse_range(char** str, int* start, int* end)
 // 0x531B70
 void tig_str_parse_complex_value(char** str, int delim, int* value1, int* value2)
 {
-    while (isspace(*(*str))) {
+    while (isspace((unsigned char)*(*str))) {
         (*str)++;
     }
 
@@ -176,7 +181,7 @@ void tig_str_parse_complex_value(char** str, int delim, int* value1, int* value2
 // 0x531C60
 void tig_str_parse_complex_value3(char** str, int delim, int* value1, int* value2, int* value3)
 {
-    while (isspace(*(*str))) {
+    while (isspace((unsigned char)*(*str))) {
         (*str)++;
     }
 
@@ -225,7 +230,7 @@ void tig_str_parse_complex_value3(char** str, int delim, int* value1, int* value
 // 0x531D80
 void tig_str_parse_complex_str_value(char** str, int delim, const char** list, int list_length, int* value1, int* value2)
 {
-    while (isspace(*(*str))) {
+    while (isspace((unsigned char)*(*str))) {
         (*str)++;
     }
 
@@ -289,7 +294,7 @@ void tig_str_parse_complex_str_value(char** str, int delim, const char** list, i
 // 0x531EE0
 void tig_str_match_str_to_list(char** str, const char** list, int list_length, int* value)
 {
-    while (isspace(*(*str))) {
+    while (isspace((unsigned char)*(*str))) {
         (*str)++;
     }
 
@@ -324,7 +329,7 @@ void tig_str_parse_flag_list(char** str, const char** keys, const unsigned int* 
 {
     *value = 0;
 
-    while (isspace(*(*str))) {
+    while (isspace((unsigned char)*(*str))) {
         (*str)++;
     }
 
@@ -379,7 +384,7 @@ void tig_str_parse_flag_list(char** str, const char** keys, const unsigned int* 
                 *str = NULL;
             }
 
-            while (isspace(*(*str))) {
+            while (isspace((unsigned char)*(*str))) {
                 (*str)++;
             }
         }
@@ -398,7 +403,7 @@ void tig_str_parse_flag_list_64(char** str, const char** keys, const uint64_t* v
 {
     *value = 0;
 
-    while (isspace(*(*str))) {
+    while (isspace((unsigned char)*(*str))) {
         (*str)++;
     }
 
@@ -453,7 +458,7 @@ void tig_str_parse_flag_list_64(char** str, const char** keys, const uint64_t* v
                 *str = NULL;
             }
 
-            while (isspace(*(*str))) {
+            while (isspace((unsigned char)*(*str))) {
                 (*str)++;
             }
         }
@@ -476,7 +481,7 @@ bool tig_str_parse_named_value(char** str, const char* name, int* value)
         return false;
     }
 
-    while (isspace(*(*str))) {
+    while (isspace((unsigned char)*(*str))) {
         (*str)++;
     }
 
@@ -492,14 +497,14 @@ bool tig_str_parse_named_value(char** str, const char* name, int* value)
 }
 
 // 0x5323B0
-bool tig_str_parse_named_str_value(char** str, const char* name, char* value)
+bool tig_str_parse_named_str_value(char** str, const char* name, char* value, size_t size)
 {
     if (*str == NULL) {
         value[0] = '\0';
         return false;
     }
 
-    while (isspace(*(*str))) {
+    while (isspace((unsigned char)*(*str))) {
         (*str)++;
     }
 
@@ -510,11 +515,11 @@ bool tig_str_parse_named_str_value(char** str, const char* name, char* value)
 
     *str += strlen(name);
 
-    while (isspace(*(*str))) {
+    while (isspace((unsigned char)*(*str))) {
         (*str)++;
     }
 
-    tig_str_parse_str_value(str, value);
+    tig_str_parse_str_value(str, value, size);
 
     return true;
 }
@@ -527,7 +532,7 @@ bool tig_str_match_named_str_to_list(char** str, const char* name, const char** 
         return false;
     }
 
-    while (isspace(*(*str))) {
+    while (isspace((unsigned char)*(*str))) {
         (*str)++;
     }
 
@@ -538,7 +543,7 @@ bool tig_str_match_named_str_to_list(char** str, const char* name, const char** 
 
     *str += strlen(name);
 
-    while (isspace(*(*str))) {
+    while (isspace((unsigned char)*(*str))) {
         (*str)++;
     }
 
@@ -556,7 +561,7 @@ bool tig_str_parse_named_range(char** str, const char* name, int* start, int* en
         return false;
     }
 
-    while (isspace(*(*str))) {
+    while (isspace((unsigned char)*(*str))) {
         (*str)++;
     }
 
@@ -568,7 +573,7 @@ bool tig_str_parse_named_range(char** str, const char* name, int* start, int* en
 
     *str += strlen(name);
 
-    while (isspace(*(*str))) {
+    while (isspace((unsigned char)*(*str))) {
         (*str)++;
     }
 
@@ -586,7 +591,7 @@ bool tig_str_parse_named_flag_list(char** str, const char* name, const char** ke
         return false;
     }
 
-    while (isspace(*(*str))) {
+    while (isspace((unsigned char)*(*str))) {
         (*str)++;
     }
 
@@ -596,7 +601,7 @@ bool tig_str_parse_named_flag_list(char** str, const char* name, const char** ke
 
     *str += strlen(name);
 
-    while (isspace(*(*str))) {
+    while (isspace((unsigned char)*(*str))) {
         (*str)++;
     }
 
@@ -614,7 +619,7 @@ bool tig_str_parse_named_complex_value(char** str, const char* name, int delim, 
         return false;
     }
 
-    while (isspace(*(*str))) {
+    while (isspace((unsigned char)*(*str))) {
         (*str)++;
     }
 
@@ -626,7 +631,7 @@ bool tig_str_parse_named_complex_value(char** str, const char* name, int delim, 
 
     *str += strlen(name);
 
-    while (isspace(*(*str))) {
+    while (isspace((unsigned char)*(*str))) {
         (*str)++;
     }
 
@@ -645,7 +650,7 @@ bool tig_str_parse_named_complex_value3(char** str, const char* name, int delim,
         return false;
     }
 
-    while (isspace(*(*str))) {
+    while (isspace((unsigned char)*(*str))) {
         (*str)++;
     }
 
@@ -658,7 +663,7 @@ bool tig_str_parse_named_complex_value3(char** str, const char* name, int delim,
 
     *str += strlen(name);
 
-    while (isspace(*(*str))) {
+    while (isspace((unsigned char)*(*str))) {
         (*str)++;
     }
 
@@ -676,7 +681,7 @@ bool tig_str_parse_named_complex_str_value(char** str, const char* name, int del
         return false;
     }
 
-    while (isspace(*(*str))) {
+    while (isspace((unsigned char)*(*str))) {
         (*str)++;
     }
 
@@ -688,7 +693,7 @@ bool tig_str_parse_named_complex_str_value(char** str, const char* name, int del
 
     *str += strlen(name);
 
-    while (isspace(*(*str))) {
+    while (isspace((unsigned char)*(*str))) {
         (*str)++;
     }
 
@@ -706,7 +711,7 @@ bool tig_str_parse_named_flag_list_64(char** str, const char* name, const char**
         return false;
     }
 
-    while (isspace(*(*str))) {
+    while (isspace((unsigned char)*(*str))) {
         (*str)++;
     }
 
@@ -716,7 +721,7 @@ bool tig_str_parse_named_flag_list_64(char** str, const char* name, const char**
 
     *str += strlen(name);
 
-    while (isspace(*(*str))) {
+    while (isspace((unsigned char)*(*str))) {
         (*str)++;
     }
 
@@ -734,7 +739,7 @@ bool tig_str_parse_named_flag_list_direct(char** str, const char* name, const ch
         return false;
     }
 
-    while (isspace(*(*str))) {
+    while (isspace((unsigned char)*(*str))) {
         (*str)++;
     }
 
@@ -754,7 +759,7 @@ void tig_str_parse_flag_list_direct(char** str, const char** keys, int length, u
 {
     *value = 0;
 
-    while (isspace(*(*str))) {
+    while (isspace((unsigned char)*(*str))) {
         (*str)++;
     }
 
@@ -809,7 +814,7 @@ void tig_str_parse_flag_list_direct(char** str, const char** keys, int length, u
                 *str = NULL;
             }
 
-            while (isspace(*(*str))) {
+            while (isspace((unsigned char)*(*str))) {
                 (*str)++;
             }
         }

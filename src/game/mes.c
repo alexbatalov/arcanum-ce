@@ -596,7 +596,7 @@ bool parse_field(TigFile* stream, char* buffer)
         }
 
         // Store character in buffer if there's space.
-        if (pos < MAX_STRING) {
+        if (pos < MAX_STRING - 1) {
             buffer[pos++] = (char)ch;
         } else {
             too_long = true;
@@ -661,7 +661,7 @@ int consume_next_char(TigFile* stream)
         }
     }
 
-    return mes_file_parse_buffer[mes_file_parse_pos++];
+    return (unsigned char)mes_file_parse_buffer[mes_file_parse_pos++];
 }
 
 /**

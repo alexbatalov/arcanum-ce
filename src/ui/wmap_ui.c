@@ -1313,7 +1313,7 @@ bool wmap_load_worldmap_info(void)
             }
         }
 
-        tig_str_parse_str_value(&str, wmap_ui_mode_info[WMAP_UI_MODE_WORLD].field_68);
+        tig_str_parse_str_value(&str, wmap_ui_mode_info[WMAP_UI_MODE_WORLD].field_68, sizeof(wmap_ui_mode_info[WMAP_UI_MODE_WORLD].field_68));
 
         if (!wmTileArtLock(0)) {
             tig_debug_printf("wmap_load_worldmap_info: ERROR: wmTileArtLockMode failed!\n");
@@ -1327,7 +1327,7 @@ bool wmap_load_worldmap_info(void)
         wmTileArtUnlock(0);
         wmTileArtUnload(0);
 
-        tig_str_parse_named_str_value(&str, "ZoomedName:", wmap_ui_mode_info[WMAP_UI_MODE_WORLD].str);
+        tig_str_parse_named_str_value(&str, "ZoomedName:", wmap_ui_mode_info[WMAP_UI_MODE_WORLD].str, sizeof(wmap_ui_mode_info[WMAP_UI_MODE_WORLD].str));
 
         dword_66D87C = 0;
         if (tig_str_parse_named_value(&str, "MapKeyedTo:", &map_keyed_to)) {

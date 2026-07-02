@@ -1618,7 +1618,7 @@ void map_load_extension(const char* base_path)
         str = tmp;
 
         tig_str_parse_set_separator(':');
-        tig_str_parse_str_value(&str, key);
+        tig_str_parse_str_value(&str, key, sizeof(key));
 
         if (SDL_strcasecmp(key, "LightScheme") == 0) {
             tig_str_parse_value(&str, &light_scheme);
@@ -2013,7 +2013,7 @@ bool map_list_info_load(void)
     mes_file_entry.num = 5000;
     while (mes_search(dword_5D11D8, &mes_file_entry)) {
         char* str = mes_file_entry.str;
-        tig_str_parse_str_value(&str, map_list_info[map_list_info_count].name);
+        tig_str_parse_str_value(&str, map_list_info[map_list_info_count].name, sizeof(map_list_info[map_list_info_count].name));
 
         // NOTE: This check is silly. When string it long enough it will easly
         // overrun `MAP_NAME_LENGTH` and crash before this check
