@@ -16,6 +16,8 @@ typedef struct HighResConfig {
     bool disable_combat_music;
     bool disable_xp_per_hit;
     bool full_xp_per_kill;
+    bool hide_zero_damage_to_creatures;
+    bool hide_zero_damage_to_objects;
 } HighResConfig;
 
 void highres_config_load(void);
