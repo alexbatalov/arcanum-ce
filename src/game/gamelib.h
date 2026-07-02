@@ -67,15 +67,15 @@ typedef struct GameSaveInfo {
     /* 0318 */ TigVideoBuffer* thumbnail_video_buffer;
     /* 031C */ int field_31C;
     /* 0320 */ DateTime datetime;
-    /* 0328 */ char pc_name[24];
-    /* 0340 */ int map;
-    /* 0344 */ int field_344;
-    /* 0348 */ int field_348;
-    /* 034C */ int field_34C;
-    /* 0350 */ int field_350;
-    /* 0354 */ int field_354;
-    /* 0358 */ int field_358;
-    /* 035C */ int story_state;
+    /* 0328 */ char pc_name[56];
+    /* 0360 */ int map;
+    /* 0364 */ int field_344;
+    /* 0368 */ int field_348;
+    /* 036C */ int field_34C;
+    /* 0370 */ int field_350;
+    /* 0374 */ int field_354;
+    /* 0378 */ int field_358;
+    /* 037C */ int story_state;
 } GameSaveInfo;
 
 extern unsigned int gamelib_ping_time;

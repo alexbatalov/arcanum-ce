@@ -10,6 +10,7 @@
 #include "game/gfade.h"
 #include "game/gmovie.h"
 #include "game/gsound.h"
+#include "game/highres_config.h"
 #include "game/hrp.h"
 #include "game/item.h"
 #include "game/map.h"
@@ -151,10 +152,15 @@ static void sub_548FF0(int a1);
 static void sub_549450(void);
 static void mainmenu_ui_textedit_on_enter(TextEdit* textedit);
 static void mainmenu_ui_textedit_on_change(TextEdit* textedit);
+static int mainmenu_ui_player_name_text_size(void);
+static void mainmenu_ui_player_name_reset_text(void);
 static void mainmenu_ui_feedback(int num);
 static void mainmenu_fonts_init(void);
 static void mainmenu_fonts_exit(void);
 static void sub_549A80(void);
+
+#define MAINMENU_UI_DEFAULT_PLAYER_NAME_TEXT_SIZE 23
+#define MAINMENU_UI_MAX_PLAYER_NAME_LENGTH 55
 
 // 0x5993D0
 static int mainmenu_font_nums[MM_FONT_COUNT] = {
@@ -422,7 +428,7 @@ static char mainmenu_ui_textedit_buffer[128];
 static TextEdit mainmenu_ui_textedit = {
     0,
     mainmenu_ui_textedit_buffer,
-    23,
+    MAINMENU_UI_DEFAULT_PLAYER_NAME_TEXT_SIZE,
     mainmenu_ui_textedit_on_enter,
     mainmenu_ui_textedit_on_change,
     NULL,
@@ -1395,7 +1401,6 @@ bool mainmenu_ui_init(GameInitInfo* init_info)
 {
     int index;
     TigFont font_desc;
-    MesFileEntry mes_file_entry;
 
     (void)init_info;
 
@@ -1478,9 +1483,7 @@ bool mainmenu_ui_init(GameInitInfo* init_info)
     font_desc.color = tig_color_make(255, 210, 0);
     tig_font_create(&font_desc, &dword_64C240);
 
-    mes_file_entry.num = 500;
-    mes_get_msg(mainmenu_ui_mainmenu_mes_file, &mes_file_entry);
-    strncpy(mainmenu_ui_textedit_buffer, mes_file_entry.str, 23);
+    mainmenu_ui_player_name_reset_text();
 
     mainmenu_ui_initialized = true;
     mainmenu_ui_window_type = MM_WINDOW_0;
@@ -3656,7 +3659,6 @@ void mainmenu_ui_pick_new_or_pregen_create(void)
 void mainmenu_ui_new_char_create(void)
 {
     PlayerCreateInfo player_create_info;
-    MesFileEntry mes_file_entry;
 
     mainmenu_ui_new_char_hover_mode = MMUI_NEW_CHAR_HOVER_MODE_BACKGROUND;
     mainmenu_ui_window_type = MM_WINDOW_NEW_CHAR;
@@ -3672,9 +3674,7 @@ void mainmenu_ui_new_char_create(void)
     // CE: There's a bug in the original game — the name persists when
     // navigating back and forth to the "New Char" screen. Everything else
     // (gender/race/background, just a moment above) resets, but not the name.
-    mes_file_entry.num = 500; // "Choose Name"
-    mes_get_msg(mainmenu_ui_mainmenu_mes_file, &mes_file_entry);
-    strncpy(mainmenu_ui_textedit_buffer, mes_file_entry.str, 23);
+    mainmenu_ui_player_name_reset_text();
 
     mainmenu_ui_create_window();
     if (!main_menu_button_create(&mainmenu_ui_new_char_name_button, mainmenu_ui_new_char_name_rect.width + 2, mainmenu_ui_new_char_name_rect.height + 2)) {
@@ -3890,7 +3890,7 @@ bool mainmenu_ui_new_char_button_released(tig_button_handle_t button_handle)
             && sub_549520() == NULL) {
             strcpy(byte_64C0F0, mainmenu_ui_textedit_buffer);
             mainmenu_ui_textedit_buffer[0] = '\0';
-            sub_5493C0(mainmenu_ui_textedit_buffer, 23);
+            sub_5493C0(mainmenu_ui_textedit_buffer, mainmenu_ui_player_name_text_size());
         }
 
         return true;
@@ -5802,15 +5802,36 @@ void sub_549450(void)
     }
 }
 
-// 0x5494C0
-void mainmenu_ui_textedit_on_enter(TextEdit* textedit)
+int mainmenu_ui_player_name_text_size(void)
+{
+    int name_length;
+
+    name_length = highres_config_get()->name_length;
+    if (name_length <= 0) {
+        return MAINMENU_UI_DEFAULT_PLAYER_NAME_TEXT_SIZE;
+    }
+
+    if (name_length > MAINMENU_UI_MAX_PLAYER_NAME_LENGTH) {
+        name_length = MAINMENU_UI_MAX_PLAYER_NAME_LENGTH;
+    }
+
+    return name_length + 1;
+}
+
+void mainmenu_ui_player_name_reset_text(void)
 {
     MesFileEntry mes_file_entry;
 
+    mes_file_entry.num = 500; // "Choose Name"
+    mes_get_msg(mainmenu_ui_mainmenu_mes_file, &mes_file_entry);
+    snprintf(mainmenu_ui_textedit_buffer, sizeof(mainmenu_ui_textedit_buffer), "%s", mes_file_entry.str);
+}
+
+// 0x5494C0
+void mainmenu_ui_textedit_on_enter(TextEdit* textedit)
+{
     if (textedit->buffer[0] == '\0' && mainmenu_ui_window_type != MM_WINDOW_SAVE_GAME) {
-        mes_file_entry.num = 500; // "Choose Name"
-        mes_get_msg(mainmenu_ui_mainmenu_mes_file, &mes_file_entry);
-        strncpy(mainmenu_ui_textedit_buffer, mes_file_entry.str, 23);
+        mainmenu_ui_player_name_reset_text();
     }
 
     sub_549450();

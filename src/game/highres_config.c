@@ -59,6 +59,7 @@ void highres_config_reset(void)
     highres_config.reaction_modifier_cap = 0;
     highres_config.carry_weight_cap = 0;
     highres_config.stolen_gold_cap = 0;
+    highres_config.name_length = 0;
     highres_config.logos = true;
     highres_config.intro = true;
     highres_config.disable_combat_music = false;
@@ -181,6 +182,10 @@ void highres_config_parse_line(char* line)
     } else if (SDL_strcasecmp(key_start, "StolenGoldCap") == 0) {
         if (value >= 0) {
             highres_config.stolen_gold_cap = value;
+        }
+    } else if (SDL_strcasecmp(key_start, "NameLength") == 0) {
+        if (value >= 0) {
+            highres_config.name_length = value;
         }
     } else if (SDL_strcasecmp(key_start, "Logos") == 0) {
         highres_config.logos = value != 0;
