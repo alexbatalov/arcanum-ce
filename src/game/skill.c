@@ -2318,7 +2318,9 @@ int skill_invocation_difficulty(SkillInvocation* skill_invocation)
             && ai_can_see(target_obj, source_obj) != 0
             && ai_can_hear(target_obj, source_obj, 1) != 0) {
             // Target is not in combat mode and does not hear or see source.
-            difficulty -= 30;
+            if (!highres_config_get()->disable_prowling_to_hit_bonus) {
+                difficulty -= 30;
+            }
         }
     }
 

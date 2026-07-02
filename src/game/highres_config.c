@@ -72,6 +72,7 @@ void highres_config_reset(void)
     highres_config.starting_fate_point = false;
     highres_config.disable_natural_recovery = false;
     highres_config.poison_immunity = false;
+    highres_config.disable_prowling_to_hit_bonus = false;
 }
 
 void highres_config_parse_line(char* line)
@@ -196,6 +197,8 @@ void highres_config_parse_line(char* line)
         highres_config.disable_natural_recovery = value != 0;
     } else if (SDL_strcasecmp(key_start, "PoisonImmunity") == 0) {
         highres_config.poison_immunity = value != 0;
+    } else if (SDL_strcasecmp(key_start, "DisableProwlingToHitBonus") == 0) {
+        highres_config.disable_prowling_to_hit_bonus = value != 0;
     }
 }
 

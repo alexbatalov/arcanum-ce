@@ -33,6 +33,7 @@ typedef struct HighResConfig {
     bool starting_fate_point;
     bool disable_natural_recovery;
     bool poison_immunity;
+    bool disable_prowling_to_hit_bonus;
 } HighResConfig;
 
 void highres_config_load(void);
