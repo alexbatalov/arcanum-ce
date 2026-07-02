@@ -6,6 +6,7 @@
 #include "game/combat.h"
 #include "game/critter.h"
 #include "game/effect.h"
+#include "game/highres_config.h"
 #include "game/item.h"
 #include "game/level.h"
 #include "game/light.h"
@@ -34,6 +35,7 @@ typedef enum PoisonEventType {
 
 static bool poison_timeevent_check(TimeEvent* timeevent);
 static bool poison_timeevent_schedule(int64_t obj, int poison, bool recovery);
+static int stat_configured_max(int stat, int max_value);
 
 /**
  * Minimum values for each stat.
@@ -904,6 +906,7 @@ int stat_level_min(int64_t obj, int stat)
  */
 int stat_level_max(int64_t obj, int stat)
 {
+    int max_value;
     int race;
 
     if (obj != OBJ_HANDLE_NULL) {
@@ -916,48 +919,105 @@ int stat_level_max(int64_t obj, int stat)
     case RACE_DWARF:
     case RACE_HALF_ORC:
         if (stat == STAT_STRENGTH || stat == STAT_CONSTITUTION) {
-            return 21;
+            max_value = 21;
+            return stat_configured_max(stat, max_value);
         }
         break;
     case RACE_ELF:
     case RACE_DARK_ELF:
         if (stat == STAT_DEXTERITY || stat == STAT_BEAUTY || stat == STAT_WILLPOWER) {
-            return 21;
+            max_value = 21;
+            return stat_configured_max(stat, max_value);
         }
         break;
     case RACE_HALF_ELF:
         if (stat == STAT_DEXTERITY) {
-            return 21;
+            max_value = 21;
+            return stat_configured_max(stat, max_value);
         }
         break;
     case RACE_GNOME:
         if (stat == STAT_WILLPOWER) {
-            return 22;
+            max_value = 22;
+            return stat_configured_max(stat, max_value);
         }
         break;
     case RACE_HALFLING:
         if (stat == STAT_DEXTERITY) {
-            return 22;
+            max_value = 22;
+            return stat_configured_max(stat, max_value);
         }
         break;
     case RACE_HALF_OGRE:
         if (stat == STAT_STRENGTH) {
-            return 24;
+            max_value = 24;
+            return stat_configured_max(stat, max_value);
         }
         break;
     case RACE_OGRE:
         if (stat == STAT_STRENGTH) {
-            return 26;
+            max_value = 26;
+            return stat_configured_max(stat, max_value);
         }
         break;
     case RACE_ORC:
         if (stat == STAT_STRENGTH || stat == STAT_CONSTITUTION) {
-            return 22;
+            max_value = 22;
+            return stat_configured_max(stat, max_value);
         }
         break;
     }
 
-    return stat_max_values[stat];
+    return stat_configured_max(stat, stat_max_values[stat]);
+}
+
+static int stat_configured_max(int stat, int max_value)
+{
+    const HighResConfig* config;
+    int configured_max;
+
+    config = highres_config_get();
+
+    switch (stat) {
+    case STAT_STRENGTH:
+    case STAT_DEXTERITY:
+    case STAT_CONSTITUTION:
+    case STAT_BEAUTY:
+    case STAT_INTELLIGENCE:
+    case STAT_PERCEPTION:
+    case STAT_WILLPOWER:
+    case STAT_CHARISMA:
+        if (config->stats_cap > stat_max_values[stat]) {
+            configured_max = config->stats_cap + (max_value - stat_max_values[stat]);
+            if (configured_max > max_value) {
+                max_value = configured_max;
+            }
+        }
+        break;
+    case STAT_CARRY_WEIGHT:
+        if (config->carry_weight_cap > max_value) {
+            max_value = config->carry_weight_cap;
+        }
+        break;
+    case STAT_SPEED:
+        if (config->speed_cap > max_value) {
+            max_value = config->speed_cap;
+        }
+        break;
+    case STAT_REACTION_MODIFIER:
+        if (config->reaction_modifier_cap > max_value) {
+            max_value = config->reaction_modifier_cap;
+        }
+        break;
+    case STAT_LEVEL:
+        configured_max = level_stat_max();
+        if (configured_max > max_value) {
+            max_value = configured_max;
+        }
+        break;
+    }
+
+    return max_value;
 }
 
 /**

@@ -1,9 +1,11 @@
 #include "game/level.h"
 
+#include <limits.h>
 #include <stdio.h>
 
 #include "game/background.h"
 #include "game/critter.h"
+#include "game/highres_config.h"
 #include "game/mes.h"
 #include "game/obj.h"
 #include "game/object.h"
@@ -20,7 +22,7 @@
  * This value can be increased, be sure to modify `stat_max_values` as well,
  * and populate `xp_level.mes` accordingly.
  */
-#define LEVEL_MAX 51
+#define LEVEL_MAX_DEFAULT 51
 
 /**
  * The size of log during auto level up.
@@ -49,6 +51,8 @@ typedef int (*MiscGetter)(int64_t obj);
 typedef int (*MiscSetter)(int64_t obj, int value);
 
 static int calculate_bonus_character_points(int old_level, int new_level);
+static void level_trim_xp_table(void);
+static int level_xp_table_size_from_config(void);
 static void update_follower_level(int64_t follower_obj, int old_pc_level, int new_pc_level);
 static bool auto_level_apply(int64_t obj, char* str);
 static bool auto_level_process_rule(int64_t obj, const char* str);
@@ -232,11 +236,12 @@ static mes_file_handle_t game_level_mes_file;
 static mes_file_handle_t user_level_mes_file;
 
 /**
- * Array of experience points required for each level (up to `LEVEL_MAX`).
+ * Array of experience points required for each level.
  *
  * 0x5F5C94
  */
 static int* level_xp_tbl;
+static int level_xp_tbl_size;
 
 /**
  * "level.mes"
@@ -270,14 +275,15 @@ bool level_init(GameInitInfo* init_info)
         return false;
     }
 
-    level_xp_tbl = (int*)CALLOC(LEVEL_MAX, sizeof(*level_xp_tbl));
+    level_xp_tbl_size = level_xp_table_size_from_config();
+    level_xp_tbl = (int*)CALLOC(level_xp_tbl_size, sizeof(*level_xp_tbl));
 
     // NOTE: Unclear why log strs have static storage duration, but associated
     // values are dynamically allocated on heap.
     auto_level_log_values = (int*)CALLOC(AUTO_LEVEL_LOG_SIZE, sizeof(*auto_level_log_values));
 
     // Populate experience points table for each level.
-    for (index = 0; index < LEVEL_MAX; index++) {
+    for (index = 0; index < level_xp_tbl_size; index++) {
         msg.num = index + 1;
         if (mes_search(xp_level_mes_file, &msg)) {
             level_xp_tbl[index] = atoi(msg.str);
@@ -291,6 +297,7 @@ bool level_init(GameInitInfo* init_info)
     // Level 1 must always be 0 experience points, no matter what was specified
     // in the file. This requirement is also mentioned in `xp_level.mes` itself.
     level_xp_tbl[0] = 0;
+    level_trim_xp_table();
 
     // Load system-defined advancement scheme rules (required).
     if (!mes_load("rules\\gamelevel.mes", &game_level_mes_file)) {
@@ -354,6 +361,16 @@ void level_exit(void)
     mes_unload(level_mes_file);
     FREE(level_xp_tbl);
     FREE(auto_level_log_values);
+    level_xp_tbl_size = 0;
+}
+
+int level_stat_max(void)
+{
+    if (level_xp_tbl_size != 0) {
+        return level_xp_tbl_size;
+    }
+
+    return level_xp_table_size_from_config();
 }
 
 /**
@@ -370,7 +387,11 @@ int level_experience_points_to_next_level(int64_t obj)
     level = stat_level_get(obj, STAT_LEVEL);
 
     // Clamp at maximum.
-    if (level >= LEVEL_MAX) {
+    if (level >= level_xp_tbl_size) {
+        return 999999;
+    }
+
+    if (level > 0 && level_xp_tbl[level] == 0) {
         return 999999;
     }
 
@@ -397,11 +418,11 @@ int level_progress_towards_next_level(int64_t obj)
     level = stat_level_get(obj, STAT_LEVEL);
 
     // Clamp at maximum.
-    if (level >= LEVEL_MAX) {
+    if (level >= level_xp_tbl_size) {
         return 0;
     }
 
-    if (level != 0 && level_xp_tbl[level] != 0) {
+    if (level != 0 && level_xp_tbl[level] != 0 && level_xp_tbl[level] > level_xp_tbl[level - 1]) {
         xp = level_experience_points_to_next_level(obj);
         if (xp >= 0) {
             return 1000 - 1000 * xp / (level_xp_tbl[level] - level_xp_tbl[level - 1]);
@@ -717,8 +738,8 @@ void level_set(int64_t obj, int level)
     // Clamp level to valid range.
     if (level < 0) {
         level = 0;
-    } else if (level > LEVEL_MAX) {
-        level = LEVEL_MAX;
+    } else if (level > level_xp_tbl_size) {
+        level = level_xp_tbl_size;
     }
 
     // Preserve character's "natural" attributes (that are independent of level).
@@ -760,6 +781,30 @@ void level_set(int64_t obj, int level)
 
     // NOTE: I'm not sure if damage can appear here somehow.
     object_hp_damage_set(obj, 0);
+}
+
+static int level_xp_table_size_from_config(void)
+{
+    int level_cap;
+
+    level_cap = highres_config_get()->level_cap;
+    if (level_cap > LEVEL_MAX_DEFAULT - 1 && level_cap < INT_MAX) {
+        return level_cap + 1;
+    }
+
+    return LEVEL_MAX_DEFAULT;
+}
+
+static void level_trim_xp_table(void)
+{
+    int index;
+
+    for (index = LEVEL_MAX_DEFAULT; index < level_xp_tbl_size; index++) {
+        if (level_xp_tbl[index] == 0) {
+            level_xp_tbl_size = index;
+            break;
+        }
+    }
 }
 
 /**

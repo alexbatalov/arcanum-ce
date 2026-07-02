@@ -51,6 +51,11 @@ void highres_config_reset(void)
     highres_config.scroll_fps = 35;
     highres_config.scroll_dist = 10;
     highres_config.identification_cost = 0;
+    highres_config.level_cap = 0;
+    highres_config.stats_cap = 0;
+    highres_config.speed_cap = 0;
+    highres_config.reaction_modifier_cap = 0;
+    highres_config.carry_weight_cap = 0;
     highres_config.logos = true;
     highres_config.intro = true;
     highres_config.disable_combat_music = false;
@@ -128,6 +133,26 @@ void highres_config_parse_line(char* line)
     } else if (SDL_strcasecmp(key_start, "IdentificationCost") == 0) {
         if (value >= 0) {
             highres_config.identification_cost = value;
+        }
+    } else if (SDL_strcasecmp(key_start, "LevelCap") == 0) {
+        if (value >= 0) {
+            highres_config.level_cap = value;
+        }
+    } else if (SDL_strcasecmp(key_start, "StatsCap") == 0) {
+        if (value >= 0) {
+            highres_config.stats_cap = value;
+        }
+    } else if (SDL_strcasecmp(key_start, "SpeedCap") == 0) {
+        if (value >= 0) {
+            highres_config.speed_cap = value;
+        }
+    } else if (SDL_strcasecmp(key_start, "ReactionModifierCap") == 0) {
+        if (value >= 0) {
+            highres_config.reaction_modifier_cap = value;
+        }
+    } else if (SDL_strcasecmp(key_start, "CarryWeightCap") == 0) {
+        if (value >= 0) {
+            highres_config.carry_weight_cap = value;
         }
     } else if (SDL_strcasecmp(key_start, "Logos") == 0) {
         highres_config.logos = value != 0;
