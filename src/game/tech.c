@@ -2,6 +2,7 @@
 
 #include "game/effect.h"
 #include "game/gamelib.h"
+#include "game/highres_config.h"
 #include "game/mes.h"
 #include "game/object.h"
 #include "game/player.h"
@@ -66,6 +67,17 @@ static int tech_degree_min_intelligence_tbl[DEGREE_COUNT] = {
     /*   DEGREE_ENGINEER */ 15,
     /*  DEGREE_PROFESSOR */ 17,
     /*  DEGREE_DOCTORATE */ 19,
+};
+
+static int tech_degree_reduced_min_intelligence_tbl[DEGREE_COUNT] = {
+    /*     DEGREE_LAYMAN */ 0,
+    /*     DEGREE_NOVICE */ 5,
+    /*  DEGREE_ASSISTANT */ 7,
+    /*  DEGREE_ASSOCIATE */ 10,
+    /* DEGREE_TECHNICIAN */ 12,
+    /*   DEGREE_ENGINEER */ 14,
+    /*  DEGREE_PROFESSOR */ 16,
+    /*  DEGREE_DOCTORATE */ 18,
 };
 
 /**
@@ -355,6 +367,10 @@ int tech_degree_level_get(int64_t obj, int tech)
  */
 int tech_degree_min_intelligence_get(int degree)
 {
+    if (highres_config_get()->reduced_int_requirements_for_schemes) {
+        return tech_degree_reduced_min_intelligence_tbl[degree];
+    }
+
     return tech_degree_min_intelligence_tbl[degree];
 }
 
