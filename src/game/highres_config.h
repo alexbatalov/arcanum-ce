@@ -43,6 +43,7 @@ typedef struct HighResConfig {
     bool endless_consumables;
     bool share_current_skill_training;
     bool reduced_int_requirements_for_schemes;
+    bool inventory_active_for_all_followers;
 } HighResConfig;
 
 void highres_config_load(void);

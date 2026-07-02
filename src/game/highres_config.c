@@ -84,6 +84,7 @@ void highres_config_reset(void)
     highres_config.endless_consumables = false;
     highres_config.share_current_skill_training = false;
     highres_config.reduced_int_requirements_for_schemes = false;
+    highres_config.inventory_active_for_all_followers = false;
 
     tig_art_mirroring_set_enabled(true);
 }
@@ -231,6 +232,8 @@ void highres_config_parse_line(char* line)
         highres_config.share_current_skill_training = value != 0;
     } else if (SDL_strcasecmp(key_start, "ReducedIntRequirementsForSchemes") == 0) {
         highres_config.reduced_int_requirements_for_schemes = value != 0;
+    } else if (SDL_strcasecmp(key_start, "InventoryActiveForAllFollowers") == 0) {
+        highres_config.inventory_active_for_all_followers = value != 0;
     }
 }
 

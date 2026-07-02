@@ -2263,6 +2263,13 @@ bool inven_ui_can_open_inven(int64_t pc_obj, int64_t npc_obj)
         return true;
     }
 
+    if (highres_config_get()->inventory_active_for_all_followers
+        && pc_obj != OBJ_HANDLE_NULL
+        && npc_obj != OBJ_HANDLE_NULL
+        && critter_pc_leader_get(npc_obj) == pc_obj) {
+        return true;
+    }
+
     if (ai_can_speak(npc_obj, pc_obj, false) != AI_SPEAK_OK) {
         return false;
     }
