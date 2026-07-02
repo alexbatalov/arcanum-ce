@@ -25,6 +25,11 @@ typedef struct HighResConfig {
     bool full_xp_per_kill;
     bool hide_zero_damage_to_creatures;
     bool hide_zero_damage_to_objects;
+    bool no_character_points_at_start;
+    bool start_stats_at_one;
+    bool magical_aptitude_bonus;
+    bool technological_aptitude_bonus;
+    bool starting_fate_point;
 } HighResConfig;
 
 void highres_config_load(void);

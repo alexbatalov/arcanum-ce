@@ -35,6 +35,7 @@ typedef enum PoisonEventType {
 
 static bool poison_timeevent_check(TimeEvent* timeevent);
 static bool poison_timeevent_schedule(int64_t obj, int poison, bool recovery);
+static int stat_default_value(int stat);
 static int stat_configured_max(int stat, int max_value);
 
 /**
@@ -326,8 +327,46 @@ void stat_set_defaults(int64_t obj)
     int stat;
 
     for (stat = 0; stat < STAT_COUNT; stat++) {
-        obj_arrayfield_int32_set(obj, OBJ_F_CRITTER_STAT_BASE_IDX, stat, stat_default_values[stat]);
+        obj_arrayfield_int32_set(obj, OBJ_F_CRITTER_STAT_BASE_IDX, stat, stat_default_value(stat));
     }
+}
+
+static int stat_default_value(int stat)
+{
+    const HighResConfig* config;
+    int value;
+
+    config = highres_config_get();
+    value = stat_default_values[stat];
+
+    if (config->start_stats_at_one && STAT_IS_PRIMARY(stat)) {
+        value = 1;
+    }
+
+    switch (stat) {
+    case STAT_FATE_POINTS:
+        if (config->starting_fate_point && value < 1) {
+            value = 1;
+        }
+        break;
+    case STAT_UNSPENT_POINTS:
+        if (config->no_character_points_at_start) {
+            value = 0;
+        }
+        break;
+    case STAT_MAGICK_POINTS:
+        if (config->magical_aptitude_bonus) {
+            value += 1;
+        }
+        break;
+    case STAT_TECH_POINTS:
+        if (config->technological_aptitude_bonus) {
+            value += 1;
+        }
+        break;
+    }
+
+    return value;
 }
 
 /**
