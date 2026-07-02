@@ -9,6 +9,20 @@ The game is ready, but I haven't tested everything - just the speedrun - and tha
 
 Regarding the source code, about half of the modules (not half of the code) are in good shape. All APIs have meaningful names, along with brief documentation, annotations, and explanations (see `skill.c` and `quest.c` as examples). The other half may have cryptic names, little to no symbols , and no documentation at all (`anim.c` is extremely large and hard to understand).
 
+## Restored Project Goals
+
+Arcanum CE Restored is intended to become a stronger, more flexible foundation for long-term Arcanum work while preserving the feel and rules of the original game. The focus is not to replace Arcanum with something unrecognizable, but to make the engine sturdier, easier to diagnose, and more welcoming to ambitious restoration and expansion projects.
+
+The current direction centers on:
+
+- System and engine improvements that make startup, configuration, file loading, rendering, and platform behavior more predictable.
+- Practical bug fixes driven by real play, local QA builds, compatibility scans, and reproducible saves.
+- Module expansion support for restored areas, new maps, improved tooling, and clearer visibility into loose-file and DAT override behavior.
+- Character expansion work that can support larger rosters, new presentation options, portraits, art routes, and gameplay data without destabilizing the base game.
+- Multiplayer and co-op improvements that strengthen the existing multiplayer surface over time while keeping single-player compatibility protected.
+
+The long-term goal is a polished Community Edition fork that can serve players, modders, and restoration projects at the same time: stable enough for normal play, transparent enough for debugging, and flexible enough for larger Arcanum worlds.
+
 ## Installation
 
 You must own the game to play. Purchase your copy on [GOG](https://www.gog.com/game/arcanum_of_steamworks_and_magick_obscura) or [Steam](https://store.steampowered.com/app/500810).
