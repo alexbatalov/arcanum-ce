@@ -37,6 +37,8 @@ typedef struct HighResConfig {
     bool disable_aptitude_to_hit_penalty;
     bool technological_cursor;
     bool disable_global_lighting_change;
+    bool free_buying;
+    bool free_selling;
 } HighResConfig;
 
 void highres_config_load(void);

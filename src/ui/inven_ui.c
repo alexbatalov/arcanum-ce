@@ -4150,7 +4150,8 @@ bool sub_578EA0(Packet81* pkt)
         && player_is_local_pc_obj(v6)
         && (flags & 0x18) != 0) {
         gold_amt = qty * item_cost(v2, v4, v6, false);
-        if (gold_amt > item_gold_get(v6)) {
+        if (gold_amt > item_gold_get(v6)
+            && !(v3 == v6 && highres_config_get()->free_buying)) {
             dialog_copy_npc_gamble_msg(v4, v6, 4, byte_682804);
             snprintf(byte_68241C, sizeof(byte_68241C), byte_682804, gold_amt);
             return true;
@@ -4279,7 +4280,9 @@ bool sub_578EA0(Packet81* pkt)
             gold_amt = qty * cost;
             if (!tig_net_is_active() || tig_net_is_host()) {
                 if (v3 == v6) {
-                    if (item_gold_transfer(v3, v4, gold_amt, OBJ_HANDLE_NULL)) {
+                    if (highres_config_get()->free_buying) {
+                        // Keep the item transfer, but do not spend PC gold.
+                    } else if (item_gold_transfer(v3, v4, gold_amt, OBJ_HANDLE_NULL)) {
                         if (gold_amt < worth) {
                             gsound_play_sfx(8158, 1);
                         } else {
@@ -4290,7 +4293,9 @@ bool sub_578EA0(Packet81* pkt)
                         error = true;
                     }
                 } else {
-                    if (item_gold_transfer(v4, v1, gold_amt, OBJ_HANDLE_NULL)) {
+                    if (highres_config_get()->free_selling) {
+                        // Keep the item transfer, but do not add merchant gold to the PC.
+                    } else if (item_gold_transfer(v4, v1, gold_amt, OBJ_HANDLE_NULL)) {
                         if (worth < gold_amt) {
                             gsound_play_sfx(8158, 1);
                         } else {
