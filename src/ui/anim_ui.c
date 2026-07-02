@@ -3,6 +3,7 @@
 #include "game/critter.h"
 #include "game/gamelib.h"
 #include "game/gfade.h"
+#include "game/highres_config.h"
 #include "game/light_scheme.h"
 #include "game/player.h"
 #include "game/timeevent.h"
@@ -248,7 +249,8 @@ bool ambient_lighting_process_callback(TimeEvent* timeevent)
     (void)timeevent;
 
     hour = datetime_current_hour();
-    if (ambient_lighting_is_enabled()) {
+    if (ambient_lighting_is_enabled()
+        && !highres_config_get()->disable_global_lighting_change) {
         light_scheme_set_hour(hour);
     }
 
@@ -268,7 +270,9 @@ void ambient_lighting_reschedule(void)
     TimeEvent timeevent;
 
     hour = datetime_current_hour();
-    light_scheme_set_hour(hour);
+    if (!highres_config_get()->disable_global_lighting_change) {
+        light_scheme_set_hour(hour);
+    }
     timeevent_clear_all_typed(TIMEEVENT_TYPE_AMBIENT_LIGHTING);
     timeevent.type = TIMEEVENT_TYPE_AMBIENT_LIGHTING;
     sub_45A950(&datetime, 3600000);

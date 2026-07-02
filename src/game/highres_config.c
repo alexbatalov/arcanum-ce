@@ -75,6 +75,7 @@ void highres_config_reset(void)
     highres_config.disable_prowling_to_hit_bonus = false;
     highres_config.disable_aptitude_to_hit_penalty = false;
     highres_config.technological_cursor = false;
+    highres_config.disable_global_lighting_change = false;
 }
 
 void highres_config_parse_line(char* line)
@@ -205,6 +206,8 @@ void highres_config_parse_line(char* line)
         highres_config.disable_aptitude_to_hit_penalty = value != 0;
     } else if (SDL_strcasecmp(key_start, "TechnologicalCursor") == 0) {
         highres_config.technological_cursor = value != 0;
+    } else if (SDL_strcasecmp(key_start, "DisableGlobalLightingChange") == 0) {
+        highres_config.disable_global_lighting_change = value != 0;
     }
 }
 
