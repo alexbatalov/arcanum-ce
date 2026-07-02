@@ -1479,7 +1479,7 @@ bool gamelib_saveinfo_init(const char* name, const char* description, GameSaveIn
     }
 
     obj_field_string_get(pc_obj, OBJ_F_PC_PLAYER_NAME, &pc_name);
-    strcpy(save_info->pc_name, pc_name);
+    snprintf(save_info->pc_name, sizeof(save_info->pc_name), "%s", pc_name);
     FREE(pc_name);
 
     save_info->map = map_current_map();
@@ -1589,7 +1589,9 @@ bool gamelib_saveinfo_load(const char* name, GameSaveInfo* save_info)
         if (tig_file_fread(save_info->module_name, size, 1, stream) != 1) break;
 
         if (tig_file_fread(&size, sizeof(size), 1, stream) != 1) break;
-        if (tig_file_fread(save_info->pc_name, size, 1, stream) != 1) break;
+        if (size < 0 || size >= (int)sizeof(save_info->pc_name)) break;
+        if (size != 0 && tig_file_fread(save_info->pc_name, size, 1, stream) != 1) break;
+        save_info->pc_name[size] = '\0';
 
         if (tig_file_fread(&(save_info->map), sizeof(save_info->map), 1, stream) != 1) break;
         if (tig_file_fread(&(save_info->datetime), sizeof(save_info->datetime), 1, stream) != 1) break;
