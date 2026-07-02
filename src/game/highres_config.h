@@ -12,6 +12,11 @@ typedef struct HighResConfig {
     int scroll_fps;
     int scroll_dist;
     int identification_cost;
+    int level_cap;
+    int stats_cap;
+    int speed_cap;
+    int reaction_modifier_cap;
+    int carry_weight_cap;
     bool logos;
     bool intro;
     bool disable_combat_music;
