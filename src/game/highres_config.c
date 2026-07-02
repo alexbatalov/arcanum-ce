@@ -55,6 +55,8 @@ void highres_config_reset(void)
     highres_config.disable_combat_music = false;
     highres_config.disable_xp_per_hit = false;
     highres_config.full_xp_per_kill = false;
+    highres_config.hide_zero_damage_to_creatures = false;
+    highres_config.hide_zero_damage_to_objects = false;
 }
 
 void highres_config_parse_line(char* line)
@@ -131,6 +133,10 @@ void highres_config_parse_line(char* line)
         highres_config.disable_xp_per_hit = value != 0;
     } else if (SDL_strcasecmp(key_start, "FullXPPerKill") == 0) {
         highres_config.full_xp_per_kill = value != 0;
+    } else if (SDL_strcasecmp(key_start, "HideZeroDamageToCreatures") == 0) {
+        highres_config.hide_zero_damage_to_creatures = value != 0;
+    } else if (SDL_strcasecmp(key_start, "HideZeroDamageToObjects") == 0) {
+        highres_config.hide_zero_damage_to_objects = value != 0;
     }
 }
 
