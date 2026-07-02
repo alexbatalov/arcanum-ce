@@ -50,6 +50,9 @@ runtime folders, or binary payloads were added to the repository.
 - Added `workflow_dispatch` to the CI workflow so maintainers can run preview
   builds manually.
 - Added read-only repository permissions to the workflow.
+- Scoped pull-request `clang-format` checks to source files changed by the PR.
+- Skipped the format-only job for manual preview runs.
+- Kept the full source-tree format check for pushes to `main`.
 - Changed Linux desktop artifact upload from a raw `arcanum-ce` binary to a
   `.tar.gz` preview package containing:
   - `arcanum-ce`
@@ -76,6 +79,9 @@ python -c "import yaml, pathlib; yaml.safe_load(pathlib.Path('.github/workflows/
 "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" --preset windows-x64
 "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" --build --preset windows-x64-debug
 out\build\windows-x64\Debug\arcanum-ce-module-check.exe docs
+gh pr checks 2 --repo techerrorcode/arcanum-ce --json name,state,bucket,link,startedAt,completedAt,workflow
+gh run view 28628210005 --repo techerrorcode/arcanum-ce --json name,workflowName,conclusion,status,url,event,headBranch,headSha,jobs
+gh api "/repos/techerrorcode/arcanum-ce/actions/jobs/84899305146/logs"
 ```
 
 The Windows preview package command from the workflow was also run locally for
@@ -150,12 +156,30 @@ Contents:
 Result: pass
 ```
 
+CI follow-up:
+
+```text
+PR #2 Code format check failed on existing baseline source file:
+src/tools/module_check.c
+
+This branch does not change that file or any other source file. The workflow now
+checks only PR-changed `.c` and `.h` files on pull requests, so docs/workflow-only
+PRs no longer fail on unrelated baseline source formatting. Manual preview runs
+skip the format-only job so preview artifacts are not blocked by the same
+baseline issue.
+
+Local changed-source simulation:
+No changed source files to format-check.
+Result: pass
+```
+
 Unavailable local checks:
 
 ```text
 actionlint: not available
 markdownlint-cli2: not available
 markdownlint: not available
+local Bash runner: unavailable, WSL2 not enabled
 ```
 
 ## Known Limits

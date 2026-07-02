@@ -20,13 +20,33 @@ defaults:
 jobs:
   code-format:
     name: Code format check
+    if: github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - name: Clone
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - name: clang-format
-        run: find src -type f -name \*.c -o -name \*.h | xargs clang-format --dry-run --Werror
+        run: |
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            files=()
+            while IFS= read -r -d '' file; do
+              if [[ "$file" == src/*.c || "$file" == src/*.h ]]; then
+                files+=("$file")
+              fi
+            done < <(git diff -z --name-only --diff-filter=ACMR "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}" -- src)
+
+            if [[ ${#files[@]} -eq 0 ]]; then
+              echo "No changed source files to format-check."
+              exit 0
+            fi
+
+            printf '%s\0' "${files[@]}" | xargs -0 clang-format --dry-run --Werror
+          else
+            find src -type f \( -name '*.c' -o -name '*.h' \) -print0 | xargs -0 clang-format --dry-run --Werror
+          fi
 
   android:
     name: Android
