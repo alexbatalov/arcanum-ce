@@ -13,6 +13,9 @@ typedef struct HighResConfig {
     int scroll_dist;
     bool logos;
     bool intro;
+    bool disable_combat_music;
+    bool disable_xp_per_hit;
+    bool full_xp_per_kill;
 } HighResConfig;
 
 void highres_config_load(void);
