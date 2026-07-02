@@ -39,6 +39,7 @@ typedef struct HighResConfig {
     bool disable_global_lighting_change;
     bool free_buying;
     bool free_selling;
+    bool endless_consumables;
 } HighResConfig;
 
 void highres_config_load(void);

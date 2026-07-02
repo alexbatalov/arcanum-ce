@@ -78,6 +78,7 @@ void highres_config_reset(void)
     highres_config.disable_global_lighting_change = false;
     highres_config.free_buying = false;
     highres_config.free_selling = false;
+    highres_config.endless_consumables = false;
 }
 
 void highres_config_parse_line(char* line)
@@ -214,6 +215,8 @@ void highres_config_parse_line(char* line)
         highres_config.free_buying = value != 0;
     } else if (SDL_strcasecmp(key_start, "FreeSelling") == 0) {
         highres_config.free_selling = value != 0;
+    } else if (SDL_strcasecmp(key_start, "EndlessConsumables") == 0) {
+        highres_config.endless_consumables = value != 0;
     }
 }
 
