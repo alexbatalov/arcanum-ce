@@ -3,6 +3,7 @@
 #include "game/anim.h"
 #include "game/combat.h"
 #include "game/critter.h"
+#include "game/highres_config.h"
 #include "game/item.h"
 #include "game/magictech.h"
 #include "game/mt_item.h"
@@ -114,7 +115,9 @@ void item_ui_activate(int64_t owner_obj, int64_t item_obj)
         target_flags_set(*tgt_ptr);
         if (intgame_mode_set(INTGAME_MODE_ITEM)) {
             target_flags_set(*tgt_ptr);
-            if (obj_field_int32_get(qword_6810D8, OBJ_F_ITEM_MAGIC_TECH_COMPLEXITY) < 0) {
+            if (obj_field_int32_get(qword_6810D8, OBJ_F_ITEM_MAGIC_TECH_COMPLEXITY) < 0
+                || (highres_config_get()->technological_cursor
+                    && obj_field_int32_get(qword_6810D8, OBJ_F_ITEM_MAGIC_TECH_COMPLEXITY) == 0)) {
                 intgame_item_mode_cursor_set(620);
                 intgame_refresh_cursor();
             }
