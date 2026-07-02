@@ -8,6 +8,8 @@
 
 #include <SDL3/SDL_stdinc.h>
 
+#include <tig/art.h>
+
 static void highres_config_reset(void);
 static void highres_config_parse_line(char* line);
 static void highres_config_trim(char** start_ptr, char** end_ptr);
@@ -63,6 +65,7 @@ void highres_config_reset(void)
     highres_config.disable_spell_level_requirement = false;
     highres_config.disable_xp_per_hit = false;
     highres_config.full_xp_per_kill = false;
+    highres_config.disable_sprite_mirroring = false;
     highres_config.hide_zero_damage_to_creatures = false;
     highres_config.hide_zero_damage_to_objects = false;
     highres_config.no_character_points_at_start = false;
@@ -81,6 +84,8 @@ void highres_config_reset(void)
     highres_config.endless_consumables = false;
     highres_config.share_current_skill_training = false;
     highres_config.reduced_int_requirements_for_schemes = false;
+
+    tig_art_mirroring_set_enabled(true);
 }
 
 void highres_config_parse_line(char* line)
@@ -187,6 +192,9 @@ void highres_config_parse_line(char* line)
         highres_config.disable_xp_per_hit = value != 0;
     } else if (SDL_strcasecmp(key_start, "FullXPPerKill") == 0) {
         highres_config.full_xp_per_kill = value != 0;
+    } else if (SDL_strcasecmp(key_start, "DisableSpriteMirroring") == 0) {
+        highres_config.disable_sprite_mirroring = value != 0;
+        tig_art_mirroring_set_enabled(!highres_config.disable_sprite_mirroring);
     } else if (SDL_strcasecmp(key_start, "HideZeroDamageToCreatures") == 0) {
         highres_config.hide_zero_damage_to_creatures = value != 0;
     } else if (SDL_strcasecmp(key_start, "HideZeroDamageToObjects") == 0) {

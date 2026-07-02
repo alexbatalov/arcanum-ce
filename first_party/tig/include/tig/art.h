@@ -418,6 +418,7 @@ typedef bool (*TigArtBlitPaletteAdjustCallback)(tig_art_id_t art_id, TigPaletteM
 int tig_art_init(TigInitInfo* init_info);
 void tig_art_exit(void);
 void tig_art_ping(void);
+void tig_art_mirroring_set_enabled(bool enabled);
 int tig_art_misc_id_create(unsigned int num, unsigned int palette, tig_art_id_t* art_id);
 void tig_art_flush(void);
 int tig_art_exists(tig_art_id_t art_id);
