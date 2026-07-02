@@ -14,6 +14,7 @@ typedef struct HighResConfig {
     bool logos;
     bool intro;
     bool disable_combat_music;
+    bool disable_spell_level_requirement;
     bool disable_xp_per_hit;
     bool full_xp_per_kill;
     bool hide_zero_damage_to_creatures;

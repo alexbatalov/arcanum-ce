@@ -1,5 +1,6 @@
 #include "game/spell.h"
 
+#include "game/highres_config.h"
 #include "game/magictech.h"
 #include "game/mes.h"
 #include "game/object.h"
@@ -448,6 +449,10 @@ int spell_min_willpower(int spell)
  */
 int spell_min_level(int spell)
 {
+    if (highres_config_get()->disable_spell_level_requirement) {
+        return 1;
+    }
+
     return spell_minimum_levels[LEVEL_FROM_SPELL(spell)];
 }
 
