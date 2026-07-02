@@ -7,12 +7,15 @@ It is a small compatibility-safe layer over the existing `HighRes/config.ini` im
 ## Example
 
 ```ini
+profile=restored-default
+module=Arcanum
 width=1280
 height=720
 windowed=1
 show_fps=0
 scroll_fps=35
 scroll_dist=10
+startup_report=1
 logos=1
 intro=1
 ```
@@ -26,6 +29,10 @@ The current parser supports the existing UAP-compatible keys:
 - `width`
 - `height`
 - `windowed`
+- `module`
+- `profile`
+- `startup_report`
+- `startup_report_path`
 - `show_fps`
 - `scroll_fps`
 - `scroll_dist`
@@ -64,7 +71,16 @@ The current parser supports the existing UAP-compatible keys:
 - `reduced_int_requirements_for_schemes`
 - `inventory_active_for_all_followers`
 - `use_any_equipment`
+- `expected_path`
+- `expected_dat`
+- `expected_root`
+- `expected_module_root`
+- `expected_loose_root`
+
+When `profile` is set, Restored CE also reads `profiles/<profile>.cfg` unless the value already looks like a path or `.cfg` file.
+
+Profile files use the same key format and are intended for module/default selection plus expectation checks. See [`ARCANUM_RESTORED_CE_PROFILES.md`](ARCANUM_RESTORED_CE_PROFILES.md).
 
 ## Boundaries
 
-This file is not written by the engine yet. It does not replace module data, DAT loading, saves, or command-line switches.
+This file is not written by the engine yet. It does not replace module data, DAT loading, saves, or command-line switches. The profile layer is diagnostic and selection-oriented; it does not change the existing loader repository order.

@@ -12,11 +12,15 @@
 
 static void highres_config_reset(void);
 static bool highres_config_load_file(const char* path);
+static bool highres_config_load_profile_file(void);
 static void highres_config_strip_comments(char* line);
 static void highres_config_parse_line(char* line);
 static void highres_config_trim(char** start_ptr, char** end_ptr);
 static bool highres_config_parse_int(const char* str, int* value_ptr);
 static bool highres_config_key_equals(const char* lhs, const char* rhs);
+static void highres_config_copy_string(char* dst, size_t size, const char* src);
+static void highres_config_add_expected_path(const char* path);
+static bool highres_config_has_path_separator(const char* path);
 
 static HighResConfig highres_config;
 
@@ -24,8 +28,12 @@ void highres_config_load(void)
 {
     highres_config_reset();
 
-    highres_config_load_file("HighRes/config.ini");
-    highres_config_load_file("arcanum-ce.cfg");
+    highres_config.legacy_config_loaded = highres_config_load_file("HighRes/config.ini");
+    highres_config.ce_config_loaded = highres_config_load_file("arcanum-ce.cfg");
+
+    if (highres_config.profile[0] != '\0') {
+        highres_config.profile_config_loaded = highres_config_load_profile_file();
+    }
 }
 
 const HighResConfig* highres_config_get(void)
@@ -36,6 +44,9 @@ const HighResConfig* highres_config_get(void)
 void highres_config_reset(void)
 {
     highres_config.loaded = false;
+    highres_config.legacy_config_loaded = false;
+    highres_config.ce_config_loaded = false;
+    highres_config.profile_config_loaded = false;
     highres_config.width = 800;
     highres_config.height = 600;
     highres_config.windowed = false;
@@ -77,6 +88,14 @@ void highres_config_reset(void)
     highres_config.reduced_int_requirements_for_schemes = false;
     highres_config.inventory_active_for_all_followers = false;
     highres_config.use_any_equipment = false;
+    highres_config.module[0] = '\0';
+    highres_config.profile[0] = '\0';
+    highres_config.profile_path[0] = '\0';
+    highres_config.startup_report = true;
+    highres_config_copy_string(highres_config.startup_report_path,
+        sizeof(highres_config.startup_report_path),
+        "restored-ce-startup-report.txt");
+    highres_config.expected_path_count = 0;
 
     tig_art_mirroring_set_enabled(true);
 }
@@ -99,6 +118,23 @@ bool highres_config_load_file(const char* path)
 
     fclose(stream);
     return true;
+}
+
+bool highres_config_load_profile_file(void)
+{
+    if (highres_config_has_path_separator(highres_config.profile)
+        || strstr(highres_config.profile, ".cfg") != NULL) {
+        highres_config_copy_string(highres_config.profile_path,
+            sizeof(highres_config.profile_path),
+            highres_config.profile);
+    } else {
+        snprintf(highres_config.profile_path,
+            sizeof(highres_config.profile_path),
+            "profiles/%s.cfg",
+            highres_config.profile);
+    }
+
+    return highres_config_load_file(highres_config.profile_path);
 }
 
 void highres_config_strip_comments(char* line)
@@ -156,6 +192,33 @@ void highres_config_parse_line(char* line)
     highres_config_trim(&value_start, &value_end);
     *value_end = '\0';
 
+    if (highres_config_key_equals(key_start, "Module")) {
+        highres_config_copy_string(highres_config.module,
+            sizeof(highres_config.module),
+            value_start);
+        return;
+    } else if (highres_config_key_equals(key_start, "Profile")) {
+        highres_config_copy_string(highres_config.profile,
+            sizeof(highres_config.profile),
+            value_start);
+        return;
+    } else if (highres_config_key_equals(key_start, "StartupReportPath")) {
+        highres_config_copy_string(highres_config.startup_report_path,
+            sizeof(highres_config.startup_report_path),
+            value_start);
+        return;
+    } else if (highres_config_key_equals(key_start, "ExpectedPath")
+        || highres_config_key_equals(key_start, "ExpectPath")
+        || highres_config_key_equals(key_start, "ExpectedDat")
+        || highres_config_key_equals(key_start, "ExpectDat")
+        || highres_config_key_equals(key_start, "ExpectedRoot")
+        || highres_config_key_equals(key_start, "ExpectRoot")
+        || highres_config_key_equals(key_start, "ExpectedModuleRoot")
+        || highres_config_key_equals(key_start, "ExpectedLooseRoot")) {
+        highres_config_add_expected_path(value_start);
+        return;
+    }
+
     if (!highres_config_parse_int(value_start, &value)) {
         return;
     }
@@ -172,6 +235,8 @@ void highres_config_parse_line(char* line)
         highres_config.windowed = value != 0;
     } else if (highres_config_key_equals(key_start, "ShowFPS")) {
         highres_config.show_fps = value != 0;
+    } else if (highres_config_key_equals(key_start, "StartupReport")) {
+        highres_config.startup_report = value != 0;
     } else if (highres_config_key_equals(key_start, "ScrollFPS")) {
         if (value > 0) {
             highres_config.scroll_fps = value;
@@ -331,4 +396,31 @@ bool highres_config_key_equals(const char* lhs, const char* rhs)
     }
 
     return true;
+}
+
+void highres_config_copy_string(char* dst, size_t size, const char* src)
+{
+    if (size == 0) {
+        return;
+    }
+
+    snprintf(dst, size, "%s", src);
+}
+
+void highres_config_add_expected_path(const char* path)
+{
+    if (path[0] == '\0'
+        || highres_config.expected_path_count >= HIGHRES_CONFIG_MAX_EXPECTED_PATHS) {
+        return;
+    }
+
+    highres_config_copy_string(highres_config.expected_paths[highres_config.expected_path_count],
+        sizeof(highres_config.expected_paths[highres_config.expected_path_count]),
+        path);
+    highres_config.expected_path_count++;
+}
+
+bool highres_config_has_path_separator(const char* path)
+{
+    return strchr(path, '/') != NULL || strchr(path, '\\') != NULL;
 }

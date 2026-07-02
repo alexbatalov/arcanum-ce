@@ -148,17 +148,22 @@ Several configuration options are available as command-line switches (admittedly
 Community Edition also reads optional startup settings from `arcanum-ce.cfg` in the game directory. It accepts the same option names as `HighRes/config.ini`, plus lower snake_case spellings such as `scroll_fps`.
 
 ```ini
+profile=restored-default
+module=Arcanum
 width=1280
 height=720
 windowed=1
 show_fps=0
 scroll_fps=35
 scroll_dist=10
+startup_report=1
 logos=1
 intro=1
 ```
 
 When `HighRes/config.ini` from the Unofficial Arcanum Patch is present in the game directory, Community Edition imports it first. Values in `arcanum-ce.cfg` override the legacy import. Command-line switches such as `-window`, `-geometry=1280x720`, `-scrollfps:35`, and `-scrolldist:10` still override matching file settings for that launch.
+
+Restored CE profile files can describe the expected module, DATs, and loose override roots for a runtime. When startup reporting is enabled, the engine writes `restored-ce-startup-report.txt` with the selected module, config sources, profile state, and path checks. See [`docs/ARCANUM_RESTORED_CE_PROFILES.md`](docs/ARCANUM_RESTORED_CE_PROFILES.md).
 
 ## Contributing
 

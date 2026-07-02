@@ -3,8 +3,14 @@
 
 #include <stdbool.h>
 
+#define HIGHRES_CONFIG_MAX_PATH 260
+#define HIGHRES_CONFIG_MAX_EXPECTED_PATHS 32
+
 typedef struct HighResConfig {
     bool loaded;
+    bool legacy_config_loaded;
+    bool ce_config_loaded;
+    bool profile_config_loaded;
     int width;
     int height;
     bool windowed;
@@ -46,6 +52,13 @@ typedef struct HighResConfig {
     bool reduced_int_requirements_for_schemes;
     bool inventory_active_for_all_followers;
     bool use_any_equipment;
+    char module[HIGHRES_CONFIG_MAX_PATH];
+    char profile[HIGHRES_CONFIG_MAX_PATH];
+    char profile_path[HIGHRES_CONFIG_MAX_PATH];
+    bool startup_report;
+    char startup_report_path[HIGHRES_CONFIG_MAX_PATH];
+    int expected_path_count;
+    char expected_paths[HIGHRES_CONFIG_MAX_EXPECTED_PATHS][HIGHRES_CONFIG_MAX_PATH];
 } HighResConfig;
 
 void highres_config_load(void);

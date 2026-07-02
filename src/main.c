@@ -1,10 +1,17 @@
+#include <ctype.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
 
 #include <SDL3/SDL_main.h>
 
 #ifdef SDL_PLATFORM_WINDOWS
 #include <direct.h>
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 #else
+#include <sys/stat.h>
 #include <unistd.h>
 #endif
 
@@ -55,6 +62,10 @@ static void main_loop(void);
 static void handle_mouse_scroll(void);
 static void handle_keyboard_scroll(void);
 static void build_cmd_line(char* dst, size_t size, int argc, char** argv);
+static void write_startup_report(const char* status, const char* message, const char* cmd_line, const TigInitInfo* init_info, const char* module_name);
+static void write_startup_report_path_status(FILE* stream, const char* label, const char* path);
+static bool startup_report_path_exists(const char* path);
+static bool startup_report_is_absolute_or_relative(const char* path);
 
 // 0x59A040
 static float gamma = 1.0f;
@@ -174,6 +185,10 @@ int main(int argc, char** argv)
         gamelib_patch_lvl_set(pch + 9);
     }
 
+    if (highres_config->module[0] != '\0') {
+        gamelib_default_module_name_set(highres_config->module);
+    }
+
     init_info.width = highres_config->width;
     init_info.height = highres_config->height;
     init_info.bpp = 32;
@@ -208,7 +223,8 @@ int main(int argc, char** argv)
     init_info.window_name = "Arcanum: Of Steamworks & Magick Obscura - Community Edition";
 
     if (tig_init(&init_info) != TIG_OK) {
-        return EXIT_SUCCESS; // FIXME: Should be `EXIT_FAILURE`.
+        write_startup_report("failed", "tig_init failed", lpCmdLine, &init_info, gamelib_default_module_name_get());
+        return EXIT_FAILURE;
     }
 
     screenshotter.key = SDL_SCANCODE_F12;
@@ -219,7 +235,8 @@ int main(int argc, char** argv)
     intgame_set_iso_window_height(init_info.height);
     if (!intgame_create_iso_window(&(game_init_info.iso_window_handle))) {
         tig_exit();
-        return EXIT_SUCCESS; // FIXME: Should be `EXIT_FAILURE`.
+        write_startup_report("failed", "cannot create iso window", lpCmdLine, &init_info, gamelib_default_module_name_get());
+        return EXIT_FAILURE;
     }
 
     tig_mouse_hide();
@@ -231,7 +248,8 @@ int main(int argc, char** argv)
     if (!gamelib_init(&game_init_info)) {
         tig_window_destroy(game_init_info.iso_window_handle);
         tig_exit();
-        return EXIT_SUCCESS; // FIXME: Should be `EXIT_FAILURE`.
+        write_startup_report("failed", "gamelib_init failed", lpCmdLine, &init_info, gamelib_default_module_name_get());
+        return EXIT_FAILURE;
     }
 
     if (strstr(lpCmdLine, "-dialogcheck") != NULL) {
@@ -274,21 +292,31 @@ int main(int argc, char** argv)
         gameuilib_exit();
         tig_window_destroy(game_init_info.iso_window_handle);
         tig_exit();
-        return EXIT_SUCCESS; // FIXME: Should be `EXIT_FAILURE`.
+        write_startup_report("failed", "gameuilib_init failed", lpCmdLine, &init_info, gamelib_default_module_name_get());
+        return EXIT_FAILURE;
     }
 
     if (!gamelib_mod_load(gamelib_default_module_name_get())) {
         tig_debug_printf("Error loading default module %s\n",
             gamelib_default_module_name_get());
-        // FIXME: Missing graceful shutdown sequence.
-        return EXIT_SUCCESS; // FIXME: Should be `EXIT_FAILURE`.
+        write_startup_report("failed", "gamelib_mod_load failed", lpCmdLine, &init_info, gamelib_default_module_name_get());
+        gameuilib_exit();
+        gamelib_exit();
+        tig_exit();
+        return EXIT_FAILURE;
     }
 
     if (!gameuilib_mod_load()) {
         tig_debug_printf("Error loading UI module data\n");
-        // FIXME: Missing graceful shutdown sequence.
-        return EXIT_SUCCESS; // FIXME: Should be `EXIT_FAILURE`.
+        write_startup_report("failed", "gameuilib_mod_load failed", lpCmdLine, &init_info, gamelib_default_module_name_get());
+        gamelib_mod_unload();
+        gameuilib_exit();
+        gamelib_exit();
+        tig_exit();
+        return EXIT_FAILURE;
     }
+
+    write_startup_report("ok", "startup complete", lpCmdLine, &init_info, gamelib_default_module_name_get());
 
     if (highres_config->intro) {
         gmovie_play(8, GAME_MOVIE_NO_FINAL_FLIP, 0);
@@ -785,4 +813,109 @@ void build_cmd_line(char* dst, size_t size, int argc, char** argv)
     }
 
     *dst = '\0';
+}
+
+void write_startup_report(const char* status, const char* message, const char* cmd_line, const TigInitInfo* init_info, const char* module_name)
+{
+    const HighResConfig* config = highres_config_get();
+    FILE* stream;
+    time_t now;
+    char module_base[260];
+    char module_path[260];
+
+    if (!config->startup_report || config->startup_report_path[0] == '\0') {
+        return;
+    }
+
+    stream = fopen(config->startup_report_path, "wt");
+    if (stream == NULL) {
+        return;
+    }
+
+    now = time(NULL);
+
+    fprintf(stream, "Arcanum Restored CE startup report\n");
+    fprintf(stream, "generated_at=%lld\n", (long long)now);
+    fprintf(stream, "status=%s\n", status != NULL ? status : "");
+    fprintf(stream, "message=%s\n", message != NULL ? message : "");
+    fprintf(stream, "command_line=%s\n", cmd_line != NULL ? cmd_line : "");
+    fprintf(stream, "\nConfiguration:\n");
+    fprintf(stream, "  legacy_config_loaded=%d\n", config->legacy_config_loaded ? 1 : 0);
+    fprintf(stream, "  ce_config_loaded=%d\n", config->ce_config_loaded ? 1 : 0);
+    fprintf(stream, "  profile=%s\n", config->profile);
+    fprintf(stream, "  profile_path=%s\n", config->profile_path);
+    fprintf(stream, "  profile_config_loaded=%d\n", config->profile_config_loaded ? 1 : 0);
+    fprintf(stream, "  configured_module=%s\n", config->module);
+    fprintf(stream, "  selected_module=%s\n", module_name != NULL ? module_name : "");
+    fprintf(stream, "  startup_report_path=%s\n", config->startup_report_path);
+    fprintf(stream, "  width=%d\n", init_info != NULL ? init_info->width : config->width);
+    fprintf(stream, "  height=%d\n", init_info != NULL ? init_info->height : config->height);
+    fprintf(stream, "  windowed=%d\n", init_info != NULL && (init_info->flags & TIG_INITIALIZE_WINDOWED) != 0 ? 1 : 0);
+    fprintf(stream, "  show_fps=%d\n", init_info != NULL && (init_info->flags & TIG_INITIALIZE_FPS) != 0 ? 1 : 0);
+    fprintf(stream, "  scroll_fps=%d\n", config->scroll_fps);
+    fprintf(stream, "  scroll_dist=%d\n", config->scroll_dist);
+
+    fprintf(stream, "\nCore data paths:\n");
+    write_startup_report_path_status(stream, "tig", "tig.dat");
+    write_startup_report_path_status(stream, "arcanum1", "arcanum1.dat");
+    write_startup_report_path_status(stream, "arcanum2", "arcanum2.dat");
+    write_startup_report_path_status(stream, "arcanum3", "arcanum3.dat");
+    write_startup_report_path_status(stream, "arcanum4", "arcanum4.dat");
+    write_startup_report_path_status(stream, "data", "data");
+
+    if (module_name != NULL && module_name[0] != '\0') {
+        if (startup_report_is_absolute_or_relative(module_name)) {
+            snprintf(module_base, sizeof(module_base), "%s", module_name);
+        } else {
+            snprintf(module_base, sizeof(module_base), "Modules\\%s", module_name);
+        }
+
+        fprintf(stream, "\nModule paths:\n");
+        snprintf(module_path, sizeof(module_path), "%s.dat", module_base);
+        write_startup_report_path_status(stream, "module_dat", module_path);
+        for (int index = 0; index < 10; index++) {
+            snprintf(module_path, sizeof(module_path), "%s.patch%d", module_base, index);
+            write_startup_report_path_status(stream, "module_patch", module_path);
+        }
+        write_startup_report_path_status(stream, "module_directory", module_base);
+    }
+
+    fprintf(stream, "\nProfile expected paths:\n");
+    if (config->expected_path_count == 0) {
+        fprintf(stream, "  none\n");
+    } else {
+        for (int index = 0; index < config->expected_path_count; index++) {
+            write_startup_report_path_status(stream, "expected", config->expected_paths[index]);
+        }
+    }
+
+    fclose(stream);
+}
+
+void write_startup_report_path_status(FILE* stream, const char* label, const char* path)
+{
+    fprintf(stream,
+        "  %s=%s [%s]\n",
+        label,
+        path,
+        startup_report_path_exists(path) ? "present" : "missing");
+}
+
+bool startup_report_path_exists(const char* path)
+{
+#ifdef _WIN32
+    DWORD attributes = GetFileAttributesA(path);
+    return attributes != INVALID_FILE_ATTRIBUTES;
+#else
+    struct stat st;
+    return stat(path, &st) == 0;
+#endif
+}
+
+bool startup_report_is_absolute_or_relative(const char* path)
+{
+    return path[0] == '\\'
+        || path[0] == '/'
+        || path[0] == '.'
+        || (isalpha((unsigned char)path[0]) && path[1] == ':');
 }

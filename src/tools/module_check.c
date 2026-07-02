@@ -27,6 +27,8 @@
 
 #define DIALOG_FIELD_SIZE 1000
 #define MES_FIELD_SIZE 2000
+#define PROFILE_CHECK_MAX_PATH 260
+#define PROFILE_CHECK_MAX_EXPECTED_PATHS 64
 
 typedef enum FileKind {
     FILE_KIND_SCRIPT,
@@ -71,6 +73,15 @@ typedef struct DatEntryList {
     size_t length;
     size_t capacity;
 } DatEntryList;
+
+typedef struct ProfileCheck {
+    bool enabled;
+    bool loaded;
+    char path[PROFILE_CHECK_MAX_PATH];
+    char module[PROFILE_CHECK_MAX_PATH];
+    size_t expected_path_count;
+    char expected_paths[PROFILE_CHECK_MAX_EXPECTED_PATHS][PROFILE_CHECK_MAX_PATH];
+} ProfileCheck;
 
 typedef struct DialogRecord {
     int num;
@@ -151,6 +162,16 @@ static bool read_i32(FILE* stream, int32_t* value_ptr);
 static bool read_u32(FILE* stream, uint32_t* value_ptr);
 static bool read_u32_le_at(FILE* stream, long offset, uint32_t* value_ptr);
 static void print_dat_override_report(const Scanner* scanner);
+static bool profile_check_load(Scanner* scanner, const char* path, ProfileCheck* profile);
+static void profile_check_parse_line(ProfileCheck* profile, char* line);
+static void profile_check_add_expected_path(ProfileCheck* profile, const char* path);
+static void profile_check_apply(Scanner* scanner, const char* root_path, const ProfileCheck* profile);
+static void profile_check_print(const ProfileCheck* profile);
+static void profile_check_strip_comments(char* line);
+static void profile_check_trim(char** start_ptr, char** end_ptr);
+static bool profile_check_key_equals(const char* lhs, const char* rhs);
+static bool profile_check_path_exists(const char* path);
+static bool profile_check_is_absolute_or_relative(const char* path);
 static void scanner_issue(Scanner* scanner, const char* path, const char* format, ...);
 static void print_histogram(const char* title, const uint64_t* values, size_t count, size_t known_count);
 
@@ -160,11 +181,14 @@ static void print_histogram(const char* title, const uint64_t* values, size_t co
 int main(int argc, char** argv)
 {
     Scanner scanner;
+    ProfileCheck profile;
     const char* path = NULL;
+    const char* profile_path = NULL;
     int arg;
     int rc;
 
     memset(&scanner, 0, sizeof(scanner));
+    memset(&profile, 0, sizeof(profile));
 
     for (arg = 1; arg < argc; arg++) {
         if (strcmp(argv[arg], "--help") == 0 || strcmp(argv[arg], "-h") == 0) {
@@ -172,6 +196,13 @@ int main(int argc, char** argv)
             return EXIT_SUCCESS;
         } else if (strcmp(argv[arg], "--verbose") == 0 || strcmp(argv[arg], "-v") == 0) {
             scanner.verbose = true;
+        } else if (strcmp(argv[arg], "--profile") == 0) {
+            if (arg + 1 >= argc) {
+                fprintf(stderr, "--profile requires a config path\n");
+                usage();
+                return EXIT_FAILURE;
+            }
+            profile_path = argv[++arg];
         } else if (path == NULL) {
             path = argv[arg];
         } else {
@@ -186,7 +217,13 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
 
+    if (profile_path != NULL) {
+        profile.enabled = true;
+        profile_check_load(&scanner, profile_path, &profile);
+    }
+
     rc = scan_path(&scanner, path);
+    profile_check_apply(&scanner, path, &profile);
 
     printf("Arcanum CE module check\n");
     printf("Path: %s\n", path);
@@ -224,6 +261,7 @@ int main(int argc, char** argv)
     printf("  failed: %" PRIu64 "\n", scanner.dats_failed);
     printf("  entries: %" PRIu64 "\n", scanner.dat_entries);
     print_dat_override_report(&scanner);
+    profile_check_print(&profile);
 
     printf("\nIssues: %" PRIu64 "\n", scanner.issues);
 
@@ -241,7 +279,7 @@ int main(int argc, char** argv)
 
 void usage(void)
 {
-    printf("Usage: arcanum-ce-module-check [--verbose] <module-or-data-path>\n");
+    printf("Usage: arcanum-ce-module-check [--verbose] [--profile <cfg>] <module-or-data-path>\n");
     printf("\n");
     printf("Recursively scans loose Arcanum files without launching the game or writing to the input path.\n");
 }
@@ -1372,6 +1410,222 @@ void print_dat_override_report(const Scanner* scanner)
             printf("  override: %s (archive: %s)\n", entry->entry_path, entry->dat_path);
         }
     }
+}
+
+bool profile_check_load(Scanner* scanner, const char* path, ProfileCheck* profile)
+{
+    FILE* stream;
+    char line[512];
+
+    snprintf(profile->path, sizeof(profile->path), "%s", path);
+
+    stream = fopen(path, "rt");
+    if (stream == NULL) {
+        scanner_issue(scanner, path, "cannot open profile");
+        return false;
+    }
+
+    while (fgets(line, sizeof(line), stream) != NULL) {
+        profile_check_parse_line(profile, line);
+    }
+
+    fclose(stream);
+    profile->loaded = true;
+    return true;
+}
+
+void profile_check_parse_line(ProfileCheck* profile, char* line)
+{
+    char* sep;
+    char* key_start;
+    char* key_end;
+    char* value_start;
+    char* value_end;
+
+    profile_check_strip_comments(line);
+
+    key_start = line;
+    key_end = key_start + strlen(key_start);
+    profile_check_trim(&key_start, &key_end);
+    *key_end = '\0';
+
+    if (*key_start == '\0') {
+        return;
+    }
+
+    sep = strchr(key_start, '=');
+    if (sep == NULL) {
+        return;
+    }
+
+    *sep = '\0';
+
+    key_end = sep;
+    profile_check_trim(&key_start, &key_end);
+    *key_end = '\0';
+
+    value_start = sep + 1;
+    value_end = value_start + strlen(value_start);
+    profile_check_trim(&value_start, &value_end);
+    *value_end = '\0';
+
+    if (profile_check_key_equals(key_start, "Module")) {
+        snprintf(profile->module, sizeof(profile->module), "%s", value_start);
+    } else if (profile_check_key_equals(key_start, "ExpectedPath")
+        || profile_check_key_equals(key_start, "ExpectPath")
+        || profile_check_key_equals(key_start, "ExpectedDat")
+        || profile_check_key_equals(key_start, "ExpectDat")
+        || profile_check_key_equals(key_start, "ExpectedRoot")
+        || profile_check_key_equals(key_start, "ExpectRoot")
+        || profile_check_key_equals(key_start, "ExpectedModuleRoot")
+        || profile_check_key_equals(key_start, "ExpectedLooseRoot")) {
+        profile_check_add_expected_path(profile, value_start);
+    }
+}
+
+void profile_check_add_expected_path(ProfileCheck* profile, const char* path)
+{
+    if (path[0] == '\0'
+        || profile->expected_path_count >= PROFILE_CHECK_MAX_EXPECTED_PATHS) {
+        return;
+    }
+
+    snprintf(profile->expected_paths[profile->expected_path_count],
+        sizeof(profile->expected_paths[profile->expected_path_count]),
+        "%s",
+        path);
+    profile->expected_path_count++;
+}
+
+void profile_check_apply(Scanner* scanner, const char* root_path, const ProfileCheck* profile)
+{
+    char path[PROFILE_CHECK_MAX_PATH * 2];
+
+    if (!profile->enabled || !profile->loaded) {
+        return;
+    }
+
+    if (profile->module[0] != '\0') {
+        if (profile_check_is_absolute_or_relative(profile->module)) {
+            snprintf(path, sizeof(path), "%s", profile->module);
+        } else {
+            snprintf(path, sizeof(path), "%s\\Modules\\%s", root_path, profile->module);
+        }
+
+        char module_dat[PROFILE_CHECK_MAX_PATH * 2];
+        snprintf(module_dat, sizeof(module_dat), "%s.dat", path);
+        if (!profile_check_path_exists(path) && !profile_check_path_exists(module_dat)) {
+            scanner_issue(scanner, profile->path, "profile module '%s' is missing '%s' or '%s'", profile->module, path, module_dat);
+        }
+    }
+
+    for (size_t index = 0; index < profile->expected_path_count; index++) {
+        const char* expected_path = profile->expected_paths[index];
+
+        if (profile_check_is_absolute_or_relative(expected_path)) {
+            snprintf(path, sizeof(path), "%s", expected_path);
+        } else {
+            snprintf(path, sizeof(path), "%s\\%s", root_path, expected_path);
+        }
+
+        if (!profile_check_path_exists(path)) {
+            scanner_issue(scanner, profile->path, "expected profile path is missing: %s", path);
+        }
+    }
+}
+
+void profile_check_print(const ProfileCheck* profile)
+{
+    printf("\nProfile check:\n");
+
+    if (!profile->enabled) {
+        printf("  enabled: 0\n");
+        return;
+    }
+
+    printf("  enabled: 1\n");
+    printf("  path: %s\n", profile->path);
+    printf("  loaded: %d\n", profile->loaded ? 1 : 0);
+    printf("  module: %s\n", profile->module[0] != '\0' ? profile->module : "(none)");
+    printf("  expected paths: %zu\n", profile->expected_path_count);
+    for (size_t index = 0; index < profile->expected_path_count; index++) {
+        printf("    %s\n", profile->expected_paths[index]);
+    }
+}
+
+void profile_check_strip_comments(char* line)
+{
+    char* comment = strstr(line, "//");
+    char* hash = strchr(line, '#');
+    char* semicolon = strchr(line, ';');
+
+    if (hash != NULL && (comment == NULL || hash < comment)) {
+        comment = hash;
+    }
+
+    if (semicolon != NULL && (comment == NULL || semicolon < comment)) {
+        comment = semicolon;
+    }
+
+    if (comment != NULL) {
+        *comment = '\0';
+    }
+}
+
+void profile_check_trim(char** start_ptr, char** end_ptr)
+{
+    while (*start_ptr < *end_ptr && isspace((unsigned char)**start_ptr)) {
+        (*start_ptr)++;
+    }
+
+    while (*end_ptr > *start_ptr && isspace((unsigned char)*((*end_ptr) - 1))) {
+        (*end_ptr)--;
+    }
+}
+
+bool profile_check_key_equals(const char* lhs, const char* rhs)
+{
+    while (*lhs != '\0' || *rhs != '\0') {
+        while (*lhs == '_' || *lhs == '-') {
+            lhs++;
+        }
+
+        while (*rhs == '_' || *rhs == '-') {
+            rhs++;
+        }
+
+        if (tolower((unsigned char)*lhs) != tolower((unsigned char)*rhs)) {
+            return false;
+        }
+
+        if (*lhs == '\0') {
+            return true;
+        }
+
+        lhs++;
+        rhs++;
+    }
+
+    return true;
+}
+
+bool profile_check_path_exists(const char* path)
+{
+#ifdef _WIN32
+    DWORD attributes = GetFileAttributesA(path);
+    return attributes != INVALID_FILE_ATTRIBUTES;
+#else
+    struct stat st;
+    return stat(path, &st) == 0;
+#endif
+}
+
+bool profile_check_is_absolute_or_relative(const char* path)
+{
+    return path[0] == '\\'
+        || path[0] == '/'
+        || path[0] == '.'
+        || (isalpha((unsigned char)path[0]) && path[1] == ':');
 }
 
 void scanner_issue(Scanner* scanner, const char* path, const char* format, ...)
