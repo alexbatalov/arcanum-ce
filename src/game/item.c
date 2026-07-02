@@ -2674,10 +2674,13 @@ int sub_464D20(int64_t item_obj, int inventory_location, int64_t critter_obj)
     tig_art_id_t art_id;
     int64_t weapon_obj;
     unsigned int armor_flags;
+    bool use_any_equipment;
 
     if ((obj_field_int32_get(critter_obj, OBJ_F_SPELL_FLAGS) & (OSF_POLYMORPHED | OSF_BODY_OF_WATER | OSF_BODY_OF_FIRE | OSF_BODY_OF_EARTH | OSF_BODY_OF_AIR))) {
         return ITEM_CANNOT_NOT_WIELDABLE;
     }
+
+    use_any_equipment = highres_config_get()->use_any_equipment;
 
     if (inventory_location == 1002) {
         inventory_location = 1001;
@@ -2702,7 +2705,8 @@ int sub_464D20(int64_t item_obj, int inventory_location, int64_t critter_obj)
     case ITEM_INV_LOC_WEAPON:
         weapon_flags = obj_field_int32_get(item_obj, OBJ_F_WEAPON_FLAGS);
         if ((weapon_flags & OWF_TWO_HANDED) && (weapon_flags & OWF_HAND_COUNT_FIXED) != 0) {
-            if (item_wield_get(critter_obj, ITEM_INV_LOC_SHIELD) != OBJ_HANDLE_NULL) {
+            if (!use_any_equipment
+                && item_wield_get(critter_obj, ITEM_INV_LOC_SHIELD) != OBJ_HANDLE_NULL) {
                 return ITEM_CANNOT_NO_FREE_HAND;
             }
 
@@ -2718,17 +2722,19 @@ int sub_464D20(int64_t item_obj, int inventory_location, int64_t critter_obj)
         item_subtype = tig_art_item_id_subtype_get(obj_field_int32_get(item_obj, OBJ_F_ITEM_USE_AID_FRAGMENT));
         art_id = sub_4650D0(critter_obj);
         art_id = tig_art_critter_id_weapon_set(art_id, item_subtype);
-        if (tig_art_critter_id_weapon_get(art_id) != item_subtype) {
-            return ITEM_CANNOT_NOT_WIELDABLE;
-        }
+        if (!use_any_equipment) {
+            if (tig_art_critter_id_weapon_get(art_id) != item_subtype) {
+                return ITEM_CANNOT_NOT_WIELDABLE;
+            }
 
-        if (tig_art_exists(art_id) != TIG_OK) {
-            return ITEM_CANNOT_NOT_WIELDABLE;
+            if (tig_art_exists(art_id) != TIG_OK) {
+                return ITEM_CANNOT_NOT_WIELDABLE;
+            }
         }
         break;
     case ITEM_INV_LOC_SHIELD:
         weapon_obj = item_wield_get(critter_obj, ITEM_INV_LOC_WEAPON);
-        if (weapon_obj != OBJ_HANDLE_NULL) {
+        if (!use_any_equipment && weapon_obj != OBJ_HANDLE_NULL) {
             weapon_flags = obj_field_int32_get(weapon_obj, OBJ_F_WEAPON_FLAGS);
             if ((weapon_flags & OWF_TWO_HANDED) && (weapon_flags & OWF_HAND_COUNT_FIXED) != 0) {
                 return ITEM_CANNOT_NO_FREE_HAND;
@@ -2739,7 +2745,7 @@ int sub_464D20(int64_t item_obj, int inventory_location, int64_t critter_obj)
             return ITEM_CANNOT_CRIPPLED;
         }
 
-        if (item_obj_type == OBJ_TYPE_ARMOR) {
+        if (!use_any_equipment && item_obj_type == OBJ_TYPE_ARMOR) {
             art_id = sub_4650D0(critter_obj);
             art_id = tig_art_critter_id_shield_set(art_id, 1);
             if (tig_art_exists(art_id) != TIG_OK) {
@@ -2748,31 +2754,33 @@ int sub_464D20(int64_t item_obj, int inventory_location, int64_t critter_obj)
         }
         break;
     case ITEM_INV_LOC_ARMOR:
-        armor_flags = obj_field_int32_get(item_obj, OBJ_F_ARMOR_FLAGS);
-        if ((item_armor_size(stat_level_get(critter_obj, STAT_RACE)) & armor_flags) == 0) {
-            return ITEM_CANNOT_WRONG_WEARABLE_SIZE;
-        }
-        if ((armor_flags & OARF_MALE_ONLY) != 0) {
-            if (stat_level_get(critter_obj, STAT_GENDER) != GENDER_MALE) {
-                return ITEM_CANNOT_WRONG_WEARABLE_GENDER;
+        if (!use_any_equipment) {
+            armor_flags = obj_field_int32_get(item_obj, OBJ_F_ARMOR_FLAGS);
+            if ((item_armor_size(stat_level_get(critter_obj, STAT_RACE)) & armor_flags) == 0) {
+                return ITEM_CANNOT_WRONG_WEARABLE_SIZE;
             }
-        } else if ((armor_flags & OARF_FEMALE_ONLY)) {
-            if (stat_level_get(critter_obj, STAT_GENDER) != GENDER_FEMALE) {
-                return ITEM_CANNOT_WRONG_WEARABLE_GENDER;
+            if ((armor_flags & OARF_MALE_ONLY) != 0) {
+                if (stat_level_get(critter_obj, STAT_GENDER) != GENDER_MALE) {
+                    return ITEM_CANNOT_WRONG_WEARABLE_GENDER;
+                }
+            } else if ((armor_flags & OARF_FEMALE_ONLY)) {
+                if (stat_level_get(critter_obj, STAT_GENDER) != GENDER_FEMALE) {
+                    return ITEM_CANNOT_WRONG_WEARABLE_GENDER;
+                }
             }
-        }
 
-        art_id = obj_field_int32_get(critter_obj, OBJ_F_CURRENT_AID);
-        if (tig_art_type(art_id) == TIG_ART_TYPE_UNIQUE_NPC) {
-            return ITEM_CANNOT_NOT_WIELDABLE;
-        }
+            art_id = obj_field_int32_get(critter_obj, OBJ_F_CURRENT_AID);
+            if (tig_art_type(art_id) == TIG_ART_TYPE_UNIQUE_NPC) {
+                return ITEM_CANNOT_NOT_WIELDABLE;
+            }
 
-        if (!sub_465AE0(item_obj, critter_obj, &art_id)) {
-            return ITEM_CANNOT_NOT_WIELDABLE;
-        }
+            if (!sub_465AE0(item_obj, critter_obj, &art_id)) {
+                return ITEM_CANNOT_NOT_WIELDABLE;
+            }
 
-        if (tig_art_exists(art_id) != TIG_OK) {
-            return ITEM_CANNOT_NOT_WIELDABLE;
+            if (tig_art_exists(art_id) != TIG_OK) {
+                return ITEM_CANNOT_NOT_WIELDABLE;
+            }
         }
         break;
     }
@@ -4267,14 +4275,19 @@ void item_equipped(int64_t item_obj, int64_t parent_obj, int inventory_location)
     case ITEM_INV_LOC_WEAPON:
     case ITEM_INV_LOC_SHIELD:
         aid = sub_465020(parent_obj);
-        object_set_current_aid(parent_obj, aid);
+        if (!highres_config_get()->use_any_equipment
+            || tig_art_exists(aid) == TIG_OK) {
+            object_set_current_aid(parent_obj, aid);
+        }
 
         if (player_is_local_pc_obj(parent_obj)) {
             sub_4605D0();
         }
         break;
     case ITEM_INV_LOC_ARMOR:
-        if (sub_465AE0(item_obj, parent_obj, &aid)) {
+        if (sub_465AE0(item_obj, parent_obj, &aid)
+            && (!highres_config_get()->use_any_equipment
+                || tig_art_exists(aid) == TIG_OK)) {
             object_set_current_aid(parent_obj, aid);
         }
         break;
