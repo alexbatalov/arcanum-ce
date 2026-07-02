@@ -34,6 +34,7 @@ typedef struct HighResConfig {
     bool disable_natural_recovery;
     bool poison_immunity;
     bool disable_prowling_to_hit_bonus;
+    bool disable_aptitude_to_hit_penalty;
 } HighResConfig;
 
 void highres_config_load(void);
