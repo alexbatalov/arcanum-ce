@@ -57,7 +57,7 @@ bool party_save(TigFile* stream)
     }
 
     if (tig_file_fwrite(dword_5FC32C, sizeof(*dword_5FC32C), PARTY_TABLE_SIZE, stream) != PARTY_TABLE_SIZE) {
-        tig_debug_printf("Party: could not save, unable to write table.\n", cnt);
+        tig_debug_printf("Party: could not save, unable to write table (%d entries).\n", cnt);
         return false;
     }
 

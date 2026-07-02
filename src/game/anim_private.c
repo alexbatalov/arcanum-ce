@@ -331,7 +331,7 @@ bool anim_goal_restart(AnimID* anim_id)
 
     if (!anim_id_to_run_info(anim_id, &run_info)) {
         anim_id_to_str(anim_id, str);
-        tig_debug_printf("Anim: anim_goal_restart: could not turn animID into a AnimRunInfo %s.\n");
+        tig_debug_printf("Anim: anim_goal_restart: could not turn animID into a AnimRunInfo %s.\n", str);
         return false;
     }
 
