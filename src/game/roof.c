@@ -655,6 +655,27 @@ bool roof_is_faded(int64_t loc)
     return false;
 }
 
+bool roof_is_inside_corner(int64_t loc)
+{
+    tig_art_id_t aid;
+
+    if (roof_enabled) {
+        aid = roof_art_id_get(loc);
+        if (aid != TIG_ART_ID_INVALID
+            && !tig_art_roof_id_fill_get(aid)) {
+            switch (tig_art_roof_id_piece_get(aid)) {
+            case TIG_ART_ROOF_PIECE_NORTH_WEST_INSIDE:
+            case TIG_ART_ROOF_PIECE_SOUTH_WEST_INSIDE:
+            case TIG_ART_ROOF_PIECE_NORTH_EAST_INSIDE:
+            case TIG_ART_ROOF_PIECE_SOUTH_EAST_INSIDE:
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 // 0x439FF0
 bool roof_is_covered_xy(int64_t x, int64_t y, bool check_faded)
 {

@@ -17,6 +17,7 @@ void roof_fill_on(int64_t loc);
 void roof_fade_on(int64_t loc);
 void roof_fade_off(int64_t loc);
 bool roof_is_faded(int64_t loc);
+bool roof_is_inside_corner(int64_t loc);
 bool roof_is_covered_xy(int64_t x, int64_t y, bool check_faded);
 bool roof_is_covered_loc(int64_t loc, bool check_faded);
 void roof_blit_flags_set(unsigned int flags);
