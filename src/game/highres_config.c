@@ -53,6 +53,7 @@ void highres_config_reset(void)
     highres_config.logos = true;
     highres_config.intro = true;
     highres_config.disable_combat_music = false;
+    highres_config.disable_spell_level_requirement = false;
     highres_config.disable_xp_per_hit = false;
     highres_config.full_xp_per_kill = false;
     highres_config.hide_zero_damage_to_creatures = false;
@@ -129,6 +130,8 @@ void highres_config_parse_line(char* line)
         highres_config.intro = value != 0;
     } else if (SDL_strcasecmp(key_start, "DisableCombatMusic") == 0) {
         highres_config.disable_combat_music = value != 0;
+    } else if (SDL_strcasecmp(key_start, "DisableSpellLevelRequirement") == 0) {
+        highres_config.disable_spell_level_requirement = value != 0;
     } else if (SDL_strcasecmp(key_start, "DisableXPPerHit") == 0) {
         highres_config.disable_xp_per_hit = value != 0;
     } else if (SDL_strcasecmp(key_start, "FullXPPerKill") == 0) {
