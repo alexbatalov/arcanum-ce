@@ -1463,8 +1463,9 @@ void item_use_on_obj(int64_t source_obj, int64_t item_obj, int64_t target_obj)
         sub_4605E0(item_obj, &td, mt_item_spell(item_obj, 0));
         mt_item_notify_used(item_obj, target_obj);
 
-        if (item_type == OBJ_TYPE_FOOD
-            || item_type == OBJ_TYPE_SCROLL) {
+        if ((item_type == OBJ_TYPE_FOOD
+                || item_type == OBJ_TYPE_SCROLL)
+            && !highres_config_get()->endless_consumables) {
             sub_4574D0(item_obj);
             object_destroy(item_obj);
         }
@@ -1512,16 +1513,20 @@ void item_use_on_obj(int64_t source_obj, int64_t item_obj, int64_t target_obj)
             ui_message.str = mes_file_entry.str;
             ui_display_msg(&ui_message);
 
-            sub_4574D0(item_obj);
-            object_destroy(item_obj);
+            if (!highres_config_get()->endless_consumables) {
+                sub_4574D0(item_obj);
+                object_destroy(item_obj);
+            }
         }
 
         return;
     }
 
     if (item_type == OBJ_TYPE_SCROLL) {
-        sub_4574D0(item_obj);
-        object_destroy(item_obj);
+        if (!highres_config_get()->endless_consumables) {
+            sub_4574D0(item_obj);
+            object_destroy(item_obj);
+        }
         return;
     }
 }
@@ -1567,7 +1572,8 @@ void item_use_on_loc(int64_t obj, int64_t item_obj, int64_t target_loc)
         }
     }
 
-    if (obj_type == OBJ_TYPE_FOOD || obj_type == OBJ_TYPE_SCROLL) {
+    if ((obj_type == OBJ_TYPE_FOOD || obj_type == OBJ_TYPE_SCROLL)
+        && !highres_config_get()->endless_consumables) {
         sub_4574D0(item_obj);
         object_destroy(item_obj);
     }
