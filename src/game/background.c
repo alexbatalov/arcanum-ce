@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include "game/effect.h"
+#include "game/highres_config.h"
 #include "game/item.h"
 #include "game/mes.h"
 #include "game/object.h"
@@ -22,6 +23,7 @@
 
 static int background_get_base_money(void);
 static bool background_is_legal(int64_t obj, char* str);
+static int background_educator_target_training(int educator_training);
 
 /**
  * 0x5B6AEC
@@ -406,11 +408,12 @@ void background_educate_followers(int64_t obj)
     for (skill = 0; skill < BASIC_SKILL_COUNT; skill++) {
         educator_training = basic_skill_training_get(obj, skill);
         if (educator_training > TRAINING_APPRENTICE) {
+            educator_training = background_educator_target_training(educator_training);
             node = followers.head;
             while (node != NULL) {
-                // Increment follower training up to the educator's level.
+                // Increment follower training up to the configured educator target.
                 follower_training = basic_skill_training_get(node->obj, skill) + 1;
-                while (follower_training < educator_training) {
+                while (follower_training <= educator_training) {
                     basic_skill_training_set(node->obj, skill, follower_training);
                     follower_training++;
                 }
@@ -423,11 +426,12 @@ void background_educate_followers(int64_t obj)
     for (skill = 0; skill < TECH_SKILL_COUNT; skill++) {
         educator_training = tech_skill_training_get(obj, skill);
         if (educator_training > TRAINING_APPRENTICE) {
+            educator_training = background_educator_target_training(educator_training);
             node = followers.head;
             while (node != NULL) {
-                // Increment follower training up to the educator's level.
+                // Increment follower training up to the configured educator target.
                 follower_training = tech_skill_training_get(node->obj, skill) + 1;
-                while (follower_training < educator_training) {
+                while (follower_training <= educator_training) {
                     tech_skill_training_set(node->obj, skill, follower_training);
                     follower_training++;
                 }
@@ -437,6 +441,15 @@ void background_educate_followers(int64_t obj)
     }
 
     object_list_destroy(&followers);
+}
+
+static int background_educator_target_training(int educator_training)
+{
+    if (highres_config_get()->share_current_skill_training) {
+        return educator_training;
+    }
+
+    return educator_training - 1;
 }
 
 /**
