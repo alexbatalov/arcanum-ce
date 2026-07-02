@@ -1,6 +1,7 @@
 name: CI
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -8,6 +9,9 @@ on:
     types:
       - opened
       - synchronize
+
+permissions:
+  contents: read
 
 defaults:
   run:
@@ -164,11 +168,27 @@ jobs:
       - name: Build
         run: cmake --build --preset linux-${{ matrix.arch }}-debug
 
+      - name: Package preview
+        run: |
+          package="arcanum-ce-linux-${{ matrix.arch }}-debug"
+          mkdir -p "out/dist/$package"
+          cp "out/build/linux-${{ matrix.arch }}-debug/arcanum-ce" "out/dist/$package/arcanum-ce"
+          cp "out/build/linux-${{ matrix.arch }}-debug/arcanum-ce-module-check" "out/dist/$package/arcanum-ce-module-check"
+          cp README.md LICENSE.md "out/dist/$package/"
+          {
+            echo "Arcanum CE preview build"
+            echo "Platform: linux-${{ matrix.arch }} debug"
+            echo "Commit: $GITHUB_SHA"
+            echo "Ref: $GITHUB_REF_NAME"
+            echo "Contents: arcanum-ce, arcanum-ce-module-check, README.md, LICENSE.md"
+          } > "out/dist/$package/BUILD_INFO.txt"
+          tar -czf "out/dist/$package.tar.gz" -C out/dist "$package"
+
       - name: Upload
         uses: actions/upload-artifact@v6
         with:
           name: arcanum-ce-linux-${{ matrix.arch }}
-          path:  out/build/linux-${{ matrix.arch }}-debug/arcanum-ce
+          path: out/dist/arcanum-ce-linux-${{ matrix.arch }}-debug.tar.gz
           retention-days: 7
 
   macos:
@@ -232,9 +252,27 @@ jobs:
       - name: Build
         run: cmake --build --preset windows-${{ matrix.arch }}-debug
 
+      - name: Package preview
+        shell: pwsh
+        run: |
+          $package = "arcanum-ce-windows-${{ matrix.arch }}-debug"
+          $dist = Join-Path "out/dist" $package
+          New-Item -ItemType Directory -Force -Path $dist | Out-Null
+          Copy-Item "out/build/windows-${{ matrix.arch }}/Debug/arcanum-ce.exe" $dist
+          Copy-Item "out/build/windows-${{ matrix.arch }}/Debug/arcanum-ce-module-check.exe" $dist
+          Copy-Item README.md, LICENSE.md $dist
+          @(
+            "Arcanum CE preview build",
+            "Platform: windows-${{ matrix.arch }} debug",
+            "Commit: $env:GITHUB_SHA",
+            "Ref: $env:GITHUB_REF_NAME",
+            "Contents: arcanum-ce.exe, arcanum-ce-module-check.exe, README.md, LICENSE.md"
+          ) | Set-Content -Path (Join-Path $dist "BUILD_INFO.txt")
+          Compress-Archive -Path $dist -DestinationPath "out/dist/$package.zip" -Force
+
       - name: Upload
         uses: actions/upload-artifact@v6
         with:
           name: arcanum-ce-windows-${{ matrix.arch }}
-          path:  out/build/windows-${{ matrix.arch }}/Debug/arcanum-ce.exe
+          path: out/dist/arcanum-ce-windows-${{ matrix.arch }}-debug.zip
           retention-days: 7
