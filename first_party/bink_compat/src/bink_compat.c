@@ -19,7 +19,9 @@ typedef void(BINKCALL* BINKSETSOUNDTRACK)(unsigned);
 typedef int(BINKCALL* BINKWAIT)(HBINK);
 
 #ifdef _WIN32
-static HMODULE binkw32;
+static HMODULE bink_library;
+
+static FARPROC bink_compat_get_proc(const char* decorated_name, const char* name);
 #endif
 
 static BINKCLOSE _BinkClose;
@@ -120,29 +122,43 @@ int BINKCALL BinkWait(HBINK bnk)
 bool bink_compat_init(void)
 {
 #ifdef _WIN32
-    binkw32 = LoadLibraryA("binkw32.dll");
-    if (binkw32 == NULL) {
+    static const char* bink_library_names[] = {
+#if defined(_WIN64)
+        "binkw64.dll",
+        "bink2w64.dll",
+#else
+        "binkw32.dll",
+#endif
+    };
+    size_t index;
+
+    for (index = 0; index < sizeof(bink_library_names) / sizeof(bink_library_names[0]); index++) {
+        bink_library = LoadLibraryA(bink_library_names[index]);
+        if (bink_library != NULL) {
+            break;
+        }
+    }
+
+    if (bink_library == NULL) {
         return false;
     }
 
-    _BinkClose = (BINKCLOSE)GetProcAddress(binkw32, "_BinkClose@4");
-    _BinkCopyToBuffer = (BINKCOPYTOBUFFER)GetProcAddress(binkw32, "_BinkCopyToBuffer@28");
-    _BinkDDSurfaceType = (BINKDDSURFACETYPE)GetProcAddress(binkw32, "_BinkDDSurfaceType@4");
-    _BinkDoFrame = (BINKDOFRAME)GetProcAddress(binkw32, "_BinkDoFrame@4");
-    _BinkNextFrame = (BINKNEXTFRAME)GetProcAddress(binkw32, "_BinkNextFrame@4");
-    _BinkOpen = (BINKOPEN)GetProcAddress(binkw32, "_BinkOpen@8");
-    _BinkOpenMiles = (BINKOPENMILES)GetProcAddress(binkw32, "_BinkOpenMiles@4");
-    _BinkSetSoundSystem = (BINKSETSOUNDSYSTEM)GetProcAddress(binkw32, "_BinkSetSoundSystem@8");
-    _BinkSetSoundTrack = (BINKSETSOUNDTRACK)GetProcAddress(binkw32, "_BinkSetSoundTrack@4");
-    _BinkWait = (BINKWAIT)GetProcAddress(binkw32, "_BinkWait@4");
+    _BinkClose = (BINKCLOSE)bink_compat_get_proc("_BinkClose@4", "BinkClose");
+    _BinkCopyToBuffer = (BINKCOPYTOBUFFER)bink_compat_get_proc("_BinkCopyToBuffer@28", "BinkCopyToBuffer");
+    _BinkDDSurfaceType = (BINKDDSURFACETYPE)bink_compat_get_proc("_BinkDDSurfaceType@4", "BinkDDSurfaceType");
+    _BinkDoFrame = (BINKDOFRAME)bink_compat_get_proc("_BinkDoFrame@4", "BinkDoFrame");
+    _BinkNextFrame = (BINKNEXTFRAME)bink_compat_get_proc("_BinkNextFrame@4", "BinkNextFrame");
+    _BinkOpen = (BINKOPEN)bink_compat_get_proc("_BinkOpen@8", "BinkOpen");
+    _BinkOpenMiles = (BINKOPENMILES)bink_compat_get_proc("_BinkOpenMiles@4", "BinkOpenMiles");
+    _BinkSetSoundSystem = (BINKSETSOUNDSYSTEM)bink_compat_get_proc("_BinkSetSoundSystem@8", "BinkSetSoundSystem");
+    _BinkSetSoundTrack = (BINKSETSOUNDTRACK)bink_compat_get_proc("_BinkSetSoundTrack@4", "BinkSetSoundTrack");
+    _BinkWait = (BINKWAIT)bink_compat_get_proc("_BinkWait@4", "BinkWait");
 
     if (_BinkClose == NULL
         || _BinkCopyToBuffer == NULL
-        || _BinkDDSurfaceType == NULL
         || _BinkDoFrame == NULL
         || _BinkNextFrame == NULL
         || _BinkOpen == NULL
-        || _BinkOpenMiles == NULL
         || _BinkSetSoundSystem == NULL
         || _BinkSetSoundTrack == NULL
         || _BinkWait == NULL) {
@@ -157,9 +173,9 @@ bool bink_compat_init(void)
 void bink_compat_exit(void)
 {
 #ifdef _WIN32
-    if (binkw32 != NULL) {
-        FreeLibrary(binkw32);
-        binkw32 = NULL;
+    if (bink_library != NULL) {
+        FreeLibrary(bink_library);
+        bink_library = NULL;
 
         _BinkClose = NULL;
         _BinkCopyToBuffer = NULL;
@@ -174,3 +190,20 @@ void bink_compat_exit(void)
     }
 #endif
 }
+
+#ifdef _WIN32
+static FARPROC bink_compat_get_proc(const char* decorated_name, const char* name)
+{
+    FARPROC proc = NULL;
+
+    if (decorated_name != NULL) {
+        proc = GetProcAddress(bink_library, decorated_name);
+    }
+
+    if (proc == NULL && name != NULL) {
+        proc = GetProcAddress(bink_library, name);
+    }
+
+    return proc;
+}
+#endif
