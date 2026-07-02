@@ -3390,7 +3390,7 @@ void script_unlock(int script_id)
 {
     int cache_entry_id;
 
-    if (!script_editor) {
+    if (script_editor) {
         return;
     }
 
