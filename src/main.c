@@ -47,6 +47,7 @@
 #include "game/stat.h"
 #include "game/tech.h"
 #include "game/wallcheck.h"
+#include "tools/module_check.h"
 #include "ui/charedit_ui.h"
 #include "ui/dialog_ui.h"
 #include "ui/gameuilib.h"
@@ -59,6 +60,7 @@
 #include "ui/wmap_ui.h"
 
 static void main_loop(void);
+static bool handle_scan_mode(int argc, char** argv, int* exit_code_ptr);
 static void handle_mouse_scroll(void);
 static void handle_keyboard_scroll(void);
 static void build_cmd_line(char* dst, size_t size, int argc, char** argv);
@@ -82,6 +84,7 @@ int main(int argc, char** argv)
     const HighResConfig* highres_config;
     char* pch;
     int value;
+    int scan_exit_code;
     tig_art_id_t cursor_art_id;
     int64_t pc_starting_location;
     char msg[80];
@@ -93,6 +96,10 @@ int main(int argc, char** argv)
 #elif SDL_PLATFORM_ANDROID
     chdir(SDL_GetPrefPath("com.alexbatalov", "arcanumce"));
 #endif
+
+    if (handle_scan_mode(argc, argv, &scan_exit_code)) {
+        return scan_exit_code;
+    }
 
     // Convert args array to WinMain-like lpCmdLine.
     char lpCmdLine[260];
@@ -792,6 +799,46 @@ void handle_keyboard_scroll(void)
     } else if (tig_kb_is_key_pressed(SDL_SCANCODE_RIGHT)) {
         scroll_start(SCROLL_DIRECTION_RIGHT);
     }
+}
+
+static bool handle_scan_mode(int argc, char** argv, int* exit_code_ptr)
+{
+    int index;
+    int scan_index = -1;
+    int scanner_argc;
+    int scanner_arg;
+    char** scanner_argv;
+
+    for (index = 1; index < argc; index++) {
+        if (strcmp(argv[index], "-scan") == 0 || strcmp(argv[index], "--scan") == 0) {
+            scan_index = index;
+            break;
+        }
+    }
+
+    if (scan_index == -1) {
+        return false;
+    }
+
+    scanner_argc = argc - scan_index;
+
+    scanner_argv = (char**)calloc((size_t)scanner_argc + 1, sizeof(*scanner_argv));
+    if (scanner_argv == NULL) {
+        fprintf(stderr, "Unable to allocate scan argument list.\n");
+        *exit_code_ptr = EXIT_FAILURE;
+        return true;
+    }
+
+    scanner_argv[0] = argv[0];
+    scanner_arg = 1;
+    for (index = scan_index + 1; index < argc; index++) {
+        scanner_argv[scanner_arg++] = argv[index];
+    }
+
+    *exit_code_ptr = arcanum_ce_module_check_main(scanner_argc, scanner_argv);
+    free(scanner_argv);
+
+    return true;
 }
 
 void build_cmd_line(char* dst, size_t size, int argc, char** argv)

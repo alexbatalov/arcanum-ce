@@ -315,6 +315,8 @@ set(SRCS
     "src/ui/written_ui.h"
     "src/net_compat.h"
     "src/main.c"
+    "src/tools/module_check.c"
+    "src/tools/module_check.h"
 )
 
 if(ANDROID)
@@ -339,6 +341,12 @@ if(NOT ANDROID AND NOT IOS)
     add_executable(arcanum-ce-module-check
         "src/tools/module_check.c"
     )
+
+    target_include_directories(arcanum-ce-module-check PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/src"
+    )
+
+    target_compile_definitions(arcanum-ce-module-check PRIVATE ARCANUM_CE_MODULE_CHECK_STANDALONE)
 
     if(MSVC)
         target_compile_definitions(arcanum-ce-module-check PRIVATE _CRT_SECURE_NO_WARNINGS)

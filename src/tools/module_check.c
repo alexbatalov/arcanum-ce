@@ -1,3 +1,5 @@
+#include "tools/module_check.h"
+
 #include <ctype.h>
 #include <inttypes.h>
 #include <stdbool.h>
@@ -178,7 +180,7 @@ static void print_histogram(const char* title, const uint64_t* values, size_t co
 #define FOURCC_DAT ((int32_t)(((uint32_t)' ') | ((uint32_t)'T' << 8) | ((uint32_t)'A' << 16) | ((uint32_t)'D' << 24)))
 #define FOURCC_DAT1 ((int32_t)(((uint32_t)'1') | ((uint32_t)'T' << 8) | ((uint32_t)'A' << 16) | ((uint32_t)'D' << 24)))
 
-int main(int argc, char** argv)
+int arcanum_ce_module_check_main(int argc, char** argv)
 {
     Scanner scanner;
     ProfileCheck profile;
@@ -276,6 +278,13 @@ int main(int argc, char** argv)
 
     return EXIT_SUCCESS;
 }
+
+#ifdef ARCANUM_CE_MODULE_CHECK_STANDALONE
+int main(int argc, char** argv)
+{
+    return arcanum_ce_module_check_main(argc, argv);
+}
+#endif
 
 void usage(void)
 {
