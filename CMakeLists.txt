@@ -335,6 +335,16 @@ target_link_libraries(arcanum-ce PUBLIC
     ${TIG_LIBRARY}
 )
 
+if(NOT ANDROID AND NOT IOS)
+    add_executable(arcanum-ce-module-check
+        "src/tools/module_check.c"
+    )
+
+    if(MSVC)
+        target_compile_definitions(arcanum-ce-module-check PRIVATE _CRT_SECURE_NO_WARNINGS)
+    endif()
+endif()
+
 # SDL HID on Android requires C++ linker.
 if(ANDROID)
     enable_language(CXX)

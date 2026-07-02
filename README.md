@@ -116,6 +116,11 @@ These ports are not currently intended for players. Touch controls are not yet i
 
 Check [`ci-build.yml`](.github/workflows/ci-build.yml) for details on how the project is compiled.
 
+### Companion tools
+
+Desktop builds also include `arcanum-ce-module-check`, a read-only scanner for loose module/data folders.
+See [`docs/ARCANUM_CE_MODULE_CHECK.md`](docs/ARCANUM_CE_MODULE_CHECK.md).
+
 ## Configuration
 
 Several configuration options are available as command-line switches (admittedly not very user-friendly):

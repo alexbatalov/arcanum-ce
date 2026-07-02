@@ -127,7 +127,7 @@ static int dword_5B384C[OBJ_TYPE_COUNT] = {
     /*      OBJ_TYPE_KEY_RING */ 13062,
     /*       OBJ_TYPE_WRITTEN */ 14130,
     /*       OBJ_TYPE_GENERIC */ 15213,
-    /*            OBJ_TYPE_PC */ 16079,
+    /*            OBJ_TYPE_PC */ BP_RESTORED_PC_END,
     /*           OBJ_TYPE_NPC */ 17317,
     /*          OBJ_TYPE_TRAP */ 26008,
     /*       OBJ_TYPE_MONSTER */ 27394,

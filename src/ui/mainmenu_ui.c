@@ -1,6 +1,8 @@
 #include "ui/mainmenu_ui.h"
 
+#include <stdarg.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "game/area.h"
 #include "game/background.h"
@@ -44,6 +46,7 @@
 #include "ui/textedit_ui.h"
 #include "ui/wmap_rnd.h"
 #include "ui/wmap_ui.h"
+#include <tig/file.h>
 
 typedef enum MainMenuUiNewCharHoverMode {
     MMUI_NEW_CHAR_HOVER_MODE_BACKGROUND,
@@ -158,7 +161,17 @@ static void mainmenu_ui_feedback(int num);
 static void mainmenu_fonts_init(void);
 static void mainmenu_fonts_exit(void);
 static void sub_549A80(void);
+static void mainmenu_ui_pregen_char_rebuild_proto_ids(void);
+static int mainmenu_ui_pregen_char_build_proto_ids_in_range(int first, int last);
+static void mainmenu_ui_pregen_char_debug_log(const char* format, ...);
+static void mainmenu_ui_pregen_char_debug_log_current(const char* event);
+static int mainmenu_ui_pregen_char_proto_id(int index);
+static int64_t mainmenu_ui_pregen_char_obj(void);
 
+#define MAINMENU_UI_PREGEN_RESTORED_FIRST BP_MERWIN_TUMBLEBROOK
+#define MAINMENU_UI_PREGEN_RESTORED_LAST BP_KAELOR_NIGHT
+#define MAINMENU_UI_MAX_PREGEN_CHARS 32
+#define MAINMENU_UI_PREGEN_DEBUG_LOG_FILE "ce-pregen-debug.log"
 #define MAINMENU_UI_DEFAULT_PLAYER_NAME_TEXT_SIZE 23
 #define MAINMENU_UI_MAX_PLAYER_NAME_LENGTH 55
 
@@ -189,6 +202,8 @@ int dword_5C3618 = -1;
 
 // 0x5C361C
 static int mainmenu_ui_pregen_char_cnt = 9;
+
+static int mainmenu_ui_pregen_char_proto_ids[MAINMENU_UI_MAX_PREGEN_CHARS];
 
 // 0x5C3620
 static bool dword_5C3620 = true;
@@ -4242,8 +4257,10 @@ bool mainmenu_ui_new_char_execute(int btn)
 void mainmenu_ui_pregen_char_create(void)
 {
     mainmenu_ui_window_type = MM_WINDOW_PREGEN_CHAR;
+    mainmenu_ui_pregen_char_rebuild_proto_ids();
     mainmenu_ui_pregen_char_idx = 1;
-    qword_64C460 = obj_pool_perm_lookup(obj_get_id(sub_4685A0(BP_MERWIN_TUMBLEBROOK)));
+    qword_64C460 = mainmenu_ui_pregen_char_obj();
+    mainmenu_ui_pregen_char_debug_log_current("create");
     mainmenu_ui_create_window();
 }
 
@@ -4306,7 +4323,8 @@ bool mainmenu_ui_pregen_char_button_released(tig_button_handle_t button_handle)
         } else {
             mainmenu_ui_pregen_char_idx = mainmenu_ui_pregen_char_cnt - 1;
         }
-        qword_64C460 = obj_pool_perm_lookup(obj_get_id(sub_4685A0(mainmenu_ui_pregen_char_idx + BP_GENERIC_PC)));
+        qword_64C460 = mainmenu_ui_pregen_char_obj();
+        mainmenu_ui_pregen_char_debug_log_current("prev");
         window->refresh_func(NULL);
         return true;
     case 3:
@@ -4315,7 +4333,8 @@ bool mainmenu_ui_pregen_char_button_released(tig_button_handle_t button_handle)
         } else {
             mainmenu_ui_pregen_char_idx = 1;
         }
-        qword_64C460 = obj_pool_perm_lookup(obj_get_id(sub_4685A0(mainmenu_ui_pregen_char_idx + BP_GENERIC_PC)));
+        qword_64C460 = mainmenu_ui_pregen_char_obj();
+        mainmenu_ui_pregen_char_debug_log_current("next");
         window->refresh_func(NULL);
         return true;
     default:
@@ -4337,7 +4356,8 @@ bool mainmenu_ui_pregen_char_execute(int btn)
 
     player_create_info_init(&player_create_info);
     player_create_info.loc = obj_field_int64_get(player_get_local_pc_obj(), OBJ_F_LOCATION);
-    player_create_info.basic_prototype = mainmenu_ui_pregen_char_idx + BP_GENERIC_PC;
+    player_create_info.basic_prototype = mainmenu_ui_pregen_char_proto_id(mainmenu_ui_pregen_char_idx);
+    mainmenu_ui_pregen_char_debug_log_current("execute");
     if (!player_obj_create_player(&player_create_info)) {
         tig_debug_printf("MainMenu-UI: mmUIPregenCharExecuteFunc: ERROR: Player Creation Failed!\n");
         exit(EXIT_FAILURE);
@@ -6057,17 +6077,134 @@ void sub_549A70(void)
     dword_5C3620 = false;
 }
 
-// 0x549A80
-void sub_549A80(void)
+void mainmenu_ui_pregen_char_rebuild_proto_ids(void)
+{
+    int cnt;
+
+    cnt = mainmenu_ui_pregen_char_build_proto_ids_in_range(MAINMENU_UI_PREGEN_RESTORED_FIRST, MAINMENU_UI_PREGEN_RESTORED_LAST);
+
+    if (cnt == 0) {
+        cnt = mainmenu_ui_pregen_char_build_proto_ids_in_range(BP_MERWIN_TUMBLEBROOK, BP_KEREE_MELANGE);
+    }
+
+    if (cnt > 0) {
+        mainmenu_ui_pregen_char_cnt = cnt + 1;
+    }
+
+    mainmenu_ui_pregen_char_debug_log("rebuild first=%d last=%d count=%d menu_count=%d\n",
+        MAINMENU_UI_PREGEN_RESTORED_FIRST,
+        MAINMENU_UI_PREGEN_RESTORED_LAST,
+        cnt,
+        mainmenu_ui_pregen_char_cnt);
+}
+
+int mainmenu_ui_pregen_char_build_proto_ids_in_range(int first, int last)
+{
+    int proto_id;
+    int cnt = 0;
+
+    memset(mainmenu_ui_pregen_char_proto_ids, 0, sizeof(mainmenu_ui_pregen_char_proto_ids));
+
+    for (proto_id = first; proto_id <= last && cnt < MAINMENU_UI_MAX_PREGEN_CHARS; proto_id++) {
+        mainmenu_ui_pregen_char_proto_ids[cnt++] = proto_id;
+    }
+
+    return cnt;
+}
+
+int mainmenu_ui_pregen_char_proto_id(int index)
+{
+    if (index > 0
+        && index < mainmenu_ui_pregen_char_cnt
+        && mainmenu_ui_pregen_char_proto_ids[index - 1] != 0) {
+        return mainmenu_ui_pregen_char_proto_ids[index - 1];
+    }
+
+    return index + BP_GENERIC_PC;
+}
+
+void mainmenu_ui_pregen_char_debug_log(const char* format, ...)
+{
+    TigFile* stream;
+    va_list args;
+
+    stream = tig_file_fopen(MAINMENU_UI_PREGEN_DEBUG_LOG_FILE, "a");
+    if (stream == NULL) {
+        return;
+    }
+
+    va_start(args, format);
+    tig_file_vfprintf(stream, format, args);
+    va_end(args);
+
+    tig_file_fclose(stream);
+}
+
+void mainmenu_ui_pregen_char_debug_log_current(const char* event)
+{
+    int index;
+    int proto_id;
+    int64_t obj;
+    char* name = NULL;
+    int type = -1;
+    int current_aid = 0;
+
+    proto_id = mainmenu_ui_pregen_char_proto_id(mainmenu_ui_pregen_char_idx);
+    obj = sub_4685A0(proto_id);
+    if (obj != OBJ_HANDLE_NULL) {
+        type = obj_field_int32_get(obj, OBJ_F_TYPE);
+        current_aid = obj_field_int32_get(obj, OBJ_F_CURRENT_AID);
+        obj_field_string_get(obj, OBJ_F_PC_PLAYER_NAME, &name);
+    }
+
+    mainmenu_ui_pregen_char_debug_log("%s idx=%d count=%d proto=%d obj=%I64d type=%d aid=%d name=%s ids=",
+        event,
+        mainmenu_ui_pregen_char_idx,
+        mainmenu_ui_pregen_char_cnt - 1,
+        proto_id,
+        obj,
+        type,
+        current_aid,
+        name != NULL ? name : "");
+
+    for (index = 0; index < mainmenu_ui_pregen_char_cnt - 1 && index < MAINMENU_UI_MAX_PREGEN_CHARS; index++) {
+        mainmenu_ui_pregen_char_debug_log("%s%d", index == 0 ? "" : ",", mainmenu_ui_pregen_char_proto_ids[index]);
+    }
+
+    mainmenu_ui_pregen_char_debug_log("\n");
+
+    if (name != NULL) {
+        FREE(name);
+    }
+}
+
+int64_t mainmenu_ui_pregen_char_obj(void)
 {
     int64_t obj;
 
+    obj = sub_4685A0(mainmenu_ui_pregen_char_proto_id(mainmenu_ui_pregen_char_idx));
+    if (obj == OBJ_HANDLE_NULL) {
+        mainmenu_ui_pregen_char_debug_log("fallback idx=%d proto=%d fallback_proto=%d\n",
+            mainmenu_ui_pregen_char_idx,
+            mainmenu_ui_pregen_char_proto_id(mainmenu_ui_pregen_char_idx),
+            BP_MERWIN_TUMBLEBROOK);
+        obj = sub_4685A0(BP_MERWIN_TUMBLEBROOK);
+    }
+
+    if (obj == OBJ_HANDLE_NULL) {
+        return OBJ_HANDLE_NULL;
+    }
+
+    return obj_pool_perm_lookup(obj_get_id(obj));
+}
+
+// 0x549A80
+void sub_549A80(void)
+{
     if (!dword_5C3620) {
-        obj = obj_pool_perm_lookup(obj_get_id(sub_4685A0(BP_VICTORIA_WARRINGTON)));
-        if (obj != OBJ_HANDLE_NULL
-            && tig_art_exists(obj_field_int32_get(obj, OBJ_F_CURRENT_AID)) == TIG_OK) {
+        mainmenu_ui_pregen_char_rebuild_proto_ids();
+        if (mainmenu_ui_pregen_char_cnt > 9) {
             dword_5C3620 = false;
-            mainmenu_ui_pregen_char_cnt = 13;
             mainmenu_ui_new_char_window_info.num_buttons = 10;
         } else {
             dword_5C3620 = true;
