@@ -67,6 +67,10 @@ runtime folders, or binary payloads were added to the repository.
   - `README.md`
   - `LICENSE.md`
   - `BUILD_INFO.txt`
+- Bumped CI CMake cache keys from `cmake-v7` to `cmake-v8` after the public
+  repository was renamed to `Arcanum-CE-Restored`. The old cache entries were
+  created under the previous hosted checkout path and caused CMake source-path
+  mismatch failures during Configure.
 
 Android, iOS, and macOS packaging behavior was left unchanged in this slice.
 
@@ -82,6 +86,9 @@ out\build\windows-x64\Debug\arcanum-ce-module-check.exe docs
 gh pr checks 2 --repo techerrorcode/arcanum-ce --json name,state,bucket,link,startedAt,completedAt,workflow
 gh run view 28628210005 --repo techerrorcode/arcanum-ce --json name,workflowName,conclusion,status,url,event,headBranch,headSha,jobs
 gh api "/repos/techerrorcode/arcanum-ce/actions/jobs/84899305146/logs"
+git diff --check
+python -c "import yaml, pathlib; yaml.safe_load(pathlib.Path('.github/workflows/ci-build.yml').read_text(encoding='utf-8')); print('workflow yaml parse passed')"
+rg -n -i "<restricted-public-terms>" .github/workflows/ci-build.yml docs/reports/arcanum-restored-ce-phase1-ci-preview-builds-result.md
 ```
 
 The Windows preview package command from the workflow was also run locally for
@@ -171,6 +178,20 @@ baseline issue.
 Local changed-source simulation:
 No changed source files to format-check.
 Result: pass
+```
+
+Repository rename cache follow-up:
+
+```text
+Observed hosted Configure failure:
+CMakeCache.txt was created under the previous hosted checkout path and did not
+match the renamed repository checkout path.
+
+Fix:
+Bumped all workflow CMake cache keys from `cmake-v7` to `cmake-v8`.
+
+Result:
+Workflow YAML still parses locally, and `git diff --check` still passes.
 ```
 
 Unavailable local checks:
