@@ -392,3 +392,7 @@ FodyWeavers.xsd
 /out
 /build
 CMakeUserPresets.json
+
+# Runtime CE overlay. Keep local overlay payloads, original game assets, and
+# experiment files out of source control.
+/ce/

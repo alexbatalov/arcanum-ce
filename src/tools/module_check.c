@@ -121,9 +121,12 @@ typedef struct Scanner {
     uint64_t dats_indexed;
     uint64_t dats_failed;
     uint64_t dat_entries;
+    uint64_t ce_overlay_files;
+    bool ce_overlay_root_seen;
     IntList script_ids;
     IntList dialog_ids;
     StringList loose_paths;
+    StringList ce_overlay_paths;
     DatEntryList dat_index_entries;
     const char* root_path;
     size_t root_path_len;
@@ -158,12 +161,17 @@ static bool string_list_contains(const StringList* list, const char* value);
 static bool string_list_append(StringList* list, char* value);
 static void string_list_free(StringList* list);
 static bool dat_entry_list_append(DatEntryList* list, const char* dat_path, char* entry_path);
+static bool dat_entry_list_contains_path(const DatEntryList* list, const char* path);
 static void dat_entry_list_free(DatEntryList* list);
 static int read_i32_le(const unsigned char* bytes);
 static bool read_i32(FILE* stream, int32_t* value_ptr);
 static bool read_u32(FILE* stream, uint32_t* value_ptr);
 static bool read_u32_le_at(FILE* stream, long offset, uint32_t* value_ptr);
 static void print_dat_override_report(const Scanner* scanner);
+static void print_ce_overlay_report(const Scanner* scanner);
+static bool path_is_ce_overlay_root(const char* normalized_path);
+static bool path_is_under_ce_overlay(const char* normalized_path);
+static const char* ce_overlay_content_path(const char* normalized_path);
 static bool profile_check_load(Scanner* scanner, const char* path, ProfileCheck* profile);
 static void profile_check_parse_line(ProfileCheck* profile, char* line);
 static void profile_check_add_expected_path(ProfileCheck* profile, const char* path);
@@ -263,6 +271,7 @@ int arcanum_ce_module_check_main(int argc, char** argv)
     printf("  failed: %" PRIu64 "\n", scanner.dats_failed);
     printf("  entries: %" PRIu64 "\n", scanner.dat_entries);
     print_dat_override_report(&scanner);
+    print_ce_overlay_report(&scanner);
     profile_check_print(&profile);
 
     printf("\nIssues: %" PRIu64 "\n", scanner.issues);
@@ -270,6 +279,7 @@ int arcanum_ce_module_check_main(int argc, char** argv)
     int_list_free(&scanner.script_ids);
     int_list_free(&scanner.dialog_ids);
     string_list_free(&scanner.loose_paths);
+    string_list_free(&scanner.ce_overlay_paths);
     dat_entry_list_free(&scanner.dat_index_entries);
 
     if (rc != 0 || scanner.issues != 0) {
@@ -342,6 +352,20 @@ int scan_directory(Scanner* scanner, const char* path)
     int rc = 0;
 
     scanner->directories_scanned++;
+
+    if (scanner->root_path != NULL) {
+        char* normalized = normalized_path_copy(relative_path(scanner, path));
+        if (normalized == NULL) {
+            scanner_issue(scanner, path, "out of memory while recording directory path");
+            return -1;
+        }
+
+        if (path_is_ce_overlay_root(normalized)) {
+            scanner->ce_overlay_root_seen = true;
+        }
+
+        free(normalized);
+    }
 
 #ifdef _WIN32
     char* pattern;
@@ -457,6 +481,16 @@ int scan_file(Scanner* scanner, const char* path, uint64_t size)
             free(normalized);
             scanner_issue(scanner, path, "out of memory while recording loose file path");
             return -1;
+        }
+
+        if (path_is_under_ce_overlay(normalized)) {
+            char* overlay_path = string_duplicate(ce_overlay_content_path(normalized));
+            if (overlay_path == NULL || !string_list_append(&scanner->ce_overlay_paths, overlay_path)) {
+                free(overlay_path);
+                scanner_issue(scanner, path, "out of memory while recording CE overlay path");
+                return -1;
+            }
+            scanner->ce_overlay_files++;
         }
     }
 
@@ -1327,6 +1361,17 @@ bool dat_entry_list_append(DatEntryList* list, const char* dat_path, char* entry
     return true;
 }
 
+bool dat_entry_list_contains_path(const DatEntryList* list, const char* path)
+{
+    for (size_t index = 0; index < list->length; index++) {
+        if (strcmp(list->values[index].entry_path, path) == 0) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void dat_entry_list_free(DatEntryList* list)
 {
     for (size_t index = 0; index < list->length; index++) {
@@ -1419,6 +1464,77 @@ void print_dat_override_report(const Scanner* scanner)
             printf("  override: %s (archive: %s)\n", entry->entry_path, entry->dat_path);
         }
     }
+}
+
+void print_ce_overlay_report(const Scanner* scanner)
+{
+    uint64_t loose_overrides = 0;
+    uint64_t dat_overrides = 0;
+
+    printf("\nCE overlay report:\n");
+    printf("  root: ce\n");
+
+    if (!scanner->ce_overlay_root_seen) {
+        printf("  status: not present\n");
+        printf("  overlay files tracked: 0\n");
+        return;
+    }
+
+    printf("  status: present\n");
+    printf("  overlay files tracked: %" PRIu64 "\n", scanner->ce_overlay_files);
+
+    for (size_t index = 0; index < scanner->ce_overlay_paths.length; index++) {
+        const char* overlay_path = scanner->ce_overlay_paths.values[index];
+        if (string_list_contains(&scanner->loose_paths, overlay_path)) {
+            loose_overrides++;
+        }
+        if (dat_entry_list_contains_path(&scanner->dat_index_entries, overlay_path)) {
+            dat_overrides++;
+        }
+    }
+
+    printf("  overlay files shadowing loose files: %" PRIu64 "\n", loose_overrides);
+    printf("  overlay files shadowing DAT entries: %" PRIu64 "\n", dat_overrides);
+
+    if ((loose_overrides == 0 && dat_overrides == 0) || !scanner->verbose) {
+        if ((loose_overrides != 0 || dat_overrides != 0) && !scanner->verbose) {
+            printf("  run with --verbose to list CE overlay shadows\n");
+        }
+        return;
+    }
+
+    for (size_t index = 0; index < scanner->ce_overlay_paths.length; index++) {
+        const char* overlay_path = scanner->ce_overlay_paths.values[index];
+        bool shadows_loose = string_list_contains(&scanner->loose_paths, overlay_path);
+        bool shadows_dat = dat_entry_list_contains_path(&scanner->dat_index_entries, overlay_path);
+
+        if (shadows_loose || shadows_dat) {
+            printf("  overlay shadow: ce\\%s", overlay_path);
+            if (shadows_loose) {
+                printf(" (loose: %s)", overlay_path);
+            }
+            if (shadows_dat) {
+                printf(" (DAT: %s)", overlay_path);
+            }
+            printf("\n");
+        }
+    }
+}
+
+bool path_is_ce_overlay_root(const char* normalized_path)
+{
+    return strcmp(normalized_path, "ce") == 0;
+}
+
+bool path_is_under_ce_overlay(const char* normalized_path)
+{
+    return strncmp(normalized_path, "ce\\", 3) == 0
+        && normalized_path[3] != '\0';
+}
+
+const char* ce_overlay_content_path(const char* normalized_path)
+{
+    return normalized_path + 3;
 }
 
 bool profile_check_load(Scanner* scanner, const char* path, ProfileCheck* profile)

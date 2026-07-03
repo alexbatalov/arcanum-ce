@@ -12,6 +12,7 @@
 #include "game/bless.h"
 #include "game/brightness.h"
 #include "game/broadcast.h"
+#include "game/ce_overlay.h"
 #include "game/ci.h"
 #include "game/critter.h"
 #include "game/curse.h"
@@ -328,6 +329,7 @@ bool gamelib_init(GameInitInfo* init_info)
 
     gamelib_mod_loaded = false;
     gamelib_load_data();
+    ce_overlay_mount();
 
     if (!init_info->editor) {
         if (highres_config_get()->logos) {
