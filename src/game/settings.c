@@ -6,7 +6,11 @@
 
 #include "game/obj_private.h"
 
-static SettingsEntry* settings_find(Settings* settings, const char* key);
+static SettingsEntry* settings_find_ex(Settings* settings, const char* section, const char* key);
+static void settings_register_ex(Settings* settings, const char* section, const char* key, const char* default_value, SettingsValueChangedFunc value_changed_func);
+static void settings_set_str_value_ex(Settings* settings, const char* section, const char* key, const char* value, bool mark_changed, bool notify);
+static bool settings_section_equals(const char* lhs, const char* rhs);
+static bool settings_section_was_written(Settings* settings, SettingsEntry* entry);
 static void settings_trim(char* str);
 
 /**
@@ -18,6 +22,7 @@ void settings_init(Settings* settings, const char* path)
 {
     settings->path = path;
     settings->entries = NULL;
+    settings->flags = 0;
 }
 
 /**
@@ -33,6 +38,7 @@ void settings_exit(Settings* settings)
     curr = settings->entries;
     while (curr != NULL) {
         next = curr->next;
+        FREE(curr->section);
         FREE(curr->key);
         FREE(curr->value);
         FREE(curr);
@@ -53,26 +59,34 @@ void settings_exit(Settings* settings)
  */
 void settings_load(Settings* settings)
 {
-    bool exists;
-    TigFindFileData find_file_data;
     FILE* stream;
     char buffer[256];
+    char section[64];
     char* sep;
-
-    // Check if the settings file exists.
-    exists = tig_find_first_file(settings->path, &find_file_data);
-    tig_find_close(&find_file_data); // FIX: Memory leak.
-
-    if (!exists) {
-        return;
-    }
 
     stream = fopen(settings->path, "rt");
     if (stream == NULL) {
         return;
     }
 
+    section[0] = '\0';
+
     while (fgets(buffer, sizeof(buffer), stream) != NULL) {
+        settings_trim(buffer);
+        if (buffer[0] == '\0') {
+            continue;
+        }
+
+        if (buffer[0] == '[') {
+            char* end = strchr(buffer + 1, ']');
+            if (end != NULL) {
+                *end = '\0';
+                settings_trim(buffer + 1);
+                snprintf(section, sizeof(section), "%s", buffer + 1);
+            }
+            continue;
+        }
+
         // Find the key-value separator.
         sep = strchr(buffer, '=');
         if (sep != NULL) {
@@ -83,9 +97,14 @@ void settings_load(Settings* settings)
             settings_trim(buffer);
             settings_trim(sep);
 
-            // Only store non-empty key-value pairs.
-            if (sep[0] != '\0' && buffer[0] != '\0') {
-                settings_set_str_value(settings, buffer, sep);
+            // Only store entries with a real key. Empty values are valid.
+            if (buffer[0] != '\0') {
+                settings_set_str_value_ex(settings,
+                    section[0] != '\0' ? section : NULL,
+                    buffer,
+                    sep,
+                    false,
+                    false);
             }
         }
     }
@@ -102,6 +121,7 @@ void settings_save(Settings* settings)
 {
     FILE* stream;
     SettingsEntry* curr;
+    bool wrote_flat_entries;
 
     // Ensure there is something worth saving.
     if (settings->entries == NULL) {
@@ -119,9 +139,36 @@ void settings_save(Settings* settings)
         return;
     }
 
+    wrote_flat_entries = false;
     curr = settings->entries;
     while (curr != NULL) {
-        fprintf(stream, "%s=%s\n", curr->key, curr->value);
+        if (curr->section == NULL) {
+            fprintf(stream, "%s=%s\n", curr->key, curr->value);
+            wrote_flat_entries = true;
+        }
+        curr = curr->next;
+    }
+
+    curr = settings->entries;
+    while (curr != NULL) {
+        if (curr->section != NULL && !settings_section_was_written(settings, curr)) {
+            SettingsEntry* section_entry;
+
+            if (wrote_flat_entries) {
+                fprintf(stream, "\n");
+            }
+
+            fprintf(stream, "[%s]\n", curr->section);
+            section_entry = settings->entries;
+            while (section_entry != NULL) {
+                if (settings_section_equals(section_entry->section, curr->section)) {
+                    fprintf(stream, "%s=%s\n", section_entry->key, section_entry->value);
+                }
+                section_entry = section_entry->next;
+            }
+
+            wrote_flat_entries = true;
+        }
         curr = curr->next;
     }
 
@@ -129,6 +176,15 @@ void settings_save(Settings* settings)
 
     // FIX: Settings synchronized to disk, unset `SETTINGS_CHANGED`.
     settings->flags &= ~SETTINGS_CHANGED;
+}
+
+void settings_set_write_defaults(Settings* settings, bool enabled)
+{
+    if (enabled) {
+        settings->flags |= SETTINGS_WRITE_DEFAULTS;
+    } else {
+        settings->flags &= ~SETTINGS_WRITE_DEFAULTS;
+    }
 }
 
 /**
@@ -144,19 +200,12 @@ void settings_save(Settings* settings)
  */
 void settings_register(Settings* settings, const char* key, const char* default_value, SettingsValueChangedFunc value_changed_func)
 {
-    SettingsEntry* entry;
+    settings_register_ex(settings, NULL, key, default_value, value_changed_func);
+}
 
-    entry = settings_find(settings, key);
-    if (entry != NULL) {
-        entry->value_changed_func = value_changed_func;
-    } else {
-        entry = (SettingsEntry*)MALLOC(sizeof(*entry));
-        entry->key = STRDUP(key);
-        entry->value = STRDUP(default_value);
-        entry->value_changed_func = value_changed_func;
-        entry->next = settings->entries;
-        settings->entries = entry;
-    }
+void settings_register_section(Settings* settings, const char* section, const char* key, const char* default_value, SettingsValueChangedFunc value_changed_func)
+{
+    settings_register_ex(settings, section, key, default_value, value_changed_func);
 }
 
 /**
@@ -233,33 +282,12 @@ ObjectID settings_get_obj_value(Settings* settings, const char* key)
  */
 void settings_set_str_value(Settings* settings, const char* key, const char* value)
 {
-    SettingsEntry* entry;
+    settings_set_str_value_ex(settings, NULL, key, value, true, true);
+}
 
-    // Mark settings as changed to trigger saving.
-    settings->flags |= SETTINGS_CHANGED;
-
-    // Check if the key already exists.
-    entry = settings_find(settings, key);
-    if (entry == NULL) {
-        // Add a new entry if the key does not exist.
-        settings_register(settings, key, value, NULL);
-    } else {
-        // Update the existing entry's value.
-        if (strlen(value) > strlen(entry->value)) {
-            // The new string is longer than existing one - free existing value
-            // and make a copy of the new string.
-            FREE(entry->value);
-            entry->value = STRDUP(value);
-        } else {
-            // Value fits into already existing buffer.
-            memcpy(entry->value, value, strlen(value) + 1);
-        }
-
-        // Trigger the callback.
-        if (entry->value_changed_func != NULL) {
-            entry->value_changed_func();
-        }
-    }
+void settings_set_str_value_section(Settings* settings, const char* section, const char* key, const char* value)
+{
+    settings_set_str_value_ex(settings, section, key, value, true, true);
 }
 
 /**
@@ -273,7 +301,19 @@ const char* settings_get_str_value(Settings* settings, const char* key)
 {
     SettingsEntry* entry;
 
-    entry = settings_find(settings, key);
+    entry = settings_find_ex(settings, NULL, key);
+    if (entry != NULL) {
+        return entry->value;
+    } else {
+        return NULL;
+    }
+}
+
+const char* settings_get_str_value_section(Settings* settings, const char* section, const char* key)
+{
+    SettingsEntry* entry;
+
+    entry = settings_find_ex(settings, section, key);
     if (entry != NULL) {
         return entry->value;
     } else {
@@ -286,19 +326,96 @@ const char* settings_get_str_value(Settings* settings, const char* key)
  *
  * 0x438EB0
  */
-SettingsEntry* settings_find(Settings* settings, const char* key)
+SettingsEntry* settings_find_ex(Settings* settings, const char* section, const char* key)
 {
     SettingsEntry* curr;
 
     curr = settings->entries;
     while (curr != NULL) {
-        if (SDL_strcasecmp(curr->key, key) == 0) {
+        if (settings_section_equals(curr->section, section)
+            && SDL_strcasecmp(curr->key, key) == 0) {
             return curr;
         }
         curr = curr->next;
     }
 
     return NULL;
+}
+
+void settings_register_ex(Settings* settings, const char* section, const char* key, const char* default_value, SettingsValueChangedFunc value_changed_func)
+{
+    SettingsEntry* entry;
+
+    entry = settings_find_ex(settings, section, key);
+    if (entry != NULL) {
+        entry->value_changed_func = value_changed_func;
+    } else {
+        entry = (SettingsEntry*)MALLOC(sizeof(*entry));
+        entry->section = section != NULL && section[0] != '\0' ? STRDUP(section) : NULL;
+        entry->key = STRDUP(key);
+        entry->value = STRDUP(default_value);
+        entry->value_changed_func = value_changed_func;
+        entry->next = settings->entries;
+        settings->entries = entry;
+
+        if ((settings->flags & SETTINGS_WRITE_DEFAULTS) != 0) {
+            settings->flags |= SETTINGS_CHANGED;
+        }
+    }
+}
+
+void settings_set_str_value_ex(Settings* settings, const char* section, const char* key, const char* value, bool mark_changed, bool notify)
+{
+    SettingsEntry* entry;
+
+    if (mark_changed) {
+        settings->flags |= SETTINGS_CHANGED;
+    }
+
+    entry = settings_find_ex(settings, section, key);
+    if (entry == NULL) {
+        settings_register_ex(settings, section, key, value, NULL);
+    } else {
+        if (strlen(value) > strlen(entry->value)) {
+            FREE(entry->value);
+            entry->value = STRDUP(value);
+        } else {
+            memcpy(entry->value, value, strlen(value) + 1);
+        }
+
+        if (notify && entry->value_changed_func != NULL) {
+            entry->value_changed_func();
+        }
+    }
+}
+
+bool settings_section_equals(const char* lhs, const char* rhs)
+{
+    if (lhs == NULL || lhs[0] == '\0') {
+        return rhs == NULL || rhs[0] == '\0';
+    }
+
+    if (rhs == NULL || rhs[0] == '\0') {
+        return false;
+    }
+
+    return SDL_strcasecmp(lhs, rhs) == 0;
+}
+
+bool settings_section_was_written(Settings* settings, SettingsEntry* entry)
+{
+    SettingsEntry* curr;
+
+    curr = settings->entries;
+    while (curr != NULL && curr != entry) {
+        if (settings_section_equals(curr->section, entry->section)) {
+            return true;
+        }
+
+        curr = curr->next;
+    }
+
+    return false;
 }
 
 /**
@@ -324,8 +441,8 @@ void settings_trim(char* str)
 
     // Remove trailing whitespace.
     if (len > 0) {
-        curr = str + len;
-        while (SDL_isspace(*curr)) {
+        curr = str + len - 1;
+        while (curr >= str && SDL_isspace(*curr)) {
             *curr-- = '\0';
         }
     }

@@ -19,6 +19,7 @@
 
 #include "game/ai.h"
 #include "game/anim.h"
+#include "game/ce_config.h"
 #include "game/combat.h"
 #include "game/critter.h"
 #include "game/descriptions.h"
@@ -233,6 +234,8 @@ int main(int argc, char** argv)
         write_startup_report("failed", "tig_init failed", lpCmdLine, &init_info, gamelib_default_module_name_get());
         return EXIT_FAILURE;
     }
+
+    ce_config_ensure_defaults();
 
     screenshotter.key = SDL_SCANCODE_F12;
     screenshotter.field_4 = 0;
