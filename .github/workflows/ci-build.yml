@@ -67,7 +67,7 @@ jobs:
         uses: actions/cache@v5
         with:
           path: android/app/.cxx
-          key: android-cmake-v7
+          key: android-cmake-v8
 
       - name: Setup signing config
         if: env.KEYSTORE_FILE_BASE64 != '' && env.KEYSTORE_PROPERTIES_FILE_BASE64 != ''
@@ -103,7 +103,7 @@ jobs:
         uses: actions/cache@v5
         with:
           path: out/build/ios
-          key: ios-cmake-v7
+          key: ios-cmake-v8
 
       - name: Configure
         run: cmake --preset ios
@@ -180,7 +180,7 @@ jobs:
         uses: actions/cache@v5
         with:
           path: out/build/linux-${{ matrix.arch }}-debug
-          key: linux-${{ matrix.arch }}-debug-cmake-v7
+          key: linux-${{ matrix.arch }}-debug-cmake-v8
 
       - name: Configure
         run: cmake --preset linux-${{ matrix.arch }}-debug
@@ -223,7 +223,7 @@ jobs:
         uses: actions/cache@v5
         with:
           path: out/build/macos
-          key: macos-cmake-v7
+          key: macos-cmake-v8
 
       - name: Configure
         run: cmake --preset macos
@@ -264,7 +264,7 @@ jobs:
         uses: actions/cache@v5
         with:
           path: out/build/windows-${{ matrix.arch }}
-          key: windows-${{ matrix.arch }}-cmake-v7
+          key: windows-${{ matrix.arch }}-cmake-v8
 
       - name: Configure
         run: cmake --preset windows-${{ matrix.arch }}
