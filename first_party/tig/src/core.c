@@ -82,6 +82,7 @@ int tig_init(TigInitInfo* init_info)
 
     if (!SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
         tig_debug_printf("Error initializing SDL: %s\n", SDL_GetError());
+        tig_debug_flush();
         return TIG_ERR_GENERIC;
     }
 
@@ -98,6 +99,7 @@ int tig_init(TigInitInfo* init_info)
         rc = modules[index].init_func(init_info);
         if (rc != TIG_OK) {
             tig_debug_printf("Error initializing TIG: %s\n", modules[index].name);
+            tig_debug_flush();
 
             // Unwind initialized modules.
             while (index > 0) {
