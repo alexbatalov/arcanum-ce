@@ -11,7 +11,7 @@ feature roadmap by itself; feature ordering remains in
 
 1. One lane per branch.
 2. One phase per lane unless the plan explicitly says a slice spans phases.
-3. No big mixed Codex commits.
+3. No big mixed commits.
 4. No drive-by source cleanup in documentation lanes.
 5. No engine source changes in Phase 0.
 6. No original game assets, DATs, saves, screenshots, or private runtime data in
@@ -27,9 +27,9 @@ mounting, DAT writing, and QoL UI in one patch, split it before coding.
 Use a short branch name that names one lane:
 
 ```text
-codex/phase1-format-string-sweep
-codex/phase1-early-log-buffer
-codex/phase3-ce-loose-overlay
+phase1-diagnostic-format-strings
+phase1-early-log-buffer
+phase3-ce-loose-overlay
 ```
 
 Do not reuse a lane branch for a new phase after it lands. Start a fresh branch

@@ -3,25 +3,45 @@
 > [!IMPORTANT]
 > This is a beta, technology preview, or whatever other label you have in mind for a pre-release software.
 
+## Fork Notice
+
+Arcanum Restored CE is a public fork of [Arcanum Community Edition](https://github.com/alexbatalov/arcanum-ce)
+by Alex Batalov. The original Community Edition work remains credited upstream; this fork builds on that foundation
+with a restoration-focused roadmap for engine hardening, modding support, content expansion, and long-term playability.
+
+This repository does not include original Arcanum game assets. You must own a copy of
+*Arcanum: Of Steamworks and Magick Obscura* to play.
+
 ## Status
 
-The game is ready, but I haven't tested everything - just the speedrun - and that was about three months ago, so things might have changed since then.
-
-Regarding the source code, about half of the modules (not half of the code) are in good shape. All APIs have meaningful names, along with brief documentation, annotations, and explanations (see `skill.c` and `quest.c` as examples). The other half may have cryptic names, little to no symbols , and no documentation at all (`anim.c` is extremely large and hard to understand).
+The base Community Edition engine is playable on modern systems, but Restored CE is an active restoration fork.
+Changes land in small, reviewable lanes with build evidence, compatibility scans, and clear rollback notes.
+Default single-player behavior stays protected unless a change is explicitly documented and gated.
 
 ## Project Goals
 
-Arcanum Restored CE is built on Arcanum Community Edition and is intended to become a stronger, more flexible foundation for long-term Arcanum work while preserving the feel and rules of the original game. The focus is not to replace Arcanum with something unrecognizable, but to make the engine sturdier, easier to diagnose, and more welcoming to ambitious restoration and expansion projects.
+Arcanum Restored CE is intended to become a stronger, more flexible foundation for long-term Arcanum work while
+preserving the feel, rules, and atmosphere of the original game. The focus is not to replace Arcanum with something
+unrecognizable, but to make the engine sturdier, easier to diagnose, and more welcoming to ambitious restoration and
+expansion projects.
 
 The current direction centers on:
 
-- System and engine improvements that make startup, configuration, file loading, rendering, and platform behavior more predictable.
-- Practical bug fixes driven by real play, local QA builds, compatibility scans, and reproducible saves.
-- Module expansion support for restored areas, new maps, improved tooling, and clearer visibility into loose-file and DAT override behavior.
-- Character expansion work that can support larger rosters, new presentation options, portraits, art routes, and gameplay data without destabilizing the base game.
-- Multiplayer and co-op improvements that strengthen the existing multiplayer surface over time while keeping single-player compatibility protected.
+- Engine hardening: safer startup diagnostics, better scan modes, cleaner configuration paths, stronger file-loading
+  reports, and more predictable platform behavior.
+- Practical bug fixes driven by real play, preview builds, compatibility scans, and reproducible saves.
+- Module expansion support for restored areas, new maps, improved tooling, and an in-game travel layer that can support
+  module-expansion routes without overwriting stock game data.
+- Character expansion work for larger rosters, restored presentation options, portraits, art routes, and gameplay data
+  without destabilizing the base game.
+- Follower restoration support, including cleaner dialogue/audio routing and future follower voice-over packages where
+  permissions and asset boundaries allow it.
+- Multiplayer and co-op foundations that strengthen the existing Arcanum multiplayer surface over time while keeping
+  single-player compatibility protected.
+- Preview build and companion-tool workflows that make testing easier for players, modders, and restoration contributors.
 
-The long-term goal is a polished Restored CE fork that can serve players, modders, and restoration projects at the same time: stable enough for normal play, transparent enough for debugging, and flexible enough for larger Arcanum worlds.
+The long-term goal is a polished Restored CE fork that can serve players, modders, and restoration projects at the same
+time: stable enough for normal play, transparent enough for debugging, and flexible enough for larger Arcanum worlds.
 
 ## Installation
 
@@ -171,4 +191,4 @@ Play the game and file bugs if any (there are likely many). Attach a save game f
 
 ## License
 
-The source code is this repository is available under the [Sustainable Use License](LICENSE.md).
+The source code in this repository is available under the [Sustainable Use License](LICENSE.md).
