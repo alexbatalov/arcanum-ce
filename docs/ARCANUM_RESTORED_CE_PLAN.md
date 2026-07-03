@@ -9,7 +9,7 @@ Research-only pass. Nothing in this document has been implemented; it is a roadm
 | Repo | Path | Branch | Commit |
 | --- | --- | --- | --- |
 | Arcanum Restored CE | `D:\projects\Arcanum CE Restored` | main | e95cd0ab7ad76fddb81ab8b1d35dff9dec543b86 |
-| Fallout 2 CE fork | `D:\projects\Fallout2 CE Fork` | codex/private-issue-fix-queue-20260630 | 8b06e135d3ea36b6f2245c7f35f4a26776ee21a4 |
+| Fallout 2 CE fork | `D:\projects\Fallout2 CE Fork` | private issue-fix queue | 8b06e135d3ea36b6f2245c7f35f4a26776ee21a4 |
 
 This builds on the earlier upstream-only comparison in
 `docs/reports/fallout2-ce-to-arcanum-ce-systems-audit.md` (which compared against
@@ -18,8 +18,7 @@ This builds on the earlier upstream-only comparison in
 - The comparison target is **our fork**, which carries the private issue-fix queue
   (`GITHUB_ISSUES_FIX_PLAN.md`, `PRIVATE_CE_BUILD_WORKLOG.md`, `scan_unimplemented` extensions,
   sfall test scripts, format-string and animation-lifetime hardening) plus feature branches
-  (`ammo-counter-20260701`, `codex/mainmenu-overlay-review-20260702`, `mainmenu-fade`,
-  `codex/hero-appearance-selector-upstream`).
+  for ammo counters, main-menu polish, and hero-appearance selection.
 - Multiplayer is examined explicitly, because Arcanum — unlike Fallout 2 — shipped with
   multiplayer and the CE codebase still contains most of that game-layer code.
 - The safe slice from the earlier audit (DAT/loose override reporting in
@@ -135,7 +134,7 @@ multiplayer branches exactly as today.
 | # | System | Fallout 2 CE evidence | Arcanum fit | Priority |
 | --- | --- | --- | --- | --- |
 | D1 | In-game help/hotkey reference | Upstream #498 in-game HELP menu (`game.cc`) | Arcanum has rich hotkeys (`hotkey_ui.c`) and no in-game reference; content ships via the A1 overlay | **P1** |
-| D2 | Main-menu overlay/fade polish | Fork branches `codex/mainmenu-overlay-review-20260702`, `mainmenu-fade` (menu kept behind subscreens, fallback backdrop, fade) | `mainmenu_ui.c` has the same subscreen structure; port the *behavior*, not the code | **P1** |
+| D2 | Main-menu overlay/fade polish | Fork branches for menu backdrop/fade behavior (menu kept behind subscreens, fallback backdrop, fade) | `mainmenu_ui.c` has the same subscreen structure; port the *behavior*, not the code | **P1** |
 | D3 | HUD status readouts | Fork branch `ammo-counter-20260701` (optional ammo counter, config-gated) | Arcanum analogue: ammo/charges/fatigue readouts in `intgame.c`, gated by an A4 config key | **P1** |
 | D4 | Hero appearance presentation | `hero_appearance.cc` + fork's hero-appearance-selector branch | README's character-expansion goal (portraits, art routes) — same pattern of appearance variants resolved at art-lookup time | **P2** |
 | D5 | FPS limiter / frame pacing | `fps_limiter.cc` | Arcanum has `ScrollFPS` UAP keys; a uniform frame limiter is small and self-contained | **P1** |
@@ -192,7 +191,7 @@ one is merged and QA'd; do not mix lanes in one branch.
 
 ## Execution Gates
 
-Rules for whoever (or whatever agent) implements this plan:
+Implementation rules for this plan:
 
 1. **One lane per branch.** A slice touches one phase's files only. If a change wants to touch
    DAT tools *and* settings *and* UI, it is mis-scoped — split it.
