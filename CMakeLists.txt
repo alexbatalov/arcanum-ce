@@ -46,6 +46,8 @@ set(SRCS
     "src/game/brightness.h"
     "src/game/broadcast.c"
     "src/game/broadcast.h"
+    "src/game/ce_config.c"
+    "src/game/ce_config.h"
     "src/game/ci.c"
     "src/game/ci.h"
     "src/game/combat.c"
