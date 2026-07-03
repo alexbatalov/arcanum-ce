@@ -390,7 +390,7 @@ void terrain_sector_path(int64_t sector_id, char* path)
 
         to = terrain_base_name(base);
         if (to == NULL) {
-            tig_debug_printf("Error: terrain_base_name failed in terrain_sector_path\n  tid: %d  base: $d\n", tid);
+            tig_debug_printf("Error: terrain_base_name failed in terrain_sector_path\n  tid: %d  base: %d\n", tid, base);
         }
 
         strcpy(path, "terrain\\");

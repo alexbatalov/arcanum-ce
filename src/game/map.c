@@ -1128,7 +1128,7 @@ bool map_preprocess_mobile(const char* name)
         if (!obj_write(stream, obj)) {
             // FIXME: Leaking `stream`.
             tig_file_list_destroy(&file_list);
-            tig_debug_printf("Error writing object to mobile objects file.\n", path);
+            tig_debug_printf("Error writing object to mobile objects file %s.\n", path);
             return false;
         }
 
@@ -1961,7 +1961,8 @@ void map_gender_check(void)
                         location = obj_field_int64_get(obj, OBJ_F_LOCATION);
                         tig_debug_printf("Male character with female description: %s at location %I64d %I64d\n",
                             name,
-                            location);
+                            location_get_x(location),
+                            location_get_y(location));
                     } else if (actual_gender == GENDER_FEMALE && expected_gender == GENDER_FEMALE) {
                         // FIXME: Wrong condition above.
                         object_examine(obj, obj, name);
@@ -1969,7 +1970,8 @@ void map_gender_check(void)
                         location = obj_field_int64_get(obj, OBJ_F_LOCATION);
                         tig_debug_printf("Female character with male description: %s at location %I64d %I64d\n",
                             name,
-                            location);
+                            location_get_x(location),
+                            location_get_y(location));
                     }
                 }
 
@@ -1983,7 +1985,8 @@ void map_gender_check(void)
                         location = obj_field_int64_get(obj, OBJ_F_LOCATION);
                         tig_debug_printf("Male character with female unknown description: %s at location %I64d %I64d\n",
                             name,
-                            location);
+                            location_get_x(location),
+                            location_get_y(location));
                     } else if (actual_gender == GENDER_FEMALE && expected_gender == GENDER_FEMALE) {
                         // FIXME: Wrong condition above.
                         object_examine(obj, obj, name);
@@ -1991,7 +1994,8 @@ void map_gender_check(void)
                         location = obj_field_int64_get(obj, OBJ_F_LOCATION);
                         tig_debug_printf("Female character with male unknown description: %s at location %I64d %I64d\n",
                             name,
-                            location);
+                            location_get_x(location),
+                            location_get_y(location));
                     }
                 }
             }
