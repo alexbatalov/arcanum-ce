@@ -13,7 +13,7 @@ future changes do not blend unrelated systems into one diff.
 - Use `D:\Arcanum\ThrowawayBuilds\...` for disposable runtime proof.
 - Use `D:\Arcanum\MilestoneBuilds\...` only for accepted preserved runtimes.
 - Do not claim runtime proof from static inspection alone.
-- Do not make big mixed Codex commits.
+- Do not make big mixed commits.
 - Do not push unless the user asks for a push in that turn.
 
 ## Evidence Template

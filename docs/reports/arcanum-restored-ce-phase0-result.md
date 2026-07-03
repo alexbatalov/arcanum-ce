@@ -64,7 +64,7 @@ already separate untracked local docs and were not edited by this Phase 0 pass.
 
 Start with the Phase 1 format-string diagnostics hardening lane:
 
-- branch: `codex/phase1-format-string-sweep`
+- branch: `phase1-diagnostic-format-strings`
 - scope: audit `tig_debug_printf` and fatal/error formatting call sites
 - expected risk: low, mechanical
 - expected output: source diff plus a dated report under `docs/reports/`
