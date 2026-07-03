@@ -2,7 +2,7 @@
 
 Date: 2026-07-02
 
-Branch: `codex/phase1-format-string-sweep`
+Branch: `phase1-diagnostic-format-strings`
 
 ## Scope
 
@@ -85,7 +85,7 @@ uses plain string parameters, not printf-style formatting.
 ## Commands Run
 
 ```text
-git switch -c codex/phase1-format-string-sweep
+git switch -c phase1-diagnostic-format-strings
 rg -n "tig_debug_printf|tig_debug_println|fatal|Fatal|SDL_SetError|SDL_ShowSimpleMessageBox" src first_party -g "*.c" -g "*.h"
 <inline parser for tig_debug_printf, tig_memory_fatal_error, SDL_SetError>
 rg -n "\$[diuoxXfFeEgGaAcCsSp]|%[diuoxXfFeEgGaAcCsSp][A-Za-z0-9_]|%$" src first_party -g "*.c" -g "*.h"
@@ -164,6 +164,6 @@ runtime data, save data, config files, or asset files are affected.
 
 ## Next Recommended Slice
 
-After this lane is reviewed and merged, open `codex/phase1-early-log-buffer` as
-the next Phase 1 branch. Keep engine `-scan` mode and CI preview builds as
-separate follow-up branches.
+After this lane is reviewed and merged, finish the remaining Phase 1 lanes as
+separate branches. Keep early-log buffering, engine `-scan` mode, and CI preview
+builds independent.
