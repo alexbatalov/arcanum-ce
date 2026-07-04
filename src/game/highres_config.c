@@ -12,6 +12,7 @@ static void highres_config_reset(void);
 static void highres_config_parse_line(char* line);
 static void highres_config_trim(char** start_ptr, char** end_ptr);
 static bool highres_config_parse_int(const char* str, int* value_ptr);
+static bool highres_config_parse_float(const char* str, float* value_ptr);
 
 static HighResConfig highres_config;
 
@@ -52,6 +53,7 @@ void highres_config_reset(void)
     highres_config.scroll_dist = 10;
     highres_config.logos = true;
     highres_config.intro = true;
+    highres_config.dialog_scale = 1.0f;
 }
 
 void highres_config_parse_line(char* line)
@@ -93,6 +95,17 @@ void highres_config_parse_line(char* line)
     value_end = value_start + strlen(value_start);
     highres_config_trim(&value_start, &value_end);
     *value_end = '\0';
+
+    if (SDL_strcasecmp(key_start, "DialogScale") == 0) {
+        float scale;
+        if (highres_config_parse_float(value_start, &scale) && scale >= 1.0f) {
+            if (scale > 3.0f) {
+                scale = 3.0f;
+            }
+            highres_config.dialog_scale = scale;
+        }
+        return;
+    }
 
     if (!highres_config_parse_int(value_start, &value)) {
         return;
@@ -159,5 +172,31 @@ bool highres_config_parse_int(const char* str, int* value_ptr)
     }
 
     *value_ptr = (int)value;
+    return true;
+}
+
+bool highres_config_parse_float(const char* str, float* value_ptr)
+{
+    char* end;
+    float value;
+
+    if (*str == '\0') {
+        return false;
+    }
+
+    value = strtof(str, &end);
+    if (end == str) {
+        return false;
+    }
+
+    while (*end != '\0') {
+        if (!isspace((unsigned char)*end)) {
+            return false;
+        }
+
+        end++;
+    }
+
+    *value_ptr = value;
     return true;
 }

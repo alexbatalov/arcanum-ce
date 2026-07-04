@@ -1,7 +1,9 @@
 #include "game/tb.h"
 
 #include "game/gamelib.h"
+#include "game/highres_config.h"
 #include "game/object.h"
+#include "game/tc.h"
 
 /**
  * The maximum number of text bubbles that can be active simultaneously.
@@ -67,6 +69,7 @@ static void tb_text_duration_changed(void);
 static TextBubble* find_text_bubble(int64_t obj);
 static TextBubble* find_free_text_bubble(int64_t obj);
 static void adjust_text_bubble_rect(TigRect* rect, TbPosition pos);
+static void tb_reserve_option_box(void);
 
 /**
  * Color values (RGB) for text bubble types.
@@ -175,6 +178,27 @@ static ViewOptions tb_view_options;
 static tig_font_handle_t tb_fonts[TB_TYPE_COUNT];
 
 /**
+ * Reserves the vertical band occupied by the (possibly enlarged) conversation
+ * option box at the bottom of the iso view, so NPC reply bubbles are placed
+ * above it instead of overlapping the player's dialogue options. No-op unless
+ * dialogue text is scaled up.
+ */
+void tb_reserve_option_box(void)
+{
+    float dialog_scale = highres_config_get()->dialog_scale;
+    int reserved;
+
+    if (dialog_scale <= 1.0f) {
+        return;
+    }
+
+    reserved = tc_reserved_height(dialog_scale);
+    if (reserved < tb_iso_content_rect.height) {
+        tb_iso_content_rect.height -= reserved;
+    }
+}
+
+/**
  * Called when the game is initialized.
  *
  * 0x4D5B80
@@ -198,16 +222,30 @@ bool tb_init(GameInitInfo* init_info)
     tb_iso_content_rect.y = 0;
     tb_iso_content_rect.width = window_data.rect.width;
     tb_iso_content_rect.height = window_data.rect.height;
+    tb_reserve_option_box();
 
     tb_view_options.type = VIEW_TYPE_ISOMETRIC;
 
     tb_enabled = true;
     tb_background_color = tig_color_make(0, 0, 255);
 
-    // Set up video buffer creation parameters.
+    // Set up video buffer creation parameters. When dialogue text is enlarged,
+    // widen the bubble so long replies wrap into fewer, wider lines instead of
+    // a tall narrow column. The wrap width is a fraction of the view width so it
+    // never exceeds the screen regardless of scale, and the height grows with
+    // the scale to hold the taller lines.
+    if (highres_config_get()->dialog_scale > 1.0f) {
+        float ds = highres_config_get()->dialog_scale;
+        int wide = (int)(window_data.rect.width * 0.75f);
+        if (wide > tb_content_rect.width) {
+            tb_content_rect.width = wide;
+        }
+        tb_content_rect.height = (int)(TEXT_BUBBLE_HEIGHT * ds + 0.5f);
+    }
+
     vb_create_info.flags = TIG_VIDEO_BUFFER_CREATE_SYSTEM_MEMORY | TIG_VIDEO_BUFFER_CREATE_COLOR_KEY;
-    vb_create_info.width = TEXT_BUBBLE_WIDTH;
-    vb_create_info.height = TEXT_BUBBLE_HEIGHT;
+    vb_create_info.width = tb_content_rect.width;
+    vb_create_info.height = tb_content_rect.height;
     vb_create_info.background_color = tb_background_color;
     vb_create_info.color_key = tb_background_color;
 
@@ -229,6 +267,12 @@ bool tb_init(GameInitInfo* init_info)
     // Set up font creation parameters.
     font.flags = TIG_FONT_NO_ALPHA_BLEND | TIG_FONT_CENTERED | TIG_FONT_SHADOW;
     tig_art_interface_id_create(229, 0, 0, 0, &(font.art_id));
+
+    // Enlarge dialogue text when requested via `DialogScale`.
+    if (highres_config_get()->dialog_scale > 1.0f) {
+        font.flags |= TIG_FONT_SCALE;
+        font.scale = highres_config_get()->dialog_scale;
+    }
 
     // Create fonts for each text bubble type with appropriate colors.
     for (idx = 0; idx < TB_TYPE_COUNT; idx++) {
@@ -288,6 +332,7 @@ void tb_resize(GameResizeInfo* resize_info)
 {
     tb_iso_content_rect = resize_info->content_rect;
     tb_iso_window_handle = resize_info->window_handle;
+    tb_reserve_option_box();
 }
 
 /**

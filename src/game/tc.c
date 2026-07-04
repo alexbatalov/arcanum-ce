@@ -1,5 +1,7 @@
 #include "game/tc.h"
 
+#include "game/highres_config.h"
+
 /**
  * The number of lines in the text conversation.
  */
@@ -14,6 +16,17 @@
  * Vertical space between between lines (in pixels).
  */
 #define TEXT_CONVERSATION_VERT_SPACING 3
+
+/**
+ * Unscaled height of the conversation option box (in pixels).
+ */
+#define TEXT_CONVERSATION_BOX_HEIGHT 100
+
+/**
+ * Distance from the bottom of the iso view to the option box in non-compact
+ * mode (in pixels).
+ */
+#define TEXT_CONVERSATION_BOTTOM_OFFSET 159
 
 static void tc_render_internal(TigRectListNode* node);
 
@@ -91,6 +104,12 @@ static TigVideoBuffer* tc_backdrop_video_buffer;
 static int tc_line_height;
 
 /**
+ * Scale factor applied to conversation text and its geometry when the
+ * `DialogScale` config option is greater than 1.0.
+ */
+static float tc_scale = 1.0f;
+
+/**
  * Flag indicating some internal state which is never set. Its exact meaning is
  * unclear.
  *
@@ -166,11 +185,18 @@ bool tc_init(GameInitInfo* init_info)
 
     tc_iso_window_rect = window_data.rect;
 
-    // Set up the intermediate video buffers' rect.
+    // Enlarge conversation text when requested via `DialogScale`.
+    tc_scale = highres_config_get()->dialog_scale;
+    if (tc_scale < 1.0f) {
+        tc_scale = 1.0f;
+    }
+
+    // Set up the intermediate video buffers' rect. Height scales with the text
+    // so enlarged option lines are not clipped.
     tc_intermediate_video_buffer_rect.x = 0;
     tc_intermediate_video_buffer_rect.y = 0;
     tc_intermediate_video_buffer_rect.width = window_data.rect.width;
-    tc_intermediate_video_buffer_rect.height = 100;
+    tc_intermediate_video_buffer_rect.height = (int)(TEXT_CONVERSATION_BOX_HEIGHT * tc_scale + 0.5f);
 
     // Create the scratch video buffer for rendering text (color keyed for
     // transparency).
@@ -197,6 +223,12 @@ bool tc_init(GameInitInfo* init_info)
     tig_art_interface_id_create(229, 0, 0, 0, &art_id);
     font.flags = TIG_FONT_SHADOW;
     font.art_id = art_id;
+
+    // Enlarge conversation text when requested.
+    if (tc_scale > 1.0f) {
+        font.flags |= TIG_FONT_SCALE;
+        font.scale = tc_scale;
+    }
 
     // Create white font for normal text.
     font.color = tig_color_make(255, 255, 255);
@@ -411,14 +443,16 @@ void tc_clear(bool compact)
 
     // Set default content size and center it horizontally.
     tc_content_rect.width = 400;
-    tc_content_rect.height = 100;
+    tc_content_rect.height = tc_intermediate_video_buffer_rect.height;
     tc_content_rect.x = (tc_iso_window_rect.width - tc_content_rect.width) / 2;
 
-    // Adjust vertical position depending on normal vs. compact mode.
+    // Adjust vertical position depending on normal vs. compact mode. The extra
+    // scaled height is subtracted so the taller box grows upward from its
+    // original baseline instead of overrunning the bottom UI.
     if (compact) {
         tc_content_rect.y = tc_iso_window_rect.height - tc_content_rect.height - 37;
     } else {
-        tc_content_rect.y = tc_iso_window_rect.height - tc_content_rect.height - 159;
+        tc_content_rect.y = tc_iso_window_rect.height - tc_content_rect.height - TEXT_CONVERSATION_BOTTOM_OFFSET;
     }
 }
 
@@ -607,6 +641,15 @@ int tc_check_size(const char* str)
     }
 
     return width;
+}
+
+int tc_reserved_height(float dialog_scale)
+{
+    if (dialog_scale < 1.0f) {
+        dialog_scale = 1.0f;
+    }
+
+    return (int)(TEXT_CONVERSATION_BOX_HEIGHT * dialog_scale + 0.5f) + TEXT_CONVERSATION_BOTTOM_OFFSET;
 }
 
 /**

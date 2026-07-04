@@ -13,6 +13,7 @@ typedef struct HighResConfig {
     int scroll_dist;
     bool logos;
     bool intro;
+    float dialog_scale;
 } HighResConfig;
 
 void highres_config_load(void);

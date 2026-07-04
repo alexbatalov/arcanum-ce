@@ -1225,6 +1225,8 @@ bool tig_video_window_create(TigInitInfo* init_info)
     SDL_WindowFlags flags = SDL_WINDOW_HIGH_PIXEL_DENSITY;
     if ((init_info->flags & TIG_INITIALIZE_WINDOWED) == 0) {
         flags |= SDL_WINDOW_FULLSCREEN;
+    } else {
+        flags |= SDL_WINDOW_RESIZABLE;
     }
 
     float scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
@@ -1296,6 +1298,8 @@ bool tig_video_window_create(TigInitInfo* init_info)
         SDL_DestroyWindow(window);
         return false;
     }
+
+    SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
 
     SDL_PropertiesID texture_props = SDL_GetTextureProperties(texture);
     SDL_PixelFormat format = (SDL_PixelFormat)SDL_GetNumberProperty(texture_props, SDL_PROP_TEXTURE_FORMAT_NUMBER, 0);

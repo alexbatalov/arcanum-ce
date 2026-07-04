@@ -276,15 +276,30 @@ int tig_font_write(TigVideoBuffer* video_buffer, const char* str, const TigRect*
             int line_width;
             int dx;
             int rc;
+            float sc;
+            int wrap_width;
+            int line_advance;
+
+            if ((tig_font_stack[tig_font_stack_index]->flags & TIG_FONT_SCALE) != 0) {
+                sc = tig_font_stack[tig_font_stack_index]->scale;
+            } else {
+                sc = 1.0f;
+            }
+
+            // Wrapping and line advance are measured in unscaled glyph metrics,
+            // so translate the destination rect into unscaled space for the
+            // wrap width and scale the resulting line height back up.
+            wrap_width = (int)((float)rect->width / sc);
+            line_advance = (int)((float)glyph_height * sc);
 
             while (1) {
-                line_length = sub_535C40(tig_font_stack[tig_font_stack_index]->art_id, remainder, rect->width, &line_width);
+                line_length = sub_535C40(tig_font_stack[tig_font_stack_index]->art_id, remainder, wrap_width, &line_width);
                 if (line_length == -1) {
                     break;
                 }
 
                 if ((tig_font_stack[tig_font_stack_index]->flags & TIG_FONT_CENTERED) != 0) {
-                    dx = (rect->width - line_width) / 2;
+                    dx = (rect->width - (int)((float)line_width * sc)) / 2;
                 } else {
                     dx = 0;
                 }
@@ -293,8 +308,8 @@ int tig_font_write(TigVideoBuffer* video_buffer, const char* str, const TigRect*
                     min_dx = dx;
                 }
 
-                if (line_width > max_width) {
-                    max_width = line_width;
+                if ((int)((float)line_width * sc) > max_width) {
+                    max_width = (int)((float)line_width * sc);
                 }
 
                 dst_rect.x += dx;
@@ -308,17 +323,17 @@ int tig_font_write(TigVideoBuffer* video_buffer, const char* str, const TigRect*
                     return rc;
                 }
 
-                dst_rect.y += glyph_height;
+                dst_rect.y += line_advance;
                 dst_rect.x = dst_rect_x;
 
-                max_y += glyph_height;
+                max_y += line_advance;
 
                 if (remainder[line_length] == '\0') {
                     break;
                 }
 
                 remainder += line_length + 1;
-                if (rect->y + rect->height - max_y < glyph_height) {
+                if (rect->y + rect->height - max_y < line_advance) {
                     break;
                 }
             }

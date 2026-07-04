@@ -128,6 +128,17 @@ Several configuration options are available as command-line switches (admittedly
 
 When `HighRes/config.ini` from the Unofficial Arcanum Patch is present in the game directory, Community Edition also imports `Width`, `Height`, `Windowed`, `ShowFPS`, `ScrollFPS`, `ScrollDist`, `Logos`, and `Intro` at startup.
 
+In windowed mode the window is resizable. The framebuffer is scaled with nearest-neighbor filtering, so the picture stays sharp when the window is enlarged.
+
+`DialogScale` (in `HighRes/config.ini`) enlarges conversation text, which is helpful on high-DPI displays where the original bitmap fonts render very small. It accepts a float in the range `1.0` to `3.0` (values above are clamped); `1.0` (the default) keeps the original size. Both the player's dialogue options and the NPC reply are scaled, the reply bubble is widened so long lines wrap sensibly, and the reply is kept clear of the options box to avoid overlap. Example:
+
+```ini
+Width=1024
+Height=768
+Windowed=1
+DialogScale=2.0
+```
+
 ## Contributing
 
 Play the game and file bugs if any (there are likely many). Attach a save game for investigation. Suggestions for quality of life improvements are also welcome. The major objective for 25H2 is to clarify remaining functions.

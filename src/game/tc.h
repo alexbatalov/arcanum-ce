@@ -15,4 +15,11 @@ void tc_set_option(int index, const char* str);
 int tc_handle_message(TigMessage* msg);
 int tc_check_size(const char* str);
 
+/**
+ * Returns the height (in pixels) reserved at the bottom of the iso view by the
+ * conversation option box for the given dialogue scale. Used by the text bubble
+ * module to avoid overlapping enlarged dialogue options.
+ */
+int tc_reserved_height(float dialog_scale);
+
 #endif /* ARCANUM_GAME_TC_H_ */
