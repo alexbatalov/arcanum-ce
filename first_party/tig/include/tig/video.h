@@ -113,6 +113,12 @@ void tig_video_display_fps(void);
 int tig_video_blit(TigVideoBuffer* src_video_buffer, TigRect* src_rect, TigRect* dst_rect);
 int tig_video_fill(const TigRect* rect, tig_color_t color);
 int tig_video_flip(void);
+
+// Rebuild the render surface, texture and logical presentation at a new
+// resolution. Intended for transient full-screen content such as movies; the
+// caller is responsible for restoring the original size afterwards. Returns the
+// previous width/height via the out-params so they can be restored.
+int tig_video_resize_framebuffer(int width, int height, int* prev_width, int* prev_height);
 int tig_video_screenshot_set_settings(TigVideoScreenshotSettings* settings);
 int tig_video_screenshot_make(void);
 int tig_video_get_palette(unsigned int* colors);

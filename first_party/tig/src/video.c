@@ -266,6 +266,63 @@ int tig_video_flip(void)
     return TIG_OK;
 }
 
+int tig_video_resize_framebuffer(int width, int height, int* prev_width, int* prev_height)
+{
+    SDL_Texture* texture;
+    SDL_Surface* surface;
+    SDL_PixelFormat format;
+
+    if (!tig_video_initialized) {
+        return TIG_ERR_NOT_INITIALIZED;
+    }
+
+    if (width <= 0 || height <= 0) {
+        return TIG_ERR_INVALID_PARAM;
+    }
+
+    if (prev_width != NULL) {
+        *prev_width = stru_610388.width;
+    }
+    if (prev_height != NULL) {
+        *prev_height = stru_610388.height;
+    }
+
+    // Nothing to do if the size is unchanged.
+    if (width == stru_610388.width && height == stru_610388.height) {
+        return TIG_OK;
+    }
+
+    if (!SDL_SetRenderLogicalPresentation(tig_video_state.renderer, width, height, SDL_LOGICAL_PRESENTATION_LETTERBOX)) {
+        return TIG_ERR_GENERIC;
+    }
+
+    texture = SDL_CreateTexture(tig_video_state.renderer, SDL_PIXELFORMAT_XRGB8888, SDL_TEXTUREACCESS_STREAMING, width, height);
+    if (texture == NULL) {
+        return TIG_ERR_GENERIC;
+    }
+    SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
+
+    format = (SDL_PixelFormat)SDL_GetNumberProperty(SDL_GetTextureProperties(texture), SDL_PROP_TEXTURE_FORMAT_NUMBER, 0);
+
+    surface = SDL_CreateSurface(width, height, format);
+    if (surface == NULL) {
+        SDL_DestroyTexture(texture);
+        return TIG_ERR_GENERIC;
+    }
+
+    SDL_DestroyTexture(tig_video_state.texture);
+    SDL_DestroySurface(tig_video_state.surface);
+    tig_video_state.texture = texture;
+    tig_video_state.surface = surface;
+
+    stru_610388.x = 0;
+    stru_610388.y = 0;
+    stru_610388.width = width;
+    stru_610388.height = height;
+
+    return TIG_OK;
+}
+
 // 0x51F9E0
 int tig_video_screenshot_set_settings(TigVideoScreenshotSettings* settings)
 {

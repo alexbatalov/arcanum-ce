@@ -116,6 +116,20 @@ These ports are not currently intended for players. Touch controls are not yet i
 
 Check [`ci-build.yml`](.github/workflows/ci-build.yml) for details on how the project is compiled.
 
+### Movie playback on macOS and Linux
+
+Bink movies (the intro and cutscenes) are decoded through RAD's `binkw32.dll` on
+Windows. That DLL is Windows-only, so on other platforms movies are skipped by
+default.
+
+Configuring with `-DARCANUM_BINK_FFMPEG=ON` enables an FFmpeg-based decoder so
+movies play on macOS and Linux. It requires the FFmpeg shared libraries
+(`libavcodec`, `libavformat`, `libavutil`, `libswscale`, `libswresample`) to be
+installed, for example `brew install ffmpeg` or `apt install libavcodec-dev
+libavformat-dev libswscale-dev libswresample-dev`. The libraries are loaded at
+runtime, so if they are missing the game still starts and simply skips movies.
+FFmpeg is used under the LGPL and is not linked at build time.
+
 ## Configuration
 
 Several configuration options are available as command-line switches (admittedly not very user-friendly):
