@@ -2819,7 +2819,7 @@ int dialog_file_fclose(TigFile* stream)
 int dialog_file_fgetc(TigFile* stream)
 {
     if (dialog_file_tmp_str_pos != dialog_file_tmp_str_size) {
-        return dialog_file_tmp_str[dialog_file_tmp_str_pos++];
+        return (unsigned char)dialog_file_tmp_str[dialog_file_tmp_str_pos++];
     }
 
     dialog_file_tmp_str_pos = 0;
@@ -2834,7 +2834,7 @@ int dialog_file_fgetc(TigFile* stream)
         return EOF;
     }
 
-    return dialog_file_tmp_str[dialog_file_tmp_str_pos++];
+    return (unsigned char)dialog_file_tmp_str[dialog_file_tmp_str_pos++];
 }
 
 // 0x417E00
