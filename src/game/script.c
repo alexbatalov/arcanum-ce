@@ -1726,7 +1726,7 @@ int script_execute_action(ScriptAction* action, int line, ScriptState* state)
     case SAT_SET_REACTION: {
         int64_t npc_obj = script_get_obj(action->op_type[0], action->op_value[0], state);
         int64_t pc_obj = script_get_obj(action->op_type[1], action->op_value[1], state);
-        int reaction = script_get_value(action->op_type[2], action->op_value[1], state);
+        int reaction = script_get_value(action->op_type[2], action->op_value[2], state);
         reaction_adj(npc_obj, pc_obj, reaction - reaction_get(npc_obj, pc_obj));
         return NEXT;
     }
