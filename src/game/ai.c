@@ -132,7 +132,7 @@ static bool ai_timeevent_check(TimeEvent* timeevent);
 static void sub_4AD700(int64_t obj, int millis);
 static void sub_4AD730(int64_t obj, DateTime* datetime);
 static int ai_check_leader(int64_t npc_obj, int64_t pc_obj);
-static int ai_check_upset_attacking(int64_t source_obj, int64_t target_obj, int64_t leader_obj);
+static AiUpsetAttacking ai_check_upset_attacking(int64_t source_obj, int64_t target_obj, int64_t leader_obj);
 static void ai_calc_party_size_and_level_internal(int64_t obj, int* cnt_ptr, int* lvl_ptr);
 static int ai_check_protect(int64_t source_obj, int64_t target_obj);
 static int64_t sub_4AE450(int64_t a1, int64_t a2);
@@ -1098,7 +1098,7 @@ void sub_4A9B80(int64_t a1, int64_t a2, int a3, int a4)
 void sub_4A9C00(int64_t source_obj, int64_t a2, int64_t target_obj, int a4, int a5, int a6)
 {
     int target_obj_type;
-    int rc;
+    AiUpsetAttacking reason;
     char str[1000];
     int speech_id;
 
@@ -1112,14 +1112,14 @@ void sub_4A9C00(int64_t source_obj, int64_t a2, int64_t target_obj, int a4, int 
             return;
         }
 
-        rc = ai_check_upset_attacking(source_obj, target_obj, a2);
-        if (rc != 0) {
+        reason = ai_check_upset_attacking(source_obj, target_obj, a2);
+        if (reason != AI_UPSET_ATTACKING_NONE) {
             if (a4
                 && !combat_critter_is_combat_mode_active(target_obj)
                 && !a5
                 && ai_float_line_func != NULL) {
                 if (critter_is_active(source_obj)) {
-                    dialog_copy_npc_upset_attacking_msg(source_obj, a2, rc, str, &speech_id);
+                    dialog_copy_npc_upset_attacking_msg(source_obj, a2, reason, str, &speech_id);
                     ai_float_line_func(source_obj, a2, str, speech_id);
                 }
 
@@ -2403,7 +2403,7 @@ void ai_action_perform_skill(Ai* ai)
 void ai_action_perform_non_combat(Ai* ai)
 {
     unsigned int npc_flags;
-    int rc;
+    AiFollow reason;
     char str[1000];
     int speech_id;
 
@@ -2418,14 +2418,14 @@ void ai_action_perform_non_combat(Ai* ai)
         anim_goal_follow_obj(ai->obj, ai->leader_obj);
 
         if (!sub_423300(ai->obj, NULL)) {
-            rc = ai_check_follow(ai->obj, ai->leader_obj, true);
-            if (rc != AI_FOLLOW_OK && critter_disband(ai->obj, false)) {
+            reason = ai_check_follow(ai->obj, ai->leader_obj, true);
+            if (reason != AI_FOLLOW_OK && critter_disband(ai->obj, false)) {
                 npc_flags = obj_field_int32_get(ai->obj, OBJ_F_NPC_FLAGS);
                 npc_flags |= ONF_JILTED;
                 obj_field_int32_set(ai->obj, OBJ_F_NPC_FLAGS, npc_flags);
 
                 if (ai_float_line_func != NULL && critter_is_active(ai->obj)) {
-                    dialog_copy_npc_warning_follow_msg(ai->obj, ai->leader_obj, rc, str, &speech_id);
+                    dialog_copy_npc_warning_follow_msg(ai->obj, ai->leader_obj, reason, str, &speech_id);
                     ai_float_line_func(ai->obj, ai->leader_obj, str, speech_id);
                 }
             } else if ((npc_flags & ONF_CHECK_LEADER) != 0) {
@@ -2433,10 +2433,10 @@ void ai_action_perform_non_combat(Ai* ai)
                 npc_flags &= ~ONF_CHECK_LEADER;
                 obj_field_int32_set(ai->obj, OBJ_F_NPC_FLAGS, npc_flags);
 
-                rc = ai_check_leader(ai->obj, ai->leader_obj);
-                if (rc != AI_FOLLOW_OK) {
+                reason = ai_check_leader(ai->obj, ai->leader_obj);
+                if (reason != AI_FOLLOW_OK) {
                     if (ai_float_line_func != NULL && critter_is_active(ai->obj)) {
-                        dialog_copy_npc_warning_follow_msg(ai->obj, ai->leader_obj, rc, str, &speech_id);
+                        dialog_copy_npc_warning_follow_msg(ai->obj, ai->leader_obj, reason, str, &speech_id);
                         ai_float_line_func(ai->obj, ai->leader_obj, str, speech_id);
                     }
                 }
@@ -3065,7 +3065,7 @@ void ai_timeevent_clear(int64_t obj)
 }
 
 // 0x4AD800
-int ai_can_speak(int64_t npc_obj, int64_t pc_obj, bool a3)
+AiSpeak ai_can_speak(int64_t npc_obj, int64_t pc_obj, bool a3)
 {
     ObjectCritterFlags critter_flags;
     ObjectSpellFlags spell_flags;
@@ -3128,7 +3128,7 @@ int ai_can_speak(int64_t npc_obj, int64_t pc_obj, bool a3)
 }
 
 // 0x4AD950
-int ai_check_follow(int64_t npc_obj, int64_t pc_obj, bool ignore_charisma_limits)
+AiFollow ai_check_follow(int64_t npc_obj, int64_t pc_obj, bool ignore_charisma_limits)
 {
     int64_t mind_controlled_by_obj;
     int64_t leader_obj;
@@ -3256,7 +3256,7 @@ int ai_check_leader(int64_t npc_obj, int64_t pc_obj)
 }
 
 // 0x4ADCC0
-int ai_check_upset_attacking(int64_t source_obj, int64_t target_obj, int64_t leader_obj)
+AiUpsetAttacking ai_check_upset_attacking(int64_t source_obj, int64_t target_obj, int64_t leader_obj)
 {
     int64_t mind_controlled_by_obj;
     AiParams params;
@@ -3420,7 +3420,7 @@ void ai_calc_party_size_and_level_internal(int64_t obj, int* cnt_ptr, int* lvl_p
 }
 
 // 0x4AE120
-int ai_check_kos(int64_t source_obj, int64_t target_obj)
+AiKos ai_check_kos(int64_t source_obj, int64_t target_obj)
 {
     int64_t pc_leader_obj;
     int obj_type;
