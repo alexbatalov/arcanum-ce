@@ -898,10 +898,10 @@ void ai_attack(int64_t source_obj, int64_t target_obj, int loudness, unsigned in
     int target_obj_type;
     int source_obj_type;
     int64_t leader_obj;
-    int64_t v1;
+    int64_t pc_leader_obj;
     unsigned int npc_flags;
     AiParams ai_params;
-    int rc;
+    AiFollow reason;
     char str[1000];
     int speech_id;
     int v3;
@@ -954,13 +954,13 @@ void ai_attack(int64_t source_obj, int64_t target_obj, int loudness, unsigned in
         }
 
         if (obj_type_is_critter(target_obj_type)) {
-            v1 = critter_pc_leader_get(target_obj);
-            if (v1 == OBJ_HANDLE_NULL) {
-                v1 = target_obj;
+            pc_leader_obj = critter_pc_leader_get(target_obj);
+            if (pc_leader_obj == OBJ_HANDLE_NULL) {
+                pc_leader_obj = target_obj;
             }
 
-            if (critter_is_concealed(v1)) {
-                critter_set_concealed(v1, false);
+            if (critter_is_concealed(pc_leader_obj)) {
+                critter_set_concealed(pc_leader_obj, false);
             }
 
             if (target_obj_type == OBJ_TYPE_NPC) {
@@ -1002,8 +1002,8 @@ void ai_attack(int64_t source_obj, int64_t target_obj, int loudness, unsigned in
                             reaction_adj(target_obj, source_obj, ai_params.field_24);
                         }
 
-                        rc = ai_check_follow(target_obj, source_obj, true);
-                        if (rc != AI_FOLLOW_OK
+                        reason = ai_check_follow(target_obj, source_obj, true);
+                        if (reason != AI_FOLLOW_OK
                             && critter_disband(target_obj, false)) {
                             npc_flags = obj_field_int32_get(target_obj, OBJ_F_NPC_FLAGS);
                             npc_flags |= ONF_JILTED;
@@ -1011,7 +1011,7 @@ void ai_attack(int64_t source_obj, int64_t target_obj, int loudness, unsigned in
 
                             if (critter_is_active(target_obj)) {
                                 if (ai_float_line_func != NULL) {
-                                    dialog_copy_npc_wont_follow_msg(target_obj, source_obj, rc, str, &speech_id);
+                                    dialog_copy_npc_wont_follow_msg(target_obj, source_obj, reason, str, &speech_id);
                                     ai_float_line_func(target_obj, source_obj, str, speech_id);
                                 }
                             }
