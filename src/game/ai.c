@@ -1471,7 +1471,10 @@ void ai_npc_wait(int64_t obj)
 
     wait = obj_field_int32_get(obj, OBJ_F_NPC_WAIT);
     leader_obj = critter_leader_get(obj);
-    if (stat_is_extraordinary(leader_obj, STAT_CHARISMA)
+
+    // NOTE: The original code (0x4AA818) skips the "become jilted" timer when the leader's
+    // charisma IS extraordinary - such followers wait indefinitely.
+    if (!stat_is_extraordinary(leader_obj, STAT_CHARISMA)
         && (obj_field_int32_get(obj, OBJ_F_SPELL_FLAGS) & OSF_MIND_CONTROLLED) == 0) {
         if (basic_skill_training_get(leader_obj, BASIC_SKILL_PERSUATION) != TRAINING_NONE) {
             wait++;
