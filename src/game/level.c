@@ -972,7 +972,7 @@ AutoLevelError auto_level_stat(int64_t obj, int stat, int value)
         // Consume character points.
         stat_base_set(obj, STAT_UNSPENT_POINTS, unspent_points - cost);
 
-        current_value = stat_level_get(obj, stat);
+        current_value = new_value;
 
         // Log change.
         record_attribute_change(stat_name(stat), stat_level_get(obj, stat));
